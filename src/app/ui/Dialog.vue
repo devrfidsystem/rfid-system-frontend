@@ -1,0 +1,190 @@
+<template>
+  <Teleport to="body">
+    <transition name="dialog-fade">
+      <div
+        v-if="isOpen"
+        class="fixed inset-0 z-50"
+        @mousedown.self="handleBackdropClick"
+      >
+        <div class="fixed inset-0 z-0 bg-black/40 backdrop-blur-sm" aria-hidden="true"></div>
+
+        <div
+          ref="dialogRef"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="titleId"
+          :aria-describedby="descriptionId"
+          class="relative z-10 flex min-h-full items-center justify-center px-4"
+        >
+          <div
+            class="relative w-full overflow-hidden rounded-2xl bg-white shadow-2xl border border-gray-100 focus:outline-none"
+            :class="sizeClass"
+            tabindex="-1"
+            @keydown.esc.prevent="handleEsc"
+            @click.stop
+          >
+            <header class="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4">
+              <div class="space-y-1">
+                <slot name="title">
+                  <p v-if="title" :id="titleId" class="text-lg font-semibold text-gray-900">{{ title }}</p>
+                </slot>
+                <slot name="description">
+                  <p v-if="description" :id="descriptionId" class="text-sm text-gray-500">
+                    {{ description }}
+                  </p>
+                </slot>
+              </div>
+              <div v-if="!hideClose" class="flex items-center">
+                <slot name="header">
+                  <button
+                    ref="closeButtonRef"
+                    type="button"
+                    class="rounded-full border border-gray-200 bg-white px-2 py-1 text-sm font-medium text-gray-500 transition hover:border-gray-300 hover:text-gray-700"
+                    @click="close('close-button')"
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                </slot>
+              </div>
+            </header>
+
+            <section class="px-6 py-4">
+              <slot />
+            </section>
+
+            <footer v-if="$slots.footer" class="border-t border-gray-100 px-6 py-4">
+              <slot name="footer" />
+            </footer>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+  </transition>
+</template>
+
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
+
+const props = defineProps<{
+  modelValue: boolean;
+  title?: string;
+  description?: string;
+  closeOnBackdrop?: boolean;
+  closeOnEsc?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  hideClose?: boolean;
+  persistent?: boolean;
+  initialFocus?: 'close' | 'content';
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'open'): void;
+  (e: 'close'): void;
+}>();
+
+const isOpen = computed(() => props.modelValue);
+const dialogRef = ref<HTMLElement | null>(null);
+const closeButtonRef = ref<HTMLButtonElement | null>(null);
+const previousActiveElement = ref<HTMLElement | null>(null);
+const id = useId();
+const titleId = computed(() => (props.title ? `${id}-title` : undefined));
+const descriptionId = computed(() => (props.description ? `${id}-description` : undefined));
+
+const sizeClass = computed(() => {
+  switch (props.size) {
+    case 'sm':
+      return 'max-w-md';
+    case 'lg':
+      return 'max-w-3xl';
+    default:
+      return 'max-w-2xl';
+  }
+});
+
+const lockScroll = () => {
+  document.body.style.overflow = 'hidden';
+};
+const unlockScroll = () => {
+  document.body.style.overflow = '';
+};
+
+const focusContent = () => {
+  nextTick(() => {
+    if (props.initialFocus === 'close' && closeButtonRef.value) {
+      closeButtonRef.value.focus();
+      return;
+    }
+    const dialog = dialogRef.value;
+    if (!dialog) return;
+    const focusable = dialog.querySelector<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable) {
+      focusable.focus();
+      return;
+    }
+    dialog.focus();
+  });
+};
+
+const close = (reason?: string) => {
+  if (props.persistent) return;
+  emit('update:modelValue', false);
+  emit('close');
+};
+
+const handleBackdropClick = () => {
+  if (props.closeOnBackdrop ?? true) {
+    close('backdrop');
+  }
+};
+
+const handleEsc = () => {
+  if (props.closeOnEsc ?? true) {
+    close('esc');
+  }
+};
+
+watch(
+  isOpen,
+  (open) => {
+    if (open) {
+      previousActiveElement.value = document.activeElement as HTMLElement | null;
+      lockScroll();
+      emit('open');
+      focusContent();
+    } else {
+      unlockScroll();
+      if (previousActiveElement.value && document.body.contains(previousActiveElement.value)) {
+        previousActiveElement.value.focus();
+      }
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  if (props.modelValue) {
+    previousActiveElement.value = document.activeElement as HTMLElement | null;
+    lockScroll();
+    focusContent();
+  }
+});
+
+onBeforeUnmount(() => {
+  unlockScroll();
+});
+</script>
+
+<style scoped>
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+  opacity: 0;
+}
+</style>

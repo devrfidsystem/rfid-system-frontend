@@ -1,0 +1,5 @@
+[
+  {"id":"sup-001","code":"SUP-1","name":"Nusantara RFID","contact":"+62 21 555 0123","region":"West","createdAt":"2024-01-20T07:00:00Z"},
+  {"id":"sup-002","code":"SUP-2","name":"Jakarta Logistics","contact":"+62 21 555 0456","region":"North","createdAt":"2024-02-22T07:00:00Z"},
+  {"id":"sup-003","code":"SUP-3","name":"Surabaya Hardware","contact":"+62 31 555 0789","region":"East","createdAt":"2024-03-30T07:00:00Z"}
+]

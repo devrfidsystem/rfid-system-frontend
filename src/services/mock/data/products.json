@@ -1,0 +1,12 @@
+[
+  {"id":"prod-001","sku":"SKU-001","name":"RFID Pallet Tag","categoryId":"cat-001","uomId":"uom-001","defaultLocationId":"loc-001","status":"active","createdAt":"2025-01-01T06:00:00Z"},
+  {"id":"prod-002","sku":"SKU-002","name":"Smart Pallet","categoryId":"cat-002","uomId":"uom-001","defaultLocationId":"loc-002","status":"active","createdAt":"2025-01-02T06:00:00Z"},
+  {"id":"prod-003","sku":"SKU-003","name":"High-Density Bin","categoryId":"cat-003","uomId":"uom-002","defaultLocationId":"loc-003","status":"active","createdAt":"2025-01-03T06:00:00Z"},
+  {"id":"prod-004","sku":"SKU-004","name":"Temperature Sensor","categoryId":"cat-004","uomId":"uom-002","defaultLocationId":"loc-004","status":"active","createdAt":"2025-01-04T06:00:00Z"},
+  {"id":"prod-005","sku":"SKU-005","name":"RFID Reader","categoryId":"cat-001","uomId":"uom-002","defaultLocationId":"loc-005","status":"active","createdAt":"2025-01-05T06:00:00Z"},
+  {"id":"prod-006","sku":"SKU-006","name":"Label Printer","categoryId":"cat-005","uomId":"uom-002","defaultLocationId":"loc-006","status":"active","createdAt":"2025-01-06T06:00:00Z"},
+  {"id":"prod-007","sku":"SKU-007","name":"Battery Pack","categoryId":"cat-006","uomId":"uom-003","defaultLocationId":"loc-007","status":"active","createdAt":"2025-01-07T06:00:00Z"},
+  {"id":"prod-008","sku":"SKU-008","name":"Asset Tag","categoryId":"cat-001","uomId":"uom-003","defaultLocationId":"loc-008","status":"active","createdAt":"2025-01-08T06:00:00Z"},
+  {"id":"prod-009","sku":"SKU-009","name":"Conveyor Belt Kit","categoryId":"cat-007","uomId":"uom-002","defaultLocationId":"loc-009","status":"active","createdAt":"2025-01-09T06:00:00Z"},
+  {"id":"prod-010","sku":"SKU-010","name":"Dock Door Seal","categoryId":"cat-008","uomId":"uom-004","defaultLocationId":"loc-010","status":"active","createdAt":"2025-01-10T06:00:00Z"}
+]

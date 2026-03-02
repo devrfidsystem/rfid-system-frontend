@@ -1,0 +1,5 @@
+[
+  {"id":"trx-001","docNo":"TRX-001","date":"2025-02-07","sourceWarehouseId":"wh-001","destinationWarehouseId":"wh-002","productId":"prod-008","quantity":18,"status":"in-transit"},
+  {"id":"trx-002","docNo":"TRX-002","date":"2025-02-09","sourceWarehouseId":"wh-002","destinationWarehouseId":"wh-003","productId":"prod-005","quantity":25,"status":"in-transit"},
+  {"id":"trx-003","docNo":"TRX-003","date":"2025-02-11","sourceWarehouseId":"wh-003","destinationWarehouseId":"wh-001","productId":"prod-009","quantity":40,"status":"pending"}
+]

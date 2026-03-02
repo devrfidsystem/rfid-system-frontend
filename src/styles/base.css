@@ -1,0 +1,123 @@
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #app {
+    height: 100%;
+    background: rgb(var(--surface-muted));
+    color: rgb(var(--text));
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .search-input {
+    width: 100%;
+    border: 1px solid rgb(var(--border));
+    background-color: rgb(var(--surface-muted));
+    border-radius: var(--radius-lg);
+    padding: 0.45rem 0.75rem 0.45rem 2.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(var(--text));
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: rgb(var(--focus-ring));
+    box-shadow: 0 0 0 2px rgba(var(--focus-ring), 0.2);
+  }
+
+  .panel {
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--border));
+    border-radius: var(--radius-md);
+  }
+
+  .panel-header {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgb(var(--border-strong));
+  }
+
+  .panel-body {
+    padding-top: 1rem;
+  }
+
+  .table-panel {
+    border: 1px solid rgb(var(--border));
+    border-radius: var(--radius-md);
+    background-color: rgb(var(--surface));
+    overflow: hidden;
+  }
+
+  .table-panel table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .table-panel thead {
+    background-color: rgb(var(--surface-muted));
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: rgb(var(--text-muted));
+  }
+
+  .table-panel tbody tr {
+    border-top: 1px solid rgb(var(--border));
+    transition: background-color 0.15s ease;
+  }
+
+  .table-panel tbody tr:hover {
+    background-color: #f7fafc;
+  }
+
+  .table-panel td,
+  .table-panel th {
+    padding: 0.75rem 1rem;
+  }
+
+  .table-empty {
+    padding: 3rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px dashed rgb(var(--border));
+    background-color: rgb(var(--surface-muted));
+    color: rgb(var(--text-muted));
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--ring), 0.25);
+  }
+
+  .btn-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 9999px;
+    animation: spinner 0.75s linear infinite;
+  }
+
+  @keyframes spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

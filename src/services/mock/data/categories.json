@@ -1,0 +1,10 @@
+[
+  {"id":"cat-001","code":"CAT-EQ","name":"Equipment","description":"RFID hardware and electronics","createdAt":"2023-12-01T04:00:00Z"},
+  {"id":"cat-002","code":"CAT-PL","name":"Pallets","description":"Wooden and plastic pallets","createdAt":"2023-12-03T04:00:00Z"},
+  {"id":"cat-003","code":"CAT-BN","name":"Bins","description":"Storage bins and racks","createdAt":"2023-12-05T04:00:00Z"},
+  {"id":"cat-004","code":"CAT-TS","name":"Sensors","description":"Environmental sensor devices","createdAt":"2023-12-07T04:00:00Z"},
+  {"id":"cat-005","code":"CAT-PR","name":"Peripherals","description":"Printers, scanners, firewalls","createdAt":"2023-12-09T04:00:00Z"},
+  {"id":"cat-006","code":"CAT-BT","name":"Batteries","description":"Power solutions","createdAt":"2023-12-11T04:00:00Z"},
+  {"id":"cat-007","code":"CAT-CV","name":"Conveyance","description":"Belts and rollers","createdAt":"2023-12-13T04:00:00Z"},
+  {"id":"cat-008","code":"CAT-DP","name":"Dock Parts","description":"Dock and seal accessories","createdAt":"2023-12-15T04:00:00Z"}
+]

@@ -1,0 +1,17 @@
+[
+  {"id":"out-001","docNo":"OUT-20250205-001","date":"2025-02-05","warehouseId":"wh-001","partnerId":"cust-001","type":"outbound","items":[{"productId":"prod-001","quantity":20}],"status":"shipped"},
+  {"id":"out-002","docNo":"OUT-20250205-002","date":"2025-02-05","warehouseId":"wh-002","partnerId":"cust-002","type":"outbound","items":[{"productId":"prod-002","quantity":40}],"status":"shipped"},
+  {"id":"out-003","docNo":"OUT-20250206-003","date":"2025-02-06","warehouseId":"wh-001","partnerId":"cust-003","type":"outbound","items":[{"productId":"prod-003","quantity":25}],"status":"shipped"},
+  {"id":"out-004","docNo":"OUT-20250206-004","date":"2025-02-06","warehouseId":"wh-002","partnerId":"cust-004","type":"outbound","items":[{"productId":"prod-004","quantity":10}],"status":"shipped"},
+  {"id":"out-005","docNo":"OUT-20250207-005","date":"2025-02-07","warehouseId":"wh-003","partnerId":"cust-001","type":"outbound","items":[{"productId":"prod-005","quantity":35}],"status":"shipped"},
+  {"id":"out-006","docNo":"OUT-20250207-006","date":"2025-02-07","warehouseId":"wh-003","partnerId":"cust-002","type":"outbound","items":[{"productId":"prod-006","quantity":18}],"status":"shipped"},
+  {"id":"out-007","docNo":"OUT-20250208-007","date":"2025-02-08","warehouseId":"wh-001","partnerId":"cust-003","type":"outbound","items":[{"productId":"prod-007","quantity":45}],"status":"shipped"},
+  {"id":"out-008","docNo":"OUT-20250208-008","date":"2025-02-08","warehouseId":"wh-002","partnerId":"cust-004","type":"outbound","items":[{"productId":"prod-008","quantity":50}],"status":"shipped"},
+  {"id":"out-009","docNo":"OUT-20250209-009","date":"2025-02-09","warehouseId":"wh-003","partnerId":"cust-001","type":"outbound","items":[{"productId":"prod-009","quantity":22}],"status":"shipped"},
+  {"id":"out-010","docNo":"OUT-20250209-010","date":"2025-02-09","warehouseId":"wh-001","partnerId":"cust-002","type":"outbound","items":[{"productId":"prod-010","quantity":12}],"status":"shipped"},
+  {"id":"out-011","docNo":"OUT-20250210-011","date":"2025-02-10","warehouseId":"wh-001","partnerId":"cust-003","type":"outbound","items":[{"productId":"prod-001","quantity":15}],"status":"shipped"},
+  {"id":"out-012","docNo":"OUT-20250210-012","date":"2025-02-10","warehouseId":"wh-002","partnerId":"cust-004","type":"outbound","items":[{"productId":"prod-002","quantity":14}],"status":"shipped"},
+  {"id":"out-013","docNo":"OUT-20250211-013","date":"2025-02-11","warehouseId":"wh-003","partnerId":"cust-001","type":"outbound","items":[{"productId":"prod-003","quantity":9}],"status":"shipped"},
+  {"id":"out-014","docNo":"OUT-20250211-014","date":"2025-02-11","warehouseId":"wh-003","partnerId":"cust-002","type":"outbound","items":[{"productId":"prod-004","quantity":26}],"status":"shipped"},
+  {"id":"out-015","docNo":"OUT-20250212-015","date":"2025-02-12","warehouseId":"wh-001","partnerId":"cust-003","type":"outbound","items":[{"productId":"prod-005","quantity":28}],"status":"shipped"}
+]

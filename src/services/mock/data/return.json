@@ -1,0 +1,5 @@
+[
+  {"id":"ret-001","docNo":"RET-001","date":"2025-02-06","warehouseId":"wh-001","customerId":"cust-002","productId":"prod-002","quantity":5,"reason":"Damaged","status":"received"},
+  {"id":"ret-002","docNo":"RET-002","date":"2025-02-08","warehouseId":"wh-003","customerId":"cust-003","productId":"prod-005","quantity":3,"reason":"Quality","status":"received"},
+  {"id":"ret-003","docNo":"RET-003","date":"2025-02-10","warehouseId":"wh-002","customerId":"cust-001","productId":"prod-004","quantity":2,"reason":"Expired","status":"pending"}
+]

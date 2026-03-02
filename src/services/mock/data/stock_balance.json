@@ -1,0 +1,12 @@
+[
+  {"id":"stock-001","productId":"prod-001","warehouseId":"wh-001","locationId":"loc-001","locationPath":"A1 / Row 01","quantity":200},
+  {"id":"stock-002","productId":"prod-002","warehouseId":"wh-001","locationId":"loc-002","locationPath":"A1 / Row 02","quantity":150},
+  {"id":"stock-003","productId":"prod-003","warehouseId":"wh-001","locationId":"loc-003","locationPath":"B2 / Row 01","quantity":90},
+  {"id":"stock-004","productId":"prod-004","warehouseId":"wh-002","locationId":"loc-004","locationPath":"C1 / Row 03","quantity":60},
+  {"id":"stock-005","productId":"prod-005","warehouseId":"wh-002","locationId":"loc-005","locationPath":"C1 / Row 04","quantity":110},
+  {"id":"stock-006","productId":"prod-006","warehouseId":"wh-002","locationId":"loc-006","locationPath":"D2 / Row 01","quantity":80},
+  {"id":"stock-007","productId":"prod-007","warehouseId":"wh-003","locationId":"loc-008","locationPath":"E1 / Row 01","quantity":40},
+  {"id":"stock-008","productId":"prod-008","warehouseId":"wh-003","locationId":"loc-009","locationPath":"E1 / Row 02","quantity":65},
+  {"id":"stock-009","productId":"prod-009","warehouseId":"wh-003","locationId":"loc-010","locationPath":"F2 / Row 01","quantity":30},
+  {"id":"stock-010","productId":"prod-010","warehouseId":"wh-001","locationId":"loc-001","locationPath":"A1 / Row 01","quantity":72}
+]

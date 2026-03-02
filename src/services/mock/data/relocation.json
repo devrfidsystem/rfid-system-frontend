@@ -1,0 +1,5 @@
+[
+  {"id":"rel-001","docNo":"REL-001","date":"2025-02-08","sourceLocationId":"loc-002","destinationLocationId":"loc-003","productId":"prod-002","quantity":30,"status":"completed"},
+  {"id":"rel-002","docNo":"REL-002","date":"2025-02-09","sourceLocationId":"loc-005","destinationLocationId":"loc-006","productId":"prod-004","quantity":15,"status":"completed"},
+  {"id":"rel-003","docNo":"REL-003","date":"2025-02-10","sourceLocationId":"loc-007","destinationLocationId":"loc-008","productId":"prod-007","quantity":20,"status":"pending"}
+]

@@ -1,0 +1,5 @@
+[
+  {"id":"op-001","docNo":"OP-001","warehouseId":"wh-001","scheduledAt":"2025-02-15T08:00:00Z","status":"pending"},
+  {"id":"op-002","docNo":"OP-002","warehouseId":"wh-002","scheduledAt":"2025-02-16T08:00:00Z","status":"pending"},
+  {"id":"op-003","docNo":"OP-003","warehouseId":"wh-003","scheduledAt":"2025-02-17T08:00:00Z","status":"pending"}
+]

@@ -1,0 +1,5 @@
+[
+  {"id":"attr-001","code":"ATTR-WT","name":"Weight","description":"Gross weight in kilograms","group":"Physical","createdAt":"2024-01-15T05:00:00Z"},
+  {"id":"attr-002","code":"ATTR-LND","name":"Landmark","description":"Nearby highway reference","group":"Location","createdAt":"2024-02-10T05:00:00Z"},
+  {"id":"attr-003","code":"ATTR-TMP","name":"Temperature","description":"Temperature sensitivity","group":"Condition","createdAt":"2024-03-05T05:00:00Z"}
+]
