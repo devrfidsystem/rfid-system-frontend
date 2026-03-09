@@ -1,1 +1,0 @@
-import{d as c,i as t,n as i,A as l,j as n,o as m}from"./index-2wbxQ7SQ.js";const u=c({__name:"Icon",props:{icon:{},size:{},className:{}},setup(e){const s=e,a=n(()=>s.size??18),o=n(()=>s.className??"");return(r,p)=>(m(),t(l(e.icon),{width:a.value,height:a.value,class:i(["inline-flex",o.value]),"stroke-width":"1.5"},null,8,["width","height","class"]))}});export{u as _};

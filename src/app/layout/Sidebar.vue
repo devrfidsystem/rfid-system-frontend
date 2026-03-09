@@ -61,89 +61,92 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, type Component } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import Icon from '@/app/ui/Icon.vue';
 import { useTheme } from '@/app/composables/useTheme';
+import { useAccess } from '@/composables/useAccess';
 import {
   LayoutDashboard,
-  Tags,
-  Radar,
-  Layers,
   Grid,
-  Users,
-  Truck,
   Warehouse,
-  MapPin,
-  Ruler,
   Box,
   FileBarChart2,
   Activity,
   RotateCw,
-  Repeat,
+  Truck,
   Settings,
+  Users,
+  MapPin,
+  Layers,
+  Wifi,
+  Radar,
   ChevronsLeft,
   ChevronsRight
 } from 'lucide-vue-next';
+import type { MenuTreeNode } from '@/services/auth';
 
 type SidebarEmit = (event: 'close') => void;
+type NavItem = { title: string; path: string; icon: Component };
+type NavGroup = { title: string; items: NavItem[] };
+
 const emit = defineEmits<SidebarEmit>();
 const route = useRoute();
 const theme = useTheme();
 const sidebarCollapsed = computed(() => theme.sidebarCollapsed.value);
+const { menuTree } = useAccess();
+
+const iconMap: Record<string, Component> = {
+  DASHBOARD: LayoutDashboard,
+  MASTER: Grid,
+  MASTER_DATA: Grid,
+  WAREHOUSES: Warehouse,
+  PRODUCTS: Box,
+  TRANSACTIONS: Activity,
+  INBOUND: RotateCw,
+  OUTBOUND: Truck,
+  STOCK: Layers,
+  RFID: Wifi,
+  REPORTS: FileBarChart2,
+  SETTINGS: Settings,
+  USERS: Users,
+  LOCATION: MapPin,
+  LOG: Radar,
+  DEFAULT: LayoutDashboard
+};
+
+const getIcon = (code?: string | null) => {
+  const normalized = code?.toUpperCase() ?? 'DEFAULT';
+  return iconMap[normalized] ?? iconMap.DEFAULT;
+};
+
+const collectNavItems = (node: MenuTreeNode) => {
+  const items: NavItem[] = [];
+  const traverse = (current: MenuTreeNode) => {
+    if (current.permissions.canView && current.path) {
+      items.push({
+        title: current.name,
+        path: current.path,
+        icon: getIcon(current.code)
+      });
+    }
+    current.children.forEach(traverse);
+  };
+  traverse(node);
+  return items;
+};
+
+const navGroups = computed<NavGroup[]>(() =>
+  menuTree.value
+    .filter((node) => node.permissions.canView)
+    .map((node) => ({
+      title: node.name,
+      items: collectNavItems(node)
+    }))
+    .filter((group) => group.items.length > 0)
+);
 
 const isActive = (path: string) => route.path === path || route.path.startsWith(`${path}/`);
 const closeOnNavigate = () => emit('close');
-
 const toggleCollapse = () => theme.toggleSidebarCollapsed();
-
-const navGroups = [
-  {
-    title: 'Core',
-    items: [{ title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }]
-  },
-  {
-    title: 'Log',
-    items: [
-      { title: 'Tag Registration', path: '/log/tag-registration', icon: Tags },
-      { title: 'Tracking', path: '/log/tracking', icon: Radar }
-    ]
-  },
-  {
-    title: 'Master',
-    items: [
-      { title: 'Attribute', path: '/master/attribute', icon: Layers },
-      { title: 'Category', path: '/master/category', icon: Grid },
-      { title: 'Customer', path: '/master/customer', icon: Users },
-      { title: 'Warehouse', path: '/master/warehouse', icon: Warehouse },
-      { title: 'Location', path: '/master/location', icon: MapPin },
-      { title: 'UoM', path: '/master/uom', icon: Ruler },
-      { title: 'Supplier', path: '/master/supplier', icon: Truck },
-      { title: 'Product', path: '/master/product', icon: Box }
-    ]
-  },
-  {
-    title: 'Reports',
-    items: [
-      { title: 'Inbound', path: '/report/inbound', icon: FileBarChart2 },
-      { title: 'Outbound', path: '/report/outbound', icon: FileBarChart2 },
-      { title: 'Stock Opname', path: '/report/stock-opname', icon: Activity },
-      { title: 'Relocation', path: '/report/relocation', icon: RotateCw },
-      { title: 'Transfer', path: '/report/transfer', icon: Repeat },
-      { title: 'Return', path: '/report/return', icon: Activity },
-      { title: 'Current Stock', path: '/report/current-stock', icon: FileBarChart2 },
-      { title: 'Stock Period', path: '/report/stock-period', icon: FileBarChart2 }
-    ]
-  },
-  {
-    title: 'Settings',
-    items: [
-      { title: 'Menus', path: '/settings/menus', icon: Settings },
-      { title: 'Roles', path: '/settings/roles', icon: Settings },
-      { title: 'Users', path: '/settings/users', icon: Users },
-      { title: 'User Companies', path: '/settings/user-companies', icon: Warehouse },
-      { title: 'User Apps', path: '/settings/user-apps', icon: Activity }
-    ]
-  }
-];
 </script>

@@ -1,1 +1,0 @@
-import{_ as s}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{c as a,a as r,w as n,z as _,o as e,i as l,A as i}from"./index-2wbxQ7SQ.js";const m={},p={class:"space-y-6"};function f(u,d){const o=_("router-view");return e(),a("section",p,[r(o,null,{default:n(({Component:t,route:c})=>[(e(),l(i(t),{key:c.fullPath}))]),_:1})])}const v=s(m,[["render",f]]);export{v as default};

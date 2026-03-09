@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { useAccess } from '@/composables/useAccess';
+import { useAuthStore } from '@/stores/auth';
 
 const createPageRoute = (path: string, title: string, description: string): RouteRecordRaw => ({
   path,
@@ -20,6 +22,21 @@ type ReportRoute = {
   path: string;
   report: string;
 };
+
+const authRoutes: RouteRecordRaw[] = [
+  {
+    path: '/auth/login',
+    component: () => import('@/modules/auth/LoginPage.vue')
+  },
+  {
+    path: '/auth/register',
+    component: () => import('@/modules/auth/RegisterPage.vue')
+  },
+  {
+    path: '/auth',
+    redirect: '/auth/login'
+  }
+];
 
 const masterRoutes: MasterRoute[] = [
   { path: 'attribute', entity: 'attributes', title: 'Attribute Management', description: 'Define attribute templates for SKUs.' },
@@ -44,9 +61,13 @@ const reportRoutes: ReportRoute[] = [
 ];
 
 const routes: RouteRecordRaw[] = [
+  ...authRoutes,
   {
     path: '/',
     component: () => import('@/app/layout/AppLayout.vue'),
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: '',
@@ -114,8 +135,30 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach(() => {
-  document.body.style.overflow = '';
+router.beforeEach((to) => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = '';
+  }
+  const authStore = useAuthStore();
+  const { hasPathAccess, firstAccessiblePath } = useAccess();
+  const requiresAuth = to.matched.some((record) => Boolean(record.meta?.requiresAuth));
+  const isAuthRoute = to.path.startsWith('/auth');
+
+  if (requiresAuth && authStore.initialized && !authStore.isAuthenticated) {
+    return {
+      path: '/auth/login',
+      query: { redirect: to.fullPath }
+    };
+  }
+
+  if (requiresAuth && authStore.initialized && authStore.isAuthenticated && !hasPathAccess(to.path)) {
+    return { path: firstAccessiblePath.value };
+  }
+
+  if (isAuthRoute && authStore.initialized && authStore.isAuthenticated) {
+    return { path: '/dashboard' };
+  }
+
   return true;
 });
 

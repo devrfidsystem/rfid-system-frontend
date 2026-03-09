@@ -11,6 +11,8 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.52.0",
+    "axios": "^1.7.2",
     "@vee-validate/zod": "^4.15.1",
     "lucide-vue-next": "^0.564.0",
     "pinia": "^2.3.0",
