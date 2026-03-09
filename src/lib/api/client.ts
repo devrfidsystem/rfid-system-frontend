@@ -15,27 +15,35 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config) => {
-  const session = await supabase.auth.getSession();
-  const token = session.data.session?.access_token;
-  if (token) {
-    const headers = config.headers ?? {};
-    config.headers = {
-      ...headers,
-      Authorization: `Bearer ${token}`
-    };
+  const headers = config.headers ?? {};
+  const sessionResponse = await supabase.auth.getSession();
+  const token = sessionResponse.data.session?.access_token;
+
+  if (token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`;
   }
+
+  config.headers = {
+    ...headers,
+    ...(config.method === 'get' ? { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } : {})
+  };
+
   return config;
 });
 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      try {
-        await supabase.auth.signOut();
-      } finally {
-        if (router.currentRoute.value?.fullPath !== '/auth/login') {
-          void router.push('/auth/login');
+    const requestConfig = error.config as ApiRequestConfig | undefined;
+    if (error.response?.status === 401 && !requestConfig?.skipAuthErrorHandling) {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        try {
+          await supabase.auth.signOut();
+        } finally {
+          if (router.currentRoute.value?.fullPath !== '/auth/login') {
+            void router.push('/auth/login');
+          }
         }
       }
     }
@@ -43,7 +51,9 @@ apiClient.interceptors.response.use(
   }
 );
 
-export type ApiRequestConfig<D = unknown> = AxiosRequestConfig<D>;
+export interface ApiRequestConfig<D = unknown> extends AxiosRequestConfig<D> {
+  skipAuthErrorHandling?: boolean;
+}
 
 const apiRequest = async <T, D = unknown>(config: ApiRequestConfig<D>): Promise<ApiResponse<T>> => {
   const response = await apiClient.request<ApiResponse<T>>(config);

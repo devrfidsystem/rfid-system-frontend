@@ -112,14 +112,14 @@ import LoadingState from '@/app/ui/states/LoadingState.vue';
 import type { ColumnDef, SortState } from '@/app/ui/DataTable/types';
 import { masterEntities } from './entityConfig';
 import { list, create, update, remove } from '@/services/mock';
-import { useNotificationStore } from '@/stores/notificationStore';
+import { useNotifier } from '@/composables/useNotifier';
 import type { EntityKey } from '@/types/entities';
 import { Inbox } from 'lucide-vue-next';
 
 const route = useRoute();
 const entityKey = computed(() => route.meta.entity as EntityKey);
 const config = computed(() => masterEntities[entityKey.value]);
-const notification = useNotificationStore();
+const { notifySuccess } = useNotifier();
 
 const rows = ref<Record<string, unknown>[]>([]);
 const loading = ref(true);
@@ -204,7 +204,7 @@ const handleCreate = async () => {
   const payload = submitPayload();
   if (!Object.keys(payload).length) return;
   await create(entityKey.value, payload as never);
-  notification.notify(`Created ${config.value.title}`);
+  notifySuccess(`Created ${config.value.title}`);
   closeAdd();
   loadRows();
 };
@@ -213,7 +213,7 @@ const handleUpdate = async () => {
   if (!selectedRow.value?.id) return;
   const payload = submitPayload();
   await update(entityKey.value, String(selectedRow.value.id), payload as never);
-  notification.notify(`Updated ${config.value.title}`);
+  notifySuccess(`Updated ${config.value.title}`);
   closeEdit();
   loadRows();
 };
@@ -221,7 +221,7 @@ const handleUpdate = async () => {
 const handleDelete = async () => {
   if (!selectedRow.value?.id) return;
   await remove(entityKey.value, String(selectedRow.value.id));
-  notification.notify(`Deleted ${config.value.title}`);
+  notifySuccess(`Deleted ${config.value.title}`);
   closeDelete();
   loadRows();
 };

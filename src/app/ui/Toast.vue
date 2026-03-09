@@ -31,7 +31,6 @@
         </button>
       </div>
 
-      <!-- subtle bottom accent bar -->
       <div class="h-1 w-full" :class="variantBarClass(toast.variant)"></div>
     </div>
   </div>

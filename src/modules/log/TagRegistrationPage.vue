@@ -64,13 +64,13 @@
 
 <script setup lang="ts">
 import { reactive, computed } from 'vue';
-import { useNotificationStore } from '@/stores/notificationStore';
 import Button from '@/app/ui/Button.vue';
 import PageHeader from '@/app/ui/PageHeader.vue';
 import { Tags } from 'lucide-vue-next';
 import { FormRoot, FormSection, FormGrid, FormField, FormActions } from '@/shared/components/form';
+import { useNotifier } from '@/composables/useNotifier';
 
-const notification = useNotificationStore();
+const { notifySuccess } = useNotifier();
 
 const formState = reactive({
   epc: '',
@@ -101,7 +101,7 @@ const validate = () => {
 
 const handleSubmit = () => {
   if (!validate()) return;
-  notification.notify('Tag berhasil didaftarkan');
+  notifySuccess('Tag berhasil didaftarkan');
   resetForm();
 };
 

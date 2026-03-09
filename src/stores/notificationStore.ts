@@ -31,7 +31,6 @@ export const useNotificationStore = defineStore('notification', {
 
       const item: ToastQueueItem = { id, message, variant, duration };
 
-      // push to visible if space, else queue
       if (this.toasts.length < this.maxVisible) {
         this.toasts.push({ ...item, createdAt: Date.now() });
         this.startTimer(id, duration);
@@ -63,7 +62,6 @@ export const useNotificationStore = defineStore('notification', {
     resume(id: string) {
       const toast = this.toasts.find((t) => t.id === id);
       if (!toast) return;
-      // resume with a sensible remainder: restart shorter to avoid complex tracking
       this.startTimer(id, Math.min(2000, toast.duration));
     },
 
@@ -71,7 +69,6 @@ export const useNotificationStore = defineStore('notification', {
       this.clearTimer(id);
       this.toasts = this.toasts.filter((toast) => toast.id !== id);
 
-      // promote from queue
       const next = this.queue.shift();
       if (next) {
         this.toasts.push({ ...next, createdAt: Date.now() });

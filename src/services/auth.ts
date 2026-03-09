@@ -1,5 +1,6 @@
-import { apiRequest } from '@/lib/api/client';
+import { apiRequest, type ApiRequestConfig } from '@/lib/api/client';
 import type { ApiResponse } from '@/lib/api/response';
+import { sessionService } from '@/services/session';
 
 export interface AuthUser {
   id: string;
@@ -65,7 +66,41 @@ export interface AuthProfile {
 }
 
 export const authService = {
-  getAuthMe(): Promise<ApiResponse<AuthProfile>> {
-    return apiRequest<AuthProfile>({ url: '/api/v1/auth/me', method: 'get' });
+  async getAuthMe(config?: Partial<ApiRequestConfig>): Promise<ApiResponse<AuthProfile>> {
+    await sessionService.getSession();
+
+    const cacheHeaders = {
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache'
+    };
+
+    const requestConfig: ApiRequestConfig = {
+      url: '/api/v1/auth/me',
+      method: 'get',
+      headers: { ...cacheHeaders }
+    };
+
+    if (config) {
+      Object.assign(requestConfig, config);
+      requestConfig.headers = {
+        ...cacheHeaders,
+        ...(requestConfig.headers ?? {})
+      };
+    }
+
+    return apiRequest<AuthProfile>(requestConfig);
+  },
+
+  syncAuthContext(config?: Partial<ApiRequestConfig>): Promise<ApiResponse<AuthProfile>> {
+    const requestConfig: ApiRequestConfig = {
+      url: '/api/v1/auth/sync',
+      method: 'post'
+    };
+
+    if (config) {
+      Object.assign(requestConfig, config);
+    }
+
+    return apiRequest<AuthProfile>(requestConfig);
   }
 };

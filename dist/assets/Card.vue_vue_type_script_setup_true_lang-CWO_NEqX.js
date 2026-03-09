@@ -1,1 +1,0 @@
-import{d as r,c as n,C as t,y as c,n as d,o as l}from"./index-B1USwi1X.js";const i=r({__name:"Card",props:{class:{}},setup(s){const e=s,o=d(()=>["rounded-md border border-gray-200 bg-white shadow-sm px-5 py-4",e.class??""].join(" ").trim());return(a,p)=>(l(),n("section",{class:t(o.value)},[c(a.$slots,"default")],2))}});export{i as _};

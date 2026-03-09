@@ -65,9 +65,9 @@ import { Tags } from 'lucide-vue-next';
 import { FormRoot, FormSection, FormGrid, FormActions } from '@/shared/components/form';
 import { SelectField, TextField, TextareaField } from '@/shared/components/fields';
 import { useZodForm } from '@/shared/composables/useZodForm';
-import { useNotificationStore } from '@/stores/notificationStore';
+import { useNotifier } from '@/composables/useNotifier';
 
-const notification = useNotificationStore();
+const { notifySuccess } = useNotifier();
 
 const tagTypes = ['Asset', 'Pallet', 'Unit'];
 const tagTypeOptions = tagTypes.map((type) => ({ label: type, value: type }));
@@ -90,7 +90,7 @@ const initialValues: z.infer<typeof schema> = {
 
 const { handleSubmit, meta, resetForm, isSubmitting } = useZodForm(schema, initialValues);
 const onSubmit = handleSubmit(() => {
-  notification.notify('Tag berhasil didaftarkan');
+  notifySuccess('Tag berhasil didaftarkan');
   resetForm();
 });
 </script>

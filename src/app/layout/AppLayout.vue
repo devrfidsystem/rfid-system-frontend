@@ -32,10 +32,10 @@
 import { computed, watch } from 'vue';
 import Sidebar from './Sidebar.vue';
 import Topbar from './Topbar.vue';
-import ToastContainer from '@/app/ui/ToastContainer.vue';
 import { useTheme } from '@/app/composables/useTheme';
 import { useUiStore } from '@/stores/uiStore';
 import { useRoute } from 'vue-router';
+import ToastContainer from '@/app/ui/ToastContainer.vue';
 
 const ui = useUiStore();
 const theme = useTheme();

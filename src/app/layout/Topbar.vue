@@ -44,6 +44,13 @@
         <IconButton variant="neutral">
           <Icon :icon="Bell" :size="18" />
         </IconButton>
+        <div class="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-3 py-1 text-sm text-gray-600 shadow-sm">
+          <Icon :icon="User" :size="18" />
+          <span class="font-semibold">{{ userName }}</span>
+          <Button variant="ghost" size="sm" class="px-2 py-1" :loading="logoutLoading" @click="handleLogout">
+            Logout
+          </Button>
+        </div>
       </div>
     </div>
   </header>
@@ -51,15 +58,22 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import Breadcrumb from '@/app/ui/Breadcrumb.vue';
 import Button from '@/app/ui/Button.vue';
 import Icon from '@/app/ui/Icon.vue';
 import IconButton from '@/app/ui/IconButton.vue';
-import { Bell, Plus, Search, Sun, Moon, Shrink, Expand, Menu, ChevronsLeft, ChevronsRight } from 'lucide-vue-next';
+import { Bell, Plus, Search, Sun, Moon, Shrink, Expand, Menu, ChevronsLeft, ChevronsRight, User } from 'lucide-vue-next';
 import { useTheme } from '@/app/composables/useTheme';
+import { useAuthStore } from '@/stores/auth';
+import { useNotifier } from '@/composables/useNotifier';
 
 const search = ref('');
 const theme = useTheme();
+const authStore = useAuthStore();
+const router = useRouter();
+const logoutLoading = ref(false);
+const { withToast } = useNotifier();
 
 const themeModeIcon = computed(() => (theme.mode.value === 'dark' ? Sun : Moon));
 const themeDensityIcon = computed(() => (theme.density.value === 'compact' ? Expand : Shrink));
@@ -68,6 +82,26 @@ const sidebarCollapsed = computed(() => theme.sidebarCollapsed.value);
 const toggleMode = () => theme.toggleMode();
 const toggleDensity = () => theme.toggleDensity();
 const toggleSidebarCollapsed = () => theme.toggleSidebarCollapsed();
+
+const userName = computed(() => authStore.profile?.user.fullName ?? 'User');
+
+const handleLogout = async () => {
+  if (logoutLoading.value) return;
+
+  try {
+    await withToast(
+      () => authStore.logout(),
+      {
+        loadingRef: logoutLoading,
+        successMessage: 'Kamu telah keluar dari sesi.',
+        errorMessage: 'Logout gagal. Coba lagi nanti.'
+      }
+    );
+    await router.replace('/auth/login');
+  } catch {
+    // already handled by withToast
+  }
+};
 
 defineProps<{}>();
 

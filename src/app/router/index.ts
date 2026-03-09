@@ -119,6 +119,14 @@ const routes: RouteRecordRaw[] = [
         path: 'settings',
         component: () => import('@/modules/settings/SettingsLayout.vue'),
         children: [
+          {
+            path: 'profile',
+            component: () => import('@/modules/profile/ProfilePage.vue'),
+            meta: {
+              title: 'Profil',
+              description: 'Lihat detail akun dan logout.'
+            }
+          },
           createPageRoute('menus', 'Menus', 'Control navigation structures.'),
           createPageRoute('roles', 'Roles', 'Define access levels.'),
           createPageRoute('users', 'Users', 'Manage system users.'),
@@ -135,27 +143,37 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (typeof document !== 'undefined') {
     document.body.style.overflow = '';
   }
   const authStore = useAuthStore();
   const { hasPathAccess, firstAccessiblePath } = useAccess();
+  try {
+    await authStore.initializeAuth();
+  } catch (error) {
+    console.error('Failed to initialize auth during navigation', error);
+  }
   const requiresAuth = to.matched.some((record) => Boolean(record.meta?.requiresAuth));
   const isAuthRoute = to.path.startsWith('/auth');
+  const isAuthenticated = authStore.isAuthenticated;
 
-  if (requiresAuth && authStore.initialized && !authStore.isAuthenticated) {
+  if (requiresAuth && !isAuthenticated) {
     return {
       path: '/auth/login',
       query: { redirect: to.fullPath }
     };
   }
 
-  if (requiresAuth && authStore.initialized && authStore.isAuthenticated && !hasPathAccess(to.path)) {
-    return { path: firstAccessiblePath.value };
+  if (requiresAuth && isAuthenticated && !hasPathAccess(to.path)) {
+    const fallback = firstAccessiblePath.value ?? '/dashboard';
+    if (fallback === to.path) {
+      return true;
+    }
+    return { path: fallback };
   }
 
-  if (isAuthRoute && authStore.initialized && authStore.isAuthenticated) {
+  if (isAuthRoute && isAuthenticated) {
     return { path: '/dashboard' };
   }
 

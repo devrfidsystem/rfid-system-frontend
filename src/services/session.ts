@@ -30,5 +30,25 @@ export const sessionService = {
     if (error) {
       throw error;
     }
+  },
+
+  async refreshSession(): Promise<Session | null> {
+    const { data, error } = await supabase.auth.refreshSession();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.session ?? null;
+  },
+
+  async getSession(): Promise<Session | null> {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.session ?? null;
   }
 };

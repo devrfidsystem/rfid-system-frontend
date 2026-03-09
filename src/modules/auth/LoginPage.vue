@@ -64,6 +64,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router';
 import AuthShell from './AuthShell.vue';
 import { sessionService } from '@/services/session';
 import { useAuthStore } from '@/stores/auth';
+import { useNotifier } from '@/composables/useNotifier';
 
 const router = useRouter();
 const route = useRoute();
@@ -82,6 +83,7 @@ const touched = reactive({
 
 const submitting = ref(false);
 const status = ref<string | null>(null);
+const { withToast } = useNotifier();
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -108,24 +110,30 @@ const handleSubmit = async () => {
     return;
   }
 
-  submitting.value = true;
-  status.value = null;
+    status.value = null;
 
-  try {
-    const session = await sessionService.signInWithPassword({
-      email: form.email.trim(),
-      password: form.password
-    });
+    try {
+      await withToast(
+        async () => {
+          const session = await sessionService.signInWithPassword({
+            email: form.email.trim(),
+            password: form.password
+          });
 
-    authStore.setSession(session);
-    await authStore.loadProfile();
+          authStore.setSession(session);
+          await authStore.syncProfile();
+        },
+        {
+          loadingRef: submitting,
+          successMessage: 'Selamat datang kembali!',
+          errorMessage: 'Login gagal. Silakan periksa kredensial Anda.'
+        }
+      );
 
-    const redirectTarget = (route.query.redirect as string | undefined) ?? '/dashboard';
-    await router.replace(redirectTarget);
-  } catch (error) {
-    status.value = toErrorMessage(error);
-  } finally {
-    submitting.value = false;
-  }
-};
+      const redirectTarget = (route.query.redirect as string | undefined) ?? '/dashboard';
+      await router.replace(redirectTarget);
+    } catch (error) {
+      status.value = toErrorMessage(error);
+    }
+  };
 </script>
