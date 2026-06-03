@@ -1,8 +1,0 @@
-@import '../app/styles/tokens.css';
-@import './variables.css';
-@import './themes.css';
-@import './base.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

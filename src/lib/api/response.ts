@@ -1,21 +1,14 @@
-export interface ApiMeta {
-  page?: number;
-  limit?: number;
-  total?: number;
-  totalPages?: number;
-}
+import type {
+    ApiMetaDto,
+    ApiResponseDto,
+    ResponseErrorDto,
+} from "@/api/feature/dto/common.dto";
 
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  meta?: ApiMeta;
-}
+export type ApiMeta = ApiMetaDto;
+export type ApiResponse<T> = ApiResponseDto<T>;
+export type ApiErrorResponse = ResponseErrorDto;
 
-export interface ApiErrorResponse {
-  success: boolean;
-  message: string;
-  status?: number;
-  errors?: Record<string, string[] | string>;
-  meta?: ApiMeta;
+export interface ApiPaginatedResult<T> {
+    items: T[];
+    meta: ApiMeta | null;
 }

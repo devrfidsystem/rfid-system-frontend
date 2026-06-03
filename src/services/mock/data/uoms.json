@@ -1,6 +1,0 @@
-[
-  {"id":"uom-001","name":"Piece","code":"PCS","description":"Single unit"},
-  {"id":"uom-002","name":"Carton","code":"CTN","description":"Packaged carton"},
-  {"id":"uom-003","name":"Pallet","code":"PLT","description":"Palletized shipment"},
-  {"id":"uom-004","name":"Set","code":"SET","description":"Set bundle"}
-]

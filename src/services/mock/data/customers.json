@@ -1,6 +1,0 @@
-[
-  {"id":"cust-001","code":"CUST-A1","name":"TransLogistica","segment":"Enterprise","region":"West","createdAt":"2024-01-10T07:00:00Z"},
-  {"id":"cust-002","code":"CUST-B2","name":"MetroRetail","segment":"Retail","region":"North","createdAt":"2024-02-08T07:00:00Z"},
-  {"id":"cust-003","code":"CUST-C3","name":"FreshFoods","segment":"Cold Chain","region":"East","createdAt":"2024-03-12T07:00:00Z"},
-  {"id":"cust-004","code":"CUST-D4","name":"BuildStrong","segment":"Industrial","region":"West","createdAt":"2024-04-01T07:00:00Z"}
-]

@@ -1,79 +1,67 @@
-import type { Config } from 'tailwindcss';
-import defaultTheme from 'tailwindcss/defaultTheme';
-
-const palette = {
-  primary: {
-    50: 'var(--color-primary-50)',
-    100: 'var(--color-primary-100)',
-    200: 'var(--color-primary-200)',
-    300: 'var(--color-primary-300)',
-    400: 'var(--color-primary-400)',
-    500: 'var(--color-primary-500)',
-    600: 'var(--color-primary-600)',
-    700: 'var(--color-primary-700)',
-    800: 'var(--color-primary-800)',
-    900: 'var(--color-primary-900)'
-  },
-  secondary: {
-    500: 'var(--color-secondary-500)',
-    600: 'var(--color-secondary-600)'
-  },
-  success: {
-    50: 'var(--color-success-50)',
-    500: 'var(--color-success-500)',
-    600: 'var(--color-success-600)'
-  },
-  error: {
-    50: 'var(--color-error-50)',
-    500: 'var(--color-error-500)',
-    600: 'var(--color-error-600)'
-  },
-  warning: {
-    50: 'var(--color-warning-50)',
-    500: 'var(--color-warning-500)',
-    600: 'var(--color-warning-600)'
-  },
-  gray: {
-    50: 'var(--color-gray-50)',
-    100: 'var(--color-gray-100)',
-    200: 'var(--color-gray-200)',
-    300: 'var(--color-gray-300)',
-    400: 'var(--color-gray-400)',
-    500: 'var(--color-gray-500)',
-    600: 'var(--color-gray-600)',
-    700: 'var(--color-gray-700)',
-    800: 'var(--color-gray-800)',
-    900: 'var(--color-gray-900)'
-  }
-};
+import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
+import flowbitePlugin from "flowbite/plugin";
 
 const config: Config = {
-  content: ['./index.html', './src/**/*.{vue,ts,tsx}'],
-  theme: {
-    extend: {
-      colors: {
-        ...palette,
-        surface: 'rgb(var(--surface) / <alpha-value>)',
-        card: 'rgb(var(--surface) / <alpha-value>)',
-        'text-default': 'rgb(var(--text) / <alpha-value>)',
-        'text-muted': 'rgb(var(--text-muted) / <alpha-value>)',
-        'border-default': 'rgb(var(--border) / <alpha-value>)'
-      },
-      fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', ...defaultTheme.fontFamily.sans]
-      },
-      boxShadow: {
-        sm: '0 1px 2px rgba(var(--shadow-sm-opacity, 15 23 42) / 0.05)',
-        md: '0 6px 18px rgba(var(--shadow-md-opacity, 15 23 42) / 0.06)'
-      },
-      borderRadius: {
-        sm: 'var(--radius-sm)',
-        md: 'var(--radius-md)',
-        lg: 'var(--radius-lg)'
-      }
-    }
-  },
-  plugins: []
+    content: [
+        "./index.html",
+        "./src/**/*.{vue,ts,tsx}",
+        "./node_modules/flowbite/**/*.js",
+    ],
+    theme: {
+        extend: {
+            colors: {
+                primary: {
+                    50: "#eff6ff",
+                    100: "#dbeafe",
+                    200: "#bfdbfe",
+                    300: "#93c5fd",
+                    400: "#60a5fa",
+                    500: "#3b82f6",
+                    600: "#2563EB", // ALIR Brand Primary
+                    700: "#1d4ed8",
+                    800: "#1e40af",
+                    900: "#1e3a8a",
+                },
+                "primary-teal": "#14B8A6",
+                "insight-purple": "#8B5CF6",
+                "action-orange": "#F59E0B",
+                "signal-red": "#EF4444",
+                "workspace-bg": "#F8FAFC",
+                "soft-surface": "#EEF4FF",
+                "border-default": "#E2E8F0",
+                "text-secondary": "#64748B",
+
+                // Backward compatibility mappings for UI
+                surface: "rgb(var(--surface) / <alpha-value>)",
+                card: "rgb(var(--surface) / <alpha-value>)",
+                "text-default": "rgb(var(--text) / <alpha-value>)",
+                "text-muted": "#64748B",
+            },
+            fontFamily: {
+                sans: [
+                    "Inter",
+                    "ui-sans-serif",
+                    ...defaultTheme.fontFamily.sans,
+                ],
+            },
+            boxShadow: {
+                xs: "0 1px 2px rgba(15, 23, 42, 0.04)",
+                sm: "0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04)",
+                md: "0 4px 14px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04)",
+                lg: "0 10px 30px rgba(15, 23, 42, 0.08), 0 4px 10px rgba(15, 23, 42, 0.04)",
+                xl: "0 20px 50px rgba(15, 23, 42, 0.10), 0 8px 20px rgba(15, 23, 42, 0.05)",
+            },
+            borderRadius: {
+                sm: "var(--radius-sm)",
+                md: "var(--radius-md)",
+                lg: "var(--radius-lg)",
+                xl: "var(--radius-xl)",
+                "2xl": "var(--radius-2xl)",
+            },
+        },
+    },
+    plugins: [flowbitePlugin],
 };
 
 export default config;

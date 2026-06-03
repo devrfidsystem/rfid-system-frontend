@@ -1,5 +1,0 @@
-[
-  {"id":"wh-001","code":"WHA","name":"Alpha Central","region":"West","manager":"Rian Hartono","createdAt":"2024-06-01T07:00:00Z"},
-  {"id":"wh-002","code":"WHB","name":"Beta North","region":"North","manager":"Siti Ramadhani","createdAt":"2024-07-15T07:00:00Z"},
-  {"id":"wh-003","code":"WHC","name":"Gamma East","region":"East","manager":"Hadi Santoso","createdAt":"2024-08-10T07:00:00Z"}
-]
