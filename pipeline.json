@@ -1,0 +1,24 @@
+{
+    "appName": "rfid-web-app",
+    "productName": "human-capital",
+    "chatNotifWebHookURL": "https://chat.googleapis.com/v1/spaces/AAAAgtBZbUc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=KgjH5cHBefgCZcqiIOXMulyGZtRSuxAQeibn_yTwZ3c",
+    "sonarExcludePath": "Dockerfile, pipeline.json, src/style.css, public/**, assets/**, /src/components/ui/**, src/components/AttendancePanel.vue, src/store/map.store.ts",
+    "appArtifact": {
+        "groupId": "human-capital",
+        "id": "rfid-web-app"
+    },
+    "urlIqServer": "http://10.251.38.27:8070",
+    "maxcritical": "1",
+    "maxsevere": "1",
+    "maxmoderate": "1",
+    "publicId": "rfid-web-app",
+    "iqScanPatterns": [{ "scanPattern": "package.json" }],
+    "envdev": "env-dev-pgd-rfid-web-app",
+    "envstg": "env-stg-pgd-rfid-web-app",
+    "envprod": "env-prod-pgd-rfid-web-app",
+    "gsBucket": "human-capital",
+    "directoryDev": "remotes/development/rfid-web-app",
+    "directoryStaging": "remotes/staging/rfid-web-app",
+    "directoryProd": "remotes/production/rfid-web-app",
+    "ServiceAccount": "sa-exa-project"
+}

@@ -1,0 +1,74 @@
+image: artifactory.pegadaian.co.id:8084/node:20.10.0-alpine
+
+variables:
+    DOCKER_AUTH_CONFIG: >
+        {"auths": {
+            "artifactory.pegadaian.co.id:5443": {"auth": "$DOCKER_AU_CONFIG"},
+            "artifactory.pegadaian.co.id:8084": {"auth": "$DOCKER_AU_CONFIG"}
+        }}
+    DANGER_GITLAB_API_TOKEN: $GITLAB_API_TOKEN
+    DANGER_GITLAB_HOST: https://repo.pegadaian.co.id
+    DANGER_GITLAB_API_BASE_URL: https://repo.pegadaian.co.id/api/v4
+
+stages:
+    - test
+    - linter
+    - danger
+
+before_script:
+    - npm install -g pnpm
+    - pnpm config set @pegadaian:registry https://artifactory.pegadaian.co.id/repository/npm-hosted-01/
+    - pnpm install
+
+unit-test:
+    stage: test
+    script:
+        - mkdir -p reports
+        - pnpm test:coverage
+    allow_failure: true
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        - when: never
+        - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature\/.*\/v.*/'
+          when: always
+    artifacts:
+        paths:
+            - test/report/unit/coverage/coverage-summary.json
+            - reports/junit-report.xml
+        reports:
+            junit: reports/junit-report.xml
+        when: always
+        expire_in: 2 hour
+
+lint-report:
+    stage: linter
+    script:
+        - mkdir -p reports
+        - pnpm danger:lint-report
+    allow_failure: true
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        - when: never
+        - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature\/.*\/v.*/'
+          when: always
+    artifacts:
+        paths:
+            - reports/lint-results.xml
+        when: always
+        expire_in: 2 hour
+
+danger_review:
+    stage: danger
+    needs:
+        - unit-test
+        - lint-report
+    dependencies:
+        - unit-test
+        - lint-report
+    script:
+        - pnpm danger:ci
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        - when: never
+        - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature\/.*\/v.*/'
+          when: always

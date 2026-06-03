@@ -1,0 +1,65 @@
+:root {
+    /* ─── ALIR Smart System Brand Colors ─── */
+    --primary-500: 59 130 246; /* Tailwind blue-500 fallback */
+    --primary-600: 37 99 235; /* #2563EB Primary Blue */
+    --primary-teal: 20 184 166; /* #14B8A6 Primary Teal */
+    --insight-purple: 139 92 246; /* #8B5CF6 */
+    --action-orange: 245 158 11; /* #F59E0B */
+    --signal-red: 239 68 68; /* #EF4444 */
+
+    /* ─── UI Support / Workspace Colors ─── */
+    --workspace-bg: 248 250 252; /* #F8FAFC */
+    --soft-surface: 238 244 255; /* #EEF4FF */
+    --border-default: 226 232 240; /* #E2E8F0 */
+    --text-secondary: 100 116 139; /* #64748B */
+
+    /* ─── Gray Scale ─── */
+    --gray-50: 249 250 251;
+    --gray-100: 243 244 246;
+    --gray-200: 229 231 235;
+    --gray-300: 209 213 219;
+    --gray-400: 156 163 175;
+    --gray-500: 107 114 128;
+    --gray-600: 75 85 99;
+    --gray-700: 55 65 81;
+    --gray-800: 31 41 55;
+    --gray-900: 17 24 39;
+
+    /* ─── Structural Tokens ─── */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+
+    --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-sm:
+        0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-md:
+        0 4px 14px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+    --shadow-lg:
+        0 10px 30px rgba(15, 23, 42, 0.08), 0 4px 10px rgba(15, 23, 42, 0.04);
+    --shadow-xl:
+        0 20px 50px rgba(15, 23, 42, 0.1), 0 8px 20px rgba(15, 23, 42, 0.05);
+
+    --ring: 37 99 235;
+    --focus-ring: 59 130 246;
+
+    /* ─── Abstracted UI Roles ─── */
+    --border: 226 232 240; /* Maps to #E2E8F0 */
+    --border-strong: 209 213 219;
+    --surface: 255 255 255;
+    --surface-muted: 248 250 252; /* Maps to Workspace BG */
+    --text: 17 24 39;
+    --text-muted: 100 116 139; /* Maps to Text Secondary */
+
+    /* ─── Brand Gradient (Sidebar / Identity) ─── */
+    --brand-gradient-from: #1e40af; /* Deep blue */
+    --brand-gradient-via: #2563eb; /* Primary Blue */
+    --brand-gradient-to: #14b8a6; /* Primary Teal */
+
+    /* ─── Transition Tokens ─── */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}

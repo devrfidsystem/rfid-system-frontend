@@ -1,0 +1,156 @@
+@layer base {
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html,
+    body,
+    #app {
+        height: 100%;
+        background: rgb(var(--surface-muted));
+        color: rgb(var(--text));
+    }
+
+    body {
+        margin: 0;
+        font-family:
+            "Inter",
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Search Input ─── */
+    .search-input {
+        width: 100%;
+        border: 1px solid rgb(var(--border));
+        background-color: rgb(var(--surface));
+        border-radius: var(--radius-lg);
+        padding: 0.5rem 0.875rem 0.5rem 2.5rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: rgb(var(--text));
+        transition:
+            border-color var(--transition-base),
+            box-shadow var(--transition-base);
+    }
+
+    .search-input::placeholder {
+        color: rgb(var(--text-muted));
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: rgb(var(--focus-ring));
+        box-shadow: 0 0 0 3px rgba(var(--focus-ring), 0.12);
+    }
+
+    /* ─── Panel ─── */
+    .panel {
+        background: rgb(var(--surface));
+        border: 1px solid rgb(var(--border));
+        border-radius: var(--radius-md);
+    }
+
+    .panel-header {
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgb(var(--border));
+    }
+
+    .panel-body {
+        padding-top: 1rem;
+    }
+
+    /* ─── Table Panel ─── */
+    .table-panel {
+        border: 1px solid rgb(var(--border));
+        border-radius: var(--radius-sm);
+        background-color: rgb(var(--surface));
+        overflow: hidden;
+    }
+
+    .table-panel table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .table-panel thead {
+        background-color: rgb(var(--soft-surface));
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        letter-spacing: 0.18em;
+        color: rgb(var(--text-muted));
+        font-weight: 600;
+    }
+
+    .table-panel tbody tr {
+        border-top: 1px solid rgb(var(--border));
+        transition: background-color var(--transition-fast);
+    }
+
+    .table-panel tbody tr:nth-child(even) {
+        background-color: rgba(var(--soft-surface), 0.35);
+    }
+
+    .table-panel tbody tr:hover {
+        background-color: rgba(var(--soft-surface), 0.7);
+    }
+
+    .table-panel td,
+    .table-panel th {
+        padding: 0.75rem 1rem;
+    }
+
+    /* ─── Table Empty ─── */
+    .table-empty {
+        padding: 3rem 1rem;
+        border-radius: var(--radius-md);
+        border: 1px dashed rgb(var(--border));
+        background-color: rgb(var(--surface-muted));
+        color: rgb(var(--text-muted));
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+    }
+
+    /* ─── Focus ─── */
+    :focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(var(--ring), 0.2);
+    }
+
+    /* ─── Spinner ─── */
+    .btn-spinner {
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 9999px;
+        animation: spinner 0.75s linear infinite;
+    }
+
+    @keyframes spinner {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ─── Brand Gradient Utility ─── */
+    .bg-brand-gradient {
+        background: linear-gradient(
+            135deg,
+            var(--brand-gradient-from) 0%,
+            var(--brand-gradient-via) 40%,
+            var(--brand-gradient-to) 100%
+        );
+    }
+}

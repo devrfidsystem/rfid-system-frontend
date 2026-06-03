@@ -1,22 +1,22 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "strict": true,
-    "jsx": "preserve",
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext", "ES2015"],
-    "skipLibCheck": true,
-    "types": ["vite/client"],
-    "typeRoots": ["types", "node_modules/@types"],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src", "types"]
+    "compilerOptions": {
+        "target": "ES2020",
+        "useDefineForClassFields": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "moduleDetection": "force",
+        "strict": true,
+        "jsx": "preserve",
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "lib": ["DOM", "DOM.Iterable", "ESNext", "ES2015"],
+        "skipLibCheck": true,
+        "types": ["vite/client"],
+        "typeRoots": ["types", "node_modules/@types"],
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src", "types"]
 }

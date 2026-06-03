@@ -1,8 +1,8 @@
 {
-  "compilerOptions": {
-    "types": ["node"],
-    "typeRoots": ["types", "node_modules/@types"],
-    "composite": true,
-    "lib": ["ES2015"]
-  }
+    "compilerOptions": {
+        "types": ["node"],
+        "typeRoots": ["types", "node_modules/@types"],
+        "composite": true,
+        "lib": ["ES2015"]
+    }
 }
