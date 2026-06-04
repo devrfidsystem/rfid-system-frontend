@@ -63,7 +63,8 @@ export function useMenus() {
         loadingApps.value = true;
         try {
             const response = await settingsService.fetchList("apps");
-            apps.value = (response.items as Array<{ id: string; name: string }>) || [];
+            apps.value =
+                (response.items as Array<{ id: string; name: string }>) || [];
             appOptions.value = apps.value.map((app) => ({
                 label: app.name,
                 value: String(app.id),
@@ -72,7 +73,9 @@ export function useMenus() {
                 selectedAppId.value = appOptions.value[0].value;
             }
         } catch (err) {
-            notifyError(err instanceof Error ? err.message : "Failed to load apps");
+            notifyError(
+                err instanceof Error ? err.message : "Failed to load apps",
+            );
         } finally {
             loadingApps.value = false;
         }
@@ -83,10 +86,13 @@ export function useMenus() {
         loading.value = true;
         error.value = null;
         try {
-            const menus = await settingsService.getAppMenus(selectedAppId.value);
+            const menus = await settingsService.getAppMenus(
+                selectedAppId.value,
+            );
             rows.value = menus as MenuRecord[];
         } catch (err) {
-            error.value = err instanceof Error ? err.message : "Failed to load menus";
+            error.value =
+                err instanceof Error ? err.message : "Failed to load menus";
             rows.value = [];
         } finally {
             loading.value = false;
@@ -133,19 +139,25 @@ export function useMenus() {
                 ...form.value,
                 sequence: Number(form.value.sequence),
             };
-            
+
             await withToast(
                 async () => {
                     if (isEditing.value) {
-                        await settingsService.update("menus", currentId.value, payload);
+                        await settingsService.update(
+                            "menus",
+                            currentId.value,
+                            payload,
+                        );
                     } else {
                         await settingsService.create("menus", payload);
                     }
                 },
                 {
-                    successMessage: isEditing.value ? "Menu updated successfully" : "Menu created successfully",
-                    errorMessage: "Failed to save menu"
-                }
+                    successMessage: isEditing.value
+                        ? "Menu updated successfully"
+                        : "Menu created successfully",
+                    errorMessage: "Failed to save menu",
+                },
             );
 
             isModalOpen.value = false;

@@ -16,8 +16,12 @@ export function useUserAccess() {
     const submitting = ref(false);
 
     const userRoles = ref<Array<{ id: string; name: string }>>([]);
-    const userWarehouses = ref<Array<{ id: string; warehouseId?: string; name?: string }>>([]);
-    const userCompanies = ref<Array<{ id: string; companyId?: string; name?: string }>>([]);
+    const userWarehouses = ref<
+        Array<{ id: string; warehouseId?: string; name?: string }>
+    >([]);
+    const userCompanies = ref<
+        Array<{ id: string; companyId?: string; name?: string }>
+    >([]);
 
     const roleOptions = ref<{ label: string; value: string }[]>([]);
     const warehouseOptions = ref<{ label: string; value: string }[]>([]);
@@ -35,22 +39,30 @@ export function useUserAccess() {
                 settingsService.fetchList("companies"),
             ]);
 
-            roleOptions.value = (roles as Array<{ id: string; name: string }>).map((r) => ({
+            roleOptions.value = (
+                roles as Array<{ id: string; name: string }>
+            ).map((r) => ({
                 label: r.name,
                 value: String(r.id),
             }));
-            
-            warehouseOptions.value = (whRes.items as Array<{ id: string; code: string; name: string }>).map((w) => ({
+
+            warehouseOptions.value = (
+                whRes.items as Array<{ id: string; code: string; name: string }>
+            ).map((w) => ({
                 label: `${w.code} - ${w.name}`,
                 value: String(w.id),
             }));
-            
-            companyOptions.value = (compRes.items as Array<{ id: string; name: string }>).map((c) => ({
+
+            companyOptions.value = (
+                compRes.items as Array<{ id: string; name: string }>
+            ).map((c) => ({
                 label: c.name,
                 value: String(c.id),
             }));
         } catch (e) {
-            notifyError(e instanceof Error ? e.message : "Failed to load options");
+            notifyError(
+                e instanceof Error ? e.message : "Failed to load options",
+            );
         }
     };
 
@@ -58,13 +70,19 @@ export function useUserAccess() {
         loadingUsers.value = true;
         try {
             const response = await iamService.getUsers();
-            users.value = response as Array<{ id: string; email?: string; name?: string }>;
+            users.value = response as Array<{
+                id: string;
+                email?: string;
+                name?: string;
+            }>;
             userOptions.value = users.value.map((u) => ({
                 label: u.email || u.name || String(u.id),
                 value: String(u.id),
             }));
         } catch (err) {
-            notifyError(err instanceof Error ? err.message : "Failed to load users");
+            notifyError(
+                err instanceof Error ? err.message : "Failed to load users",
+            );
         } finally {
             loadingUsers.value = false;
         }
@@ -75,11 +93,26 @@ export function useUserAccess() {
         loadingDetails.value = true;
         try {
             const user = await iamService.getUser(selectedUserId.value);
-            userRoles.value = (user.roles || []) as Array<{ id: string; name: string }>;
-            userWarehouses.value = (user.warehouses || user.userWarehouses || []) as Array<{ id: string; warehouseId?: string; name?: string }>;
-            userCompanies.value = (user.companies || user.userCompanies || []) as Array<{ id: string; companyId?: string; name?: string }>;
+            userRoles.value = (user.roles || []) as Array<{
+                id: string;
+                name: string;
+            }>;
+            userWarehouses.value = (user.warehouses ||
+                user.userWarehouses ||
+                []) as Array<{
+                id: string;
+                warehouseId?: string;
+                name?: string;
+            }>;
+            userCompanies.value = (user.companies ||
+                user.userCompanies ||
+                []) as Array<{ id: string; companyId?: string; name?: string }>;
         } catch (err) {
-            notifyError(err instanceof Error ? err.message : "Failed to load user details");
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load user details",
+            );
             userRoles.value = [];
             userWarehouses.value = [];
             userCompanies.value = [];
@@ -98,12 +131,15 @@ export function useUserAccess() {
         try {
             await withToast(
                 async () => {
-                    await iamService.assignUserRole(selectedUserId.value, selectedRole.value);
+                    await iamService.assignUserRole(
+                        selectedUserId.value,
+                        selectedRole.value,
+                    );
                 },
                 {
                     successMessage: "Role assigned successfully",
-                    errorMessage: "Failed to add role"
-                }
+                    errorMessage: "Failed to add role",
+                },
             );
             await loadUserDetails();
             selectedRole.value = "";
@@ -118,12 +154,15 @@ export function useUserAccess() {
         try {
             await withToast(
                 async () => {
-                    await iamService.removeUserRole(selectedUserId.value, roleId);
+                    await iamService.removeUserRole(
+                        selectedUserId.value,
+                        roleId,
+                    );
                 },
                 {
                     successMessage: "Role removed successfully",
-                    errorMessage: "Failed to remove role"
-                }
+                    errorMessage: "Failed to remove role",
+                },
             );
             await loadUserDetails();
         } finally {
@@ -137,12 +176,15 @@ export function useUserAccess() {
         try {
             await withToast(
                 async () => {
-                    await iamService.assignUserWarehouse(selectedUserId.value, selectedWarehouse.value);
+                    await iamService.assignUserWarehouse(
+                        selectedUserId.value,
+                        selectedWarehouse.value,
+                    );
                 },
                 {
                     successMessage: "Warehouse access granted successfully",
-                    errorMessage: "Failed to add warehouse"
-                }
+                    errorMessage: "Failed to add warehouse",
+                },
             );
             await loadUserDetails();
             selectedWarehouse.value = "";
@@ -157,12 +199,15 @@ export function useUserAccess() {
         try {
             await withToast(
                 async () => {
-                    await iamService.removeUserWarehouse(selectedUserId.value, warehouseId);
+                    await iamService.removeUserWarehouse(
+                        selectedUserId.value,
+                        warehouseId,
+                    );
                 },
                 {
                     successMessage: "Warehouse access removed successfully",
-                    errorMessage: "Failed to remove warehouse"
-                }
+                    errorMessage: "Failed to remove warehouse",
+                },
             );
             await loadUserDetails();
         } finally {
@@ -176,12 +221,15 @@ export function useUserAccess() {
         try {
             await withToast(
                 async () => {
-                    await iamService.assignUserCompany(selectedUserId.value, selectedCompany.value);
+                    await iamService.assignUserCompany(
+                        selectedUserId.value,
+                        selectedCompany.value,
+                    );
                 },
                 {
                     successMessage: "Company assigned successfully",
-                    errorMessage: "Failed to add company"
-                }
+                    errorMessage: "Failed to add company",
+                },
             );
             await loadUserDetails();
             selectedCompany.value = "";

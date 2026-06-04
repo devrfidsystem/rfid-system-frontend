@@ -8,7 +8,10 @@ import { reportConfigs } from "@/views/report/reportConfig";
 import type { TransactionRecord } from "../types";
 import { useNotifier } from "@/composable/useNotifier";
 
-export function useTransactionDetail(transactionKey: TransactionKey, id: string) {
+export function useTransactionDetail(
+    transactionKey: TransactionKey,
+    id: string,
+) {
     const router = useRouter();
     const { notifyError, notifySuccess } = useNotifier();
 
@@ -87,7 +90,9 @@ export function useTransactionDetail(transactionKey: TransactionKey, id: string)
             await loadTransaction();
         } catch (err) {
             notifyError(
-                err instanceof Error ? err.message : "Failed to post transaction.",
+                err instanceof Error
+                    ? err.message
+                    : "Failed to post transaction.",
             );
         } finally {
             actionLoading.value = false;
@@ -95,7 +100,8 @@ export function useTransactionDetail(transactionKey: TransactionKey, id: string)
     };
 
     const handleCancel = async () => {
-        if (!confirm("Are you sure you want to cancel this transaction?")) return;
+        if (!confirm("Are you sure you want to cancel this transaction?"))
+            return;
         actionLoading.value = true;
         try {
             await transactionService.cancel(transactionKey, id);
@@ -103,7 +109,9 @@ export function useTransactionDetail(transactionKey: TransactionKey, id: string)
             await loadTransaction();
         } catch (err) {
             notifyError(
-                err instanceof Error ? err.message : "Failed to cancel transaction.",
+                err instanceof Error
+                    ? err.message
+                    : "Failed to cancel transaction.",
             );
         } finally {
             actionLoading.value = false;

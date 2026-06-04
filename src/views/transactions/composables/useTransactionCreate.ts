@@ -65,10 +65,9 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
     const loadOptions = async () => {
         try {
             if (showWarehouseField.value) {
-                const whResponse = await masterService.fetchList(
-                    "warehouses",
-                    { limit: 100 },
-                );
+                const whResponse = await masterService.fetchList("warehouses", {
+                    limit: 100,
+                });
                 warehouseOptions.value = whResponse.items.map((w) => ({
                     label: `${w.code} - ${w.name}`,
                     value: String(w.id),
