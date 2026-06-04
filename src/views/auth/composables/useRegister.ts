@@ -47,6 +47,15 @@ export function useRegister() {
             form.terms,
     );
 
+    const fieldErrors = computed(() => ({
+        fullName: touched.fullName && !form.fullName ? "Nama tidak boleh kosong." : undefined,
+        company: touched.company && !form.company ? "Isi nama unit atau perusahaan." : undefined,
+        email: touched.email && !isEmailValid.value ? "Pastikan email valid perusahaan." : undefined,
+        password: touched.password && !isPasswordValid.value ? "Password minimal 10 karakter." : undefined,
+        confirmPassword: touched.confirmPassword && !passwordsMatch.value ? "Password harus cocok." : undefined,
+        terms: touched.terms && !form.terms ? "Centang untuk melanjutkan." : undefined,
+    }));
+
     const handleSubmit = async () => {
         (Object.keys(touched) as Array<keyof TouchState>).forEach((key) => {
             touched[key] = true;
@@ -70,6 +79,7 @@ export function useRegister() {
         isPasswordValid,
         passwordsMatch,
         canSubmit,
+        fieldErrors,
         handleSubmit,
     };
 }
