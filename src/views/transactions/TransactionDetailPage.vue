@@ -148,118 +148,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
-import {
-    transactionService,
-    type TransactionKey,
-} from "@/services/transactions.service";
-import { reportConfigs } from "@/views/report/reportConfig";
-import type { TransactionRecord } from "./types";
+import type { TransactionKey } from "@/services/transactions.service";
+import { useTransactionDetail } from "./composables/useTransactionDetail";
 
 const props = defineProps<{
     transactionKey: TransactionKey;
     id: string;
 }>();
 
-const router = useRouter();
-const loading = ref(true);
-const actionLoading = ref(false);
-const error = ref<string | null>(null);
-const record = ref<TransactionRecord | null>(null);
-
-const config = computed(() => {
-    // We map transactionKey to reportKey, but if it's missing just use transactionKey
-    // Wait, transactionToReportKey is not exported from useTransactionList, let's just use a local map or reportConfigs directly if possible.
-    const keyMap: Record<string, string> = {
-        inbound: "inbound",
-        outbound: "outbound",
-        relocation: "relocation",
-        transfer: "transfer",
-        return: "return",
-        opname: "stock-opname",
-    };
-    const reportKey = keyMap[props.transactionKey] || props.transactionKey;
-    return reportConfigs[reportKey as keyof typeof reportConfigs];
-});
-
-const headerColumns = computed(() => {
-    return config.value?.columns || [];
-});
-
-const pageTitle = computed(() => {
-    return record.value?.docNo || "Transaction Detail";
-});
-
-const pageDescription = computed(() => {
-    return `Details for ${props.transactionKey} transaction`;
-});
-
-const lines = computed(() => {
-    if (!record.value) return [];
-    return (record.value.lines || record.value.items || []) as Record<
-        string,
-        any
-    >[];
-});
-
-const handleBack = () => {
-    router.push(`/transactions/${props.transactionKey}`);
-};
-
-const loadTransaction = async () => {
-    loading.value = true;
-    error.value = null;
-    try {
-        record.value = await transactionService.get(
-            props.transactionKey,
-            props.id,
-        );
-    } catch (err) {
-        error.value =
-            err instanceof Error
-                ? err.message
-                : "Failed to load transaction details.";
-    } finally {
-        loading.value = false;
-    }
-};
-
-const handlePost = async () => {
-    if (!confirm("Are you sure you want to post this transaction?")) return;
-    actionLoading.value = true;
-    try {
-        await transactionService.post(props.transactionKey, props.id);
-        await loadTransaction();
-    } catch (err) {
-        alert(
-            err instanceof Error ? err.message : "Failed to post transaction.",
-        );
-    } finally {
-        actionLoading.value = false;
-    }
-};
-
-const handleCancel = async () => {
-    if (!confirm("Are you sure you want to cancel this transaction?")) return;
-    actionLoading.value = true;
-    try {
-        await transactionService.cancel(props.transactionKey, props.id);
-        await loadTransaction();
-    } catch (err) {
-        alert(
-            err instanceof Error
-                ? err.message
-                : "Failed to cancel transaction.",
-        );
-    } finally {
-        actionLoading.value = false;
-    }
-};
+const {
+    loading,
+    actionLoading,
+    error,
+    record,
+    headerColumns,
+    pageTitle,
+    pageDescription,
+    lines,
+    handleBack,
+    loadTransaction,
+    handlePost,
+    handleCancel,
+} = useTransactionDetail(props.transactionKey, props.id);
 
 onMounted(() => {
     loadTransaction();

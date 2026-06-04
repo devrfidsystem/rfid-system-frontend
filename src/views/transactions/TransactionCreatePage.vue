@@ -137,155 +137,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
-import {
-    transactionService,
-    type TransactionKey,
-} from "@/services/transactions.service";
-import { masterService } from "@/services/master.service";
+import type { TransactionKey } from "@/services/transactions.service";
+import { useTransactionCreate } from "./composables/useTransactionCreate";
 
 const props = defineProps<{
     transactionKey: TransactionKey;
 }>();
 
-const router = useRouter();
-const submitting = ref(false);
-
-const form = ref({
-    transactionDate: new Date().toISOString().split("T")[0],
-    warehouseId: "",
-    partnerId: "",
-    notes: "",
-    lines: [] as { productId: string; qty: string }[],
-});
-
-const transactionTitle = computed(() => {
-    const titles: Record<string, string> = {
-        inbound: "Inbound",
-        outbound: "Outbound",
-        relocation: "Relocation",
-        transfer: "Transfer",
-        return: "Return",
-        opname: "Stock Opname",
-    };
-    return titles[props.transactionKey] || props.transactionKey;
-});
-
-const showWarehouseField = computed(() => {
-    return ["inbound", "outbound", "return", "opname"].includes(
-        props.transactionKey,
-    );
-});
-
-const showPartnerField = computed(() => {
-    return ["inbound", "outbound", "return"].includes(props.transactionKey);
-});
-
-const partnerLabel = computed(() => {
-    return props.transactionKey === "inbound" ? "Supplier" : "Customer";
-});
-
-const warehouseOptions = ref<{ label: string; value: string }[]>([]);
-const partnerOptions = ref<{ label: string; value: string }[]>([]);
-const productOptions = ref<{ label: string; value: string }[]>([]);
-
-const addLine = () => {
-    form.value.lines.push({ productId: "", qty: "1" });
-};
-
-const removeLine = (idx: number) => {
-    form.value.lines.splice(idx, 1);
-};
-
-const handleBack = () => {
-    router.push(`/transactions/${props.transactionKey}`);
-};
-
-const loadOptions = async () => {
-    try {
-        if (showWarehouseField.value) {
-            const whResponse = await masterService.fetchList("warehouses", {
-                limit: 100,
-            });
-            warehouseOptions.value = whResponse.items.map((w) => ({
-                label: `${(w as any).code} - ${(w as any).name}`,
-                value: String(w.id),
-            }));
-        }
-
-        if (showPartnerField.value) {
-            const partnerKey =
-                props.transactionKey === "inbound" ? "suppliers" : "customers";
-            const pResponse = await masterService.fetchList(partnerKey as any, {
-                limit: 100,
-            });
-            partnerOptions.value = pResponse.items.map((p) => ({
-                label: String((p as any).name || (p as any).code),
-                value: String(p.id),
-            }));
-        }
-
-        const prodResponse = await masterService.fetchList("products", {
-            limit: 200,
-        });
-        productOptions.value = prodResponse.items.map((p) => ({
-            label: `${(p as any).code} - ${(p as any).name}`,
-            value: String(p.id),
-        }));
-    } catch (err) {
-        console.error("Failed to load options", err);
-    }
-};
-
-const handleSubmit = async () => {
-    if (form.value.lines.length === 0) {
-        alert("Please add at least one line item.");
-        return;
-    }
-
-    submitting.value = true;
-    try {
-        const payload: Record<string, any> = {
-            transactionDate: form.value.transactionDate
-                ? new Date(form.value.transactionDate).toISOString()
-                : undefined,
-            notes: form.value.notes,
-            lines: form.value.lines.map((l) => ({
-                productId: l.productId,
-                expectedQty: Number(l.qty),
-                qty: Number(l.qty),
-            })),
-        };
-
-        if (showWarehouseField.value) {
-            payload.warehouseId = form.value.warehouseId;
-        }
-
-        if (showPartnerField.value) {
-            if (props.transactionKey === "inbound")
-                payload.supplierId = form.value.partnerId;
-            if (props.transactionKey === "outbound")
-                payload.customerId = form.value.partnerId;
-        }
-
-        await transactionService.create(props.transactionKey, payload);
-        router.push(`/transactions/${props.transactionKey}`);
-    } catch (err) {
-        alert(
-            err instanceof Error
-                ? err.message
-                : "Failed to create transaction.",
-        );
-    } finally {
-        submitting.value = false;
-    }
-};
+const {
+    form,
+    submitting,
+    transactionTitle,
+    showWarehouseField,
+    showPartnerField,
+    partnerLabel,
+    warehouseOptions,
+    partnerOptions,
+    productOptions,
+    addLine,
+    removeLine,
+    handleBack,
+    loadOptions,
+    handleSubmit,
+} = useTransactionCreate(props.transactionKey);
 
 onMounted(() => {
     loadOptions();

@@ -44,6 +44,9 @@
             <div v-else-if="error" class="p-6 text-sm text-rose-600 bg-rose-50">
                 {{ error }}
             </div>
+            <div v-else-if="tableRows.length === 0" class="p-6">
+                <EmptyState />
+            </div>
             <AppTable
                 v-else
                 :columns="columns"
@@ -56,7 +59,7 @@
                             {
                                 key: 'edit',
                                 label: 'Edit',
-                                onClick: () => openEditModal(row),
+                                onClick: () => openEditModal(row as any),
                             },
                         ]"
                     />
@@ -130,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { onMounted } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
@@ -139,138 +142,26 @@ import Drawer from "@/components/organisms/Drawer.vue";
 import AppTable from "@/components/organisms/Table.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
-import { settingsService } from "@/services/settings.service";
+import EmptyState from "@/components/molecules/EmptyState.vue";
+import { useMenus } from "./composables/useMenus";
 
-const columns = [
-    { key: "code", label: "Code" },
-    { key: "name", label: "Name" },
-    { key: "path", label: "Path" },
-    { key: "sequence", label: "Sequence" },
-    { key: "actions", label: "" },
-];
-
-const apps = ref<any[]>([]);
-const appOptions = ref<{ label: string; value: string }[]>([]);
-const selectedAppId = ref("");
-const loadingApps = ref(true);
-
-const rows = ref<any[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-const isModalOpen = ref(false);
-const isEditing = ref(false);
-const submitting = ref(false);
-const currentId = ref("");
-
-const form = ref({
-    appId: "",
-    code: "",
-    name: "",
-    path: "",
-    icon: "",
-    sequence: "0",
-});
-
-const tableRows = computed(() => {
-    return rows.value
-        .map((r) => ({
-            id: r.id,
-            code: r.code,
-            name: r.name,
-            path: r.path || "-",
-            sequence: r.sequence || 0,
-            original: r,
-        }))
-        .sort((a, b) => a.sequence - b.sequence);
-});
-
-const loadApps = async () => {
-    loadingApps.value = true;
-    try {
-        const response = await settingsService.fetchList("apps");
-        apps.value = response.items || [];
-        appOptions.value = apps.value.map((app) => ({
-            label: app.name,
-            value: String(app.id),
-        }));
-        if (appOptions.value.length > 0) {
-            selectedAppId.value = appOptions.value[0].value;
-        }
-    } catch (err: any) {
-        console.error("Failed to load apps", err);
-    } finally {
-        loadingApps.value = false;
-    }
-};
-
-const loadMenus = async () => {
-    if (!selectedAppId.value) return;
-    loading.value = true;
-    error.value = null;
-    try {
-        rows.value = await settingsService.getAppMenus(selectedAppId.value);
-    } catch (err: any) {
-        error.value = err.message || "Failed to load menus";
-        rows.value = [];
-    } finally {
-        loading.value = false;
-    }
-};
-
-watch(selectedAppId, () => {
-    loadMenus();
-});
-
-const openCreateModal = () => {
-    form.value = {
-        appId: selectedAppId.value,
-        code: "",
-        name: "",
-        path: "",
-        icon: "",
-        sequence: "0",
-    };
-    isEditing.value = false;
-    currentId.value = "";
-    isModalOpen.value = true;
-};
-
-const openEditModal = (row: any) => {
-    const original = row.original;
-    form.value = {
-        appId: original.appId || selectedAppId.value,
-        code: original.code,
-        name: original.name,
-        path: original.path || "",
-        icon: original.icon || "",
-        sequence: String(original.sequence || 0),
-    };
-    isEditing.value = true;
-    currentId.value = original.id;
-    isModalOpen.value = true;
-};
-
-const handleSubmit = async () => {
-    submitting.value = true;
-    try {
-        const payload = {
-            ...form.value,
-            sequence: Number(form.value.sequence),
-        };
-        if (isEditing.value) {
-            await settingsService.update("menus", currentId.value, payload);
-        } else {
-            await settingsService.create("menus", payload);
-        }
-        isModalOpen.value = false;
-        loadMenus();
-    } catch (err: any) {
-        alert(err.message || "Failed to save menu");
-    } finally {
-        submitting.value = false;
-    }
-};
+const {
+    columns,
+    appOptions,
+    selectedAppId,
+    loadingApps,
+    loading,
+    error,
+    isModalOpen,
+    isEditing,
+    submitting,
+    form,
+    tableRows,
+    loadApps,
+    openCreateModal,
+    openEditModal,
+    handleSubmit,
+} = useMenus();
 
 onMounted(() => {
     loadApps();
