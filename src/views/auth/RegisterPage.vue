@@ -71,8 +71,9 @@
                             @blur="touched.terms = true"
                         />
                         <span class="text-sm leading-relaxed">
-                            Saya sudah membaca kebijakan keamanan dan siap mengikuti
-                            role-based approval sebelum akses diberikan.
+                            Saya sudah membaca kebijakan keamanan dan siap
+                            mengikuti role-based approval sebelum akses
+                            diberikan.
                         </span>
                     </label>
                     <p
@@ -95,7 +96,9 @@
 
                 <div class="text-center text-xs text-slate-500">
                     <p>Sudah punya akun?</p>
-                    <RouterLink to="/login" class="font-semibold text-slate-900 hover:text-brand-600"
+                    <RouterLink
+                        to="/login"
+                        class="font-semibold text-slate-900 hover:text-brand-600"
                         >Masuk di sini</RouterLink
                     >
                 </div>

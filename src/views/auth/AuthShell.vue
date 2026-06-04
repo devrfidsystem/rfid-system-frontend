@@ -58,10 +58,7 @@
                                 class="form-panel__logo-mobile"
                             />
                             <h2 class="form-panel__title">{{ formTitle }}</h2>
-                            <p
-                                v-if="formSubtitle"
-                                class="form-panel__subtitle"
-                            >
+                            <p v-if="formSubtitle" class="form-panel__subtitle">
                                 {{ formSubtitle }}
                             </p>
                         </header>
@@ -412,6 +409,3 @@ const { formTitle, formSubtitle } = toRefs(props);
     gap: 1.125rem;
 }
 </style>
-
-
-

@@ -28,11 +28,19 @@ export function useLogin() {
 
     const isEmailValid = computed(() => emailPattern.test(form.email));
     const isPasswordValid = computed(() => form.password.length >= 8);
-    const canSubmit = computed(() => isEmailValid.value && isPasswordValid.value);
+    const canSubmit = computed(
+        () => isEmailValid.value && isPasswordValid.value,
+    );
 
     const fieldErrors = computed(() => ({
-        email: touched.email && !isEmailValid.value ? "Gunakan email valid perusahaan." : undefined,
-        password: touched.password && !isPasswordValid.value ? "Password harus terdiri dari minimal 8 karakter." : undefined,
+        email:
+            touched.email && !isEmailValid.value
+                ? "Gunakan email valid perusahaan."
+                : undefined,
+        password:
+            touched.password && !isPasswordValid.value
+                ? "Password harus terdiri dari minimal 8 karakter."
+                : undefined,
     }));
 
     const toErrorMessage = (error: unknown) => {
@@ -70,7 +78,8 @@ export function useLogin() {
                 {
                     loadingRef: submitting,
                     successMessage: "Selamat datang kembali!",
-                    errorMessage: "Login gagal. Silakan periksa kredensial Anda.",
+                    errorMessage:
+                        "Login gagal. Silakan periksa kredensial Anda.",
                 },
             );
 
