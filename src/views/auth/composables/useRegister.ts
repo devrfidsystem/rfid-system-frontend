@@ -104,9 +104,10 @@ export function useRegister() {
                 },
                 {
                     loadingRef: submitting,
-                    successMessage: "Registrasi berhasil! Silakan masuk dengan akun Anda.",
+                    successMessage:
+                        "Registrasi berhasil! Silakan masuk dengan akun Anda.",
                     errorMessage: "Gagal mendaftar. Silakan coba lagi nanti.",
-                }
+                },
             );
             await router.replace("/login");
         } catch (error: any) {

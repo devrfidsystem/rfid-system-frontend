@@ -1,11 +1,15 @@
 <template>
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5">
+    <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5"
+    >
         <div>
             <h3 class="text-base font-semibold text-gray-900">
                 Transactions List
             </h3>
         </div>
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-1 sm:justify-end">
+        <div
+            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-1 sm:justify-end"
+        >
             <Input
                 v-model="localKeyword"
                 placeholder="Search documents"
@@ -76,7 +80,10 @@
                         </div>
                     </div>
                 </div>
-                <Button variant="outline" class="px-3 w-full sm:w-auto justify-center">
+                <Button
+                    variant="outline"
+                    class="px-3 w-full sm:w-auto justify-center"
+                >
                     <Icon :icon="ArrowUpDown" :size="14" />
                     Sort
                 </Button>
@@ -88,7 +95,11 @@
                 >
                     <Icon :icon="RefreshCw" :size="16" />
                 </Button>
-                <Button variant="primary" class="px-3 w-full sm:w-auto justify-center" @click="$emit('new')">
+                <Button
+                    variant="primary"
+                    class="px-3 w-full sm:w-auto justify-center"
+                    @click="$emit('new')"
+                >
                     <Icon :icon="Plus" :size="14" />
                     New
                 </Button>

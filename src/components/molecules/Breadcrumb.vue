@@ -1,5 +1,8 @@
 <template>
-    <nav class="text-xs text-text-secondary overflow-x-auto hide-scrollbar whitespace-nowrap max-w-full" aria-label="breadcrumb">
+    <nav
+        class="text-xs text-text-secondary overflow-x-auto hide-scrollbar whitespace-nowrap max-w-full"
+        aria-label="breadcrumb"
+    >
         <ul class="flex items-center gap-1.5 w-max">
             <li
                 v-for="(item, index) in items"

@@ -117,21 +117,28 @@ apiClient.interceptors.response.use(
 
             if (refreshToken && requestConfig && !requestConfig._retry) {
                 requestConfig._retry = true;
-                
+
                 try {
-                    const { data } = await axios.post<{ data: { accessToken: string, refreshToken: string } }>(
-                        `${apiClient.defaults.baseURL}/auth/refresh`,
-                        { refreshToken }
-                    );
+                    const { data } = await axios.post<{
+                        data: { accessToken: string; refreshToken: string };
+                    }>(`${apiClient.defaults.baseURL}/auth/refresh`, {
+                        refreshToken,
+                    });
 
                     if (data?.data?.accessToken) {
-                        localStorage.setItem("access_token", data.data.accessToken);
-                        localStorage.setItem("refresh_token", data.data.refreshToken);
+                        localStorage.setItem(
+                            "access_token",
+                            data.data.accessToken,
+                        );
+                        localStorage.setItem(
+                            "refresh_token",
+                            data.data.refreshToken,
+                        );
 
                         if (requestConfig.headers) {
                             requestConfig.headers.Authorization = `Bearer ${data.data.accessToken}`;
                         }
-                        
+
                         return apiClient(requestConfig);
                     }
                 } catch {
