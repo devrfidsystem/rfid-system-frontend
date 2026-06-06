@@ -6,93 +6,6 @@
             tagline="Log"
         />
 
-        <FormRoot @submit="onSubmit">
-            <FormSection
-                title="Tag Info"
-                subtitle="Identitas tag"
-                variant="card"
-            >
-                <FormGrid>
-                    <TextField
-                        name="epc"
-                        label="EPC"
-                        required
-                        field-id="epc"
-                        placeholder="Enter EPC"
-                    />
-                    <span
-                        v-if="fieldErrors['epc']"
-                        class="text-red-500 text-sm"
-                        >{{ fieldErrors["epc"] }}</span
-                    >
-                    <SelectField
-                        name="tagType"
-                        label="Tag Type"
-                        required
-                        field-id="tagType"
-                        placeholder="Select type"
-                        :options="tagTypeOptions"
-                    />
-                    <SelectField
-                        v-if="companyOptions.length > 1"
-                        name="companyId"
-                        label="Company"
-                        required
-                        field-id="companyId"
-                        placeholder="Select company"
-                        :options="companyOptions"
-                    />
-                </FormGrid>
-            </FormSection>
-
-            <FormSection
-                title="Item Info"
-                subtitle="Detail item terkait"
-                description="Gunakan informasi ini untuk track lokasi."
-                variant="card"
-            >
-                <FormGrid>
-                    <SelectField
-                        name="productId"
-                        label="Product"
-                        required
-                        field-id="productId"
-                        placeholder="Select product"
-                        :options="productOptions"
-                    />
-                    <TextField
-                        name="location"
-                        label="Location"
-                        field-id="location"
-                        hint="Optional storage location"
-                        placeholder="Warehouse aisle"
-                    />
-                    <TextareaField
-                        name="notes"
-                        label="Notes"
-                        full
-                        field-id="notes"
-                        placeholder="Short memo"
-                    />
-                </FormGrid>
-            </FormSection>
-
-            <FormActions>
-                <Button variant="outline" type="button" @click="resetForm()"
-                    >Reset</Button
-                >
-                <Button
-                    type="submit"
-                    :loading="isSubmitting"
-                    :disabled="isSubmitting || !meta.valid"
-                    >Simpan</Button
-                >
-            </FormActions>
-        </FormRoot>
-        <div v-if="submitError" class="mt-2 text-sm text-rose-600">
-            {{ submitError }}
-        </div>
-
         <Card no-padding>
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -172,25 +85,9 @@ import Pagination from "@/components/ui/table/Pagination.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import { Search, RefreshCw } from "lucide-vue-next";
-import {
-    FormRoot,
-    FormSection,
-    FormGrid,
-    FormActions,
-} from "@/components/ui/form";
-import { SelectField, TextField, TextareaField } from "@/components/ui/fields";
 import { useTagRegistration } from "../composables/useTagRegistration";
 
 const {
-    tagTypeOptions,
-    companyOptions,
-    productOptions,
-    isSubmitting,
-    meta,
-    fieldErrors,
-    submitError,
-    onSubmit,
-    resetForm,
     tagsLoading,
     tagsError,
     tagSearch,
