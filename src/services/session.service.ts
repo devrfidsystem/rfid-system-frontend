@@ -26,6 +26,7 @@ export const sessionService = {
         }
 
         localStorage.setItem("access_token", resp.data.accessToken);
+        localStorage.setItem("refresh_token", resp.data.refreshToken);
         return resp.data;
     },
 
@@ -37,13 +38,31 @@ export const sessionService = {
             });
         } finally {
             localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
         }
     },
 
     async refreshSession(): Promise<AuthLoginResponseDto | null> {
-        // Backend doesn't have a refresh endpoint yet.
-        // For now, return null to force re-login if token is expired.
-        return null;
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) return null;
+
+        try {
+            const resp = await apiRequest<AuthLoginResponseDto>({
+                url: "/auth/refresh",
+                method: "POST",
+                data: { refreshToken },
+                skipAuthErrorHandling: true,
+            });
+
+            if (resp.data) {
+                localStorage.setItem("access_token", resp.data.accessToken);
+                localStorage.setItem("refresh_token", resp.data.refreshToken);
+                return resp.data;
+            }
+            return null;
+        } catch {
+            return null;
+        }
     },
 
     async getSession(): Promise<string | null> {

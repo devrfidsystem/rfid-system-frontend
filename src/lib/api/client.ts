@@ -113,16 +113,44 @@ apiClient.interceptors.response.use(
             error.response?.status === 401 &&
             !requestConfig?.skipAuthErrorHandling
         ) {
-            const token = localStorage.getItem("access_token");
-            if (!token) {
-                if (router.currentRoute.value?.fullPath !== "/login") {
-                    void router.push("/login");
+            const refreshToken = localStorage.getItem("refresh_token");
+
+            if (refreshToken && requestConfig && !requestConfig._retry) {
+                requestConfig._retry = true;
+
+                try {
+                    const { data } = await axios.post<{
+                        data: { accessToken: string; refreshToken: string };
+                    }>(`${apiClient.defaults.baseURL}/auth/refresh`, {
+                        refreshToken,
+                    });
+
+                    if (data?.data?.accessToken) {
+                        localStorage.setItem(
+                            "access_token",
+                            data.data.accessToken,
+                        );
+                        localStorage.setItem(
+                            "refresh_token",
+                            data.data.refreshToken,
+                        );
+
+                        if (requestConfig.headers) {
+                            requestConfig.headers.Authorization = `Bearer ${data.data.accessToken}`;
+                        }
+
+                        return apiClient(requestConfig);
+                    }
+                } catch {
+                    // Refresh failed, fall through to logout
                 }
-            } else {
-                localStorage.removeItem("access_token");
-                if (router.currentRoute.value?.fullPath !== "/login") {
-                    void router.push("/login");
-                }
+            }
+
+            // Fallback: Clear tokens and redirect to login
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            if (router.currentRoute.value?.fullPath !== "/login") {
+                void router.push("/login");
             }
         }
         // handle 403 explicitly: show access denied toast
@@ -182,6 +210,7 @@ export class ApiClientError extends Error {
 
 export interface ApiRequestConfig<D = unknown> extends AxiosRequestConfig<D> {
     skipAuthErrorHandling?: boolean;
+    _retry?: boolean;
 }
 
 const apiRequest = async <T, D = unknown>(

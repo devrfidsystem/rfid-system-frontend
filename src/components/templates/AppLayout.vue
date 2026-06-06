@@ -4,7 +4,7 @@
             class="grid grid-cols-1 gap-0"
             :class="['grid grid-cols-1 gap-0', columnsClass]"
         >
-            <Sidebar />
+            <Sidebar class="hidden lg:flex" />
             <div class="min-w-0 flex flex-col bg-workspace-bg h-screen">
                 <Topbar @toggle-sidebar="ui.toggleSidebar" />
                 <div
