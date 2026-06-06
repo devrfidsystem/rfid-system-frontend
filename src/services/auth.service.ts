@@ -65,6 +65,13 @@ export interface AuthProfile {
     menuTree: MenuTreeNode[];
 }
 
+export interface RegisterPayload {
+    fullName: string;
+    companyName: string;
+    email: string;
+    password: string;
+}
+
 export const authService = {
     async getAuthMe(config?: Partial<ApiRequestConfig>): Promise<AuthProfile> {
         await sessionService.getSession();
@@ -106,5 +113,13 @@ export const authService = {
 
         const response = await apiRequest<AuthProfile>(requestConfig);
         return response.data;
+    },
+
+    async register(payload: RegisterPayload): Promise<void> {
+        await apiRequest({
+            url: "/auth/register",
+            method: "post",
+            data: payload,
+        });
     },
 };

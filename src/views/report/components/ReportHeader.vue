@@ -1,25 +1,25 @@
 <template>
-    <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5">
         <div>
             <h3 class="text-base font-semibold text-gray-900">
                 {{ title }} List
             </h3>
         </div>
-        <div class="flex flex-wrap items-end justify-end gap-3 flex-1">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-1 sm:justify-end">
             <Input
                 v-model="localKeyword"
                 placeholder="Search reports"
-                class="w-full max-w-xs"
+                class="w-full sm:max-w-xs"
             >
                 <template #icon>
                     <Icon :icon="Search" :size="16" />
                 </template>
             </Input>
-            <div class="flex items-center gap-2">
-                <div ref="filterPopoverRef" class="relative">
+            <div class="grid grid-cols-2 sm:flex items-center gap-2">
+                <div ref="filterPopoverRef" class="relative flex">
                     <Button
                         variant="outline"
-                        class="px-3"
+                        class="px-3 w-full sm:w-auto justify-center"
                         @click="toggleFilter"
                     >
                         <Icon :icon="Filter" :size="14" />
@@ -27,7 +27,7 @@
                     </Button>
                     <div
                         v-if="isFilterOpen"
-                        class="absolute right-0 z-10 mt-2 w-[320px] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4 space-y-4"
+                        class="absolute right-0 sm:right-auto z-10 mt-12 sm:mt-2 w-[320px] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4 space-y-4"
                     >
                         <h4 class="font-medium text-sm text-gray-900 mb-2">
                             Filters
@@ -85,27 +85,28 @@
                         </div>
                     </div>
                 </div>
-                <Button variant="outline" class="px-3">
+                <Button variant="outline" class="px-3 w-full sm:w-auto justify-center">
                     <Icon :icon="ArrowUpDown" :size="14" />
                     Sort
                 </Button>
                 <Button
                     variant="outline"
-                    class="px-2"
+                    class="px-2 w-full sm:w-auto justify-center"
                     title="Refresh"
                     @click="$emit('refresh')"
                 >
                     <Icon :icon="RefreshCw" :size="16" />
                 </Button>
+                <Button
+                    variant="primary"
+                    class="col-span-2 sm:col-span-1 px-3 w-full sm:w-auto justify-center"
+                    :disabled="!hasRows"
+                    @click="$emit('export')"
+                >
+                    <Icon :icon="Download" :size="14" />
+                    Export CSV
+                </Button>
             </div>
-            <Button
-                variant="primary"
-                :disabled="!hasRows"
-                @click="$emit('export')"
-            >
-                <Icon :icon="Download" :size="14" />
-                Export CSV
-            </Button>
         </div>
     </div>
 </template>

@@ -1,6 +1,12 @@
 import { reactive, ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useNotifier } from "@/composable/useNotifier";
+import { authService } from "@/services/auth.service";
 
 export function useRegister() {
+    const router = useRouter();
+    const { withToast } = useNotifier();
+
     const form = reactive({
         fullName: "",
         company: "",
@@ -84,8 +90,28 @@ export function useRegister() {
             return;
         }
 
-        status.value =
-            "Registrasi mandiri belum tersedia karena endpoint provisioning belum disediakan. Minta admin IAM membuat akun dan role melalui backend.";
+        status.value = null;
+
+        try {
+            await withToast(
+                async () => {
+                    await authService.register({
+                        fullName: form.fullName.trim(),
+                        companyName: form.company.trim(),
+                        email: form.email.trim(),
+                        password: form.password,
+                    });
+                },
+                {
+                    loadingRef: submitting,
+                    successMessage: "Registrasi berhasil! Silakan masuk dengan akun Anda.",
+                    errorMessage: "Gagal mendaftar. Silakan coba lagi nanti.",
+                }
+            );
+            await router.replace("/login");
+        } catch (error: any) {
+            status.value = error.message || "Gagal mendaftar.";
+        }
     };
 
     return {

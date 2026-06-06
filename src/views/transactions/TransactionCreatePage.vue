@@ -74,7 +74,7 @@
                         <div
                             v-for="(line, idx) in form.lines"
                             :key="idx"
-                            class="flex gap-4 items-end"
+                            class="flex flex-col sm:flex-row gap-4 sm:items-end border-b border-gray-100 sm:border-none pb-4 sm:pb-0 last:border-0"
                         >
                             <div class="flex-1">
                                 <Select
@@ -85,7 +85,7 @@
                                     required
                                 />
                             </div>
-                            <div class="w-32">
+                            <div class="w-full sm:w-32">
                                 <Input
                                     :id="`qty-${idx}`"
                                     v-model="line.qty"
