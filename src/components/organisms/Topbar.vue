@@ -70,20 +70,20 @@
                 />
 
                 <!-- User Area -->
-                <div class="flex items-center gap-4 border-l border-border-default pl-4 ml-2">
+                <div
+                    class="flex items-center gap-4 border-l border-border-default pl-4 ml-2"
+                >
                     <!-- User Pill -->
-                    <div
-                        class="flex items-center gap-2"
-                        title="User Profile"
-                    >
+                    <div class="flex items-center gap-2" title="User Profile">
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white shadow-sm"
                         >
                             {{ userInitials }}
                         </div>
-                        <span class="hidden sm:inline text-sm font-medium text-gray-800">{{
-                            userName
-                        }}</span>
+                        <span
+                            class="hidden sm:inline text-sm font-medium text-gray-800"
+                            >{{ userName }}</span
+                        >
                     </div>
 
                     <!-- Logout Button -->
