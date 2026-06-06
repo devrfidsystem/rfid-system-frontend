@@ -6,55 +6,6 @@
             tagline="RFID"
         />
 
-        <Card>
-            <div class="space-y-6">
-                <div>
-                    <h3 class="text-base font-semibold text-gray-900 mb-1">
-                        Assign RFID Tag
-                    </h3>
-                    <p class="text-xs text-gray-500">
-                        Hubungkan tag yang ter-encode dengan lokasi gudang dan
-                        dokumen referensi.
-                    </p>
-                </div>
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <Select
-                        v-model="selectedTagId"
-                        :options="tagOptions"
-                        placeholder="Select tag"
-                        label="Tag"
-                        :error="
-                            fieldErrors['selectedTagId'] ?? fieldErrors['tagId']
-                        "
-                    />
-                    <Input
-                        v-model="locationId"
-                        label="Location ID"
-                        placeholder="Enter Location ID"
-                        :error="fieldErrors['locationId']"
-                    />
-                    <Input
-                        v-model="documentRef"
-                        label="Document Ref"
-                        placeholder="Enter Document Reference"
-                        :error="fieldErrors['documentRef']"
-                    />
-                </div>
-                <div v-if="assignError" class="text-sm text-signal-red">
-                    {{ assignError }}
-                </div>
-                <div class="flex justify-end pt-4 border-t border-gray-200">
-                    <Button
-                        variant="primary"
-                        :disabled="isAssigning || !selectedTagId || !locationId"
-                        @click="assignTag"
-                    >
-                        Assign Tag
-                    </Button>
-                </div>
-            </div>
-        </Card>
-
         <Card no-padding>
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -146,16 +97,8 @@ const {
     setPage,
     setLimit,
     tagSearch,
-    selectedTagId,
-    locationId,
-    documentRef,
-    assignError,
-    fieldErrors,
-    isAssigning,
-    tagOptions,
     tableColumns,
     displayTags,
     refreshTags,
-    assignTag,
 } = useRfidAssignment();
 </script>
