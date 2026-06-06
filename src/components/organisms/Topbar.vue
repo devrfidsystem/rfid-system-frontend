@@ -69,24 +69,31 @@
                     @close="isNotificationOpen = false"
                 />
 
-                <!-- User Pill -->
-                <div
-                    class="flex items-center gap-3 rounded-full border border-border-default bg-white px-3 py-1.5 text-sm shadow-xs transition hover:shadow-sm"
-                >
+                <!-- User Area -->
+                <div class="flex items-center gap-4 border-l border-border-default pl-4 ml-2">
+                    <!-- User Pill -->
                     <div
-                        class="flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-[11px] font-bold text-white"
+                        class="flex items-center gap-2"
+                        title="User Profile"
                     >
-                        {{ userInitials }}
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white shadow-sm"
+                        >
+                            {{ userInitials }}
+                        </div>
+                        <span class="hidden sm:inline text-sm font-medium text-gray-800">{{
+                            userName
+                        }}</span>
                     </div>
-                    <span class="hidden sm:inline font-medium text-gray-800">{{
-                        userName
-                    }}</span>
+
+                    <!-- Logout Button -->
                     <Button
                         variant="ghost"
                         size="sm"
-                        class="px-2 py-1"
+                        class="text-gray-500 hover:bg-rose-50 hover:text-rose-600 px-2"
                         :loading="logoutLoading"
                         @click="handleLogout"
+                        title="Logout"
                     >
                         Logout
                     </Button>

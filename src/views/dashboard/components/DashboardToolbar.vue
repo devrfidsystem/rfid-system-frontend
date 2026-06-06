@@ -1,7 +1,7 @@
 <template>
     <Teleport v-if="isMounted" to="#page-toolbar-slot">
         <div
-            class="mx-auto w-full max-w-[1400px] px-4 py-3 lg:px-0 flex items-center justify-between"
+            class="mx-auto w-full max-w-[1400px] px-4 py-3 lg:px-6 flex flex-wrap items-center justify-between gap-4"
         >
             <!-- Left: Filters & Tools -->
             <div class="flex items-center gap-2">
