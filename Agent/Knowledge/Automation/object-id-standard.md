@@ -36,6 +36,7 @@ Semua Object ID wajib menggunakan prefix berikut untuk mengidentifikasi tipe kom
 Setelah prefix, penamaan wajib menggunakan **PascalCase**.
 
 Contoh:
+
 - `btn_Login`
 - `btn_SimpanProduct`
 - `txt_ProductName`

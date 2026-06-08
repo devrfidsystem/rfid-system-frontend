@@ -62,9 +62,9 @@ Rule wajib:
 3. Do not duplicate documentation.
 4. Do not create alternative standards.
 5. If conflict found:
-   - stop implementation
-   - report conflict
-   - request clarification
+    - stop implementation
+    - report conflict
+    - request clarification
 6. Any implementation affecting knowledge must update Source Of Truth.
 7. Screen owns UI specification.
 8. Contract owns DTO/API contract.

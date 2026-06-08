@@ -68,9 +68,12 @@ const props = defineProps<{
 const getStatusTone = (status?: string) => {
     if (!status) return "neutral";
     const s = status.toLowerCase();
-    if (["completed", "closed", "reconciled", "success"].includes(s)) return "success";
-    if (["draft", "pending", "counting", "processing"].includes(s)) return "warning";
-    if (["canceled", "cancelled", "failed", "error"].includes(s)) return "error";
+    if (["completed", "closed", "reconciled", "success"].includes(s))
+        return "success";
+    if (["draft", "pending", "counting", "processing"].includes(s))
+        return "warning";
+    if (["canceled", "cancelled", "failed", "error"].includes(s))
+        return "error";
     return "info";
 };
 

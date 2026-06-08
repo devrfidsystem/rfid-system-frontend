@@ -126,11 +126,11 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             };
             columns.value.forEach((column) => {
                 let value = row[column.key];
-                
+
                 // Map warehouseId to human-readable label if possible
                 if (column.key === "warehouseId") {
                     const foundWarehouse = warehouseSelectOptions.value.find(
-                        (w) => w.value === value
+                        (w) => w.value === value,
                     );
                     if (foundWarehouse) {
                         value = foundWarehouse.label;

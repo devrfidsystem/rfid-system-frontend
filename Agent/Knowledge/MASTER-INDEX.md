@@ -2,7 +2,7 @@
 
 ## Source Of Truth Matrix
 
-Repositori Knowledge ini diatur dengan prinsip *Single Source of Truth* (Satu Kebenaran). Modifikasi, penulisan aturan, atau pencarian informasi wajib merujuk ke folder utama (owner) masing-masing topik.
+Repositori Knowledge ini diatur dengan prinsip _Single Source of Truth_ (Satu Kebenaran). Modifikasi, penulisan aturan, atau pencarian informasi wajib merujuk ke folder utama (owner) masing-masing topik.
 
 - **Business Rules** → `Domains/`
 - **API Contract** → `Contracts/`
