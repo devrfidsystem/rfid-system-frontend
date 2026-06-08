@@ -3,7 +3,7 @@
         :class="buttonClasses"
         :type="resolvedType"
         :disabled="disabled"
-        v-bind="attrs"
+        v-bind="{ ...attrs, ...bindObjectId(objectId) }"
     >
         <slot />
     </button>
@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import { computed, useAttrs } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 type IconButtonVariant = "neutral" | "primary" | "danger";
 type IconButtonSize = "sm" | "md";
@@ -20,6 +21,7 @@ const props = defineProps<{
     size?: IconButtonSize;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
+    objectId?: string;
 }>();
 
 const attrs = useAttrs();

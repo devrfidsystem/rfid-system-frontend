@@ -3,7 +3,7 @@
         :class="buttonClasses"
         :type="resolvedType"
         :disabled="isDisabled"
-        v-bind="attrs"
+        v-bind="{ ...attrs, ...bindObjectId(objectId) }"
     >
         <span
             v-if="loading"
@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { computed, useAttrs } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 type ButtonVariant = "primary" | "outline" | "ghost" | "danger" | "neutral";
 type ButtonSize = "sm" | "md";
@@ -31,6 +32,7 @@ const props = defineProps<{
     loading?: boolean;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
+    objectId?: string;
 }>();
 
 const attrs = useAttrs();

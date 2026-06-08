@@ -1,5 +1,5 @@
 <template>
-    <Card>
+    <Card object-id="wdg_DashboardLowStockSection">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-gray-900">

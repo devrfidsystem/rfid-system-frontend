@@ -60,39 +60,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Activity Section -->
-            <section>
-                <h4 class="text-sm font-semibold text-gray-900 mb-4">
-                    Recent Activity
-                </h4>
-                <div class="relative border-l border-gray-200 ml-3 space-y-6">
-                    <div
-                        v-for="activity in activities"
-                        :key="activity.id"
-                        class="relative pl-6"
-                    >
-                        <div
-                            class="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full border-2 border-white"
-                            :class="activity.colorClass"
-                        ></div>
-                        <div>
-                            <p class="text-sm text-gray-800">
-                                <span class="font-medium text-gray-900">{{
-                                    activity.user
-                                }}</span>
-                                {{ activity.action }}
-                                <span class="font-medium text-gray-900">{{
-                                    activity.target
-                                }}</span>
-                            </p>
-                            <p class="text-xs text-gray-500 mt-1">
-                                {{ activity.time }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
     </Drawer>
 </template>
@@ -137,41 +104,6 @@ const notifications = [
         time: "5 hours ago",
         icon: CheckCircle2,
         unread: false,
-    },
-];
-
-const activities = [
-    {
-        id: 1,
-        user: "Aditya Aria",
-        action: "created a new outbound order",
-        target: "OUT-20260602",
-        time: "Just now",
-        colorClass: "bg-blue-500",
-    },
-    {
-        id: 2,
-        user: "System",
-        action: "registered new RFID tag",
-        target: "EPC-1093847192",
-        time: "25 mins ago",
-        colorClass: "bg-teal-500",
-    },
-    {
-        id: 3,
-        user: "Aditya Aria",
-        action: "updated master product",
-        target: 'Laptop Pro 15"',
-        time: "2 hours ago",
-        colorClass: "bg-amber-500",
-    },
-    {
-        id: 4,
-        user: "Warehouse Staff",
-        action: "completed cycle count for zone",
-        target: "Aisle A",
-        time: "Yesterday",
-        colorClass: "bg-gray-400",
     },
 ];
 </script>

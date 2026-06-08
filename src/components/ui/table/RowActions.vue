@@ -8,6 +8,7 @@
             :aria-expanded="isOpen"
             class="text-base"
             :disabled="disabled"
+            data-testid="row-actions-btn"
             @click="toggleMenu"
         >
             ⋮
@@ -31,6 +32,7 @@
                     action.disabled ? 'opacity-50 pointer-events-none' : '',
                 ]"
                 role="menuitem"
+                :data-testid="`action-${action.key}`"
                 @click="execute(action)"
             >
                 {{ action.label }}

@@ -73,7 +73,7 @@ export function useLogin() {
                     });
 
                     authStore.setSession(session.accessToken);
-                    await authStore.syncProfile();
+                    authStore.setProfile(session.profile);
                 },
                 {
                     loadingRef: submitting,

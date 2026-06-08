@@ -1,17 +1,5 @@
 # Contract: Product List
 
-## Menu
-
-Daftar Produk / Product Master
-
-## Route
-
-`/master/products`
-
-## Permission
-
-`MASTER_DATA_VIEW`
-
 ## API
 
 `GET /api/v1/master/products`
@@ -39,27 +27,3 @@ N/A (GET request)
     createdAt: string;
 }
 ```
-
-## Datatable Columns
-
-1. Product Code
-2. Product Name
-3. Category
-4. UOM
-5. Actions
-
-## Filters
-
-- Search Input (by Code/Name)
-- Category Dropdown
-
-## Actions
-
-- Add New
-- Edit
-- Delete
-
-## Dependencies
-
-- Master Category
-- Master UOM

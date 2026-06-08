@@ -1,7 +1,10 @@
 <template>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Active monitored -->
-        <Card class="flex flex-col justify-between">
+        <Card
+            class="flex flex-col justify-between"
+            object-id="wdg_DashboardEpcStatus"
+        >
             <div>
                 <h2 class="text-sm font-medium text-gray-500">
                     Monitored Tags
@@ -26,6 +29,7 @@
             v-for="status in epcStatusBreakdown"
             :key="status.name"
             class="flex flex-col justify-between"
+            object-id="wdg_DashboardEpcEncodingStatus"
         >
             <div>
                 <h2 class="text-sm font-medium text-gray-500">

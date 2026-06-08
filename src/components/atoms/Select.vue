@@ -8,7 +8,7 @@
                 :value="modelValue"
                 :disabled="disabled"
                 :class="selectClasses"
-                v-bind="attrs"
+                v-bind="{ ...attrs, ...bindObjectId(objectId) }"
                 @change="
                     $emit(
                         'update:modelValue',
@@ -48,6 +48,7 @@
 defineOptions({ inheritAttrs: false });
 
 import { computed, useAttrs } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     label?: string;
@@ -60,6 +61,7 @@ const props = defineProps<{
     invalid?: boolean;
     hideMessage?: boolean;
     placeholderDisabled?: boolean;
+    objectId?: string;
 }>();
 
 const attrs = useAttrs();

@@ -22,14 +22,14 @@
         </p>
 
         <DashboardSummaryCards
-            :loading="dashboardLoading"
+            :loading="summaryLoading"
             :cards="summaryCards"
         />
 
         <!-- Main Details Area based on Active Route Section -->
         <template v-if="section === 'overview'">
             <DashboardOverview
-                :loading="dashboardLoading"
+                :loading="heatmapLoading || chartLoading"
                 :heatmap-rows="heatmapRows"
                 :heatmap-max="heatmapMax"
                 :chart-bars="chartBars"
@@ -40,7 +40,7 @@
                 <DashboardLowStockAlert
                     :total-low-stock="totalLowStock"
                     :items="lowStockItems"
-                    :loading="dashboardLoading"
+                    :loading="lowStockLoading"
                     :error="dashboardError"
                     @retry="refreshDashboard"
                 />
@@ -49,7 +49,7 @@
 
         <template v-else-if="section === 'low-stock'">
             <DashboardLowStockSection
-                :loading="dashboardLoading"
+                :loading="lowStockLoading"
                 :total-low-stock="totalLowStock"
                 :low-stock-items="lowStockItems"
             />
@@ -57,13 +57,14 @@
 
         <template v-else-if="section === 'recent-activity'">
             <DashboardRecentActivity
-                :loading="dashboardLoading"
+                :loading="recentActivityLoading"
                 :recent-activity="recentActivity"
             />
         </template>
 
         <template v-else-if="section === 'epc-status'">
             <DashboardEpcStatus
+                :loading="epcStatusLoading"
                 :epc-status-total="epcStatusTotal"
                 :epc-status-breakdown="epcStatusBreakdown"
             />
@@ -72,14 +73,26 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
 import DashboardSummaryCards from "./components/DashboardSummaryCards.vue";
-import DashboardOverview from "./components/DashboardOverview.vue";
-import DashboardLowStockSection from "./components/DashboardLowStockSection.vue";
-import DashboardRecentActivity from "./components/DashboardRecentActivity.vue";
-import DashboardEpcStatus from "./components/DashboardEpcStatus.vue";
-import DashboardLowStockAlert from "./components/DashboardLowStockAlert.vue";
 import { useDashboard } from "./composables/useDashboard";
+
+const DashboardOverview = defineAsyncComponent(
+    () => import("./components/DashboardOverview.vue"),
+);
+const DashboardLowStockSection = defineAsyncComponent(
+    () => import("./components/DashboardLowStockSection.vue"),
+);
+const DashboardRecentActivity = defineAsyncComponent(
+    () => import("./components/DashboardRecentActivity.vue"),
+);
+const DashboardEpcStatus = defineAsyncComponent(
+    () => import("./components/DashboardEpcStatus.vue"),
+);
+const DashboardLowStockAlert = defineAsyncComponent(
+    () => import("./components/DashboardLowStockAlert.vue"),
+);
 
 const {
     dashboardFilters,
@@ -87,6 +100,12 @@ const {
     warehousesLoading,
     warehouseError,
     dashboardLoading,
+    summaryLoading,
+    heatmapLoading,
+    chartLoading,
+    lowStockLoading,
+    epcStatusLoading,
+    recentActivityLoading,
     dashboardError,
     refreshDashboard,
     heatmapRows,

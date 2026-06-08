@@ -1,5 +1,5 @@
 <template>
-    <Card class="p-5">
+    <Card class="p-5" object-id="wdg_DashboardLowStockAlert">
         <div
             class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
         >
@@ -25,7 +25,9 @@
                     <span>items</span>
                 </span>
                 <RouterLink
+                    id="lkl_DashboardLowStockViewInventory"
                     to="/master-data/products"
+                    object-id="lkl_DashboardLowStockViewInventory"
                     class="text-xs font-semibold text-primary-600 hover:text-primary-700"
                     >View inventory →</RouterLink
                 >
@@ -47,8 +49,10 @@
             >
                 <p>{{ error }}</p>
                 <button
+                    id="btn_DashboardLowStockRetry"
                     type="button"
                     class="text-xs font-semibold text-gray-700 underline"
+                    object-id="btn_DashboardLowStockRetry"
                     @click="emitRetry"
                 >
                     Try again

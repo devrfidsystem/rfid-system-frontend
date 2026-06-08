@@ -5,7 +5,7 @@
             :description="config.description"
             tagline="Reports"
         />
-        <Card no-padding>
+        <Card no-padding object-id="wdg_ReportEntityList">
             <ReportHeader
                 v-model:keyword="keyword"
                 v-model:start-date="startDate"

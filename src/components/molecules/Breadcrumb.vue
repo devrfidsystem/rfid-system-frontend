@@ -2,6 +2,7 @@
     <nav
         class="text-xs text-text-secondary overflow-x-auto hide-scrollbar whitespace-nowrap max-w-full"
         aria-label="breadcrumb"
+        v-bind="bindObjectId(objectId)"
     >
         <ul class="flex items-center gap-1.5 w-max">
             <li
@@ -37,7 +38,10 @@
 </template>
 
 <script setup lang="ts">
+import { bindObjectId } from "@/utils/objectId";
+
 defineProps<{
     items: { label: string; active?: boolean }[];
+    objectId?: string;
 }>();
 </script>

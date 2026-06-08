@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { reactive, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useNotifier } from "@/composable/useNotifier";

@@ -1,5 +1,6 @@
-import { apiRequest, type ApiRequestConfig } from "@/lib/api/client";
+import { type ApiRequestConfig } from "@/lib/api/client";
 import { sessionService } from "@/services/session.service";
+import { authApi } from "@/api/feature/auth.api";
 
 export interface AuthUser {
     id: string;
@@ -75,51 +76,18 @@ export interface RegisterPayload {
 export const authService = {
     async getAuthMe(config?: Partial<ApiRequestConfig>): Promise<AuthProfile> {
         await sessionService.getSession();
-
-        const cacheHeaders = {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-        };
-
-        const requestConfig: ApiRequestConfig = {
-            url: "/auth/me",
-            method: "get",
-            headers: { ...cacheHeaders },
-        };
-
-        if (config) {
-            Object.assign(requestConfig, config);
-            requestConfig.headers = {
-                ...cacheHeaders,
-                ...requestConfig.headers,
-            };
-        }
-
-        const response = await apiRequest<AuthProfile>(requestConfig);
+        const response = await authApi.getMe(config);
         return response.data;
     },
 
     async syncAuthContext(
         config?: Partial<ApiRequestConfig>,
     ): Promise<AuthProfile> {
-        const requestConfig: ApiRequestConfig = {
-            url: "/auth/sync",
-            method: "post",
-        };
-
-        if (config) {
-            Object.assign(requestConfig, config);
-        }
-
-        const response = await apiRequest<AuthProfile>(requestConfig);
+        const response = await authApi.syncAuthContext(config);
         return response.data;
     },
 
     async register(payload: RegisterPayload): Promise<void> {
-        await apiRequest({
-            url: "/auth/register",
-            method: "post",
-            data: payload,
-        });
+        await authApi.register(payload);
     },
 };

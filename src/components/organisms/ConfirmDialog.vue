@@ -16,6 +16,7 @@
                     size="sm"
                     type="button"
                     :disabled="loading"
+                    data-testid="button-handlecancel"
                     @click="handleCancel"
                 >
                     {{ cancelTextComputed }}
@@ -26,6 +27,7 @@
                     type="button"
                     :loading="loading"
                     :disabled="disabled || loading"
+                    data-testid="button-handleconfirm"
                     @click="handleConfirm"
                 >
                     {{ confirmTextComputed }}

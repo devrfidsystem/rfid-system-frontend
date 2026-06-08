@@ -5,14 +5,20 @@
             description="Search EPC history and activities."
             tagline="Log"
         />
-        <Card>
+        <Card object-id="wdg_TrackingSearch">
             <div class="flex flex-wrap items-center gap-4">
                 <Input
                     v-model="epc"
                     placeholder="Search EPC"
                     class="w-full max-w-xs"
+                    object-id="txt_TrackingEpc"
                 />
-                <Button variant="primary" @click="loadEvents">Search</Button>
+                <Button
+                    variant="primary"
+                    object-id="btn_TrackingSearch"
+                    @click="loadEvents"
+                    >Search</Button
+                >
             </div>
             <div class="mt-6">
                 <p
@@ -39,6 +45,7 @@
                         >
                             <table
                                 class="min-w-full divide-y divide-gray-200 text-sm text-gray-700"
+                                object-id="tbl_TrackingResults"
                             >
                                 <thead
                                     class="bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500"
@@ -123,6 +130,7 @@
                                     type="button"
                                     class="rounded-md border border-gray-200 px-3 py-1 transition disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
                                     :disabled="pagination.page <= 1"
+                                    object-id="btn_TrackingPrevPage"
                                     @click="setPage(pagination.page - 1)"
                                 >
                                     Prev
@@ -131,6 +139,7 @@
                                     type="button"
                                     class="rounded-md border border-gray-200 px-3 py-1 transition disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
                                     :disabled="pagination.page >= totalPages"
+                                    object-id="btn_TrackingNextPage"
                                     @click="setPage(pagination.page + 1)"
                                 >
                                     Next
@@ -144,6 +153,7 @@
                                     id="tracking-page-size"
                                     class="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700"
                                     :value="pagination.limit"
+                                    object-id="cmb_TrackingPageSize"
                                     @change="
                                         setLimit(
                                             Number(

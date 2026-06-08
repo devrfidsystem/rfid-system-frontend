@@ -8,24 +8,26 @@
         <template #default>
             <form class="space-y-5" @submit.prevent="handleSubmit">
                 <Input
-                    id="login-email"
+                    id="txt_LoginEmail"
                     v-model="form.email"
                     type="email"
                     label="Email perusahaan"
                     placeholder="nama@perusahaan.co.id"
                     autocomplete="email"
                     :error="fieldErrors.email"
+                    object-id="txt_LoginEmail"
                     @blur="touched.email = true"
                 />
 
                 <Input
-                    id="login-password"
+                    id="txt_LoginPassword"
                     v-model="form.password"
                     type="password"
                     label="Password"
                     placeholder="Minimal 8 karakter"
                     autocomplete="current-password"
                     :error="fieldErrors.password"
+                    object-id="txt_LoginPassword"
                     @blur="touched.password = true"
                 />
 
@@ -34,14 +36,18 @@
                         class="inline-flex items-center gap-2 text-slate-500 cursor-pointer"
                     >
                         <input
+                            id="chk_LoginRememberMe"
                             v-model="form.remember"
+                            data-testid="chk_LoginRememberMe"
                             type="checkbox"
                             class="h-4 w-4 rounded border border-slate-300 text-brand-600 focus:ring-brand-500"
                         />
                         Ingat saya
                     </label>
                     <RouterLink
+                        id="lkl_LoginRegister"
                         to="/register"
+                        data-testid="lkl_LoginRegister"
                         class="font-semibold text-brand-600 hover:text-brand-700"
                         >Belum punya akun?</RouterLink
                     >
@@ -52,6 +58,7 @@
                     variant="primary"
                     class="w-full justify-center"
                     :disabled="submitting || !canSubmit"
+                    object-id="btn_LoginSubmit"
                 >
                     <span v-if="submitting" class="btn-spinner mr-2"></span>
                     {{ submitting ? "Memproses..." : "Masuk" }}

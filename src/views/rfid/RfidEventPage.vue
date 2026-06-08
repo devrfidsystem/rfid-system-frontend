@@ -6,37 +6,47 @@
             tagline="RFID"
         />
 
-        <Card class="space-y-4">
+        <Card class="space-y-4" object-id="wdg_RfidEventForm">
             <FormRoot @submit="submitEvent">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
-                    <TextField name="epcCode" label="EPC Code" required />
+                    <TextField
+                        name="epcCode"
+                        label="EPC Code"
+                        required
+                        object-id="txt_RfidEventEpcCode"
+                    />
                     <SelectField
                         name="eventType"
                         :options="eventTypeOptions"
                         label="Event Type"
                         placeholder="Select event"
                         required
+                        object-id="cmb_RfidEventEventType"
                     />
                     <TextField
                         name="warehouseId"
                         label="Warehouse"
                         class="md:col-span-2"
+                        object-id="txt_RfidEventWarehouse"
                     />
                     <TextField
                         name="locationId"
                         label="Location"
                         class="md:col-span-2"
+                        object-id="txt_RfidEventLocation"
                     />
                     <TextField
                         name="documentRef"
                         label="Document Reference"
                         class="md:col-span-2"
+                        object-id="txt_RfidEventDocumentRef"
                     />
                     <TextareaField
                         name="notes"
                         label="Notes"
                         :rows="2"
                         class="md:col-span-2"
+                        object-id="txa_RfidEventNotes"
                     />
                 </div>
                 <div class="flex items-center gap-3">
@@ -45,6 +55,7 @@
                         variant="primary"
                         :loading="isSubmitting"
                         :disabled="isSubmitting"
+                        object-id="btn_RfidEventSubmit"
                     >
                         Log Event
                     </Button>
@@ -52,6 +63,7 @@
                         type="button"
                         variant="ghost"
                         :disabled="isSubmitting"
+                        object-id="btn_RfidEventReset"
                         @click="resetFormState"
                     >
                         Reset

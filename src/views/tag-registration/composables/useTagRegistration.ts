@@ -57,13 +57,13 @@ export function useTagRegistration() {
         productError.value = null;
         try {
             const opts = await masterService.fetchOptions("products");
-            productOptions.value = opts.map((p) => ({
-                value: String((p as { id: string }).id),
-                label: String(
-                    (p as { name?: string; id: string }).name ??
-                        (p as { id: string }).id,
-                ),
-            }));
+            productOptions.value = opts.map((p) => {
+                const item = p as { id: string | number; name?: string };
+                return {
+                    value: String(item.id),
+                    label: String(item.name ?? item.id),
+                };
+            });
         } catch (error) {
             productError.value =
                 error instanceof Error

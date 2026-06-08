@@ -7,12 +7,16 @@
                     Manage registered applications.
                 </p>
             </div>
-            <Button variant="primary" @click="openCreateModal">
+            <Button
+                variant="primary"
+                object-id="btn_AppsNewApp"
+                @click="openCreateModal"
+            >
                 New Application
             </Button>
         </div>
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_AppsList">
             <div v-if="loading" class="p-6">
                 <LoadingState :lines="3" />
             </div>
@@ -24,6 +28,7 @@
                 :columns="columns"
                 :rows="tableRows"
                 class="border-none shadow-none rounded-none"
+                object-id="tbl_AppsList"
             >
                 <template #actions="{ row }">
                     <RowActions
@@ -50,43 +55,49 @@
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
         >
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleSubmit">
                 <Input
-                    id="code"
+                    id="txt_AppsFormCode"
                     v-model="form.code"
                     label="App Code"
                     placeholder="e.g. WMS"
                     required
+                    object-id="txt_AppsFormCode"
                 />
                 <Input
-                    id="name"
+                    id="txt_AppsFormName"
                     v-model="form.name"
                     label="App Name"
                     placeholder="e.g. Warehouse System"
                     required
+                    object-id="txt_AppsFormName"
                 />
                 <Input
-                    id="description"
+                    id="txt_AppsFormDescription"
                     v-model="form.description"
                     label="Description"
+                    object-id="txt_AppsFormDescription"
                 />
                 <Input
-                    id="url"
+                    id="txt_AppsFormURL"
                     v-model="form.url"
                     label="URL"
                     placeholder="e.g. https://app.example.com"
+                    object-id="txt_AppsFormURL"
                 />
                 <Input
-                    id="icon"
+                    id="txt_AppsFormIcon"
                     v-model="form.icon"
                     label="Icon Name"
                     placeholder="e.g. Box"
+                    object-id="txt_AppsFormIcon"
                 />
                 <div class="flex items-center gap-2 mt-4">
                     <input
-                        type="checkbox"
-                        id="isActive"
+                        id="chk_AppsFormIsActive"
                         v-model="form.isActive"
+                        data-testid="chk_AppsFormIsActive"
+                        type="checkbox"
                         class="rounded border-gray-300 text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
                     />
                     <label for="isActive" class="text-sm text-gray-700"
@@ -100,6 +111,7 @@
                     <Button
                         type="button"
                         variant="outline"
+                        object-id="btn_AppsFormCancel"
                         @click="isModalOpen = false"
                         >Cancel</Button
                     >
@@ -107,6 +119,7 @@
                         type="submit"
                         variant="primary"
                         :disabled="submitting"
+                        object-id="btn_AppsFormSave"
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
@@ -117,6 +130,7 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, onMounted, computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";

@@ -7,12 +7,16 @@
                     Manage registered companies.
                 </p>
             </div>
-            <Button variant="primary" @click="openCreateModal">
+            <Button
+                variant="primary"
+                object-id="btn_CompaniesNewCompany"
+                @click="openCreateModal"
+            >
                 New Company
             </Button>
         </div>
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_CompaniesList">
             <div v-if="loading" class="p-6">
                 <LoadingState :lines="3" />
             </div>
@@ -27,6 +31,7 @@
                 :columns="columns"
                 :rows="tableRows"
                 class="border-none shadow-none rounded-none"
+                object-id="tbl_CompaniesList"
             >
                 <template #actions="{ row }">
                     <RowActions
@@ -53,31 +58,35 @@
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
         >
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleSubmit">
                 <Input
-                    id="code"
+                    id="txt_CompaniesFormCode"
                     v-model="form.code"
                     label="Company Code"
                     placeholder="e.g. COMP-001"
                     required
+                    object-id="txt_CompaniesFormCode"
                 />
                 <Input
-                    id="name"
+                    id="txt_CompaniesFormName"
                     v-model="form.name"
                     label="Company Name"
                     placeholder="e.g. PT Example"
                     required
+                    object-id="txt_CompaniesFormName"
                 />
                 <Input
-                    id="description"
+                    id="txt_CompaniesFormDescription"
                     v-model="form.description"
                     label="Description"
+                    object-id="txt_CompaniesFormDescription"
                 />
                 <div class="flex items-center gap-2 mt-4">
                     <input
-                        type="checkbox"
-                        id="isActive"
+                        id="chk_CompaniesFormIsActive"
                         v-model="form.isActive"
+                        data-testid="chk_CompaniesFormIsActive"
+                        type="checkbox"
                         class="rounded border-gray-300 text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
                     />
                     <label for="isActive" class="text-sm text-gray-700"
@@ -91,6 +100,7 @@
                     <Button
                         type="button"
                         variant="outline"
+                        object-id="btn_CompaniesFormCancel"
                         @click="isModalOpen = false"
                         >Cancel</Button
                     >
@@ -98,6 +108,7 @@
                         type="submit"
                         variant="primary"
                         :disabled="submitting"
+                        object-id="btn_CompaniesFormSave"
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>

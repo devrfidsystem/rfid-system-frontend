@@ -14,6 +14,7 @@
                 v-model="localKeyword"
                 placeholder="Search documents"
                 class="w-full sm:max-w-xs"
+                object-id="txt_TransactionHeaderSearch"
             >
                 <template #icon>
                     <Icon :icon="Search" :size="16" />
@@ -24,6 +25,7 @@
                     <Button
                         variant="outline"
                         class="px-3 w-full sm:w-auto justify-center"
+                        object-id="btn_TransactionHeaderFilter"
                         @click="toggleFilter"
                     >
                         <Icon :icon="Filter" :size="14" />
@@ -38,16 +40,18 @@
                         </h4>
                         <div class="grid grid-cols-2 gap-3">
                             <Input
-                                id="transaction-date-from"
+                                id="dtp_TransactionHeaderFromDate"
                                 v-model="localStartDate"
                                 type="date"
                                 label="From"
+                                object-id="dtp_TransactionHeaderFromDate"
                             />
                             <Input
-                                id="transaction-date-to"
+                                id="dtp_TransactionHeaderToDate"
                                 v-model="localEndDate"
                                 type="date"
                                 label="To"
+                                object-id="dtp_TransactionHeaderToDate"
                             />
                         </div>
                         <Select
@@ -57,6 +61,7 @@
                             placeholder="Select warehouse"
                             label="Warehouse"
                             class="w-full"
+                            object-id="cmb_TransactionHeaderWarehouse"
                         />
                         <Select
                             v-if="
@@ -68,11 +73,13 @@
                             placeholder="Select partner"
                             :label="partnerLabel"
                             class="w-full"
+                            object-id="cmb_TransactionHeaderPartner"
                         />
                         <div class="pt-2 flex justify-end">
                             <Button
                                 size="sm"
                                 variant="outline"
+                                object-id="btn_TransactionHeaderCloseFilter"
                                 @click="toggleFilter"
                             >
                                 Close
@@ -83,6 +90,7 @@
                 <Button
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
+                    object-id="btn_TransactionHeaderSort"
                 >
                     <Icon :icon="ArrowUpDown" :size="14" />
                     Sort
@@ -91,6 +99,7 @@
                     variant="outline"
                     class="px-2 w-full sm:w-auto justify-center"
                     title="Refresh"
+                    object-id="btn_TransactionHeaderRefresh"
                     @click="$emit('refresh')"
                 >
                     <Icon :icon="RefreshCw" :size="16" />
@@ -98,6 +107,7 @@
                 <Button
                     variant="primary"
                     class="px-3 w-full sm:w-auto justify-center"
+                    object-id="btn_TransactionHeaderNew"
                     @click="$emit('new')"
                 >
                     <Icon :icon="Plus" :size="14" />

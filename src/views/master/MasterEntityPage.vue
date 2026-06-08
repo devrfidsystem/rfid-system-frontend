@@ -5,7 +5,7 @@
             :description="config.description"
             tagline="Master Data"
         />
-        <Card no-padding>
+        <Card no-padding object-id="wdg_MasterEntityList">
             <MasterHeader
                 v-model:keyword="keyword"
                 :title="config.title"

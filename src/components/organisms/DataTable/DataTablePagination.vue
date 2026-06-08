@@ -1,6 +1,7 @@
 <template>
     <div
         class="flex flex-wrap items-center justify-between gap-4 px-5 py-3 text-sm text-text-secondary"
+        v-bind="bindObjectId(objectId)"
     >
         <p>
             Showing <span class="font-medium text-gray-900">{{ from }}</span> -
@@ -13,6 +14,9 @@
                 type="button"
                 class="inline-flex items-center justify-center rounded-md border border-border-default bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition-colors hover:bg-workspace-bg focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="page <= 1"
+                v-bind="
+                    bindObjectId(objectId ? `btn_${objectId}Prev` : undefined)
+                "
                 @click="changePage(page - 1)"
             >
                 Previous
@@ -21,6 +25,9 @@
                 type="button"
                 class="inline-flex items-center justify-center rounded-md border border-border-default bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition-colors hover:bg-workspace-bg focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="page >= totalPages"
+                v-bind="
+                    bindObjectId(objectId ? `btn_${objectId}Next` : undefined)
+                "
                 @click="changePage(page + 1)"
             >
                 Next
@@ -31,12 +38,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     page: number;
     totalPages: number;
     pageSize: number;
     totalRows: number;
+    objectId?: string;
 }>();
 
 const emit = defineEmits<{

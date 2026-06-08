@@ -4,11 +4,13 @@
     >
         <div
             v-for="toast in toasts"
+            :id="`msb_Toast_${toast.id}`"
             :key="toast.id"
             class="group relative overflow-hidden rounded-md border bg-white shadow-lg"
             :class="variantClass(toast.variant)"
             role="status"
             aria-live="polite"
+            :data-testid="`msb_Toast_${toast.id}`"
             @mouseenter="$emit('pause', toast.id)"
             @mouseleave="$emit('resume', toast.id)"
         >
@@ -28,9 +30,11 @@
                 </div>
 
                 <button
+                    :id="`icn_ToastClose_${toast.id}`"
                     type="button"
                     class="rounded-md p-1 text-gray-400 opacity-0 transition hover:bg-gray-50 hover:text-gray-600 group-hover:opacity-100 focus-visible:opacity-100"
                     aria-label="Dismiss"
+                    :data-testid="`icn_ToastClose_${toast.id}`"
                     @click="$emit('close', toast.id)"
                 >
                     ✕

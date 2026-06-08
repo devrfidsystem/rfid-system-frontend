@@ -1,4 +1,4 @@
-import { computed, reactive, ref, watch, onMounted } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { masterService } from "@/services/master.service";
 import {
@@ -45,6 +45,10 @@ const transactionTitles: Record<
         title: "Opname Transactions",
         description: "Stock opname schedules maintained by /opname.",
     },
+    returns: {
+        title: "Return Transactions",
+        description: "Reverse logistics flows coming from /returns.",
+    },
 };
 
 const transactionToReportKey: Record<TransactionKey, ReportKey> = {
@@ -53,6 +57,7 @@ const transactionToReportKey: Record<TransactionKey, ReportKey> = {
     relocation: "relocation",
     transfer: "transfer",
     return: "return",
+    returns: "return",
     opname: "stock-opname",
 };
 
@@ -120,7 +125,18 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
                 id: String(row.id ?? row.docNo ?? `row-${index}`),
             };
             columns.value.forEach((column) => {
-                const value = row[column.key];
+                let value = row[column.key];
+
+                // Map warehouseId to human-readable label if possible
+                if (column.key === "warehouseId") {
+                    const foundWarehouse = warehouseSelectOptions.value.find(
+                        (w) => w.value === value,
+                    );
+                    if (foundWarehouse) {
+                        value = foundWarehouse.label;
+                    }
+                }
+
                 record[column.key] = formatValue(value);
             });
             return record;
@@ -193,14 +209,17 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
                 page: 1,
                 limit: 200,
             });
-            partners.value = response.items.map((record) => ({
-                id: String(record.id ?? ""),
-                name: String(
-                    (record as unknown as Record<string, unknown>).name ??
-                        (record as unknown as Record<string, unknown>).code ??
-                        "Unknown",
-                ),
-            }));
+            partners.value = response.items.map((record) => {
+                const item = record as unknown as {
+                    id?: string | number;
+                    name?: string;
+                    code?: string;
+                };
+                return {
+                    id: String(item.id ?? ""),
+                    name: String(item.name ?? item.code ?? "Unknown"),
+                };
+            });
         } catch (err) {
             partnerError.value =
                 err instanceof Error
@@ -295,11 +314,6 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             }
         },
     );
-
-    onMounted(() => {
-        void loadRows();
-        void loadPartnerOptions();
-    });
 
     return {
         pageTitle,

@@ -6,7 +6,7 @@
             tagline="Log"
         />
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_TagRegistrationList">
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -20,7 +20,8 @@
                         <Input
                             v-model="tagSearch"
                             placeholder="Search by EPC"
-                            class="w-full max-w-xs"
+                            class="w-full sm:max-w-xs"
+                            object-id="txt_TagRegistrationSearch"
                         >
                             <template #icon>
                                 <Icon :icon="Search" :size="16" />
@@ -31,6 +32,7 @@
                                 variant="outline"
                                 class="px-2"
                                 title="Refresh"
+                                object-id="btn_TagRegistrationRefresh"
                                 @click="handleTagSearch"
                             >
                                 <Icon :icon="RefreshCw" :size="16" />
@@ -59,6 +61,7 @@
                     :columns="tagColumns"
                     :rows="displayTags"
                     class="border-none shadow-none rounded-none"
+                    object-id="tbl_TagRegistrationList"
                 />
                 <div class="border-t border-gray-200 px-6 py-4">
                     <Pagination
@@ -76,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";

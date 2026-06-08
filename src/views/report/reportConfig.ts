@@ -77,6 +77,8 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         description: "Audit schedules by warehouse.",
         columns: [
             { key: "docNo", label: "Doc No" },
+            { key: "task_group", label: "Group/Profile" },
+            { key: "task_period", label: "Period" },
             { key: "warehouseId", label: "Warehouse" },
             { key: "scheduledAt", label: "Scheduled" },
             { key: "status", label: "Status" },
@@ -120,7 +122,6 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
             { key: "docNo", label: "Doc No" },
             { key: "date", label: "Date" },
             { key: "customerId", label: "Customer" },
-            { key: "productId", label: "Product" },
             { key: "status", label: "Status" },
         ],
         partnerLabel: "Customer",

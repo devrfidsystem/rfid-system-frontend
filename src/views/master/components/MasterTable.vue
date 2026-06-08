@@ -29,6 +29,7 @@
             <div class="overflow-x-auto">
                 <table
                     class="min-w-full divide-y divide-gray-200 text-sm text-gray-600"
+                    object-id="tbl_MasterTable"
                 >
                     <thead
                         class="bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500 border-t border-gray-200"
@@ -93,6 +94,7 @@
                                     <Button
                                         size="sm"
                                         variant="outline"
+                                        object-id="btn_MasterTableEdit"
                                         @click="$emit('edit', row)"
                                     >
                                         <Icon :icon="Pencil" :size="12" />
@@ -102,6 +104,7 @@
                                         v-if="showDeleteButton"
                                         size="sm"
                                         variant="danger"
+                                        object-id="btn_MasterTableDelete"
                                         @click="$emit('delete', row)"
                                     >
                                         <Icon :icon="Trash2" :size="12" />

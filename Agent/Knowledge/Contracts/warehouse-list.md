@@ -1,17 +1,5 @@
 # Contract: Warehouse List
 
-## Menu
-
-Daftar Gudang / Warehouse Master
-
-## Route
-
-`/master/warehouses`
-
-## Permission
-
-`MASTER_DATA_VIEW`
-
 ## API
 
 `GET /api/v1/master/warehouses`
@@ -39,26 +27,3 @@ N/A (GET request)
     createdAt: string;
 }
 ```
-
-## Datatable Columns
-
-1. Warehouse Code
-2. Warehouse Name
-3. Address
-4. Status (Active/Inactive Badge)
-5. Actions
-
-## Filters
-
-- Search Input (by Code/Name)
-- Status Dropdown
-
-## Actions
-
-- Add New
-- Edit
-- Delete
-
-## Dependencies
-
-- Master Company (Untuk menyaring / menautkan Gudang)

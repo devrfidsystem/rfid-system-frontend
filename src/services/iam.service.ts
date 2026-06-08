@@ -1,89 +1,74 @@
-import { apiRequest } from "@/lib/api/client";
-import type { ApiResponse } from "@/lib/api/response";
+import { iamApi, type IamRecord } from "@/api/feature/iam.api";
+
+interface PaginatedResponse {
+    items?: IamRecord[];
+    data?: IamRecord[];
+}
 
 export const iamService = {
     // --- Roles ---
-    async getRoles(): Promise<any[]> {
-        const response = await apiRequest<any[]>({
-            url: "/iam/roles",
-            method: "get",
-        });
-        const res = response as any;
+    async getRoles(): Promise<IamRecord[]> {
+        const response = await iamApi.getRoles();
+        const res = response as unknown as PaginatedResponse;
         if (res.items && Array.isArray(res.items)) return res.items;
         if (res.data && Array.isArray(res.data)) return res.data;
         if (Array.isArray(response)) return response;
         return [];
     },
 
-    async getRole(id: string): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/iam/roles/${id}`,
-            method: "get",
-        });
-        return response.data || response;
+    async getRole(id: string): Promise<IamRecord> {
+        const response = await iamApi.getRole(id);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     async createRole(payload: {
         name: string;
         description?: string;
-    }): Promise<any> {
-        const response = await apiRequest<any>({
-            url: "/iam/roles",
-            method: "post",
-            data: payload,
-        });
-        return response.data;
+    }): Promise<IamRecord> {
+        const response = await iamApi.createRole(payload);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     async updateRole(
         id: string,
         payload: { name?: string; description?: string },
-    ): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/iam/roles/${id}`,
-            method: "patch",
-            data: payload,
-        });
-        return response.data;
+    ): Promise<IamRecord> {
+        const response = await iamApi.updateRole(id, payload);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
-    async assignMenuToRole(roleId: string, menuId: string): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/iam/roles/${roleId}/menus`,
-            method: "post",
-            data: { menuId },
-        });
-        return response.data;
+    async assignMenuToRole(roleId: string, menuId: string): Promise<IamRecord> {
+        const response = await iamApi.assignMenuToRole(roleId, menuId);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
-    async removeMenuFromRole(roleId: string, menuId: string): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/iam/roles/${roleId}/menus/${menuId}`,
-            method: "delete",
-        });
-        return response.data;
+    async removeMenuFromRole(
+        roleId: string,
+        menuId: string,
+    ): Promise<IamRecord> {
+        const response = await iamApi.removeMenuFromRole(roleId, menuId);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     // --- Users ---
-    async getUsers(): Promise<any[]> {
-        const response = await apiRequest<any[]>({
-            url: "/users",
-            method: "get",
-            params: { limit: 100 },
-        });
-        const res = response as any;
+    async getUsers(): Promise<IamRecord[]> {
+        const response = await iamApi.getUsers();
+        const res = response as unknown as PaginatedResponse;
         if (res.items && Array.isArray(res.items)) return res.items;
         if (res.data && Array.isArray(res.data)) return res.data;
         if (Array.isArray(response)) return response;
         return [];
     },
 
-    async getUser(id: string): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/users/${id}`,
-            method: "get",
-        });
-        return response.data || response;
+    async getUser(id: string): Promise<IamRecord> {
+        const response = await iamApi.getUser(id);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     // --- User Roles ---
@@ -91,50 +76,39 @@ export const iamService = {
         userId: string,
         roleId: string,
         companyId?: string,
-    ): Promise<any> {
-        const response = await apiRequest<any>({
-            url: "/iam/users/roles",
-            method: "post",
-            data: { userId, roleId, companyId },
-        });
-        return response.data;
+    ): Promise<IamRecord> {
+        const response = await iamApi.assignUserRole(userId, roleId, companyId);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     async removeUserRole(
         userId: string,
         roleId: string,
         companyId?: string,
-    ): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/iam/users/${userId}/roles/${roleId}`,
-            method: "delete",
-            params: companyId ? { companyId } : undefined,
-        });
-        return response.data;
+    ): Promise<IamRecord> {
+        const response = await iamApi.removeUserRole(userId, roleId, companyId);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     // --- User Warehouses ---
     async assignUserWarehouse(
         userId: string,
         warehouseId: string,
-    ): Promise<any> {
-        const response = await apiRequest<any>({
-            url: "/iam/users/warehouses",
-            method: "post",
-            data: { userId, warehouseId },
-        });
-        return response.data;
+    ): Promise<IamRecord> {
+        const response = await iamApi.assignUserWarehouse(userId, warehouseId);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     async removeUserWarehouse(
         userId: string,
         warehouseId: string,
-    ): Promise<any> {
-        const response = await apiRequest<any>({
-            url: `/iam/users/${userId}/warehouses/${warehouseId}`,
-            method: "delete",
-        });
-        return response.data;
+    ): Promise<IamRecord> {
+        const response = await iamApi.removeUserWarehouse(userId, warehouseId);
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 
     // --- User Companies ---
@@ -142,12 +116,13 @@ export const iamService = {
         userId: string,
         companyId: string,
         isPrimary?: boolean,
-    ): Promise<any> {
-        const response = await apiRequest<any>({
-            url: "/iam/users/companies",
-            method: "post",
-            data: { userId, companyId, isPrimary },
-        });
-        return response.data;
+    ): Promise<IamRecord> {
+        const response = await iamApi.assignUserCompany(
+            userId,
+            companyId,
+            isPrimary,
+        );
+        const res = response as unknown as { data?: IamRecord };
+        return res.data || (response as unknown as IamRecord);
     },
 };

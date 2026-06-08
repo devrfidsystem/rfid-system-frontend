@@ -1,9 +1,11 @@
-import { computed, watch, ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ref, computed, watch, onMounted } from "vue";
+import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
 import { useDashboardFilters } from "@/store/dashboardFilters.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
-import { useDashboardSnapshot } from "@/composable/useDashboardSnapshot";
+import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { useAuthStore } from "@/store/auth.store";
+import { dashboardService } from "@/services/dashboard.service";
 import {
     Box,
     Zap,
@@ -16,11 +18,6 @@ export function useDashboard() {
     const route = useRoute();
     const router = useRouter();
     const authStore = useAuthStore();
-    const isMounted = ref(false);
-
-    onMounted(() => {
-        isMounted.value = true;
-    });
 
     const dashboardFilters = useDashboardFilters();
 
@@ -104,38 +101,158 @@ export function useDashboard() {
         { immediate: true },
     );
 
-    const {
-        snapshot,
-        loading: dashboardLoading,
-        error: dashboardError,
-        refresh: refreshDashboard,
-    } = useDashboardSnapshot(() => dashboardFilters.filter);
-
-    const heatmapRows = computed(() => snapshot.value?.heatmap.rows ?? []);
-    const heatmapMax = computed(() => snapshot.value?.heatmap.maxQuantity ?? 1);
-    const chartBars = computed(() => snapshot.value?.chart ?? []);
-    const lowStockSummary = computed(() => snapshot.value?.lowStock ?? null);
-    const lowStockItems = computed(() => lowStockSummary.value?.items ?? []);
-    const totalLowStock = computed(
-        () => lowStockSummary.value?.totalLowStock ?? 0,
-    );
-
     const section = computed(
         () => (route.meta.section as string) || "overview",
     );
-    const recentActivity = computed(() => snapshot.value?.recentActivity ?? []);
+
+    // Data Refs
+    const summaryData = ref<any>(null);
+    const heatmapData = ref<any>(null);
+    const chartData = ref<any[]>([]);
+    const lowStockData = ref<any>(null);
+    const epcStatusData = ref<any[]>([]);
+    const recentActivityData = ref<any[]>([]);
+
+    // Loading Refs
+    const summaryLoading = ref(false);
+    const heatmapLoading = ref(false);
+    const chartLoading = ref(false);
+    const lowStockLoading = ref(false);
+    const epcStatusLoading = ref(false);
+    const recentActivityLoading = ref(false);
+
+    const dashboardError = ref<string | null>(null);
+
+    const dashboardLoading = computed(
+        () =>
+            summaryLoading.value ||
+            heatmapLoading.value ||
+            chartLoading.value ||
+            lowStockLoading.value ||
+            epcStatusLoading.value ||
+            recentActivityLoading.value,
+    );
+
+    const refreshDashboard = async () => {
+        dashboardError.value = null;
+        const filter = dashboardFilters.filter;
+
+        summaryLoading.value = true;
+        dashboardService
+            .fetchSummary(filter)
+            .then((res) => (summaryData.value = res))
+            .catch((err) => (dashboardError.value = err.message))
+            .finally(() => (summaryLoading.value = false));
+
+        if (section.value === "overview") {
+            heatmapLoading.value = true;
+            dashboardService
+                .fetchHeatmap(filter)
+                .then((res) => (heatmapData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (heatmapLoading.value = false));
+
+            chartLoading.value = true;
+            dashboardService
+                .fetchChart(filter)
+                .then((res) => (chartData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (chartLoading.value = false));
+
+            lowStockLoading.value = true;
+            dashboardService
+                .fetchLowStock(filter)
+                .then((res) => (lowStockData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (lowStockLoading.value = false));
+        } else if (section.value === "low-stock") {
+            lowStockLoading.value = true;
+            dashboardService
+                .fetchLowStock(filter)
+                .then((res) => (lowStockData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (lowStockLoading.value = false));
+        } else if (section.value === "recent-activity") {
+            recentActivityLoading.value = true;
+            dashboardService
+                .fetchRecentActivity(filter)
+                .then((res) => (recentActivityData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (recentActivityLoading.value = false));
+        } else if (section.value === "epc-status") {
+            epcStatusLoading.value = true;
+            dashboardService
+                .fetchEpcStatus(filter)
+                .then((res) => (epcStatusData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (epcStatusLoading.value = false));
+        }
+    };
+
+    const fetchForSection = (newSection: string) => {
+        if (
+            newSection === "overview" &&
+            !heatmapData.value &&
+            !heatmapLoading.value
+        ) {
+            void refreshDashboard();
+        } else if (
+            newSection === "low-stock" &&
+            !lowStockData.value &&
+            !lowStockLoading.value
+        ) {
+            void refreshDashboard();
+        } else if (
+            newSection === "recent-activity" &&
+            recentActivityData.value.length === 0 &&
+            !recentActivityLoading.value
+        ) {
+            void refreshDashboard();
+        } else if (
+            newSection === "epc-status" &&
+            epcStatusData.value.length === 0 &&
+            !epcStatusLoading.value
+        ) {
+            void refreshDashboard();
+        }
+    };
+
+    onMounted(() => {
+        void refreshDashboard();
+    });
+
+    onBeforeRouteUpdate((to) => {
+        fetchForSection((to.meta.section as string) || "overview");
+    });
+
+    useDebouncedWatch(
+        () => dashboardFilters.filter.warehouseId,
+        () => {
+            void refreshDashboard();
+        },
+    );
+
+    const heatmapRows = computed(() => heatmapData.value?.rows ?? []);
+    const heatmapMax = computed(() => heatmapData.value?.maxQuantity ?? 1);
+    const chartBars = computed(() => chartData.value ?? []);
+    const lowStockItems = computed(() => lowStockData.value?.items ?? []);
+    const totalLowStock = computed(
+        () => lowStockData.value?.totalLowStock ?? 0,
+    );
+
+    const recentActivity = computed(() => recentActivityData.value ?? []);
 
     const epcStatusTotal = computed(
         () =>
-            (snapshot.value?.epcStatus ?? []).reduce(
-                (acc, s) => acc + s.count,
+            (epcStatusData.value ?? []).reduce(
+                (acc: number, s: any) => acc + s.count,
                 0,
             ) || 0,
     );
 
     const epcStatusBreakdown = computed(() => {
-        if (!snapshot.value) return [];
-        const statusItems = snapshot.value.epcStatus ?? [];
+        if (!epcStatusData.value) return [];
+        const statusItems = epcStatusData.value ?? [];
         const total = epcStatusTotal.value || 1;
 
         const metaMap: Record<
@@ -171,7 +288,7 @@ export function useDashboard() {
             },
         };
 
-        return statusItems.map((item) => {
+        return statusItems.map((item: any) => {
             const key = item.status.toLowerCase();
             const meta = metaMap[key] ?? {
                 title: `${item.status.toUpperCase()} Tags`,
@@ -191,10 +308,10 @@ export function useDashboard() {
     });
 
     const summaryCards = computed(() => {
-        if (!snapshot.value) {
+        if (!summaryData.value) {
             return [];
         }
-        const summary = snapshot.value.summary;
+        const summary = summaryData.value;
         const warehouseCaption =
             selectedWarehouse.value?.name ?? "Seluruh Gudang";
         const inboundLabel = summary.latestInboundDate ?? "Belum ada data";
@@ -205,40 +322,35 @@ export function useDashboard() {
                 value: summary.totalStock,
                 caption: warehouseCaption,
                 icon: Box,
-                iconColorClass: "text-primary-600",
-                cardClass: "!bg-blue-100 !border-blue-300",
+                theme: "blue",
             },
             {
                 label: "EPC Active",
                 value: summary.epcActive,
                 caption: "Tags monitored",
                 icon: Zap,
-                iconColorClass: "text-primary-teal",
-                cardClass: "!bg-teal-100 !border-teal-300",
+                theme: "teal",
             },
             {
                 label: "Inbound Today",
                 value: summary.inboundToday,
                 caption: inboundLabel,
                 icon: ArrowDownRight,
-                iconColorClass: "text-insight-purple",
-                cardClass: "!bg-purple-100 !border-purple-300",
+                theme: "purple",
             },
             {
                 label: "Outbound Today",
                 value: summary.outboundToday,
                 caption: outboundLabel,
                 icon: ArrowUpRight,
-                iconColorClass: "text-action-orange",
-                cardClass: "!bg-amber-100 !border-amber-300",
+                theme: "amber",
             },
             {
                 label: "Opname Pending",
                 value: summary.opnamePending,
                 caption: "Scheduled audits",
                 icon: ClipboardCheck,
-                iconColorClass: "text-signal-red",
-                cardClass: "!bg-red-100 !border-red-300",
+                theme: "red",
             },
         ];
     });
@@ -249,6 +361,12 @@ export function useDashboard() {
         warehousesLoading,
         warehouseError,
         dashboardLoading,
+        summaryLoading,
+        heatmapLoading,
+        chartLoading,
+        lowStockLoading,
+        epcStatusLoading,
+        recentActivityLoading,
         dashboardError,
         refreshDashboard,
         heatmapRows,

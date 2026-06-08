@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed } from "vue";
 import { settingsService } from "@/services/settings.service";
 import { useNotifier } from "@/composable/useNotifier";

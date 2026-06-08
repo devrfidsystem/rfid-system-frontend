@@ -1,4 +1,3 @@
-import { apiRequest } from "@/lib/api/client";
 import type { ApiResponse, ApiPaginatedResult } from "@/lib/api/response";
 import type {
     MasterCreatePayloads,
@@ -9,16 +8,7 @@ import type {
     MasterUpdatePayloads,
 } from "@/api/feature/dto/master.dto";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
-
-const entityPaths: Record<MasterEntityKey, string> = {
-    warehouses: "/warehouses",
-    locations: "/locations",
-    products: "/products",
-    customers: "/customers",
-    suppliers: "/suppliers",
-    uoms: "/uoms",
-    "product-categories": "/product-categories",
-};
+import { masterApi } from "@/api/feature/master.api";
 
 const removableEntities: MasterEntityKey[] = [
     "warehouses",
@@ -35,11 +25,7 @@ export const masterService = {
         entity: K,
         params?: MasterListParams,
     ): Promise<ApiPaginatedResult<MasterRecords[K]>> {
-        const response = await apiRequest<{ items?: MasterRecords[K][] }>({
-            url: entityPaths[entity],
-            method: "get",
-            params,
-        });
+        const response = await masterApi.fetchList(entity, params);
         const items = normalizePaginationItems(response);
         return {
             items,
@@ -51,11 +37,7 @@ export const masterService = {
         entity: K,
         params?: Record<string, string | undefined>,
     ): Promise<MasterRecords[K][]> {
-        const response = await apiRequest<{ items?: MasterRecords[K][] }>({
-            url: `${entityPaths[entity]}/options`,
-            method: "get",
-            params,
-        });
+        const response = await masterApi.fetchOptions(entity, params);
         return normalizePaginationItems(
             response as ApiResponse<{ items?: MasterRecords[K][] }>,
         );
@@ -65,11 +47,7 @@ export const masterService = {
         entity: K,
         payload: MasterCreatePayloads[K],
     ): Promise<ApiResponse<MasterRecords[K]>> {
-        return apiRequest<MasterRecords[K]>({
-            url: entityPaths[entity],
-            method: "post",
-            data: payload,
-        });
+        return masterApi.create(entity, payload);
     },
 
     async update<K extends MasterEntityKey>(
@@ -77,21 +55,14 @@ export const masterService = {
         id: string,
         payload: MasterUpdatePayloads[K],
     ): Promise<ApiResponse<MasterRecords[K]>> {
-        return apiRequest<MasterRecords[K]>({
-            url: `${entityPaths[entity]}/${id}`,
-            method: "patch",
-            data: payload,
-        });
+        return masterApi.update(entity, id, payload);
     },
 
     async remove<K extends MasterRemovableEntity>(
         entity: K,
         id: string,
     ): Promise<ApiResponse<MasterRecords[K]>> {
-        return apiRequest<MasterRecords[K]>({
-            url: `${entityPaths[entity]}/${id}`,
-            method: "delete",
-        });
+        return masterApi.remove(entity, id);
     },
 
     isRemovable(entity: MasterEntityKey): entity is MasterRemovableEntity {

@@ -6,7 +6,7 @@
             tagline="RFID"
         />
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_RfidAssignmentList">
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -21,6 +21,7 @@
                             v-model="tagSearch"
                             placeholder="Search EPC"
                             class="w-full max-w-xs"
+                            object-id="txt_RfidAssignmentSearch"
                         >
                             <template #icon>
                                 <Icon :icon="Search" :size="16" />
@@ -31,6 +32,7 @@
                                 variant="outline"
                                 class="px-2"
                                 title="Refresh"
+                                object-id="btn_RfidAssignmentRefresh"
                                 @click="refreshTags"
                             >
                                 <Icon :icon="RefreshCw" :size="16" />
@@ -59,6 +61,7 @@
                     :columns="tableColumns"
                     :rows="displayTags"
                     class="border-none shadow-none rounded-none"
+                    object-id="tbl_RfidAssignmentList"
                 />
                 <div class="border-t border-gray-200 px-6 py-4">
                     <Pagination
@@ -79,7 +82,7 @@
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Input from "@/components/atoms/Input.vue";
-import Select from "@/components/atoms/Select.vue";
+
 import Button from "@/components/atoms/Button.vue";
 import AppTable from "@/components/organisms/Table.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";

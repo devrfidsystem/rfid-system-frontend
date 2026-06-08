@@ -34,6 +34,7 @@
                     type="button"
                     class="px-1"
                     aria-label="Close alert"
+                    data-testid="button-emit-close"
                     @click="$emit('close')"
                 >
                     ×
