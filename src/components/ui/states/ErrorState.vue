@@ -7,7 +7,13 @@
             {{ description }}
         </p>
         <div v-if="onRetry" class="mt-3 flex justify-center">
-            <Button variant="outline" size="sm" @click="onRetry">Retry</Button>
+            <Button
+                variant="outline"
+                size="sm"
+                data-testid="button-onretry"
+                @click="onRetry"
+                >Retry</Button
+            >
         </div>
     </div>
 </template>

@@ -11,6 +11,7 @@
                         v-if="warehouseOptions.length > 0"
                         :options="warehouseOptions"
                         placeholder="Semua Gudang (Filter)"
+                        object-id="cmb_DashboardFilterWarehouse"
                         :placeholder-disabled="false"
                         :model-value="warehouseId ?? undefined"
                         @update:model-value="
@@ -20,7 +21,11 @@
                 </div>
 
                 <!-- Sort Stub (matches reference visual) -->
-                <Button variant="outline" size="sm">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    object-id="btn_DashboardSort"
+                >
                     <template #leftIcon>
                         <Icon
                             :icon="ArrowUpDown"
@@ -38,6 +43,7 @@
                     variant="outline"
                     size="sm"
                     :disabled="loading"
+                    object-id="btn_DashboardRefresh"
                     @click="$emit('refresh')"
                 >
                     <template #leftIcon>

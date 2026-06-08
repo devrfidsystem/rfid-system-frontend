@@ -18,7 +18,7 @@
                 :type="type"
                 :disabled="disabled"
                 :class="[inputClasses, $slots.icon ? 'pl-10' : '']"
-                v-bind="attrs"
+                v-bind="{ ...attrs, ...bindObjectId(objectId) }"
                 @input="onInput"
             />
         </div>
@@ -39,6 +39,7 @@
 defineOptions({ inheritAttrs: false });
 
 import { computed, useAttrs } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     label?: string;
@@ -50,6 +51,7 @@ const props = defineProps<{
     disabled?: boolean;
     invalid?: boolean;
     hideMessage?: boolean;
+    objectId?: string;
 }>();
 
 const attrs = useAttrs();

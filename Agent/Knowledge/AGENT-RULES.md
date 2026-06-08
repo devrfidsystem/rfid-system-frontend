@@ -50,3 +50,23 @@ Agent harus melakukan _tracing_ dan pencarian mandiri ke:
 Jika data tersebut **TETAP TIDAK DITEMUKAN**, maka:
 **LAPORKAN GAP KEPADA USER.**
 **JANGAN MELAKUKAN CODING MENGGUNAKAN ASUMSI ATAU MOCK DATA.**
+
+---
+
+## Knowledge Governance
+
+Rule wajib:
+
+1. Read `MASTER-INDEX.md` first.
+2. Use Source Of Truth.
+3. Do not duplicate documentation.
+4. Do not create alternative standards.
+5. If conflict found:
+   - stop implementation
+   - report conflict
+   - request clarification
+6. Any implementation affecting knowledge must update Source Of Truth.
+7. Screen owns UI specification.
+8. Contract owns DTO/API contract.
+9. Domain owns business rules.
+10. Testing owns automation standards.

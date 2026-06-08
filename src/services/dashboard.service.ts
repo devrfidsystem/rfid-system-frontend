@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api/client";
+import { dashboardApi } from "@/api/feature/dashboard.api";
 import type { ApiResponse } from "@/lib/api/response";
 import { locationService } from "@/services/location.service";
 import { stockService } from "@/services/stock.service";
@@ -13,7 +13,6 @@ import type {
 } from "@/api/feature/dto/dashboard.dto";
 import type {
     DashboardFilterState,
-    DashboardSnapshot,
     DashboardHeatmapResponse,
     DashboardLowStockSummary,
     DashboardChartBar,
@@ -208,88 +207,77 @@ const normalizeStockItems = (
     "data" in response ? response.data.items : response.items;
 
 export const dashboardService = {
-    async fetchSnapshot(
+    async fetchSummary(
         filter: DashboardFilterState,
-    ): Promise<DashboardSnapshot> {
-        const params = toParams(filter);
-        const [
-            summaryResponse,
-            lowStockResponse,
-            docCountsResponse,
-            epcStatusResponse,
-            recentActivityResponse,
-            balanceResponse,
-        ] = await Promise.all([
-            apiRequest<DashboardStockSummaryResponse>({
-                url: "/dashboard/stock-summary",
-                method: "get",
-                params,
-            }),
-            apiRequest<DashboardLowStockResponse>({
-                url: "/dashboard/low-stock",
-                method: "get",
-                params: { ...params, limit: 6, page: 1 },
-            }),
-            apiRequest<DashboardDocCountsResponse>({
-                url: "/dashboard/doc-counts",
-                method: "get",
-                params,
-            }),
-            apiRequest<DashboardEpcStatusResponse>({
-                url: "/dashboard/epc-status",
-                method: "get",
-                params,
-            }),
-            apiRequest<DashboardRecentActivityResponse>({
-                url: "/dashboard/recent-activity",
-                method: "get",
-                params,
-            }),
+    ): Promise<DashboardStockSummaryResponse> {
+        const response = await dashboardApi.fetchStockSummary(toParams(filter));
+        return response.data;
+    },
+
+    async fetchChart(
+        filter: DashboardFilterState,
+    ): Promise<DashboardChartBar[]> {
+        const response = await dashboardApi.fetchDocCounts(toParams(filter));
+        return buildChartBars(createDocCountEntries(response.data));
+    },
+
+    async fetchLowStock(
+        filter: DashboardFilterState,
+    ): Promise<DashboardLowStockSummary> {
+        const response = await dashboardApi.fetchLowStock(
+            toParams(filter),
+            6,
+            1,
+        );
+        const payload = resolveLowStockData(
+            response.data as DashboardLowStockRawResponse,
+        );
+        return toLowStockSummary(payload as unknown as Record<string, unknown>);
+    },
+
+    async fetchEpcStatus(
+        filter: DashboardFilterState,
+    ): Promise<DashboardEpcStatusResponse["byStatus"]> {
+        const response = await dashboardApi.fetchEpcStatus(toParams(filter));
+        return response.data.byStatus ?? [];
+    },
+
+    async fetchRecentActivity(
+        filter: DashboardFilterState,
+    ): Promise<DashboardRecentActivityResponse> {
+        const response = await dashboardApi.fetchRecentActivity(
+            toParams(filter),
+        );
+        return response.data ?? [];
+    },
+
+    async fetchHeatmap(
+        filter: DashboardFilterState,
+    ): Promise<DashboardHeatmapResponse> {
+        const [balanceResponse, locationResponse] = await Promise.all([
             stockService.fetchBalance({
                 warehouseId: filter.warehouseId ?? undefined,
                 limit: 200,
             }),
+            filter.warehouseId
+                ? locationService.list({
+                      warehouseId: filter.warehouseId,
+                      limit: 500,
+                  })
+                : Promise.resolve({
+                      success: true,
+                      message: "OK",
+                      data: { items: [] as LocationRecord[] },
+                      error: null,
+                      meta: null,
+                  }),
         ]);
 
-        const locationPromise: Promise<
-            | ApiResponse<LocationListResponse<LocationRecord>>
-            | LocationListResponse<LocationRecord>
-        > = filter.warehouseId
-            ? locationService.list({
-                  warehouseId: filter.warehouseId,
-                  limit: 500,
-              })
-            : Promise.resolve({
-                  success: true,
-                  message: "OK",
-                  data: { items: [] },
-                  error: null,
-                  meta: null,
-              });
-
-        const locationResponse = await locationPromise;
-
-        const heatmap = buildHeatmap(
+        return buildHeatmap(
             normalizeStockItems(balanceResponse),
-            normalizeLocationItems(locationResponse),
+            normalizeLocationItems(
+                locationResponse as unknown as LocationListResponse<LocationRecord>,
+            ), // Keep typing simple for internal conversion
         );
-        const docCountEntries = createDocCountEntries(docCountsResponse.data);
-        const chart = buildChartBars(docCountEntries);
-
-        const lowStockPayload = resolveLowStockData(
-            lowStockResponse.data as DashboardLowStockRawResponse,
-        );
-
-        return {
-            summary: summaryResponse.data,
-            heatmap,
-            chart,
-            lowStock: toLowStockSummary(
-                lowStockPayload as unknown as Record<string, unknown>,
-            ),
-            docCounts: docCountEntries,
-            epcStatus: epcStatusResponse.data.byStatus ?? [],
-            recentActivity: recentActivityResponse.data ?? [],
-        };
     },
 };

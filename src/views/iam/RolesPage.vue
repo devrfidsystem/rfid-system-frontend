@@ -7,12 +7,16 @@
                     Manage application roles and access levels.
                 </p>
             </div>
-            <Button variant="primary" @click="openCreateModal">
+            <Button
+                variant="primary"
+                object-id="btn_RolesNewRole"
+                @click="openCreateModal"
+            >
                 New Role
             </Button>
         </div>
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_RolesList">
             <div v-if="loading" class="p-6">
                 <LoadingState :lines="3" />
             </div>
@@ -24,6 +28,7 @@
                 :columns="columns"
                 :rows="tableRows"
                 class="border-none shadow-none rounded-none"
+                object-id="tbl_RolesList"
             >
                 <template #actions="{ row }">
                     <RowActions
@@ -48,18 +53,20 @@
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
         >
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleSubmit">
                 <Input
-                    id="name"
+                    id="txt_RolesFormName"
                     v-model="form.name"
                     label="Role Name"
                     placeholder="e.g. SUPER_ADMIN"
                     required
+                    object-id="txt_RolesFormName"
                 />
                 <Input
-                    id="description"
+                    id="txt_RolesFormDescription"
                     v-model="form.description"
                     label="Description"
+                    object-id="txt_RolesFormDescription"
                 />
 
                 <div
@@ -68,6 +75,7 @@
                     <Button
                         type="button"
                         variant="outline"
+                        object-id="btn_RolesFormCancel"
                         @click="isModalOpen = false"
                         >Cancel</Button
                     >
@@ -75,6 +83,7 @@
                         type="submit"
                         variant="primary"
                         :disabled="submitting"
+                        object-id="btn_RolesFormSave"
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
@@ -85,6 +94,7 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, onMounted, computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";

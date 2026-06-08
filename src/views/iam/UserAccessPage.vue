@@ -17,6 +17,7 @@
                     v-model="selectedUserId"
                     :options="userOptions"
                     placeholder="Select a User"
+                    object-id="cmb_UserAccessSelectUser"
                 />
             </div>
         </div>
@@ -35,7 +36,7 @@
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Roles Card -->
-            <Card class="md:col-span-1">
+            <Card class="md:col-span-1" object-id="wdg_UserAccessRoles">
                 <h4
                     class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
                 >
@@ -49,12 +50,14 @@
                                 :options="roleOptions"
                                 label="Add Role"
                                 placeholder="Select role"
+                                object-id="cmb_UserAccessAddRole"
                             />
                         </div>
                         <Button
                             variant="outline"
-                            @click="addRole"
                             :disabled="!selectedRole || submitting"
+                            object-id="btn_UserAccessAddRole"
+                            @click="addRole"
                             >Add</Button
                         >
                     </div>
@@ -68,9 +71,11 @@
                                 role.name
                             }}</span>
                             <button
-                                @click="removeRole(role.id)"
+                                :id="`btn_UserAccessRemoveRole_Item${role.id}`"
                                 class="text-rose-500 hover:text-rose-700 text-xs font-medium"
                                 :disabled="submitting"
+                                :object-id="`btn_UserAccessRemoveRole_Item${role.id}`"
+                                @click="removeRole(role.id)"
                             >
                                 Remove
                             </button>
@@ -86,7 +91,7 @@
             </Card>
 
             <!-- Warehouses Card -->
-            <Card class="md:col-span-1">
+            <Card class="md:col-span-1" object-id="wdg_UserAccessWarehouses">
                 <h4
                     class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
                 >
@@ -100,12 +105,14 @@
                                 :options="warehouseOptions"
                                 label="Grant Access"
                                 placeholder="Select warehouse"
+                                object-id="cmb_UserAccessAddWarehouse"
                             />
                         </div>
                         <Button
                             variant="outline"
-                            @click="addWarehouse"
                             :disabled="!selectedWarehouse || submitting"
+                            object-id="btn_UserAccessAddWarehouse"
+                            @click="addWarehouse"
                             >Add</Button
                         >
                     </div>
@@ -119,11 +126,13 @@
                                 wh.name || wh.warehouseId || wh.id
                             }}</span>
                             <button
+                                :id="`btn_UserAccessRemoveWarehouse_Item${wh.id}`"
+                                class="text-rose-500 hover:text-rose-700 text-xs font-medium"
+                                :disabled="submitting"
+                                :object-id="`btn_UserAccessRemoveWarehouse_Item${wh.id}`"
                                 @click="
                                     removeWarehouse(wh.warehouseId || wh.id)
                                 "
-                                class="text-rose-500 hover:text-rose-700 text-xs font-medium"
-                                :disabled="submitting"
                             >
                                 Remove
                             </button>
@@ -139,7 +148,7 @@
             </Card>
 
             <!-- Companies Card -->
-            <Card class="md:col-span-1">
+            <Card class="md:col-span-1" object-id="wdg_UserAccessCompanies">
                 <h4
                     class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
                 >
@@ -153,12 +162,14 @@
                                 :options="companyOptions"
                                 label="Assign Company"
                                 placeholder="Select company"
+                                object-id="cmb_UserAccessAddCompany"
                             />
                         </div>
                         <Button
                             variant="outline"
-                            @click="addCompany"
                             :disabled="!selectedCompany || submitting"
+                            object-id="btn_UserAccessAddCompany"
+                            @click="addCompany"
                             >Add</Button
                         >
                     </div>

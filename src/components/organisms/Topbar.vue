@@ -6,17 +6,22 @@
             class="mx-auto max-w-[1400px] px-4 lg:px-6 py-3 flex items-center gap-4"
         >
             <!-- Left: mobile toggle + breadcrumb + sidebar collapse -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                 <button
+                    id="btn_TopbarToggleMobileSidebar"
                     class="lg:hidden rounded-md border border-border-default bg-white p-2 text-text-secondary shadow-xs transition hover:bg-workspace-bg"
+                    data-testid="btn_TopbarToggleMobileSidebar"
                     @click="$emit('toggle-sidebar')"
                 >
                     <Icon :icon="Menu" :size="20" />
                 </button>
-                <Breadcrumb :items="breadcrumbItems" />
+                <div class="min-w-0 flex-1 overflow-hidden">
+                    <Breadcrumb :items="breadcrumbItems" />
+                </div>
                 <IconButton
                     variant="neutral"
                     class="hidden lg:flex"
+                    object-id="btn_TopbarToggleSidebar"
                     @click="toggleSidebarCollapsed"
                 >
                     <Icon
@@ -27,21 +32,22 @@
             </div>
 
             <!-- Center: space -->
-            <div class="flex flex-1 items-center"></div>
+            <div class="flex items-center"></div>
 
             <!-- Right: actions -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
                 <!-- Company Selector -->
                 <div
                     class="hidden md:flex items-center gap-2 rounded-md border border-border-default bg-workspace-bg px-3 py-1.5"
                 >
                     <label
-                        for="company-selector"
+                        for="cmb_TopbarCompany"
                         class="text-xs font-medium uppercase tracking-wider text-gray-500"
                         >Company</label
                     >
                     <select
-                        id="company-selector"
+                        id="cmb_TopbarCompany"
+                        data-testid="cmb_TopbarCompany"
                         class="bg-transparent text-sm font-medium text-gray-800 focus:outline-none cursor-pointer border-none p-0 focus:ring-0"
                         :value="currentCompanyId ?? ''"
                         @change="onCompanyChange"
@@ -59,6 +65,7 @@
                 <!-- Notifications -->
                 <IconButton
                     variant="neutral"
+                    object-id="btn_TopbarNotifications"
                     @click="isNotificationOpen = true"
                 >
                     <Icon :icon="Bell" :size="18" />
@@ -71,7 +78,7 @@
 
                 <!-- User Area -->
                 <div
-                    class="flex items-center gap-4 border-l border-border-default pl-4 ml-2"
+                    class="flex items-center gap-2 sm:gap-4 border-l border-border-default pl-2 sm:pl-4 ml-1 sm:ml-2"
                 >
                     <!-- User Pill -->
                     <div class="flex items-center gap-2" title="User Profile">
@@ -92,10 +99,12 @@
                         size="sm"
                         class="text-gray-500 hover:bg-rose-50 hover:text-rose-600 px-2"
                         :loading="logoutLoading"
-                        @click="handleLogout"
                         title="Logout"
+                        object-id="btn_TopbarLogout"
+                        @click="handleLogout"
                     >
-                        Logout
+                        <span class="hidden sm:inline">Logout</span>
+                        <Icon :icon="LogOut" :size="16" class="sm:hidden" />
                     </Button>
                 </div>
             </div>
@@ -111,7 +120,13 @@ import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import IconButton from "@/components/atoms/IconButton.vue";
 import NotificationDrawer from "@/components/organisms/NotificationDrawer.vue";
-import { Bell, Menu, ChevronsLeft, ChevronsRight } from "lucide-vue-next";
+import {
+    Bell,
+    Menu,
+    ChevronsLeft,
+    ChevronsRight,
+    LogOut,
+} from "lucide-vue-next";
 import { useTheme } from "@/composable/useTheme";
 import { useAuthStore } from "@/store/auth.store";
 import { useNotifier } from "@/composable/useNotifier";

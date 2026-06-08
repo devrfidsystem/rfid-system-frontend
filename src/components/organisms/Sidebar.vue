@@ -38,9 +38,11 @@
                         :size="16"
                     />
                     <input
+                        id="txt_SidebarSearch"
                         v-model="searchQuery"
                         placeholder="Search menu..."
                         class="w-full rounded-md border border-transparent bg-gray-100 py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-500 hover:bg-gray-200/50 focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all"
+                        data-testid="txt_SidebarSearch"
                     />
                 </div>
             </div>
@@ -66,6 +68,7 @@
                             <!-- Single item (no children) -->
                             <RouterLink
                                 v-if="!item.children.length"
+                                :id="toObjectId('trm_Sidebar', item.title)"
                                 :to="item.path ?? '#'"
                                 class="group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150"
                                 :class="[
@@ -78,6 +81,9 @@
                                 ]"
                                 :title="
                                     sidebarCollapsed ? item.title : undefined
+                                "
+                                :data-testid="
+                                    toObjectId('trm_Sidebar', item.title)
                                 "
                                 @click="closeOnNavigate"
                             >
@@ -98,6 +104,12 @@
                             <!-- Group with children -->
                             <div v-else>
                                 <button
+                                    :id="
+                                        toObjectId(
+                                            'trm_SidebarGroup',
+                                            item.title,
+                                        )
+                                    "
                                     type="button"
                                     class="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                     :class="
@@ -109,6 +121,12 @@
                                         sidebarCollapsed
                                             ? item.title
                                             : undefined
+                                    "
+                                    :data-testid="
+                                        toObjectId(
+                                            'trm_SidebarGroup',
+                                            item.title,
+                                        )
                                     "
                                     @click="toggleGroup(item.id)"
                                 >
@@ -148,6 +166,12 @@
                                 >
                                     <RouterLink
                                         v-for="child in item.children"
+                                        :id="
+                                            toObjectId(
+                                                'trm_Sidebar',
+                                                child.title,
+                                            )
+                                        "
                                         :key="child.id"
                                         :to="child.path ?? '#'"
                                         class="group flex items-center rounded-md pl-9 pr-3 py-2 text-sm font-medium transition-colors duration-150"
@@ -155,6 +179,12 @@
                                             child.path && isActive(child.path)
                                                 ? 'bg-primary-50 text-primary-700 font-semibold'
                                                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                        "
+                                        :data-testid="
+                                            toObjectId(
+                                                'trm_Sidebar',
+                                                child.title,
+                                            )
                                         "
                                         @click="closeOnNavigate"
                                     >
@@ -170,8 +200,10 @@
             <!-- Collapse Button -->
             <div class="mt-auto border-t border-border-default pt-4">
                 <button
+                    id="btn_SidebarCollapse"
                     type="button"
                     class="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.25em] text-text-secondary transition-all duration-150 hover:bg-workspace-bg hover:text-gray-900"
+                    data-testid="btn_SidebarCollapse"
                     @click="toggleCollapse"
                 >
                     <Icon
@@ -192,6 +224,7 @@ import AppLogo from "@/assets/image.png";
 import Icon from "@/components/atoms/Icon.vue";
 import { useTheme } from "@/composable/useTheme";
 import { useAccess } from "@/composable/useAccess";
+import { toObjectId } from "@/utils/objectId";
 import {
     Search,
     LayoutDashboard,

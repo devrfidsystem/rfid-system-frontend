@@ -1,20 +1,23 @@
 <template>
-    <section :class="cardClasses">
+    <section :class="cardClasses" v-bind="bindObjectId(objectId)">
         <slot />
     </section>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = withDefaults(
     defineProps<{
         class?: string;
         noPadding?: boolean;
+        objectId?: string;
     }>(),
     {
         class: "",
         noPadding: false,
+        objectId: undefined,
     },
 );
 

@@ -6,7 +6,7 @@
             tagline="Stock"
         />
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_StockLedgerList">
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -21,6 +21,7 @@
                             v-model="keyword"
                             placeholder="Search by EPC, document, or product"
                             class="w-full max-w-xs"
+                            object-id="txt_StockLedgerSearch"
                         >
                             <template #icon>
                                 <Icon :icon="Search" :size="16" />
@@ -31,6 +32,7 @@
                                 <Button
                                     variant="outline"
                                     class="px-3"
+                                    object-id="btn_StockLedgerFilter"
                                     @click="toggleFilter"
                                 >
                                     <Icon :icon="Filter" :size="14" />
@@ -51,18 +53,24 @@
                                         placeholder="All warehouses"
                                         label="Warehouse"
                                         class="w-full"
+                                        object-id="cmb_StockLedgerWarehouse"
                                     />
                                     <div class="pt-2 flex justify-end">
                                         <Button
                                             size="sm"
                                             variant="outline"
+                                            object-id="btn_StockLedgerCloseFilter"
                                             @click="toggleFilter"
                                             >Close</Button
                                         >
                                     </div>
                                 </div>
                             </div>
-                            <Button variant="outline" class="px-3">
+                            <Button
+                                variant="outline"
+                                class="px-3"
+                                object-id="btn_StockLedgerSort"
+                            >
                                 <Icon :icon="ArrowUpDown" :size="14" />
                                 Sort
                             </Button>
@@ -70,6 +78,7 @@
                                 variant="outline"
                                 class="px-2"
                                 title="Refresh"
+                                object-id="btn_StockLedgerRefresh"
                                 @click="refresh"
                             >
                                 <Icon :icon="RefreshCw" :size="16" />
@@ -99,6 +108,7 @@
                     :columns="columns"
                     :rows="displayRows"
                     class="border-none shadow-none rounded-none"
+                    object-id="tbl_StockLedgerList"
                 />
                 <div class="border-t border-gray-200 px-6 py-4">
                     <Pagination

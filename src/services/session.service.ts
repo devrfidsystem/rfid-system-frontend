@@ -1,4 +1,5 @@
-import { apiRequest } from "@/lib/api/client";
+import type { AuthProfile } from "./auth.service";
+import { sessionApi } from "@/api/feature/session.api";
 
 export interface SignInPayload {
     email: string;
@@ -8,18 +9,14 @@ export interface SignInPayload {
 export interface AuthLoginResponseDto {
     accessToken: string;
     refreshToken: string;
-    profile: unknown;
+    profile: AuthProfile;
 }
 
 export const sessionService = {
     async signInWithPassword(
         payload: SignInPayload,
     ): Promise<AuthLoginResponseDto> {
-        const resp = await apiRequest<AuthLoginResponseDto>({
-            url: "/auth/login",
-            method: "POST",
-            data: payload,
-        });
+        const resp = await sessionApi.login(payload);
 
         if (!resp.data) {
             throw new Error("No data in login response");
@@ -32,10 +29,7 @@ export const sessionService = {
 
     async signOut(): Promise<void> {
         try {
-            await apiRequest({
-                url: "/auth/logout",
-                method: "POST",
-            });
+            await sessionApi.logout();
         } finally {
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
@@ -47,12 +41,7 @@ export const sessionService = {
         if (!refreshToken) return null;
 
         try {
-            const resp = await apiRequest<AuthLoginResponseDto>({
-                url: "/auth/refresh",
-                method: "POST",
-                data: { refreshToken },
-                skipAuthErrorHandling: true,
-            });
+            const resp = await sessionApi.refresh(refreshToken);
 
             if (resp.data) {
                 localStorage.setItem("access_token", resp.data.accessToken);

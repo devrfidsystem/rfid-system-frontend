@@ -14,6 +14,7 @@
                 v-model="localKeyword"
                 placeholder="Search data..."
                 class="w-full sm:max-w-xs"
+                object-id="txt_MasterHeaderSearch"
             >
                 <template #icon>
                     <Icon :icon="Search" :size="16" />
@@ -23,6 +24,7 @@
                 <Button
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
+                    object-id="btn_MasterHeaderFilter"
                 >
                     <Icon :icon="Filter" :size="14" />
                     Filter
@@ -30,6 +32,7 @@
                 <Button
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
+                    object-id="btn_MasterHeaderSort"
                 >
                     <Icon :icon="ArrowUpDown" :size="14" />
                     Sort
@@ -38,12 +41,18 @@
                     variant="outline"
                     class="px-2 w-full sm:w-auto justify-center"
                     title="Refresh"
+                    object-id="btn_MasterHeaderRefresh"
                     @click="$emit('refresh')"
                 >
                     <Icon :icon="RefreshCw" :size="16" />
                 </Button>
             </div>
-            <Button variant="primary" :disabled="!canAdd" @click="$emit('add')">
+            <Button
+                variant="primary"
+                :disabled="!canAdd"
+                object-id="btn_MasterHeaderAdd"
+                @click="$emit('add')"
+            >
                 <Icon :icon="Plus" :size="14" />
                 Add {{ title }}
             </Button>

@@ -1,6 +1,7 @@
 <template>
     <div
         class="flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-100 bg-gray-50/50 px-6 py-10 text-center"
+        data-testid="empty-placeholder"
     >
         <img
             :src="resolvedImage"
@@ -22,6 +23,7 @@
                 variant="outline"
                 size="sm"
                 type="button"
+                data-testid="button-emit-action"
                 @click="emit('action')"
             >
                 {{ actionText }}

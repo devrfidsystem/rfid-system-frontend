@@ -9,6 +9,7 @@
                     variant="outline"
                     size="sm"
                     type="button"
+                    object-id="btn_MasterDeleteCancel"
                     @click="closeModal"
                 >
                     <Icon :icon="X" :size="12" />
@@ -19,6 +20,7 @@
                     size="sm"
                     type="button"
                     :loading="isDeleting"
+                    object-id="btn_MasterDeleteConfirm"
                     @click="confirmDelete"
                 >
                     <Icon :icon="Trash2" :size="12" />

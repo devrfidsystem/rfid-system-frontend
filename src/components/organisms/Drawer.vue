@@ -23,6 +23,7 @@
                         class="relative flex h-full flex-col bg-white shadow-2xl border-l border-border-default"
                         :class="[widthClass, sideClass]"
                         tabindex="-1"
+                        v-bind="bindObjectId(objectId)"
                         @keydown.esc.prevent="handleEsc"
                         @click.stop
                     >
@@ -50,6 +51,13 @@
                                 type="button"
                                 class="rounded-full border border-border-default bg-workspace-bg px-2 py-1 text-sm text-text-secondary transition hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-200"
                                 aria-label="Close drawer"
+                                v-bind="
+                                    bindObjectId(
+                                        objectId
+                                            ? `icn_${objectId.replace(/^[^_]+_/, '')}Close`
+                                            : undefined,
+                                    )
+                                "
                                 @click="close"
                             >
                                 ×
@@ -83,6 +91,7 @@ import {
     useId,
     watch,
 } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     modelValue: boolean;
@@ -94,6 +103,7 @@ const props = defineProps<{
     closeOnEsc?: boolean;
     persistent?: boolean;
     hideClose?: boolean;
+    objectId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -205,10 +215,36 @@ onBeforeUnmount(() => {
 <style scoped>
 .drawer-fade-enter-active,
 .drawer-fade-leave-active {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.drawer-fade-enter-active .backdrop-blur-sm,
+.drawer-fade-leave-active .backdrop-blur-sm {
+    transition: backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drawer-fade-enter-active > div > aside,
+.drawer-fade-leave-active > div > aside {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .drawer-fade-enter-from,
 .drawer-fade-leave-to {
     opacity: 0;
+}
+
+.drawer-fade-enter-from .backdrop-blur-sm,
+.drawer-fade-leave-to .backdrop-blur-sm {
+    backdrop-filter: blur(0px);
+}
+
+.drawer-fade-enter-from > div > aside.ml-auto,
+.drawer-fade-leave-to > div > aside.ml-auto {
+    transform: translateX(100%);
+}
+
+.drawer-fade-enter-from > div > aside.mr-auto,
+.drawer-fade-leave-to > div > aside.mr-auto {
+    transform: translateX(-100%);
 }
 </style>

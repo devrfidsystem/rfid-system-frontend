@@ -17,6 +17,13 @@
                     v-model="search"
                     class="w-full bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
                     placeholder="Search..."
+                    v-bind="
+                        bindObjectId(
+                            objectId
+                                ? `txt_${objectId.replace(/^[^_]+_/, '')}Search`
+                                : undefined,
+                        )
+                    "
                 />
             </div>
             <slot name="filters" />
@@ -34,6 +41,13 @@
                 <select
                     v-model.number="localPageSize"
                     class="rounded-md border border-border-default bg-workspace-bg px-2 py-1 text-xs focus:border-primary-400 focus:ring-1 focus:ring-primary-100 cursor-pointer"
+                    v-bind="
+                        bindObjectId(
+                            objectId
+                                ? `cmb_${objectId.replace(/^[^_]+_/, '')}PageSize`
+                                : undefined,
+                        )
+                    "
                 >
                     <option
                         v-for="option in pageSizeOptions"
@@ -52,6 +66,7 @@
 import { ref, watch } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
 import { Search } from "lucide-vue-next";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     modelValue?: string;
@@ -59,6 +74,7 @@ const props = defineProps<{
     pageSizeOptions?: number[];
     rows: unknown[];
     visibleRows: unknown[];
+    objectId?: string;
 }>();
 
 const emit = defineEmits<{

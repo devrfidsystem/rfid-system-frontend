@@ -1,8 +1,12 @@
 <template>
-    <Card class="p-0 border-gray-200 shadow-sm ring-0 overflow-hidden">
+    <Card
+        class="p-0 border-gray-200 shadow-sm ring-0 overflow-hidden"
+        v-bind="bindObjectId(objectId)"
+    >
         <DataTableToolbar
             v-model:search="table.search"
             v-bind="toolbarBind"
+            :object-id="objectId"
             class="border-b border-gray-200"
             @update:page-size="table.setPageSize"
         >
@@ -29,6 +33,13 @@
                                 type="checkbox"
                                 class="h-4 w-4 rounded border border-gray-300 text-primary-600 focus:ring-primary-500"
                                 :checked="allSelected"
+                                v-bind="
+                                    bindObjectId(
+                                        objectId
+                                            ? `${objectId}SelectAll`
+                                            : undefined,
+                                    )
+                                "
                                 @change="onToggleAll"
                             />
                         </th>
@@ -74,6 +85,13 @@
                                                 ? 'text-primary-600'
                                                 : 'text-text-secondary'
                                         "
+                                        v-bind="
+                                            bindObjectId(
+                                                objectId
+                                                    ? `icn_${objectId}Sort_${column.key}`
+                                                    : undefined,
+                                            )
+                                        "
                                     />
                                 </span>
                             </div>
@@ -108,6 +126,13 @@
                                     type="checkbox"
                                     :checked="table.isSelected(rowKey(row))"
                                     class="h-4 w-4 rounded border border-gray-300 text-primary-600 focus:ring-primary-500"
+                                    v-bind="
+                                        bindObjectId(
+                                            objectId
+                                                ? `${objectId}Select_${rowKey(row)}`
+                                                : undefined,
+                                        )
+                                    "
                                     @change="table.toggleSelection(rowKey(row))"
                                 />
                             </td>
@@ -142,6 +167,7 @@
         <div class="border-t border-gray-200 bg-white rounded-b-md">
             <DataTablePagination
                 v-bind="paginationBind"
+                :object-id="objectId ? `pgn_${objectId}` : undefined"
                 @update:page="table.setPage"
             />
         </div>
@@ -165,6 +191,7 @@ import DataTableEmpty from "./DataTableEmpty.vue";
 import { useDataTable } from "./useDataTable";
 import type { ColumnDef, SortState } from "./types";
 import { ChevronDown, ChevronUp } from "lucide-vue-next";
+import { bindObjectId } from "@/utils/objectId";
 
 type EmptyStateVariant = "default" | "search" | "filter";
 
@@ -179,6 +206,7 @@ const props = defineProps<{
     emptyStateTitle?: string;
     emptyStateDescription?: string;
     emptyStateVariant?: EmptyStateVariant;
+    objectId?: string;
 }>();
 
 const safeRows = computed(() =>

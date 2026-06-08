@@ -15,10 +15,12 @@
                 <FormGrid>
                     <FormField label="EPC" required :error="errors.epc">
                         <input
+                            id="txt_TagRegistrationEpc"
                             v-model="formState.epc"
                             type="text"
                             placeholder="Enter EPC"
                             class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+                            data-testid="txt_TagRegistrationEpc"
                         />
                     </FormField>
                     <FormField
@@ -27,8 +29,10 @@
                         :error="errors.tagType"
                     >
                         <select
+                            id="cmb_TagRegistrationTagType"
                             v-model="formState.tagType"
                             class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                            data-testid="cmb_TagRegistrationTagType"
                         >
                             <option value="" disabled>Select type</option>
                             <option
@@ -51,10 +55,12 @@
                 <FormGrid>
                     <FormField label="SKU" required :error="errors.sku">
                         <input
+                            id="txt_TagRegistrationSku"
                             v-model="formState.sku"
                             type="text"
                             placeholder="Item SKU"
                             class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                            data-testid="txt_TagRegistrationSku"
                         />
                     </FormField>
                     <FormField
@@ -62,28 +68,41 @@
                         :hint="'Optional storage location'"
                     >
                         <input
+                            id="txt_TagRegistrationLocation"
                             v-model="formState.location"
                             type="text"
                             placeholder="Warehouse aisle"
                             class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                            data-testid="txt_TagRegistrationLocation"
                         />
                     </FormField>
                     <FormField label="Notes" full>
                         <textarea
+                            id="txa_TagRegistrationNotes"
                             v-model="formState.notes"
                             rows="3"
                             placeholder="Short memo"
                             class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                            data-testid="txa_TagRegistrationNotes"
                         ></textarea>
                     </FormField>
                 </FormGrid>
             </FormSection>
 
             <FormActions>
-                <Button variant="ghost" type="button" @click="resetForm"
+                <Button
+                    variant="ghost"
+                    type="button"
+                    object-id="btn_TagRegistrationReset"
+                    @click="resetForm"
                     >Reset</Button
                 >
-                <Button variant="primary" type="submit">Submit</Button>
+                <Button
+                    variant="primary"
+                    type="submit"
+                    object-id="btn_TagRegistrationSubmit"
+                    >Submit</Button
+                >
             </FormActions>
         </FormRoot>
     </section>

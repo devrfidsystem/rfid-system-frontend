@@ -9,21 +9,23 @@
         >
             <template #actions>
                 <div
-                    class="flex items-center gap-3"
                     v-if="record && record.status === 'DRAFT'"
+                    class="flex items-center gap-3"
                 >
                     <Button
                         variant="outline"
                         class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
-                        @click="handleCancel"
+                        object-id="btn_TransactionDetailCancel"
                         :disabled="actionLoading"
+                        @click="handleCancel"
                     >
                         Cancel
                     </Button>
                     <Button
                         variant="primary"
-                        @click="handlePost"
+                        object-id="btn_TransactionDetailPost"
                         :disabled="actionLoading"
+                        @click="handlePost"
                     >
                         Post Transaction
                     </Button>
@@ -45,7 +47,10 @@
 
         <template v-else-if="record">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card class="md:col-span-1">
+                <Card
+                    class="md:col-span-1"
+                    object-id="wdg_TransactionDetailInfo"
+                >
                     <h3
                         class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
                     >
@@ -65,7 +70,11 @@
                     </div>
                 </Card>
 
-                <Card class="md:col-span-2" no-padding>
+                <Card
+                    class="md:col-span-2"
+                    no-padding
+                    object-id="wdg_TransactionDetailLines"
+                >
                     <div class="px-6 py-5 border-b border-gray-100">
                         <h3 class="text-base font-semibold text-gray-900">
                             Line Items

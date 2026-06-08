@@ -16,19 +16,21 @@
                         v-model="selectedAppId"
                         :options="appOptions"
                         placeholder="Select Application"
+                        object-id="cmb_MenusSelectApp"
                     />
                 </div>
                 <Button
                     variant="primary"
-                    @click="openCreateModal"
                     :disabled="!selectedAppId"
+                    object-id="btn_MenusNewMenu"
+                    @click="openCreateModal"
                 >
                     New Menu
                 </Button>
             </div>
         </div>
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_MenusList">
             <div v-if="loadingApps" class="p-6">
                 <LoadingState :lines="1" />
             </div>
@@ -52,6 +54,7 @@
                 :columns="columns"
                 :rows="tableRows"
                 class="border-none shadow-none rounded-none"
+                object-id="tbl_MenusList"
             >
                 <template #actions="{ row }">
                     <RowActions
@@ -76,13 +79,14 @@
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
         >
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleSubmit">
                 <Input
                     id="code"
                     v-model="form.code"
                     label="Menu Code"
                     placeholder="e.g. INBOUND"
                     required
+                    object-id="txt_MenusFormCode"
                 />
                 <Input
                     id="name"
@@ -90,24 +94,28 @@
                     label="Menu Name"
                     placeholder="e.g. Inbound Transactions"
                     required
+                    object-id="txt_MenusFormName"
                 />
                 <Input
                     id="path"
                     v-model="form.path"
                     label="Path"
                     placeholder="e.g. /inbound"
+                    object-id="txt_MenusFormPath"
                 />
                 <Input
                     id="icon"
                     v-model="form.icon"
                     label="Icon Name"
                     placeholder="e.g. Inbox"
+                    object-id="txt_MenusFormIcon"
                 />
                 <Input
                     id="sequence"
                     v-model="form.sequence"
                     label="Sequence (Order)"
                     type="number"
+                    object-id="nmf_MenusFormSequence"
                 />
 
                 <div
@@ -116,6 +124,7 @@
                     <Button
                         type="button"
                         variant="outline"
+                        object-id="btn_MenusFormCancel"
                         @click="isModalOpen = false"
                         >Cancel</Button
                     >
@@ -123,6 +132,7 @@
                         type="submit"
                         variant="primary"
                         :disabled="submitting"
+                        object-id="btn_MenusFormSave"
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>

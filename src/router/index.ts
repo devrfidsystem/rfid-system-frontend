@@ -11,19 +11,6 @@ import type { EntityKey } from "@/model/entities";
 import { reportPaths } from "@/api/feature/dto/report.dto";
 import type { TransactionKey } from "@/services/transactions.service";
 
-const createPageRoute = (
-    path: string,
-    title: string,
-    description: string,
-): RouteRecordRaw => ({
-    path,
-    component: () => import("@/views/shared/PageShell.vue"),
-    props: {
-        title,
-        description,
-    },
-});
-
 const masterEntityRouteAliases: Partial<Record<EntityKey, string[]>> = {
     attributes: ["attribute"],
     customers: ["customer"],
@@ -73,6 +60,7 @@ const transactionKeys = [
     "relocation",
     "transfer",
     "return",
+    "returns",
     "opname",
 ] as const;
 const transactionPattern = transactionKeys.join("|");

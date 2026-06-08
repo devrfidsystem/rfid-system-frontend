@@ -10,7 +10,7 @@
             :disabled="disabled"
             :rows="computedRows"
             :class="textareaClasses"
-            v-bind="attrs"
+            v-bind="{ ...attrs, ...bindObjectId(objectId) }"
             @input="onInput"
         />
 
@@ -30,18 +30,34 @@
 defineOptions({ inheritAttrs: false });
 
 import { computed, useAttrs } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
-const props = defineProps<{
-    label?: string;
-    modelValue?: string;
-    placeholder?: string;
-    error?: string;
-    hint?: string;
-    disabled?: boolean;
-    invalid?: boolean;
-    hideMessage?: boolean;
-    rows?: number;
-}>();
+const props = withDefaults(
+    defineProps<{
+        label?: string;
+        modelValue?: string;
+        placeholder?: string;
+        error?: string;
+        hint?: string;
+        disabled?: boolean;
+        invalid?: boolean;
+        hideMessage?: boolean;
+        rows?: number;
+        objectId?: string;
+    }>(),
+    {
+        label: undefined,
+        modelValue: undefined,
+        placeholder: undefined,
+        error: undefined,
+        hint: undefined,
+        disabled: false,
+        invalid: false,
+        hideMessage: false,
+        rows: 3,
+        objectId: undefined,
+    },
+);
 
 const attrs = useAttrs();
 

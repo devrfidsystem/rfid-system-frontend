@@ -11,7 +11,10 @@
         <form @submit.prevent="handleSubmit">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Header Form -->
-                <Card class="md:col-span-1">
+                <Card
+                    class="md:col-span-1"
+                    object-id="wdg_TransactionCreateDetails"
+                >
                     <h3
                         class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
                     >
@@ -19,21 +22,89 @@
                     </h3>
                     <div class="space-y-4">
                         <Input
+                            id="docNumber"
+                            v-model="form.docNumber"
+                            label="Document Number"
+                            placeholder="TRX-12345"
+                            required
+                            object-id="txt_TransactionCreateDocNumber"
+                        />
+
+                        <Input
+                            v-if="!isOpname"
                             id="transactionDate"
                             v-model="form.transactionDate"
                             label="Transaction Date"
                             type="date"
                             required
+                            object-id="dtp_TransactionCreateDate"
                         />
 
                         <Select
-                            v-if="showWarehouseField"
+                            v-if="isOpname"
+                            id="title"
+                            v-model="form.title"
+                            label="Opname Group / Profile"
+                            :options="opnameProfileOptions"
+                            placeholder="Select opname routine"
+                            object-id="cmb_TransactionCreateOpnameTitle"
+                            @update:model-value="form.period = ''"
+                        />
+
+                        <Select
+                            v-if="
+                                isOpname && form.title === 'Group (Per Quartal)'
+                            "
+                            id="period"
+                            v-model="form.period"
+                            label="Quarter Period"
+                            :options="quartalOptions"
+                            placeholder="Select quarter"
+                            required
+                            object-id="cmb_TransactionCreateOpnameQuartal"
+                        />
+
+                        <Select
+                            v-if="
+                                isOpname && form.title === 'Profile (Per Bulan)'
+                            "
+                            id="period"
+                            v-model="form.period"
+                            label="Month Period"
+                            :options="monthOptions"
+                            placeholder="Select month"
+                            required
+                            object-id="cmb_TransactionCreateOpnameMonth"
+                        />
+
+                        <Select
+                            v-if="showSingleWarehouse"
                             v-model="form.warehouseId"
                             :options="warehouseOptions"
                             label="Warehouse"
                             placeholder="Select warehouse"
                             required
+                            object-id="cmb_TransactionCreateWarehouse"
                         />
+
+                        <template v-if="showDualWarehouse">
+                            <Select
+                                v-model="form.fromWarehouseId"
+                                :options="warehouseOptions"
+                                label="Source Warehouse"
+                                placeholder="Select source warehouse"
+                                required
+                                object-id="cmb_TransactionCreateFromWarehouse"
+                            />
+                            <Select
+                                v-model="form.toWarehouseId"
+                                :options="warehouseOptions"
+                                label="Destination Warehouse"
+                                placeholder="Select destination warehouse"
+                                required
+                                object-id="cmb_TransactionCreateToWarehouse"
+                            />
+                        </template>
 
                         <Select
                             v-if="showPartnerField"
@@ -41,7 +112,11 @@
                             :options="partnerOptions"
                             :label="partnerLabel"
                             placeholder="Select partner"
-                            required
+                            :required="
+                                transactionKey === 'inbound' ||
+                                transactionKey === 'outbound'
+                            "
+                            object-id="cmb_TransactionCreatePartner"
                         />
 
                         <Input
@@ -49,66 +124,44 @@
                             v-model="form.notes"
                             label="Notes / Description"
                             placeholder="Optional notes"
+                            object-id="txt_TransactionCreateNotes"
                         />
                     </div>
                 </Card>
 
-                <!-- Line Items Form -->
-                <Card class="md:col-span-2" no-padding>
-                    <div
-                        class="px-6 py-5 border-b border-gray-100 flex justify-between items-center"
-                    >
+                <!-- Line Items Form (Hide for Opname) -->
+                <TransactionLineItems
+                    v-if="!isOpname"
+                    :lines="form.lines"
+                    :product-options="productOptions"
+                    :location-options="locationOptions"
+                    :from-location-options="fromLocationOptions"
+                    :to-location-options="toLocationOptions"
+                    :show-single-warehouse="showSingleWarehouse"
+                    :is-relocation="isRelocation"
+                    :show-dual-warehouse="showDualWarehouse"
+                    :submitting="submitting"
+                    @add-line="addLine"
+                    @remove-line="removeLine"
+                    @back="handleBack"
+                />
+
+                <!-- Opname Save Button -->
+                <Card
+                    v-else
+                    class="md:col-span-2"
+                    no-padding
+                    object-id="wdg_TransactionCreateOpname"
+                >
+                    <div class="px-6 py-5 border-b border-gray-100">
                         <h3 class="text-base font-semibold text-gray-900">
-                            Line Items
+                            Opname Creation
                         </h3>
-                        <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            @click="addLine"
-                        >
-                            Add Line
-                        </Button>
-                    </div>
-                    <div class="overflow-x-auto p-6 space-y-4">
-                        <div
-                            v-for="(line, idx) in form.lines"
-                            :key="idx"
-                            class="flex flex-col sm:flex-row gap-4 sm:items-end border-b border-gray-100 sm:border-none pb-4 sm:pb-0 last:border-0"
-                        >
-                            <div class="flex-1">
-                                <Select
-                                    v-model="line.productId"
-                                    :options="productOptions"
-                                    label="Product"
-                                    placeholder="Select a product"
-                                    required
-                                />
-                            </div>
-                            <div class="w-full sm:w-32">
-                                <Input
-                                    :id="`qty-${idx}`"
-                                    v-model="line.qty"
-                                    label="Quantity"
-                                    type="number"
-                                    min="1"
-                                    required
-                                />
-                            </div>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="text-rose-600 border-rose-200 hover:bg-rose-50 px-3"
-                                @click="removeLine(idx)"
-                            >
-                                Remove
-                            </Button>
-                        </div>
-                        <p
-                            v-if="form.lines.length === 0"
-                            class="text-sm text-gray-500 text-center py-4"
-                        >
-                            No line items added yet. Click "Add Line" to begin.
+                        <p class="text-sm text-gray-500 mt-2">
+                            Creating a Stock Opname does not require line items
+                            initially. Once created, you can start the counting
+                            process and the system will automatically snapshot
+                            the warehouse balances.
                         </p>
                     </div>
                     <div
@@ -117,17 +170,19 @@
                         <Button
                             type="button"
                             variant="outline"
-                            @click="handleBack"
                             :disabled="submitting"
+                            object-id="btn_TransactionCreateCancel"
+                            @click="handleBack"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             variant="primary"
-                            :disabled="submitting || form.lines.length === 0"
+                            :disabled="submitting"
+                            object-id="btn_TransactionCreateOpnameSubmit"
                         >
-                            {{ submitting ? "Saving..." : "Save Transaction" }}
+                            {{ submitting ? "Creating..." : "Create Opname" }}
                         </Button>
                     </div>
                 </Card>
@@ -143,6 +198,7 @@ import Card from "@/components/molecules/Card.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
+import TransactionLineItems from "./components/TransactionLineItems.vue";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionCreate } from "./composables/useTransactionCreate";
 
@@ -154,12 +210,21 @@ const {
     form,
     submitting,
     transactionTitle,
-    showWarehouseField,
+    showSingleWarehouse,
+    showDualWarehouse,
     showPartnerField,
+    isRelocation,
+    isOpname,
     partnerLabel,
     warehouseOptions,
     partnerOptions,
     productOptions,
+    locationOptions,
+    fromLocationOptions,
+    toLocationOptions,
+    opnameProfileOptions,
+    quartalOptions,
+    monthOptions,
     addLine,
     removeLine,
     handleBack,

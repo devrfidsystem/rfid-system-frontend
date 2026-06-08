@@ -4,6 +4,7 @@ import { useNotifier } from "@/composable/useNotifier";
 import { useZodForm } from "@/composable/useZodForm";
 import { rfidService } from "@/services/rfid.service";
 import { parseApiError } from "@/lib/api/parseApiError";
+import type { LogEpcEventDto } from "@/api/feature/dto/rfid.dto";
 
 export function useRfidEvent() {
     const eventTypes = [
@@ -82,7 +83,7 @@ export function useRfidEvent() {
                         ...(values.notes ? { notes: values.notes } : {}),
                     };
 
-                    const payload: Record<string, unknown> = {
+                    const payload: LogEpcEventDto = {
                         epcTagId: tag.id,
                         eventType: values.eventType,
                         payload: Object.keys(eventPayload).length
@@ -90,9 +91,7 @@ export function useRfidEvent() {
                             : undefined,
                     };
 
-                    await rfidService.logEvent(
-                        payload as unknown as import("@/api/feature/dto/rfid.dto").LogEpcEventDto,
-                    );
+                    await rfidService.logEvent(payload);
                     resetFormState();
                 },
                 {

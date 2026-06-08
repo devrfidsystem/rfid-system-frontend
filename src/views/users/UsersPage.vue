@@ -6,7 +6,7 @@
             tagline="IAM"
         />
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_UsersList">
             <div
                 class="flex flex-wrap items-center justify-between gap-4 px-6 py-5"
             >
@@ -20,17 +20,26 @@
                         v-model="keyword"
                         placeholder="Search email or name"
                         class="w-full max-w-xs"
+                        object-id="txt_UsersSearch"
                     >
                         <template #icon>
                             <Icon :icon="Search" :size="16" />
                         </template>
                     </Input>
                     <div class="flex items-center gap-2">
-                        <Button variant="outline" class="px-3">
+                        <Button
+                            variant="outline"
+                            class="px-3"
+                            object-id="btn_UsersFilter"
+                        >
                             <Icon :icon="Filter" :size="14" />
                             Filter
                         </Button>
-                        <Button variant="outline" class="px-3">
+                        <Button
+                            variant="outline"
+                            class="px-3"
+                            object-id="btn_UsersSort"
+                        >
                             <Icon :icon="ArrowUpDown" :size="14" />
                             Sort
                         </Button>
@@ -38,6 +47,7 @@
                             variant="outline"
                             class="px-2"
                             title="Refresh"
+                            object-id="btn_UsersRefresh"
                             @click="refresh"
                         >
                             <Icon :icon="RefreshCw" :size="16" />
@@ -66,6 +76,7 @@
                     :columns="columns"
                     :rows="displayRows"
                     class="border-none shadow-none rounded-none"
+                    object-id="tbl_UsersList"
                 />
                 <div class="border-t border-gray-200 px-6 py-4">
                     <Pagination

@@ -6,7 +6,7 @@
             tagline="Transactions"
         />
 
-        <Card no-padding>
+        <Card no-padding object-id="wdg_TransactionList">
             <TransactionHeader
                 v-model:keyword="keyword"
                 v-model:start-date="startDate"

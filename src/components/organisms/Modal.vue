@@ -18,6 +18,7 @@
                     ref="panelRef"
                     class="relative w-full max-w-lg rounded-md border border-border-default bg-white shadow-xl"
                     tabindex="-1"
+                    v-bind="bindObjectId(objectId)"
                 >
                     <header
                         class="flex items-center justify-between border-b border-border-default px-5 py-4"
@@ -34,6 +35,13 @@
                             type="button"
                             class="rounded-full border border-border-default bg-workspace-bg px-2 py-1 text-sm text-text-secondary transition hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-200"
                             aria-label="Close dialog"
+                            v-bind="
+                                bindObjectId(
+                                    objectId
+                                        ? `icn_${objectId.replace(/^[^_]+_/, '')}Close`
+                                        : undefined,
+                                )
+                            "
                             @click="close"
                         >
                             ✕
@@ -51,10 +59,12 @@
 
 <script setup lang="ts">
 import { nextTick, onUnmounted, ref, watch } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     isOpen: boolean;
     title?: string;
+    objectId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -96,10 +106,31 @@ onUnmounted(() => {
 <style scoped>
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.modal-fade-enter-active .backdrop-blur-sm,
+.modal-fade-leave-active .backdrop-blur-sm {
+    transition: backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-fade-enter-active .max-w-lg,
+.modal-fade-leave-active .max-w-lg {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
     opacity: 0;
+}
+
+.modal-fade-enter-from .backdrop-blur-sm,
+.modal-fade-leave-to .backdrop-blur-sm {
+    backdrop-filter: blur(0px);
+}
+
+.modal-fade-enter-from .max-w-lg,
+.modal-fade-leave-to .max-w-lg {
+    transform: scale(0.95) translateY(10px);
 }
 </style>

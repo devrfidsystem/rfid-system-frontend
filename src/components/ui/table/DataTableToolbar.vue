@@ -13,6 +13,7 @@
                     :disabled="disabled || loading"
                     hide-message
                     class="flex-1 border-none bg-transparent px-0 text-sm"
+                    data-testid="input-2"
                     @update:model-value="onKeywordUpdate"
                 />
                 <Button
@@ -21,6 +22,7 @@
                     size="sm"
                     type="button"
                     class="uppercase tracking-wider"
+                    data-testid="button-handleclear"
                     @click="handleClear"
                 >
                     Clear

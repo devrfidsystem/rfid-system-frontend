@@ -7,6 +7,7 @@
                     v-model="localFormState[field.key]"
                     :label="field.label"
                     :placeholder="field.placeholder ?? field.label"
+                    :object-id="`txt_MasterForm_Field${field.key}`"
                 />
                 <div
                     v-else-if="field.type === 'textarea'"
@@ -18,10 +19,11 @@
                         >{{ field.label }}</label
                     >
                     <textarea
-                        :id="`form-${field.key}`"
+                        :id="`txa_MasterForm_Field${field.key}`"
                         v-model="localFormState[field.key]"
                         class="w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-300"
                         rows="2"
+                        :object-id="`txa_MasterForm_Field${field.key}`"
                     />
                 </div>
                 <Select
@@ -30,6 +32,7 @@
                     :model-value="localFormState[field.key]"
                     :options="getOptions(field)"
                     :placeholder="field.placeholder ?? field.label"
+                    :object-id="`cmb_MasterForm_Field${field.key}`"
                     @update:model-value="
                         (value) => (localFormState[field.key] = value)
                     "
@@ -40,6 +43,7 @@
                     variant="outline"
                     size="sm"
                     type="button"
+                    object-id="btn_MasterFormCancel"
                     @click="closeModal"
                 >
                     <Icon :icon="X" :size="12" />
@@ -50,6 +54,7 @@
                     size="sm"
                     type="submit"
                     :loading="isSubmitting"
+                    object-id="btn_MasterFormSave"
                 >
                     <Icon :icon="Save" :size="12" />
                     {{ isEdit ? "Update" : "Save" }}

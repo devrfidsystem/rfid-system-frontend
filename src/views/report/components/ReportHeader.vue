@@ -14,6 +14,7 @@
                 v-model="localKeyword"
                 placeholder="Search reports"
                 class="w-full sm:max-w-xs"
+                object-id="txt_ReportHeaderSearch"
             >
                 <template #icon>
                     <Icon :icon="Search" :size="16" />
@@ -24,6 +25,7 @@
                     <Button
                         variant="outline"
                         class="px-3 w-full sm:w-auto justify-center"
+                        object-id="btn_ReportHeaderFilter"
                         @click="toggleFilter"
                     >
                         <Icon :icon="Filter" :size="14" />
@@ -38,16 +40,18 @@
                         </h4>
                         <div class="grid grid-cols-2 gap-3">
                             <Input
-                                id="report-date-from"
+                                id="dtp_ReportHeaderFromDate"
                                 v-model="localStartDate"
                                 label="From"
                                 type="date"
+                                object-id="dtp_ReportHeaderFromDate"
                             />
                             <Input
-                                id="report-date-to"
+                                id="dtp_ReportHeaderToDate"
                                 v-model="localEndDate"
                                 label="To"
                                 type="date"
+                                object-id="dtp_ReportHeaderToDate"
                             />
                         </div>
                         <Select
@@ -58,6 +62,7 @@
                             label="Warehouse"
                             :placeholder-disabled="false"
                             class="w-full"
+                            object-id="cmb_ReportHeaderWarehouse"
                         />
                         <Select
                             v-if="
@@ -70,11 +75,13 @@
                             :label="partnerLabel"
                             :placeholder-disabled="false"
                             class="w-full"
+                            object-id="cmb_ReportHeaderPartner"
                         />
                         <div class="pt-2 flex justify-end gap-2">
                             <Button
                                 size="sm"
                                 variant="ghost"
+                                object-id="btn_ReportHeaderResetFilters"
                                 @click="$emit('resetFilters')"
                             >
                                 Reset
@@ -82,6 +89,7 @@
                             <Button
                                 size="sm"
                                 variant="outline"
+                                object-id="btn_ReportHeaderCloseFilter"
                                 @click="toggleFilter"
                             >
                                 Close
@@ -92,6 +100,7 @@
                 <Button
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
+                    object-id="btn_ReportHeaderSort"
                 >
                     <Icon :icon="ArrowUpDown" :size="14" />
                     Sort
@@ -100,6 +109,7 @@
                     variant="outline"
                     class="px-2 w-full sm:w-auto justify-center"
                     title="Refresh"
+                    object-id="btn_ReportHeaderRefresh"
                     @click="$emit('refresh')"
                 >
                     <Icon :icon="RefreshCw" :size="16" />
@@ -108,6 +118,7 @@
                     variant="primary"
                     class="col-span-2 sm:col-span-1 px-3 w-full sm:w-auto justify-center"
                     :disabled="!hasRows"
+                    object-id="btn_ReportHeaderExport"
                     @click="$emit('export')"
                 >
                     <Icon :icon="Download" :size="14" />

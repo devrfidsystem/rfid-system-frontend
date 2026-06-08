@@ -11,6 +11,7 @@
                     size="sm"
                     :loading="processing"
                     :disabled="processing"
+                    object-id="btn_ProfileLogout"
                     @click="handleLogout"
                 >
                     Logout
@@ -26,7 +27,7 @@
         </div>
 
         <div v-else class="grid gap-6 lg:grid-cols-[1fr_320px]">
-            <Card>
+            <Card object-id="wdg_ProfileAccount">
                 <div class="space-y-5">
                     <div class="flex items-center justify-between">
                         <div>
@@ -90,7 +91,7 @@
                 </div>
             </Card>
 
-            <Card>
+            <Card object-id="wdg_ProfileAccess">
                 <div class="space-y-5">
                     <div class="flex items-center justify-between">
                         <p class="text-xs font-semibold text-gray-400">

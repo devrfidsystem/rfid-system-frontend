@@ -1,6 +1,6 @@
-import { apiRequest } from "@/lib/api/client";
 import type { ApiResponse, ApiPaginatedResult } from "@/lib/api/response";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
+import { productsApi } from "@/api/feature/products.api";
 
 export interface Product {
     id: string;
@@ -44,17 +44,11 @@ export interface FindProductsParams {
     filters?: Record<string, unknown>;
 }
 
-const BASE_PATH = "/products";
-
 export const productsService = {
     async findProducts(
         params: FindProductsParams = {},
     ): Promise<ApiPaginatedResult<Product>> {
-        const response = await apiRequest<{ items?: Product[] }>({
-            url: BASE_PATH,
-            method: "get",
-            params,
-        });
+        const response = await productsApi.findProducts(params);
         const items = normalizePaginationItems(
             response as ApiResponse<{ items?: Product[] }>,
         );
@@ -65,19 +59,12 @@ export const productsService = {
     },
 
     async getProductById(id: string): Promise<Product> {
-        const response = await apiRequest<Product>({
-            url: `${BASE_PATH}/${id}`,
-            method: "get",
-        });
+        const response = await productsApi.getProductById(id);
         return response.data;
     },
 
     async createProduct(payload: CreateProductPayload): Promise<Product> {
-        const response = await apiRequest<Product>({
-            url: BASE_PATH,
-            method: "post",
-            data: payload,
-        });
+        const response = await productsApi.createProduct(payload);
         return response.data;
     },
 };

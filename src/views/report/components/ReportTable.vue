@@ -13,11 +13,13 @@
                 :columns="columns"
                 :rows="rows"
                 class="border-none shadow-none rounded-none"
+                object-id="tbl_ReportTable"
             >
                 <template #actions="{ row }">
                     <Button
                         size="sm"
                         variant="outline"
+                        object-id="btn_ReportTableDetail"
                         @click="$emit('openDetail', row)"
                     >
                         <Icon :icon="Eye" :size="14" />
