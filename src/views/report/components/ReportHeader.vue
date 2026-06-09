@@ -101,9 +101,13 @@
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
                     object-id="btn_ReportHeaderSort"
+                    @click="$emit('sort')"
                 >
-                    <Icon :icon="ArrowUpDown" :size="14" />
-                    Sort
+                    <Icon
+                        :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp"
+                        :size="14"
+                    />
+                    {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                 </Button>
                 <Button
                     variant="outline"
@@ -122,7 +126,7 @@
                     @click="$emit('export')"
                 >
                     <Icon :icon="Download" :size="14" />
-                    Export CSV
+                    Export XLS
                 </Button>
             </div>
         </div>
@@ -138,7 +142,8 @@ import Icon from "@/components/atoms/Icon.vue";
 import {
     Search,
     Filter,
-    ArrowUpDown,
+    ArrowUp,
+    ArrowDown,
     RefreshCw,
     Download,
 } from "lucide-vue-next";
@@ -161,6 +166,7 @@ const props = defineProps<{
     partnerSelectOptions: SelectOption[];
     partnerLabel: string;
     hasRows: boolean;
+    sortOrder: "asc" | "desc";
 }>();
 
 const emit = defineEmits<{
@@ -172,6 +178,7 @@ const emit = defineEmits<{
     (e: "refresh"): void;
     (e: "export"): void;
     (e: "resetFilters"): void;
+    (e: "sort"): void;
 }>();
 
 const localKeyword = computed({

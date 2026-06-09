@@ -16,6 +16,7 @@ export function useStockBalance() {
     const keyword = ref("");
     const selectedWarehouse = ref("");
     const rows = ref<StockBalanceRecord[]>([]);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
 
@@ -66,15 +67,25 @@ export function useStockBalance() {
         return String(value);
     };
 
-    const displayRows = computed(() =>
-        rows.value.map((row) => ({
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const displayRows = computed(() => {
+        const sorted = [...rows.value].sort((a, b) => {
+            const dateA = new Date((a as any).updatedAt ?? 0).getTime();
+            const dateB = new Date((b as any).updatedAt ?? 0).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+
+        return sorted.map((row) => ({
             id: row.id,
             productId: formatValue(row.productId),
             warehouseId: formatValue(row.warehouseId),
             locationPath: formatValue(row.locationPath),
             quantity: formatValue(row.quantity),
-        })),
-    );
+        }));
+    });
 
     const updatePaginationMeta = (meta: ApiMeta | null) => {
         if (meta === null) {
@@ -157,6 +168,8 @@ export function useStockBalance() {
         loading,
         error,
         displayRows,
+        sortOrder,
+        toggleSort,
         pagination,
         pageSizeOptions,
         refresh,

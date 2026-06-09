@@ -1,6 +1,7 @@
 import { computed, reactive, ref, watch } from "vue";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { usersService } from "@/services/users.service";
+import { formatDate } from "@/utils/date";
 
 const columns = [
     { key: "email", label: "Email" },
@@ -14,6 +15,7 @@ const columns = [
 export function useUsers() {
     const keyword = ref("");
     const users = ref<Record<string, unknown>[]>([]);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
     const pagination = reactive({
@@ -27,22 +29,42 @@ export function useUsers() {
         if (value === undefined || value === null) {
             return "-";
         }
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
+            return formatDate(value);
+        }
         return String(value);
     };
 
-    const displayRows = computed(() =>
-        users.value.map((user, index) => ({
-            id: String(user.id ?? `user-${index}`),
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const displayRows = computed(() => {
+        const sorted = [...users.value].sort((a, b) => {
+            const dateA = new Date(
+                (a.createdAt ?? 0) as string | number,
+            ).getTime();
+            const dateB = new Date(
+                (b.createdAt ?? 0) as string | number,
+            ).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+
+        return sorted.map((user) => ({
+            id: String(user.id),
             email: formatValue(user.email),
             fullName: formatValue(user.fullName),
-            roles: formatValue(
-                Array.isArray(user.roles) ? user.roles.join(", ") : user.roles,
-            ),
-            companyId: formatValue(user.companyId ?? user.currentCompanyId),
+            roles: Array.isArray(user.roles)
+                ? user.roles.join(", ")
+                : formatValue(user.roles),
+            companyId: formatValue(user.companyId),
             isActive: formatValue(user.isActive),
             createdAt: formatValue(user.createdAt),
-        })),
-    );
+        }));
+    });
 
     const loadUsers = async () => {
         loading.value = true;
@@ -97,6 +119,8 @@ export function useUsers() {
         error,
         pagination,
         pageSizeOptions,
+        sortOrder,
+        toggleSort,
         displayRows,
         refresh,
     };

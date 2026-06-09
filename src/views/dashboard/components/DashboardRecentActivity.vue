@@ -158,6 +158,7 @@
 import Card from "@/components/molecules/Card.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import { LayoutDashboard, ArrowDownRight, ArrowUpRight } from "lucide-vue-next";
+import { formatDate } from "@/utils/date";
 
 defineProps<{
     loading: boolean;
@@ -173,16 +174,5 @@ defineProps<{
     }>;
 }>();
 
-const formatActivityTime = (timestamp?: string) => {
-    if (!timestamp) return "";
-    try {
-        const date = new Date(timestamp);
-        return date.toLocaleString("id-ID", {
-            dateStyle: "medium",
-            timeStyle: "short",
-        });
-    } catch {
-        return timestamp;
-    }
-};
+const formatActivityTime = (timestamp?: string) => formatDate(timestamp);
 </script>

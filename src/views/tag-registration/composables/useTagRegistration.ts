@@ -8,6 +8,7 @@ import { masterService } from "@/services/master.service";
 import { useRfidTags } from "@/composable/useRfidTags";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import type { RegisterEpcTagDto, RfidTag } from "@/api/feature/dto/rfid.dto";
+import { formatDate } from "@/utils/date";
 
 const tagTypes = ["Asset", "Pallet", "Unit"];
 const tagTypeOptions = tagTypes.map((type) => ({ label: type, value: type }));
@@ -107,9 +108,6 @@ export function useTagRegistration() {
         { key: "warehouseId", label: "Warehouse" },
         { key: "createdAt", label: "Created" },
     ];
-
-    const formatDate = (value?: string) =>
-        value ? new Date(value).toLocaleString("id-ID") : "-";
 
     const displayTags = computed<Record<string, string | number>[]>(() =>
         tags.value.map((tag: RfidTag) => ({

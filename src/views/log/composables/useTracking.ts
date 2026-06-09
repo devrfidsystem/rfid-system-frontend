@@ -3,6 +3,7 @@ import { stockService } from "@/services/stock.service";
 import { warehouseService } from "@/services/warehouse.service";
 import type { StockLedgerItem } from "@/api/feature/dto/stock.dto";
 import type { WarehouseOption } from "@/model/dashboard";
+import { formatDate } from "@/utils/date";
 
 export function useTracking() {
     const epc = ref("EPC-A001");
@@ -94,9 +95,6 @@ export function useTracking() {
             return bTime - aTime;
         }),
     );
-
-    const formatDate = (value?: string) =>
-        value ? new Date(value).toLocaleString() : "-";
 
     loadWarehouses();
     loadEvents();

@@ -15,6 +15,15 @@
                 class="border-none shadow-none rounded-none"
                 object-id="tbl_ReportTable"
             >
+                <template #status="{ row }">
+                    <Badge
+                        v-if="row.status"
+                        :tone="getStatusTone(String(row.status))"
+                    >
+                        {{ row.status }}
+                    </Badge>
+                    <span v-else>-</span>
+                </template>
                 <template #actions="{ row }">
                     <Button
                         size="sm"
@@ -44,6 +53,7 @@ import { computed } from "vue";
 import AppTable from "@/components/organisms/Table.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import { Eye } from "lucide-vue-next";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
 import EmptyState from "@/components/molecules/EmptyState.vue";
@@ -75,4 +85,14 @@ const localLimit = computed({
     get: () => props.limit,
     set: (value) => emit("update:limit", value),
 });
+
+const getStatusTone = (status: string) => {
+    const s = status.toLowerCase();
+    if (["posted", "closed", "active", "success"].includes(s)) return "success";
+    if (["draft", "pending", "neutral"].includes(s)) return "neutral";
+    if (["canceled", "cancelled", "error", "inactive"].includes(s))
+        return "error";
+    if (["counting", "reconciled", "processing"].includes(s)) return "warning";
+    return "info";
+};
 </script>

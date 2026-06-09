@@ -26,6 +26,8 @@ export const normalizeRfidTag = (
     const mapped: Record<string, unknown> = { ...r };
 
     mapped.epcCode = r.epc ?? r.epcCode;
+    mapped.createdAt = r.createdAt ?? r.created_at;
+    mapped.updatedAt = r.updatedAt ?? r.updated_at;
 
     const active = r.activeAssignment as Record<string, unknown> | undefined;
     if (active) {

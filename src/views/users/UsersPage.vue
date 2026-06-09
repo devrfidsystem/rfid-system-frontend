@@ -39,9 +39,15 @@
                             variant="outline"
                             class="px-3"
                             object-id="btn_UsersSort"
+                            @click="toggleSort"
                         >
-                            <Icon :icon="ArrowUpDown" :size="14" />
-                            Sort
+                            <Icon
+                                :icon="
+                                    sortOrder === 'desc' ? ArrowDown : ArrowUp
+                                "
+                                :size="14"
+                            />
+                            {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                         </Button>
                         <Button
                             variant="outline"
@@ -101,7 +107,7 @@ import LoadingState from "@/components/ui/states/LoadingState.vue";
 import EmptyState from "@/components/molecules/EmptyState.vue";
 import Pagination from "@/components/ui/table/Pagination.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { RefreshCw, Search, Filter, ArrowUpDown } from "lucide-vue-next";
+import { RefreshCw, Search, Filter, ArrowUp, ArrowDown } from "lucide-vue-next";
 import { useUsers } from "./composables/useUsers";
 
 const {
@@ -111,6 +117,8 @@ const {
     error,
     pagination,
     pageSizeOptions,
+    sortOrder,
+    toggleSort,
     displayRows,
     refresh,
 } = useUsers();

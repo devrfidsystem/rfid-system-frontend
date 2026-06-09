@@ -18,8 +18,10 @@
                 :warehouse-select-options="warehouseSelectOptions"
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="partnerLabel"
+                :sort-order="sortOrder"
                 @refresh="refresh"
                 @new="handleNew"
+                @sort="toggleSort"
             />
 
             <div class="px-6">
@@ -90,6 +92,8 @@ const {
     displayRows,
     columns,
     emptyStateVariant,
+    sortOrder,
+    toggleSort,
     refresh,
 } = useTransactionList(props);
 </script>

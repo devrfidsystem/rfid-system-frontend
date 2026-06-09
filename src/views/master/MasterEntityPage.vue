@@ -10,8 +10,10 @@
                 v-model:keyword="keyword"
                 :title="config.title"
                 :can-add="isMasterApiEntitySelected"
+                :sort-order="sortOrder"
                 @add="openAdd"
                 @refresh="refresh"
+                @sort="toggleSort"
             />
             <MasterTable
                 v-model:page="pagination.page"
@@ -78,6 +80,8 @@ const {
     config,
     keyword,
     rows,
+    sortOrder,
+    toggleSort,
     loading,
     loadError,
     showAddModal,

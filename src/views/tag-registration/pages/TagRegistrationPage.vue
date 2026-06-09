@@ -62,7 +62,17 @@
                     :rows="displayTags"
                     class="border-none shadow-none rounded-none"
                     object-id="tbl_TagRegistrationList"
-                />
+                >
+                    <template #status="{ row }">
+                        <Badge
+                            v-if="row.status"
+                            :tone="getStatusTone(String(row.status))"
+                        >
+                            {{ row.status }}
+                        </Badge>
+                        <span v-else>-</span>
+                    </template>
+                </AppTable>
                 <div class="border-t border-gray-200 px-6 py-4">
                     <Pagination
                         :page="pagination.page"
@@ -81,6 +91,7 @@
 <script setup lang="ts">
 import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import EmptyState from "@/components/molecules/EmptyState.vue";
@@ -104,4 +115,35 @@ const {
     setLimit,
     handleTagSearch,
 } = useTagRegistration();
+
+const getStatusTone = (status: string) => {
+    const s = status.toLowerCase();
+    if (
+        [
+            "posted",
+            "closed",
+            "active",
+            "success",
+            "in_use",
+            "encoded",
+            "assigned",
+        ].includes(s)
+    )
+        return "success";
+    if (["draft", "pending", "neutral", "available"].includes(s))
+        return "neutral";
+    if (
+        [
+            "canceled",
+            "cancelled",
+            "error",
+            "inactive",
+            "retired",
+            "quarantined",
+        ].includes(s)
+    )
+        return "error";
+    if (["counting", "reconciled", "processing"].includes(s)) return "warning";
+    return "info";
+};
 </script>

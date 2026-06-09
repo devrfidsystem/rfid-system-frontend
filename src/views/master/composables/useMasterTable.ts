@@ -1,4 +1,4 @@
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import { masterService } from "@/services/master.service";
 import type { MasterRecord } from "../types";
 import type { ApiMeta } from "@/lib/api/response";
@@ -22,6 +22,7 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
 
     const keyword = ref("");
     const rows = ref<MasterRecord[]>([]);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(true);
     const loadError = ref<string | null>(null);
     const unsupportedFeature = ref(false);
@@ -135,9 +136,27 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
         },
     );
 
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const displayRows = computed(() => {
+        return [...rows.value].sort((a, b) => {
+            const dateA = new Date(
+                (a.createdAt ?? a.updatedAt ?? 0) as string | number,
+            ).getTime();
+            const dateB = new Date(
+                (b.createdAt ?? b.updatedAt ?? 0) as string | number,
+            ).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+    });
+
     return {
         keyword,
-        rows,
+        rows: displayRows,
+        sortOrder,
+        toggleSort,
         loading,
         loadError,
         unsupportedFeature,

@@ -91,9 +91,13 @@
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
                     object-id="btn_TransactionHeaderSort"
+                    @click="$emit('sort')"
                 >
-                    <Icon :icon="ArrowUpDown" :size="14" />
-                    Sort
+                    <Icon
+                        :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp"
+                        :size="14"
+                    />
+                    {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                 </Button>
                 <Button
                     variant="outline"
@@ -124,7 +128,14 @@ import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { Search, Filter, ArrowUpDown, RefreshCw, Plus } from "lucide-vue-next";
+import {
+    Search,
+    Filter,
+    ArrowUp,
+    ArrowDown,
+    RefreshCw,
+    Plus,
+} from "lucide-vue-next";
 
 interface SelectOption {
     label: string;
@@ -142,6 +153,7 @@ const props = defineProps<{
     warehouseSelectOptions: SelectOption[];
     partnerSelectOptions: SelectOption[];
     partnerLabel: string;
+    sortOrder: "asc" | "desc";
 }>();
 
 const emit = defineEmits<{
@@ -152,6 +164,7 @@ const emit = defineEmits<{
     (e: "update:selectedPartner", value: string): void;
     (e: "refresh"): void;
     (e: "new"): void;
+    (e: "sort"): void;
 }>();
 
 const localKeyword = computed({
