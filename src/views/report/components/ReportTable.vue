@@ -90,7 +90,8 @@ const getStatusTone = (status: string) => {
     const s = status.toLowerCase();
     if (["posted", "closed", "active", "success"].includes(s)) return "success";
     if (["draft", "pending", "neutral"].includes(s)) return "neutral";
-    if (["canceled", "cancelled", "error", "inactive"].includes(s)) return "error";
+    if (["canceled", "cancelled", "error", "inactive"].includes(s))
+        return "error";
     if (["counting", "reconciled", "processing"].includes(s)) return "warning";
     return "info";
 };

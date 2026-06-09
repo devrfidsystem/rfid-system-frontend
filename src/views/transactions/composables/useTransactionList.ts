@@ -114,7 +114,10 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
 
     const formatValue = (value: unknown) => {
         if (value === undefined || value === null) return "-";
-        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
             return formatDate(value);
         }
         if (typeof value === "object") {
@@ -125,7 +128,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     };
 
     const getNestedValue = (obj: Record<string, any>, path: string): any => {
-        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        return path.split(".").reduce((acc, part) => acc && acc[part], obj);
     };
 
     const toggleSort = () => {
@@ -144,7 +147,10 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
                 id: String(row.id ?? row.docNo ?? `row-${index}`),
             };
             columns.value.forEach((column) => {
-                let value = getNestedValue(row as Record<string, any>, column.key);
+                let value = getNestedValue(
+                    row as Record<string, any>,
+                    column.key,
+                );
 
                 // Map warehouseId to human-readable label if possible
                 if (column.key === "warehouseId") {

@@ -118,9 +118,31 @@ const {
 
 const getStatusTone = (status: string) => {
     const s = status.toLowerCase();
-    if (["posted", "closed", "active", "success", "in_use", "encoded", "assigned"].includes(s)) return "success";
-    if (["draft", "pending", "neutral", "available"].includes(s)) return "neutral";
-    if (["canceled", "cancelled", "error", "inactive", "retired", "quarantined"].includes(s)) return "error";
+    if (
+        [
+            "posted",
+            "closed",
+            "active",
+            "success",
+            "in_use",
+            "encoded",
+            "assigned",
+        ].includes(s)
+    )
+        return "success";
+    if (["draft", "pending", "neutral", "available"].includes(s))
+        return "neutral";
+    if (
+        [
+            "canceled",
+            "cancelled",
+            "error",
+            "inactive",
+            "retired",
+            "quarantined",
+        ].includes(s)
+    )
+        return "error";
     if (["counting", "reconciled", "processing"].includes(s)) return "warning";
     return "info";
 };

@@ -96,7 +96,6 @@ export function useTracking() {
         }),
     );
 
-
     loadWarehouses();
     loadEvents();
 

@@ -29,7 +29,10 @@ export function useUsers() {
         if (value === undefined || value === null) {
             return "-";
         }
-        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
             return formatDate(value);
         }
         return String(value);
@@ -41,8 +44,12 @@ export function useUsers() {
 
     const displayRows = computed(() => {
         const sorted = [...users.value].sort((a, b) => {
-            const dateA = new Date((a.createdAt ?? 0) as string | number).getTime();
-            const dateB = new Date((b.createdAt ?? 0) as string | number).getTime();
+            const dateA = new Date(
+                (a.createdAt ?? 0) as string | number,
+            ).getTime();
+            const dateB = new Date(
+                (b.createdAt ?? 0) as string | number,
+            ).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
 
@@ -50,7 +57,9 @@ export function useUsers() {
             id: String(user.id),
             email: formatValue(user.email),
             fullName: formatValue(user.fullName),
-            roles: Array.isArray(user.roles) ? user.roles.join(", ") : formatValue(user.roles),
+            roles: Array.isArray(user.roles)
+                ? user.roles.join(", ")
+                : formatValue(user.roles),
             companyId: formatValue(user.companyId),
             isActive: formatValue(user.isActive),
             createdAt: formatValue(user.createdAt),

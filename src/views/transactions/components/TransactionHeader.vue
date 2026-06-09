@@ -93,8 +93,11 @@
                     object-id="btn_TransactionHeaderSort"
                     @click="$emit('sort')"
                 >
-                    <Icon :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp" :size="14" />
-                    {{ sortOrder === 'desc' ? 'Newest' : 'Oldest' }}
+                    <Icon
+                        :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp"
+                        :size="14"
+                    />
+                    {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                 </Button>
                 <Button
                     variant="outline"
@@ -125,7 +128,14 @@ import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { Search, Filter, ArrowUp, ArrowDown, RefreshCw, Plus } from "lucide-vue-next";
+import {
+    Search,
+    Filter,
+    ArrowUp,
+    ArrowDown,
+    RefreshCw,
+    Plus,
+} from "lucide-vue-next";
 
 interface SelectOption {
     label: string;

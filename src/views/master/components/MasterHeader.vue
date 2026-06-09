@@ -35,8 +35,11 @@
                     object-id="btn_MasterHeaderSort"
                     @click="$emit('sort')"
                 >
-                    <Icon :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp" :size="14" />
-                    {{ sortOrder === 'desc' ? 'Newest' : 'Oldest' }}
+                    <Icon
+                        :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp"
+                        :size="14"
+                    />
+                    {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                 </Button>
                 <Button
                     variant="outline"
@@ -66,7 +69,14 @@ import { computed } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { Search, Filter, ArrowUp, ArrowDown, RefreshCw, Plus } from "lucide-vue-next";
+import {
+    Search,
+    Filter,
+    ArrowUp,
+    ArrowDown,
+    RefreshCw,
+    Plus,
+} from "lucide-vue-next";
 
 const props = defineProps<{
     title: string;

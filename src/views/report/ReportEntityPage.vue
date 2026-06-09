@@ -132,7 +132,6 @@ const {
     resetFilters,
 } = useReportEntity();
 
-
 const formatValue = (value: unknown) => {
     if (value === null || value === undefined || value === "") return "-";
     if (value instanceof Date) return formatDate(value);

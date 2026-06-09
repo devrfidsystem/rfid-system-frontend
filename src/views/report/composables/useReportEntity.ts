@@ -98,7 +98,10 @@ export function useReportEntity() {
         if (value instanceof Date) {
             return formatDate(value);
         }
-        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
             return formatDate(value);
         }
         if (typeof value === "object") {
@@ -108,7 +111,7 @@ export function useReportEntity() {
     };
 
     const resolvePath = (obj: any, path: string) => {
-        return path.split('.').reduce((o, i) => o?.[i], obj);
+        return path.split(".").reduce((o, i) => o?.[i], obj);
     };
 
     const toggleSort = () => {
@@ -117,14 +120,38 @@ export function useReportEntity() {
 
     const tableRows = computed<Record<string, string | number>[]>(() => {
         const sorted = [...rows.value].sort((a, b) => {
-            const dateA = new Date((a.createdAt ?? a.event_time ?? a.inbound_date ?? a.outbound_date ?? a.relocation_date ?? a.transfer_date ?? a.return_date) as string | number).getTime();
-            const dateB = new Date((b.createdAt ?? b.event_time ?? b.inbound_date ?? b.outbound_date ?? b.relocation_date ?? b.transfer_date ?? b.return_date) as string | number).getTime();
+            const dateA = new Date(
+                (a.createdAt ??
+                    a.event_time ??
+                    a.inbound_date ??
+                    a.outbound_date ??
+                    a.relocation_date ??
+                    a.transfer_date ??
+                    a.return_date) as string | number,
+            ).getTime();
+            const dateB = new Date(
+                (b.createdAt ??
+                    b.event_time ??
+                    b.inbound_date ??
+                    b.outbound_date ??
+                    b.relocation_date ??
+                    b.transfer_date ??
+                    b.return_date) as string | number,
+            ).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
-        
+
         return sorted.map((row, index) => {
             const tableRow: Record<string, string | number> = {
-                id: String(row.id ?? row.docNo ?? row.inbound_no ?? row.outbound_no ?? row.relocation_no ?? row.transfer_no ?? `report-${index}`),
+                id: String(
+                    row.id ??
+                        row.docNo ??
+                        row.inbound_no ??
+                        row.outbound_no ??
+                        row.relocation_no ??
+                        row.transfer_no ??
+                        `report-${index}`,
+                ),
             };
             columns.value.forEach((column) => {
                 tableRow[column.key] =
@@ -247,8 +274,12 @@ export function useReportEntity() {
                 }
             });
 
-            const blob = await reportService.exportReport(reportKey.value, params, exportCols);
-            
+            const blob = await reportService.exportReport(
+                reportKey.value,
+                params,
+                exportCols,
+            );
+
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
             link.href = url;

@@ -68,7 +68,10 @@ export function useStockLedger() {
         if (value === undefined || value === null) {
             return "-";
         }
-        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
             return formatDate(value);
         }
         return String(value);
@@ -84,7 +87,7 @@ export function useStockLedger() {
             const dateB = new Date(b.timestamp ?? 0).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
-        
+
         return sorted.map((row) => ({
             id: row.id,
             timestamp: formatValue(row.timestamp),

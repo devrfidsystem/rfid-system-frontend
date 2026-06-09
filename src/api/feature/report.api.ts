@@ -30,7 +30,7 @@ export const reportApi = {
         if (!path) {
             throw new Error(`Report "${reportKey}" is not supported.`);
         }
-        
+
         // Use the raw apiClient to bypass ApiResponse wrapping for Blobs
         const { apiClient } = await import("@/lib/api/client");
         const response = await apiClient.post<Blob>(
@@ -41,7 +41,7 @@ export const reportApi = {
             },
             {
                 responseType: "blob",
-            }
+            },
         );
         return response.data;
     },

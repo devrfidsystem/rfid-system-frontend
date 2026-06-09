@@ -142,8 +142,12 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
 
     const displayRows = computed(() => {
         return [...rows.value].sort((a, b) => {
-            const dateA = new Date((a.createdAt ?? a.updatedAt ?? 0) as string | number).getTime();
-            const dateB = new Date((b.createdAt ?? b.updatedAt ?? 0) as string | number).getTime();
+            const dateA = new Date(
+                (a.createdAt ?? a.updatedAt ?? 0) as string | number,
+            ).getTime();
+            const dateB = new Date(
+                (b.createdAt ?? b.updatedAt ?? 0) as string | number,
+            ).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
     });

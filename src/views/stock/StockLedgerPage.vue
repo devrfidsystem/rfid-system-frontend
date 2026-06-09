@@ -72,8 +72,15 @@
                                 object-id="btn_StockLedgerSort"
                                 @click="toggleSort"
                             >
-                                <Icon :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp" :size="14" />
-                                {{ sortOrder === 'desc' ? 'Newest' : 'Oldest' }}
+                                <Icon
+                                    :icon="
+                                        sortOrder === 'desc'
+                                            ? ArrowDown
+                                            : ArrowUp
+                                    "
+                                    :size="14"
+                                />
+                                {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                             </Button>
                             <Button
                                 variant="outline"
