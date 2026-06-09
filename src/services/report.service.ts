@@ -22,4 +22,11 @@ export const reportService = {
             meta: response.meta,
         };
     },
+    async exportReport(
+        reportKey: ReportKey,
+        params: ReportParams,
+        columns: { key: string; label: string }[],
+    ): Promise<Blob> {
+        return reportApi.exportReport(reportKey, params, columns);
+    },
 };

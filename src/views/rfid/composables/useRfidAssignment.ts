@@ -4,6 +4,7 @@ import { useRfidTags } from "@/composable/useRfidTags";
 import { rfidService } from "@/services/rfid.service";
 import { parseApiError } from "@/lib/api/parseApiError";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
+import { formatDate } from "@/utils/date";
 
 export function useRfidAssignment() {
     const { withToast } = useNotifier();
@@ -51,9 +52,7 @@ export function useRfidAssignment() {
             productId: tag.productId ?? "-",
             warehouseId: tag.warehouseId ?? "-",
             locationId: tag.locationId ?? "-",
-            createdAt: tag.createdAt
-                ? new Date(tag.createdAt).toLocaleString()
-                : "-",
+            createdAt: formatDate(tag.createdAt),
         })),
     );
 

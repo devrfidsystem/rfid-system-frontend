@@ -25,6 +25,8 @@ export function useMasterEntity() {
     const {
         keyword,
         rows,
+        sortOrder,
+        toggleSort,
         loading,
         loadError,
         unsupportedFeature,
@@ -70,6 +72,8 @@ export function useMasterEntity() {
         config,
         keyword,
         rows,
+        sortOrder,
+        toggleSort,
         loading,
         loadError,
         showAddModal,

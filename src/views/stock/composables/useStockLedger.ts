@@ -4,6 +4,7 @@ import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import type { StockLedgerItem } from "@/api/feature/dto/stock.dto";
 import type { ApiMeta } from "@/lib/api/response";
+import { formatDate } from "@/utils/date";
 
 const columns = [
     { key: "timestamp", label: "Timestamp" },
@@ -19,6 +20,7 @@ export function useStockLedger() {
     const keyword = ref("");
     const selectedWarehouse = ref("");
     const rows = ref<StockLedgerItem[]>([]);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
 
@@ -66,11 +68,24 @@ export function useStockLedger() {
         if (value === undefined || value === null) {
             return "-";
         }
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+            return formatDate(value);
+        }
         return String(value);
     };
 
-    const displayRows = computed(() =>
-        rows.value.map((row) => ({
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const displayRows = computed(() => {
+        const sorted = [...rows.value].sort((a, b) => {
+            const dateA = new Date(a.timestamp ?? 0).getTime();
+            const dateB = new Date(b.timestamp ?? 0).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+        
+        return sorted.map((row) => ({
             id: row.id,
             timestamp: formatValue(row.timestamp),
             docNumber: formatValue(row.docNumber ?? row.documentRef),
@@ -79,8 +94,8 @@ export function useStockLedger() {
             movementType: formatValue(row.movementType),
             locationId: formatValue(row.locationId),
             quantity: formatValue(row.quantity),
-        })),
-    );
+        }));
+    });
 
     const updatePaginationMeta = (meta: ApiMeta | null) => {
         if (meta === null) {
@@ -163,6 +178,8 @@ export function useStockLedger() {
         loading,
         error,
         displayRows,
+        sortOrder,
+        toggleSort,
         pagination,
         pageSizeOptions,
         refresh,

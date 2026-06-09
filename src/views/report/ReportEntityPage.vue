@@ -19,9 +19,11 @@
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="config.partnerLabel ?? 'Partner'"
                 :has-rows="rows.length > 0"
+                :sort-order="sortOrder"
                 @refresh="refreshRows"
                 @reset-filters="resetFilters"
                 @export="exportRows"
+                @sort="toggleSort"
             />
 
             <div class="px-6">
@@ -79,7 +81,7 @@
                     class="space-y-1 rounded-md border border-gray-100 bg-gray-50 px-3 py-2"
                 >
                     <p class="text-xs uppercase tracking-wider text-gray-400">
-                        {{ formatKey(String(key)) }}
+                        {{ key }}
                     </p>
                     <p class="break-words font-semibold text-gray-900">
                         {{ formatValue(value) }}
@@ -97,6 +99,7 @@ import PageHeader from "@/components/molecules/PageHeader.vue";
 import ReportHeader from "./components/ReportHeader.vue";
 import ReportTable from "./components/ReportTable.vue";
 import { useReportEntity } from "./composables/useReportEntity";
+import { formatDate } from "@/utils/date";
 
 const {
     config,
@@ -120,22 +123,19 @@ const {
     partnerFilterSupported,
     unsupportedPartnerNotice,
     emptyStateVariant,
+    sortOrder,
     tableRows,
+    toggleSort,
     openDetail,
     exportRows,
     refreshRows,
     resetFilters,
 } = useReportEntity();
 
-const formatKey = (key: string) => {
-    if (!key) return "";
-    const result = key.replace(/([A-Z])/g, " $1");
-    return result.charAt(0).toUpperCase() + result.slice(1);
-};
 
 const formatValue = (value: unknown) => {
     if (value === null || value === undefined || value === "") return "-";
-    if (value instanceof Date) return value.toLocaleString("id-ID");
+    if (value instanceof Date) return formatDate(value);
     if (typeof value === "object") return JSON.stringify(value);
     return String(value);
 };

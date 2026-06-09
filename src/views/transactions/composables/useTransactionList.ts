@@ -15,6 +15,7 @@ import type { ApiMeta } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
 import type { TransactionRecord } from "../types";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
+import { formatDate } from "@/utils/date";
 
 const transactionTitles: Record<
     TransactionKey,
@@ -68,6 +69,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const selectedWarehouse = ref("");
     const selectedPartner = ref("");
     const rows = ref<TransactionRecord[]>([]);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
     const pagination = reactive({
@@ -112,6 +114,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
 
     const formatValue = (value: unknown) => {
         if (value === undefined || value === null) return "-";
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+            return formatDate(value);
+        }
         if (typeof value === "object") {
             if (Array.isArray(value)) return value.join(", ");
             return JSON.stringify(value);
@@ -119,13 +124,27 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         return String(value);
     };
 
-    const tableRows = computed(() =>
-        rows.value.map((row, index) => {
+    const getNestedValue = (obj: Record<string, any>, path: string): any => {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    };
+
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const tableRows = computed(() => {
+        const sorted = [...rows.value].sort((a, b) => {
+            const dateA = new Date((a as any).createdAt ?? 0).getTime();
+            const dateB = new Date((b as any).createdAt ?? 0).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+
+        return sorted.map((row, index) => {
             const record: Record<string, string | number> = {
                 id: String(row.id ?? row.docNo ?? `row-${index}`),
             };
             columns.value.forEach((column) => {
-                let value = row[column.key];
+                let value = getNestedValue(row as Record<string, any>, column.key);
 
                 // Map warehouseId to human-readable label if possible
                 if (column.key === "warehouseId") {
@@ -140,8 +159,8 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
                 record[column.key] = formatValue(value);
             });
             return record;
-        }),
-    );
+        });
+    });
 
     const displayRows = tableRows;
 
@@ -336,6 +355,8 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         displayRows,
         columns,
         emptyStateVariant,
+        sortOrder,
+        toggleSort,
         refresh,
     };
 }

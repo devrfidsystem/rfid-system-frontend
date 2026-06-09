@@ -84,7 +84,7 @@
                                     <span v-else class="text-gray-400">—</span>
                                 </template>
                                 <template v-else>
-                                    {{ column.accessor(row) }}
+                                    {{ formatCellValue(column.accessor(row)) }}
                                 </template>
                             </td>
                             <td
@@ -141,6 +141,7 @@ import Pagination from "@/components/ui/table/Pagination.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import { Pencil, Trash2 } from "lucide-vue-next";
 import type { MasterRecord } from "../types";
+import { formatDate } from "@/utils/date";
 
 export interface TableColumnDef {
     key: string;
@@ -204,5 +205,13 @@ const getStatusTone = (status: unknown) => {
     )
         return "error";
     return "neutral";
+};
+
+const formatCellValue = (value: unknown) => {
+    if (value === null || value === undefined) return "-";
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+        return formatDate(value);
+    }
+    return value;
 };
 </script>

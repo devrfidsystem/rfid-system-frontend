@@ -9,10 +9,10 @@ import { reportService } from "@/services/report.service";
 import { masterService } from "@/services/master.service";
 import type { MasterEntityKey } from "@/api/feature/dto/master.dto";
 import type { ReportRow, ReportParams } from "@/api/feature/dto/report.dto";
-import { exportCsv } from "@/utils/exportCsv";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import type { ApiMeta } from "@/lib/api/response";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
+import { formatDate } from "@/utils/date";
 
 export function useReportEntity() {
     const route = useRoute();
@@ -33,6 +33,7 @@ export function useReportEntity() {
     const selectedWarehouse = ref("");
     const selectedPartner = ref("");
     const selectedRow = ref<Record<string, unknown> | null>(null);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const partners = ref<Array<{ id: string; name: string }>>([]);
     const partnerError = ref<string | null>(null);
 
@@ -95,7 +96,10 @@ export function useReportEntity() {
             return "-";
         }
         if (value instanceof Date) {
-            return value.toLocaleString("id-ID");
+            return formatDate(value);
+        }
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+            return formatDate(value);
         }
         if (typeof value === "object") {
             return JSON.stringify(value);
@@ -103,20 +107,34 @@ export function useReportEntity() {
         return String(value);
     };
 
-    const tableRows = computed<Record<string, string | number>[]>(() =>
-        rows.value.map((row, index) => {
+    const resolvePath = (obj: any, path: string) => {
+        return path.split('.').reduce((o, i) => o?.[i], obj);
+    };
+
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const tableRows = computed<Record<string, string | number>[]>(() => {
+        const sorted = [...rows.value].sort((a, b) => {
+            const dateA = new Date((a.createdAt ?? a.event_time ?? a.inbound_date ?? a.outbound_date ?? a.relocation_date ?? a.transfer_date ?? a.return_date) as string | number).getTime();
+            const dateB = new Date((b.createdAt ?? b.event_time ?? b.inbound_date ?? b.outbound_date ?? b.relocation_date ?? b.transfer_date ?? b.return_date) as string | number).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+        
+        return sorted.map((row, index) => {
             const tableRow: Record<string, string | number> = {
-                id: String(row.id ?? row.docNo ?? `report-${index}`),
+                id: String(row.id ?? row.docNo ?? row.inbound_no ?? row.outbound_no ?? row.relocation_no ?? row.transfer_no ?? `report-${index}`),
             };
             columns.value.forEach((column) => {
                 tableRow[column.key] =
                     column.key === "actions"
                         ? ""
-                        : formatCellValue(row[column.key]);
+                        : formatCellValue(resolvePath(row, column.key));
             });
             return tableRow;
-        }),
-    );
+        });
+    });
 
     const normalizeDate = (
         value: string,
@@ -130,10 +148,13 @@ export function useReportEntity() {
     let suppressFilterWatch = false;
 
     const buildParams = (): ReportParams => {
+        const searchValue = keyword.value || undefined;
         const base: ReportParams = {
             page: pagination.page,
             limit: pagination.limit,
-            search: keyword.value || undefined,
+            search: searchValue,
+            docNumber: searchValue,
+            docReference: searchValue,
             dateFrom: normalizeDate(startDate.value),
             dateTo: normalizeDate(endDate.value, true),
             warehouseId: selectedWarehouse.value || undefined,
@@ -207,14 +228,39 @@ export function useReportEntity() {
     };
 
     const openDetail = (row: Record<string, unknown>) => {
-        const originalRow = rows.value.find(
-            (r) => String(r.id ?? r.docNo) === String(row.id),
-        );
-        selectedRow.value = originalRow ?? row;
+        const mappedDetail: Record<string, string | number> = {};
+        columns.value.forEach((col) => {
+            if (col.key !== "actions" && col.key !== "id") {
+                mappedDetail[col.label] = row[col.key] as string | number;
+            }
+        });
+        selectedRow.value = mappedDetail;
     };
 
-    const exportRows = () => {
-        exportCsv(rows.value, `${config.value.title}.csv`);
+    const exportRows = async () => {
+        try {
+            const params = buildParams();
+            const exportCols: { key: string; label: string }[] = [];
+            columns.value.forEach((col) => {
+                if (col.key !== "actions" && col.key !== "id") {
+                    exportCols.push({ key: col.key, label: col.label });
+                }
+            });
+
+            const blob = await reportService.exportReport(reportKey.value, params, exportCols);
+            
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute("download", `${config.value.title}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Export failed:", err);
+            error.value = "Gagal melakukan export data.";
+        }
     };
 
     const refreshRows = () => {
@@ -305,7 +351,9 @@ export function useReportEntity() {
         partnerFilterSupported,
         unsupportedPartnerNotice,
         emptyStateVariant,
+        sortOrder,
         tableRows,
+        toggleSort,
         openDetail,
         exportRows,
         refreshRows,
