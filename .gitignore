@@ -3,3 +3,7 @@ dist
 .env
 .DS_Store
 **/.DS_Store
+
+# AI Agent Skills
+skills/
+GEMINI.md

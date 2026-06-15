@@ -99,10 +99,10 @@ export function useMasterForm(
         payload.companyId = companyId;
     };
 
-    const submitPayload = () => {
+    const submitPayload = (submittedData: Record<string, string>) => {
         const payload: MasterRecord = {};
         config.value.formFields.forEach((field) => {
-            const value = formState[field.key]?.trim();
+            const value = submittedData[field.key]?.trim();
             if (!value) return;
             payload[field.key] = ["rowNo", "colNo"].includes(field.key)
                 ? Number(value)
@@ -148,8 +148,8 @@ export function useMasterForm(
         showDeleteModal.value = false;
     };
 
-    const handleCreate = async () => {
-        const payload = submitPayload();
+    const handleCreate = async (submittedData: Record<string, string>) => {
+        const payload = submitPayload(submittedData);
         if (!Object.keys(payload).length) return;
         const key = entityKey.value;
         if (!isMasterApiEntity(key)) {
@@ -176,10 +176,10 @@ export function useMasterForm(
         }
     };
 
-    const handleUpdate = async () => {
+    const handleUpdate = async (submittedData: Record<string, string>) => {
         const row = selectedRow.value;
         if (!row?.id) return;
-        const payload = submitPayload();
+        const payload = submitPayload(submittedData);
         const key = entityKey.value;
         isSubmitting.value = true;
         try {
