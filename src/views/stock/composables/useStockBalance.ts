@@ -12,6 +12,10 @@ const columns = [
     { key: "quantity", label: "Quantity" },
 ];
 
+type StockBalanceSortableRecord = StockBalanceRecord & {
+    updatedAt?: string | number | Date | null;
+};
+
 export function useStockBalance() {
     const keyword = ref("");
     const selectedWarehouse = ref("");
@@ -73,8 +77,12 @@ export function useStockBalance() {
 
     const displayRows = computed(() => {
         const sorted = [...rows.value].sort((a, b) => {
-            const dateA = new Date((a as any).updatedAt ?? 0).getTime();
-            const dateB = new Date((b as any).updatedAt ?? 0).getTime();
+            const dateA = new Date(
+                (a as StockBalanceSortableRecord).updatedAt ?? 0,
+            ).getTime();
+            const dateB = new Date(
+                (b as StockBalanceSortableRecord).updatedAt ?? 0,
+            ).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
 

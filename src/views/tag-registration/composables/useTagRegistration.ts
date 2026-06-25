@@ -5,10 +5,14 @@ import { useZodForm } from "@/composable/useZodForm";
 import { useNotifier } from "@/composable/useNotifier";
 import { useAuthStore } from "@/store/auth.store";
 import { masterService } from "@/services/master.service";
-import { useRfidTags } from "@/composable/useRfidTags";
+import { useRfidRegistrationActivities } from "@/composable/useRfidRegistrationActivities";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
-import type { RegisterEpcTagDto, RfidTag } from "@/api/feature/dto/rfid.dto";
+import type {
+    RegisterEpcTagDto,
+    RegistrationActivity,
+} from "@/api/feature/dto/rfid.dto";
 import { formatDate } from "@/utils/date";
+import { rfidService } from "@/services/rfid.service";
 
 const tagTypes = ["Asset", "Pallet", "Unit"];
 const tagTypeOptions = tagTypes.map((type) => ({ label: type, value: type }));
@@ -85,16 +89,18 @@ export function useTagRegistration() {
     );
 
     const {
-        items: tags,
+        items: activities,
         loading: tagsLoading,
         error: tagsError,
         pagination,
         pageSizeOptions,
         setPage,
         setLimit,
-        setFilters,
-        registerTag: registerTagWithRefresh,
-    } = useRfidTags({ autoFetch: true, initialListParams: { limit: 10 } });
+        refreshList: refreshActivities,
+    } = useRfidRegistrationActivities({
+        autoFetch: true,
+        initialListParams: { limit: 10 },
+    });
 
     const tagSearch = ref("");
     const tagEmptyStateVariant = computed<"default" | "search" | "filter">(
@@ -102,26 +108,26 @@ export function useTagRegistration() {
     );
 
     const tagColumns = [
-        { key: "epcCode", label: "EPC" },
-        { key: "status", label: "Status" },
-        { key: "productId", label: "Product" },
-        { key: "warehouseId", label: "Warehouse" },
-        { key: "createdAt", label: "Created" },
+        { key: "activityDate", label: "Time" },
+        { key: "userName", label: "User" },
+        { key: "productName", label: "Product" },
+        { key: "quantity", label: "Quantity (Tags)" },
     ];
 
     const displayTags = computed<Record<string, string | number>[]>(() =>
-        tags.value.map((tag: RfidTag) => ({
-            id: tag.id,
-            epcCode: tag.epcCode,
-            status: tag.status,
-            productId: tag.productId ?? "-",
-            warehouseId: tag.warehouseId ?? "-",
-            createdAt: formatDate(tag.createdAt),
-        })),
+        activities.value.map(
+            (activity: RegistrationActivity, index: number) => ({
+                id: index,
+                activityDate: formatDate(activity.activityDate),
+                userName: activity.userName ?? "System",
+                productName: activity.productName ?? activity.productId ?? "-",
+                quantity: activity.quantity,
+            }),
+        ),
     );
 
     const handleTagSearch = () => {
-        void setFilters({ search: tagSearch.value || undefined });
+        // Search could be implemented by filtering activities
     };
 
     useDebouncedWatch(tagSearch, handleTagSearch);
@@ -148,7 +154,8 @@ export function useTagRegistration() {
         try {
             await withToast(
                 async () => {
-                    await registerTagWithRefresh(payload);
+                    await rfidService.registerTag(payload);
+                    await refreshActivities();
                 },
                 {
                     successMessage: "Tag berhasil didaftarkan",

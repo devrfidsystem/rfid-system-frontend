@@ -14,6 +14,8 @@ import type { ApiMeta } from "@/lib/api/response";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { formatDate } from "@/utils/date";
 
+type RowValue = ReportRow[string];
+
 export function useReportEntity() {
     const route = useRoute();
     const reportKey = computed(() => route.meta.report as ReportKey);
@@ -110,8 +112,40 @@ export function useReportEntity() {
         return String(value);
     };
 
-    const resolvePath = (obj: any, path: string) => {
-        return path.split(".").reduce((o, i) => o?.[i], obj);
+    const resolvePath = (
+        obj: Record<string, unknown>,
+        path: string,
+    ): unknown => {
+        return path
+            .split(".")
+            .reduce<unknown>(
+                (current, segment) =>
+                    current !== null && typeof current === "object"
+                        ? (current as Record<string, unknown>)[segment]
+                        : undefined,
+                obj,
+            );
+    };
+
+    const getSortableDate = (row: ReportRow): string | number => {
+        const sortableRow = row as ReportRow & {
+            createdAt?: RowValue;
+            event_time?: RowValue;
+            inbound_date?: RowValue;
+            outbound_date?: RowValue;
+            relocation_date?: RowValue;
+            transfer_date?: RowValue;
+            return_date?: RowValue;
+        };
+
+        return (sortableRow.createdAt ??
+            sortableRow.event_time ??
+            sortableRow.inbound_date ??
+            sortableRow.outbound_date ??
+            sortableRow.relocation_date ??
+            sortableRow.transfer_date ??
+            sortableRow.return_date ??
+            0) as string | number;
     };
 
     const toggleSort = () => {
@@ -120,24 +154,8 @@ export function useReportEntity() {
 
     const tableRows = computed<Record<string, string | number>[]>(() => {
         const sorted = [...rows.value].sort((a, b) => {
-            const dateA = new Date(
-                (a.createdAt ??
-                    a.event_time ??
-                    a.inbound_date ??
-                    a.outbound_date ??
-                    a.relocation_date ??
-                    a.transfer_date ??
-                    a.return_date) as string | number,
-            ).getTime();
-            const dateB = new Date(
-                (b.createdAt ??
-                    b.event_time ??
-                    b.inbound_date ??
-                    b.outbound_date ??
-                    b.relocation_date ??
-                    b.transfer_date ??
-                    b.return_date) as string | number,
-            ).getTime();
+            const dateA = new Date(getSortableDate(a)).getTime();
+            const dateB = new Date(getSortableDate(b)).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
 
@@ -288,8 +306,7 @@ export function useReportEntity() {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-        } catch (err) {
-            console.error("Export failed:", err);
+        } catch {
             error.value = "Gagal melakukan export data.";
         }
     };

@@ -17,6 +17,11 @@ import type { TransactionRecord } from "../types";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { formatDate } from "@/utils/date";
 
+type TransactionRow = TransactionRecord & Record<string, unknown>;
+type TransactionSortableRecord = TransactionRecord & {
+    createdAt?: string | number | Date | null;
+};
+
 const transactionTitles: Record<
     TransactionKey,
     { title: string; description: string }
@@ -127,8 +132,19 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         return String(value);
     };
 
-    const getNestedValue = (obj: Record<string, any>, path: string): any => {
-        return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+    const getNestedValue = (
+        obj: Record<string, unknown>,
+        path: string,
+    ): unknown => {
+        return path
+            .split(".")
+            .reduce<unknown>(
+                (current, segment) =>
+                    current !== null && typeof current === "object"
+                        ? (current as Record<string, unknown>)[segment]
+                        : undefined,
+                obj,
+            );
     };
 
     const toggleSort = () => {
@@ -137,8 +153,12 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
 
     const tableRows = computed(() => {
         const sorted = [...rows.value].sort((a, b) => {
-            const dateA = new Date((a as any).createdAt ?? 0).getTime();
-            const dateB = new Date((b as any).createdAt ?? 0).getTime();
+            const dateA = new Date(
+                (a as TransactionSortableRecord).createdAt ?? 0,
+            ).getTime();
+            const dateB = new Date(
+                (b as TransactionSortableRecord).createdAt ?? 0,
+            ).getTime();
             return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
         });
 
@@ -147,10 +167,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
                 id: String(row.id ?? row.docNo ?? `row-${index}`),
             };
             columns.value.forEach((column) => {
-                let value = getNestedValue(
-                    row as Record<string, any>,
-                    column.key,
-                );
+                let value = getNestedValue(row as TransactionRow, column.key);
 
                 // Map warehouseId to human-readable label if possible
                 if (column.key === "warehouseId") {

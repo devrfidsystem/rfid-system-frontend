@@ -172,7 +172,13 @@ apiClient.interceptors.response.use(
 const normalizeAxiosError = (error: AxiosError): ApiClientError => {
     const status = error.response?.status;
     const payload = error.response?.data as ApiResponse<unknown> | undefined;
-    const message = payload?.message ?? error.message ?? "Unknown API error";
+
+    let message = payload?.message ?? error.message ?? "Unknown API error";
+    const metaErrors = payload?.meta?.errors;
+    if (Array.isArray(metaErrors) && metaErrors.length > 0) {
+        message = metaErrors.join(", ");
+    }
+
     return new ApiClientError(message, status, payload?.error ?? null, payload);
 };
 

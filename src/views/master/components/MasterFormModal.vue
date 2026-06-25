@@ -81,8 +81,10 @@ const props = defineProps<{
     initialState: Record<string, string>;
     isSubmitting: boolean;
     isEdit: boolean;
-    uomOptions: { label: string; value: string }[];
-    categoryOptions: { label: string; value: string }[];
+    uomOptions?: { label: string; value: string }[];
+    categoryOptions?: { label: string; value: string }[];
+    supplierOptions?: { label: string; value: string }[];
+    customerOptions?: { label: string; value: string }[];
 }>();
 
 const emit = defineEmits<{
@@ -102,8 +104,10 @@ watch(
 );
 
 const getOptions = (field: MasterFormField) => {
-    if (field.optionsKey === "uomId") return props.uomOptions;
-    if (field.optionsKey === "categoryId") return props.categoryOptions;
+    if (field.optionsKey === "uomId") return props.uomOptions || [];
+    if (field.optionsKey === "categoryId") return props.categoryOptions || [];
+    if (field.optionsKey === "supplierId") return props.supplierOptions || [];
+    if (field.optionsKey === "customerId") return props.customerOptions || [];
     return [];
 };
 

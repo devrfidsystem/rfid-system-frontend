@@ -30,6 +30,8 @@ export function useMasterForm(
     const formState = reactive<Record<string, string>>({});
     const uomSelectOptions = ref<{ label: string; value: string }[]>([]);
     const categorySelectOptions = ref<{ label: string; value: string }[]>([]);
+    const supplierSelectOptions = ref<{ label: string; value: string }[]>([]);
+    const customerSelectOptions = ref<{ label: string; value: string }[]>([]);
     const isSubmitting = ref(false);
     const isDeleting = ref(false);
 
@@ -43,15 +45,24 @@ export function useMasterForm(
         if (entityKey.value !== "products") {
             uomSelectOptions.value = [];
             categorySelectOptions.value = [];
+            supplierSelectOptions.value = [];
+            customerSelectOptions.value = [];
             return;
         }
         try {
             const params = authStore.currentCompanyId
                 ? { companyId: authStore.currentCompanyId }
                 : undefined;
-            const [uomRecords, categoryRecords] = await Promise.all([
+            const [
+                uomRecords,
+                categoryRecords,
+                supplierRecords,
+                customerRecords,
+            ] = await Promise.all([
                 masterService.fetchOptions("uoms", params),
                 masterService.fetchOptions("product-categories", params),
+                masterService.fetchOptions("suppliers", params),
+                masterService.fetchOptions("customers", params),
             ]);
             uomSelectOptions.value = uomRecords.map((uom) => ({
                 value: String(uom.id),
@@ -63,6 +74,14 @@ export function useMasterForm(
             categorySelectOptions.value = categoryRecords.map((category) => ({
                 value: String(category.id),
                 label: category.name,
+            }));
+            supplierSelectOptions.value = supplierRecords.map((supplier) => ({
+                value: String(supplier.id),
+                label: supplier.name,
+            }));
+            customerSelectOptions.value = customerRecords.map((customer) => ({
+                value: String(customer.id),
+                label: customer.name,
             }));
         } catch {
             notifyError("Gagal memuat referensi produk.");
@@ -280,6 +299,8 @@ export function useMasterForm(
         formState,
         uomSelectOptions,
         categorySelectOptions,
+        supplierSelectOptions,
+        customerSelectOptions,
         isSubmitting,
         isDeleting,
         openAdd,

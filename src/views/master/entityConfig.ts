@@ -1,5 +1,6 @@
 import type { EntityKey } from "@/model/entities";
 import type { Component } from "vue";
+import type { MasterRecord } from "./types";
 import {
     Box,
     Layers,
@@ -10,9 +11,7 @@ import {
     Warehouse,
 } from "lucide-vue-next";
 
-type MasterColumnAccessor = (
-    row: Record<string, unknown>,
-) => string | number | null;
+type MasterColumnAccessor = (row: MasterRecord) => string | number | null;
 
 export type MasterColumnDef = {
     key: string;
@@ -99,13 +98,13 @@ const resolveRelationLabel = (
     return "";
 };
 
-const getProductUomLabel = (row: Record<string, unknown>) =>
+const getProductUomLabel = (row: MasterRecord) =>
     resolveRelationLabel(
         row.uom as Record<string, unknown> | undefined,
         row.uomId,
     );
 
-const getProductCategoryLabel = (row: Record<string, unknown>) =>
+const getProductCategoryLabel = (row: MasterRecord) =>
     resolveRelationLabel(
         row.category as Record<string, unknown> | undefined,
         row.categoryId,
@@ -269,6 +268,26 @@ export const masterEntities: Partial<
                 type: "select",
                 optionsKey: "categoryId",
                 placeholder: "Select category (optional)",
+            },
+            {
+                key: "supplierId",
+                label: "Supplier",
+                type: "select",
+                optionsKey: "supplierId",
+                placeholder: "Select supplier (optional)",
+            },
+            {
+                key: "customerId",
+                label: "Customer",
+                type: "select",
+                optionsKey: "customerId",
+                placeholder: "Select customer (optional)",
+            },
+            {
+                key: "description",
+                label: "Description",
+                type: "textarea",
+                placeholder: "Enter product description (optional)",
             },
         ],
         icon: Box,

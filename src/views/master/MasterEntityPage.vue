@@ -41,6 +41,8 @@
             :is-edit="false"
             :uom-options="uomSelectOptions"
             :category-options="categorySelectOptions"
+            :supplier-options="supplierSelectOptions"
+            :customer-options="customerSelectOptions"
             @close="closeAdd"
             @submit="handleCreate"
         />
@@ -54,6 +56,8 @@
             :is-edit="true"
             :uom-options="uomSelectOptions"
             :category-options="categorySelectOptions"
+            :supplier-options="supplierSelectOptions"
+            :customer-options="customerSelectOptions"
             @close="closeEdit"
             @submit="handleUpdate"
         />
@@ -90,6 +94,8 @@ const {
     formState,
     uomSelectOptions,
     categorySelectOptions,
+    supplierSelectOptions,
+    customerSelectOptions,
     isSubmitting,
     isDeleting,
     unsupportedFeature,

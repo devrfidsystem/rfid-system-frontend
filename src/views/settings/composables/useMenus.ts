@@ -90,7 +90,7 @@ export function useMenus() {
             const menus = await settingsService.getAppMenus(
                 selectedAppId.value,
             );
-            rows.value = menus as MenuRecord[];
+            rows.value = menus as unknown as MenuRecord[];
         } catch (err) {
             error.value =
                 err instanceof Error ? err.message : "Failed to load menus";
