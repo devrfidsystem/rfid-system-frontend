@@ -1,6 +1,9 @@
 <template>
     <label class="flex flex-col gap-1.5 text-sm" :for="id">
-        <span v-if="label" :class="labelClass ?? 'font-medium text-text-secondary'">
+        <span
+            v-if="label"
+            :class="labelClass ?? 'font-medium text-text-secondary'"
+        >
             {{ label }}
         </span>
 
@@ -18,10 +21,21 @@
                 :placeholder="placeholder"
                 :type="type"
                 :disabled="disabled"
-                :class="[inputClasses, $slots.icon ? 'pl-10' : '']"
+                :class="[
+                    inputClasses,
+                    $slots.icon ? 'pl-10' : '',
+                    $slots.trailingIcon ? 'pr-10' : '',
+                ]"
                 v-bind="{ ...attrs, ...bindObjectId(objectId) }"
                 @input="onInput"
             />
+
+            <div
+                v-if="$slots.trailingIcon"
+                class="absolute right-3 top-1/2 flex -translate-y-1/2 items-center text-text-secondary"
+            >
+                <slot name="trailingIcon" />
+            </div>
         </div>
 
         <p
