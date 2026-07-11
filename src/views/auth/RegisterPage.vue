@@ -2,8 +2,6 @@
     <AuthShell
         form-title="Buat akun enterprise"
         form-subtitle="Kelola RF tags, pengguna, dan hak akses dari satu portal yang terstandardisasi."
-        aside-title="Akses terkontrol untuk tim operasional"
-        aside-description="Sistem terintegrasi ke IAM dan monitoring stack — cukup sambungkan API dan aturan business process Anda."
     >
         <template #default>
             <form class="space-y-5" @submit.prevent="handleSubmit">
@@ -94,7 +92,7 @@
                 <Button
                     type="submit"
                     variant="primary"
-                    class="w-full justify-center"
+                    class="w-full justify-center rounded-full"
                     :disabled="submitting || !canSubmit"
                     object-id="btn_RegisterSubmit"
                 >

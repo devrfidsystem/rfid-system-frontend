@@ -2,8 +2,6 @@
     <AuthShell
         form-title="Masuk ke Control Room"
         form-subtitle="Gunakan akun perusahaan Anda untuk mengakses laporan dan operasi warehouse."
-        aside-title="Satu portal untuk seluruh operasi gudang"
-        aside-description="Monitoring stok, transaksi, dan RFID tracking dalam satu ruang kerja yang aman dan terintegrasi."
     >
         <template #default>
             <form class="space-y-5" @submit.prevent="handleSubmit">
