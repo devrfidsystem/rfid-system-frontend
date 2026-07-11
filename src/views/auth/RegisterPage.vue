@@ -92,7 +92,7 @@
                 <Button
                     type="submit"
                     variant="primary"
-                    class="w-full justify-center rounded-full"
+                    class="w-full justify-center !rounded-full"
                     :disabled="submitting || !canSubmit"
                     object-id="btn_RegisterSubmit"
                 >
