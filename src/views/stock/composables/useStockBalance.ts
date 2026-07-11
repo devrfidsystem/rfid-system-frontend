@@ -4,6 +4,8 @@ import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import type { StockBalanceRecord } from "@/model/entities";
 import type { ApiMeta } from "@/lib/api/response";
+import { reportService } from "@/services/report.service";
+import { reportConfigs } from "@/views/report/reportConfig";
 
 const columns = [
     { key: "productId", label: "Product" },
@@ -138,6 +140,37 @@ export function useStockBalance() {
         void loadRows();
     };
 
+    const exportRows = async () => {
+        try {
+            const blob = await reportService.exportReport(
+                "current-stock",
+                {
+                    page: pagination.page,
+                    limit: pagination.limit,
+                    search: keyword.value || undefined,
+                    warehouseId: selectedWarehouse.value || undefined,
+                },
+                reportConfigs["current-stock"].columns,
+            );
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute(
+                "download",
+                `${reportConfigs["current-stock"].title}.xlsx`,
+            );
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            error.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to export stock balance.";
+        }
+    };
+
     useDebouncedWatch([keyword, selectedWarehouse], () => {
         pagination.page = 1;
         void loadRows();
@@ -181,5 +214,6 @@ export function useStockBalance() {
         pagination,
         pageSizeOptions,
         refresh,
+        exportRows,
     };
 }
