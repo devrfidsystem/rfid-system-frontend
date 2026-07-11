@@ -99,6 +99,11 @@ apiClient.interceptors.request.use(async (config) => {
             : {}),
     } as Record<string, unknown>;
 
+    if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+        delete merged["Content-Type"];
+        delete merged["content-type"];
+    }
+
     // assign back to config.headers with a cast to avoid strict Axios header typing issues
     config.headers = merged as import("axios").AxiosRequestHeaders;
 

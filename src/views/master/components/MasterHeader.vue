@@ -1,14 +1,14 @@
 <template>
     <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5"
+        class="flex flex-col justify-between gap-4 px-4 py-3 sm:flex-row sm:items-center"
     >
         <div>
-            <h3 class="text-base font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-text">
                 {{ title }} List
             </h3>
         </div>
         <div
-            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto"
+            class="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center"
         >
             <Input
                 v-model="localKeyword"
@@ -20,7 +20,7 @@
                     <Icon :icon="Search" :size="16" />
                 </template>
             </Input>
-            <div class="grid grid-cols-3 sm:flex items-center gap-2">
+            <div class="grid grid-cols-3 items-center gap-2 sm:flex">
                 <Button
                     variant="outline"
                     class="px-3 w-full sm:w-auto justify-center"
@@ -28,18 +28,6 @@
                 >
                     <Icon :icon="Filter" :size="14" />
                     Filter
-                </Button>
-                <Button
-                    variant="outline"
-                    class="px-3 w-full sm:w-auto justify-center"
-                    object-id="btn_MasterHeaderSort"
-                    @click="$emit('sort')"
-                >
-                    <Icon
-                        :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp"
-                        :size="14"
-                    />
-                    {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
                 </Button>
                 <Button
                     variant="outline"
@@ -72,8 +60,6 @@ import Icon from "@/components/atoms/Icon.vue";
 import {
     Search,
     Filter,
-    ArrowUp,
-    ArrowDown,
     RefreshCw,
     Plus,
 } from "lucide-vue-next";
@@ -82,14 +68,12 @@ const props = defineProps<{
     title: string;
     keyword: string;
     canAdd: boolean;
-    sortOrder: "asc" | "desc";
 }>();
 
 const emit = defineEmits<{
     (e: "update:keyword", value: string): void;
     (e: "refresh"): void;
     (e: "add"): void;
-    (e: "sort"): void;
 }>();
 
 const localKeyword = computed({

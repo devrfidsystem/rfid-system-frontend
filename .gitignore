@@ -7,3 +7,11 @@ dist
 # AI Agent Skills
 skills/
 GEMINI.md
+
+# spark
+.spark/.codex/skills/
+/.spark-lock.json
+/.codex/skills/
+/.codex/hooks/
+/.codex-cli-plugin/
+/.docs

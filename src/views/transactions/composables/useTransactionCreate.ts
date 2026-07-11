@@ -123,8 +123,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             return items.map((l) => {
                 const loc = l as typeof l & { name?: string };
                 return {
-                    label:
-                        loc.name || loc.path || loc.section || String(loc.id),
+                    label: loc.name || loc.path || String(loc.id),
                     value: String(loc.id),
                 };
             });

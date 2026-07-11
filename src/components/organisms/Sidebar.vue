@@ -1,6 +1,6 @@
 <template>
     <aside
-        class="sticky top-0 h-screen overflow-x-hidden transition-[width] duration-200 ease-out bg-white border-r border-border-default"
+        class="sticky top-0 h-screen overflow-x-hidden border-r border-border bg-surface transition-[width] duration-200 ease-out"
         :class="sidebarCollapsed ? 'w-20' : 'w-[280px]'"
     >
         <div class="flex h-full flex-col px-3 py-5">
@@ -32,8 +32,11 @@
             <!-- Search Menu -->
             <div v-if="!sidebarCollapsed" class="mb-4">
                 <div class="relative group">
+                    <label for="txt_SidebarSearch" class="sr-only">
+                        Search menu
+                    </label>
                     <Icon
-                        class-name="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-600 transition-colors"
+                        class-name="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors group-focus-within:text-primary-600"
                         :icon="Search"
                         :size="16"
                     />
@@ -41,7 +44,7 @@
                         id="txt_SidebarSearch"
                         v-model="searchQuery"
                         placeholder="Search menu..."
-                        class="w-full rounded-md border border-transparent bg-gray-100 py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-500 hover:bg-gray-200/50 focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100/50 transition-all"
+                        class="w-full rounded-md border border-transparent bg-surface-secondary py-2 pl-9 pr-3 text-sm text-text placeholder:text-text-muted transition-colors hover:bg-surface focus:border-primary-400 focus:bg-surface focus:outline-none focus:ring-4 focus:ring-primary-100/50"
                         data-testid="txt_SidebarSearch"
                     />
                 </div>
@@ -57,11 +60,11 @@
                     <!-- Section Label -->
                     <p
                         v-if="!sidebarCollapsed"
-                        class="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400"
+                        class="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wide text-text-muted"
                     >
                         {{ section.label }}
                     </p>
-                    <div v-else class="mx-auto mb-1 h-px w-8 bg-gray-200"></div>
+                    <div v-else class="mx-auto mb-1 h-px w-8 bg-border"></div>
 
                     <div class="space-y-0.5">
                         <div v-for="item in section.items" :key="item.id">
@@ -76,8 +79,8 @@
                                         ? 'justify-center gap-0'
                                         : 'gap-3 justify-start',
                                     item.path && isActive(item.path)
-                                        ? 'bg-primary-50 text-primary-700 font-semibold'
-                                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                                        ? 'bg-primary-50 text-primary-600 font-medium'
+                                        : 'text-text-secondary hover:bg-surface-secondary hover:text-text',
                                 ]"
                                 :title="
                                     sidebarCollapsed ? item.title : undefined
@@ -93,7 +96,7 @@
                                     :class-name="
                                         item.path && isActive(item.path)
                                             ? 'text-primary-600'
-                                            : 'text-gray-400 group-hover:text-gray-900'
+                                            : 'text-text-muted group-hover:text-text'
                                     "
                                 />
                                 <span v-if="!sidebarCollapsed">{{
@@ -111,7 +114,7 @@
                                         )
                                     "
                                     type="button"
-                                    class="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    class="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-text-secondary transition-colors duration-150 hover:bg-surface-secondary hover:text-text"
                                     :class="
                                         sidebarCollapsed
                                             ? 'justify-center'
@@ -139,7 +142,7 @@
                                         <Icon
                                             :icon="item.icon"
                                             :size="18"
-                                            class-name="text-gray-400 group-hover:text-gray-900"
+                                            class-name="text-text-muted group-hover:text-text"
                                         />
                                         <span v-if="!sidebarCollapsed">{{
                                             item.title
@@ -153,7 +156,7 @@
                                                 : ChevronRight
                                         "
                                         :size="16"
-                                        class-name="text-gray-400 group-hover:text-gray-900"
+                                        class-name="text-text-muted group-hover:text-text"
                                     />
                                 </button>
 
@@ -177,8 +180,8 @@
                                         class="group flex items-center rounded-md pl-9 pr-3 py-2 text-sm font-medium transition-colors duration-150"
                                         :class="
                                             child.path && isActive(child.path)
-                                                ? 'bg-primary-50 text-primary-700 font-semibold'
-                                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                                ? 'bg-primary-50 text-primary-600 font-medium'
+                                                : 'text-text-secondary hover:bg-surface-secondary hover:text-text'
                                         "
                                         :data-testid="
                                             toObjectId(
@@ -198,11 +201,11 @@
             </nav>
 
             <!-- Collapse Button -->
-            <div class="mt-auto border-t border-border-default pt-4">
+            <div class="mt-auto border-t border-border pt-4">
                 <button
                     id="btn_SidebarCollapse"
                     type="button"
-                    class="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.25em] text-text-secondary transition-all duration-150 hover:bg-workspace-bg hover:text-gray-900"
+                    class="flex h-9 w-full items-center justify-center gap-2 rounded-md px-3 text-xs font-semibold uppercase tracking-[0.25em] text-text-secondary transition-colors duration-150 hover:bg-surface-secondary hover:text-text"
                     data-testid="btn_SidebarCollapse"
                     @click="toggleCollapse"
                 >
@@ -240,6 +243,7 @@ import {
     Users,
     Map,
     ScrollText,
+    ListTodo,
     ChevronDown,
     ChevronRight,
     ChevronsLeft,
@@ -287,6 +291,7 @@ const iconMap: Record<string, Component> = {
     CUSTOMERS: Users,
     SUPPLIERS: Truck,
     TRANSACTIONS: FileText,
+    TRANSACTION_REGISTER_TAGS: Radio,
     TRANSACTION_INBOUND: ArrowDownToLine,
     TRANSACTION_OUTBOUND: ArrowUpFromLine,
     TRANSACTION_RELOCATION: Map,
@@ -313,6 +318,7 @@ const iconMap: Record<string, Component> = {
     USERS: Users,
     LOCATION: MapPin,
     LOG: ScrollText,
+    TODO: ListTodo,
     DEFAULT: LayoutDashboard,
 };
 
@@ -323,6 +329,58 @@ const getIcon = (code?: string | null) => {
 
 const normalizeSort = (node: MenuTreeNode) =>
     node.sortOrder ?? node.sort_order ?? 0;
+
+const normalizeTitle = (node: MenuTreeNode) => {
+    if (node.code === "RFID" || node.code === "TRANSACTION_REGISTER_TAGS") {
+        return "Register Tags";
+    }
+    return node.name;
+};
+
+const cloneNavItem = (item: NavItem): NavItem => ({
+    ...item,
+    children: item.children.map(cloneNavItem),
+});
+
+const mergeRegisterTagsIntoTransactions = (items: NavItem[]): NavItem[] => {
+    const clonedItems = items.map(cloneNavItem);
+    const transactions = clonedItems.find(
+        (item) => item.code === "TRANSACTIONS",
+    );
+    const registerTagsIndex = clonedItems.findIndex(
+        (item) =>
+            item.code === "RFID" ||
+            item.code === "TRANSACTION_REGISTER_TAGS" ||
+            item.title === "Register Tags",
+    );
+
+    if (!transactions || registerTagsIndex === -1) {
+        return clonedItems;
+    }
+
+    const registerTags = clonedItems.splice(registerTagsIndex, 1)[0];
+    const normalizedRegisterTags: NavItem = {
+        ...registerTags,
+        code: "TRANSACTION_REGISTER_TAGS",
+        title: "Register Tags",
+        sortOrder: 0,
+    };
+
+    const existingIndex = transactions.children.findIndex(
+        (child) =>
+            child.code === normalizedRegisterTags.code ||
+            child.title === normalizedRegisterTags.title,
+    );
+
+    if (existingIndex === -1) {
+        transactions.children = [
+            normalizedRegisterTags,
+            ...transactions.children,
+        ].sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    return clonedItems;
+};
 
 const toNavItem = (node: MenuTreeNode): NavItem | null => {
     if (!node.permissions.canView) {
@@ -350,7 +408,7 @@ const toNavItem = (node: MenuTreeNode): NavItem | null => {
     return {
         id: node.id,
         code: node.code ?? "",
-        title: node.name,
+        title: normalizeTitle(node),
         path: node.path,
         icon: getIcon(node.code),
         children,
@@ -359,10 +417,21 @@ const toNavItem = (node: MenuTreeNode): NavItem | null => {
 };
 
 const navItems = computed<NavItem[]>(() =>
-    menuTree.value
-        .map((node) => toNavItem(node))
-        .filter((item): item is NavItem => Boolean(item))
-        .sort((a, b) => a.sortOrder - b.sortOrder),
+    mergeRegisterTagsIntoTransactions([
+        ...menuTree.value
+            .map((node) => toNavItem(node))
+            .filter((item): item is NavItem => Boolean(item))
+            .sort((a, b) => a.sortOrder - b.sortOrder),
+        {
+            id: "demo-todo-list",
+            code: "TODO",
+            title: "Todo List",
+            path: "/todo",
+            icon: getIcon("TODO"),
+            children: [],
+            sortOrder: 999,
+        },
+    ]),
 );
 
 const searchQuery = ref("");
@@ -384,11 +453,7 @@ const sectionDefinitions: { label: string; codes: string[] }[] = [
     },
     {
         label: "Transaction",
-        codes: ["RFID", "STOCK", "TRANSACTION"],
-    },
-    {
-        label: "Reporting",
-        codes: ["REPORT", "LOG"],
+        codes: ["RFID", "STOCK", "TRANSACTION", "REGISTER"],
     },
     {
         label: "Admin Setting",
@@ -396,9 +461,17 @@ const sectionDefinitions: { label: string; codes: string[] }[] = [
     },
 ];
 
-const classifyItem = (item: NavItem): string => {
+const classifyItem = (item: NavItem): string | null => {
     const code = item.code.toUpperCase();
     const title = item.title.toUpperCase();
+    if (
+        code.includes("REPORT") ||
+        title.includes("REPORT") ||
+        code.includes("LOG") ||
+        title.includes("LOG")
+    ) {
+        return null;
+    }
     for (const section of sectionDefinitions) {
         if (section.codes.some((c) => code.includes(c) || title.includes(c))) {
             return section.label;
@@ -411,6 +484,7 @@ const navSections = computed<SidebarSection[]>(() => {
     const grouped: Record<string, NavItem[]> = {};
     for (const item of navItems.value) {
         const sectionLabel = classifyItem(item);
+        if (!sectionLabel) continue;
         if (!grouped[sectionLabel]) {
             grouped[sectionLabel] = [];
         }

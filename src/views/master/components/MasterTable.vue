@@ -2,22 +2,22 @@
     <div>
         <p
             v-if="loadError"
-            class="mx-6 mb-4 rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+            class="mx-4 mb-4 rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ loadError }}
         </p>
-        <div v-else-if="loading" class="px-6 pb-5">
+        <div v-else-if="loading" class="px-4 pb-5">
             <LoadingState />
         </div>
         <p
             v-else-if="unsupportedFeature"
-            class="mx-6 mb-4 rounded-md border border-yellow-100 bg-yellow-50 px-4 py-3 text-sm text-amber-700"
+            class="mx-4 mb-4 rounded-md border border-warning-500/20 bg-warning-50 px-4 py-3 text-sm text-warning-600"
         >
             {{ unsupportedFeatureMessage }}
         </p>
         <div
             v-else-if="!rows.length && !loadError && !unsupportedFeature"
-            class="px-6 pb-5"
+            class="px-4 pb-5"
         >
             <EmptyState
                 title="Belum ada data"
@@ -28,33 +28,34 @@
         <div v-else>
             <div class="overflow-x-auto">
                 <table
-                    class="min-w-full divide-y divide-gray-200 text-sm text-gray-600"
+                    class="min-w-full divide-y divide-border text-sm text-text-secondary"
                     object-id="tbl_MasterTable"
                 >
                     <thead
-                        class="bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500 border-t border-gray-200"
+                        class="border-t border-border bg-surface-secondary text-xs font-medium uppercase tracking-wide text-text-secondary"
                     >
                         <tr>
                             <th
                                 v-for="column in columnDefs"
                                 :key="column.key"
-                                class="px-6 py-3 text-left"
+                                class="px-4 py-3 text-left"
                             >
                                 {{ column.label }}
                             </th>
-                            <th class="px-6 py-3 text-right">Actions</th>
+                            <th class="px-4 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-border bg-surface">
                         <tr
                             v-for="row in rows"
                             :key="rowKey(row)"
-                            class="transition-colors duration-150 hover:bg-gray-50"
+                            class="transition-colors duration-150 hover:bg-surface-secondary/60"
                         >
                             <td
                                 v-for="column in columnDefs"
                                 :key="`${rowKey(row)}-${column.key}`"
-                                class="px-6 py-3"
+                                class="px-4 py-3"
+                                :style="getTreeRowIndentStyle(row)"
                             >
                                 <template v-if="column.key === 'isActive'">
                                     <Badge
@@ -81,19 +82,70 @@
                                     >
                                         {{ column.accessor(row) }}
                                     </Badge>
-                                    <span v-else class="text-gray-400">—</span>
+                                    <span v-else class="text-text-muted">—</span>
+                                </template>
+                                <template
+                                    v-else-if="
+                                        column.key === 'path' &&
+                                        row.treeDepth !== undefined
+                                    "
+                                >
+                                    <div
+                                        class="flex items-start gap-2"
+                                    >
+                                        <button
+                                            v-if="row.treeHasChildren"
+                                            type="button"
+                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-text-muted transition hover:text-text"
+                                            :aria-label="
+                                                row.treeExpanded
+                                                    ? 'Collapse location'
+                                                    : 'Expand location'
+                                            "
+                                            :aria-expanded="row.treeExpanded"
+                                            @click="
+                                                $emit('toggleTreeRow', row)
+                                            "
+                                        >
+                                            <Icon
+                                                :icon="
+                                                    row.treeExpanded
+                                                        ? ChevronDown
+                                                        : ChevronRight
+                                                "
+                                                :size="12"
+                                            />
+                                        </button>
+                                        <div class="flex flex-col leading-tight">
+                                            <span class="font-medium text-text">
+                                                {{
+                                                    formatCellValue(
+                                                        column.accessor(row),
+                                                    )
+                                                }}
+                                            </span>
+                                            <span
+                                                v-if="row.treeSubtitle"
+                                                class="mt-0.5 text-[11px] text-text-secondary"
+                                            >
+                                                {{ row.treeSubtitle }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </template>
                                 <template v-else>
                                     {{ formatCellValue(column.accessor(row)) }}
                                 </template>
                             </td>
                             <td
-                                class="px-6 py-3 text-right text-sm text-gray-500"
+                                class="px-4 py-3 text-right text-sm text-text-secondary"
+                                :style="getTreeRowIndentStyle(row)"
                             >
                                 <div class="flex flex-wrap justify-end gap-2">
                                     <Button
                                         size="sm"
                                         variant="outline"
+                                        class="shrink-0"
                                         object-id="btn_MasterTableEdit"
                                         @click="$emit('edit', row)"
                                     >
@@ -104,6 +156,7 @@
                                         v-if="showDeleteButton"
                                         size="sm"
                                         variant="danger"
+                                        class="shrink-0"
                                         object-id="btn_MasterTableDelete"
                                         @click="$emit('delete', row)"
                                     >
@@ -116,10 +169,7 @@
                     </tbody>
                 </table>
             </div>
-            <div
-                v-if="showPagination"
-                class="border-t border-gray-200 px-6 py-4"
-            >
+            <div v-if="showPagination" class="border-t border-border px-4 py-4">
                 <Pagination
                     v-model:page="localPage"
                     v-model:page-size="localLimit"
@@ -139,7 +189,7 @@ import EmptyState from "@/components/molecules/EmptyState.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
 import Pagination from "@/components/ui/table/Pagination.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { Pencil, Trash2 } from "lucide-vue-next";
+import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-vue-next";
 import type { MasterRecord } from "../types";
 import { formatDate } from "@/utils/date";
 
@@ -168,6 +218,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "edit", row: MasterRecord): void;
     (e: "delete", row: MasterRecord): void;
+    (e: "toggleTreeRow", row: MasterRecord): void;
     (e: "update:page", value: number): void;
     (e: "update:limit", value: number): void;
 }>();
@@ -185,6 +236,15 @@ const localLimit = computed({
 const pageSizeOptions = [10, 20, 50];
 
 const rowKey = (row: MasterRecord) => String(row.id ?? row.code ?? "");
+
+const getTreeRowIndentStyle = (row: MasterRecord) => {
+    if (!row.treeDepth || row.treeDepth <= 0) return undefined;
+
+    const indent = 0.9 * row.treeDepth;
+    return {
+        paddingInlineStart: `calc(1rem + ${indent}rem)`,
+    };
+};
 
 const getStatusTone = (status: unknown) => {
     const s = String(status).toLowerCase();

@@ -2,12 +2,46 @@
     <Modal :is-open="isOpen" :title="title" @close="closeModal">
         <form class="space-y-4" @submit.prevent="submitForm">
             <div v-for="field in formFields" :key="field.key" class="space-y-2">
+                <template
+                    v-if="
+                        field.key === 'items' &&
+                        localFormState.type !== 'list'
+                    "
+                />
                 <Input
-                    v-if="!field.type || field.type === 'text'"
-                    v-model="localFormState[field.key]"
+                    v-else-if="!field.type || field.type === 'text'"
+                    :model-value="String(localFormState[field.key] ?? '')"
                     :label="field.label"
                     :placeholder="field.placeholder ?? field.label"
+                    :disabled="isFieldDisabled(field)"
                     :object-id="`txt_MasterForm_Field${field.key}`"
+                    @update:model-value="
+                        (value) => (localFormState[field.key] = value)
+                    "
+                />
+                <Input
+                    v-else-if="field.type === 'number'"
+                    :model-value="String(localFormState[field.key] ?? '')"
+                    :label="field.label"
+                    :placeholder="field.placeholder ?? field.label"
+                    type="number"
+                    :disabled="isFieldDisabled(field)"
+                    :object-id="`num_MasterForm_Field${field.key}`"
+                    @update:model-value="
+                        (value) => (localFormState[field.key] = value)
+                    "
+                />
+                <Input
+                    v-else-if="field.type === 'date'"
+                    :model-value="String(localFormState[field.key] ?? '')"
+                    :label="field.label"
+                    :placeholder="field.placeholder ?? field.label"
+                    type="date"
+                    :disabled="isFieldDisabled(field)"
+                    :object-id="`dat_MasterForm_Field${field.key}`"
+                    @update:model-value="
+                        (value) => (localFormState[field.key] = value)
+                    "
                 />
                 <div
                     v-else-if="field.type === 'textarea'"
@@ -15,28 +49,54 @@
                 >
                     <label
                         :for="`form-${field.key}`"
-                        class="font-semibold text-gray-700"
+                        class="font-medium text-text-secondary"
                         >{{ field.label }}</label
                     >
                     <textarea
                         :id="`txa_MasterForm_Field${field.key}`"
-                        v-model="localFormState[field.key]"
-                        class="w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-300"
+                        :value="String(localFormState[field.key] ?? '')"
+                        :disabled="isFieldDisabled(field)"
+                        class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text transition-colors duration-150 placeholder:text-text-muted focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary"
                         rows="2"
                         :object-id="`txa_MasterForm_Field${field.key}`"
+                        @input="
+                            (event) =>
+                                (localFormState[field.key] = (
+                                    event.target as HTMLTextAreaElement
+                                ).value)
+                        "
                     />
                 </div>
                 <Select
                     v-else-if="field.type === 'select'"
                     :label="field.label"
-                    :model-value="localFormState[field.key]"
+                    :model-value="String(localFormState[field.key] ?? '')"
                     :options="getOptions(field)"
                     :placeholder="field.placeholder ?? field.label"
+                    :disabled="isFieldDisabled(field)"
                     :object-id="`cmb_MasterForm_Field${field.key}`"
                     @update:model-value="
                         (value) => (localFormState[field.key] = value)
                     "
                 />
+                <div v-else-if="field.type === 'file'" class="flex flex-col gap-1">
+                    <label
+                        :for="`form-${field.key}`"
+                        class="font-medium text-text-secondary"
+                        >{{ field.label }}</label
+                    >
+                    <input
+                        :id="`file_MasterForm_Field${field.key}`"
+                        type="file"
+                        :disabled="isFieldDisabled(field)"
+                        class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text transition-colors duration-150 file:mr-3 file:rounded-md file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary"
+                        :object-id="`file_MasterForm_Field${field.key}`"
+                        @change="(event) => handleFileChange(field.key, event)"
+                    />
+                    <p v-if="fileNames[field.key]" class="text-xs text-text-secondary">
+                        Selected: {{ fileNames[field.key] }}
+                    </p>
+                </div>
             </div>
             <div class="flex justify-end gap-3 pt-2">
                 <Button
@@ -78,37 +138,56 @@ const props = defineProps<{
     isOpen: boolean;
     title: string;
     formFields: MasterFormField[];
-    initialState: Record<string, string>;
+    initialState: Record<string, string | File | null>;
     isSubmitting: boolean;
     isEdit: boolean;
     uomOptions?: { label: string; value: string }[];
     categoryOptions?: { label: string; value: string }[];
     supplierOptions?: { label: string; value: string }[];
     customerOptions?: { label: string; value: string }[];
+    warehouseOptions?: { label: string; value: string }[];
+    locationOptions?: { label: string; value: string }[];
 }>();
 
 const emit = defineEmits<{
     (e: "close"): void;
-    (e: "submit", payload: Record<string, string>): void;
+    (e: "submit", payload: Record<string, string | File | null>): void;
 }>();
 
-const localFormState = ref<Record<string, string>>({});
+const localFormState = ref<Record<string, string | File | null>>({});
+const fileNames = ref<Record<string, string>>({});
 
 watch(
     () => props.isOpen,
     (newVal) => {
         if (newVal) {
             localFormState.value = { ...props.initialState };
+            fileNames.value = {};
         }
     },
 );
 
 const getOptions = (field: MasterFormField) => {
+    if (field.options) return field.options;
     if (field.optionsKey === "uomId") return props.uomOptions || [];
     if (field.optionsKey === "categoryId") return props.categoryOptions || [];
     if (field.optionsKey === "supplierId") return props.supplierOptions || [];
     if (field.optionsKey === "customerId") return props.customerOptions || [];
+    if (field.optionsKey === "warehouseId")
+        return props.warehouseOptions || [];
+    if (field.optionsKey === "parentId") return props.locationOptions || [];
     return [];
+};
+
+const isFieldDisabled = (field: MasterFormField) =>
+    props.isEdit &&
+    (field.key === "code" || field.key === "warehouseId");
+
+const handleFileChange = (key: string, event: Event) => {
+    const target = event.target as HTMLInputElement | null;
+    const file = target?.files?.[0] ?? null;
+    localFormState.value[key] = file;
+    fileNames.value[key] = file?.name ?? "";
 };
 
 const closeModal = () => {

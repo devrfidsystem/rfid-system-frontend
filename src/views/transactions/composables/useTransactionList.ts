@@ -6,6 +6,7 @@ import {
     transactionPaths,
     type TransactionKey,
 } from "@/services/transactions.service";
+import { reportService } from "@/services/report.service";
 import {
     reportConfigs,
     hasPartnerDatasetSupport,
@@ -293,6 +294,34 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         }
     };
 
+    const exportRows = async () => {
+        try {
+            const params = buildParams();
+            const exportColumns = config.value.columns.filter(
+                (column) => column.key !== "actions" && column.key !== "id",
+            );
+            const blob = await reportService.exportReport(
+                transactionToReportKey[transactionKey.value],
+                params,
+                exportColumns,
+            );
+
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute("download", `${config.value.title}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            error.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to export transactions.";
+        }
+    };
+
     const refresh = () => {
         pagination.page = 1;
         void loadRows();
@@ -380,6 +409,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         emptyStateVariant,
         sortOrder,
         toggleSort,
+        exportRows,
         refresh,
     };
 }

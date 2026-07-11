@@ -30,4 +30,17 @@ export const productsApi = {
             data: payload,
         });
     },
+
+    uploadProductImage(id: string, file: File) {
+        const formData = new FormData();
+        formData.append("file", file);
+        return apiRequest<Product>({
+            url: `${BASE_PATH}/${id}/image`,
+            method: "post",
+            data: formData,
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    },
 };

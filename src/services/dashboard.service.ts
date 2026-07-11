@@ -262,7 +262,7 @@ export const dashboardService = {
             filter.warehouseId
                 ? locationService.list({
                       warehouseId: filter.warehouseId,
-                      limit: 500,
+                      limit: 200,
                   })
                 : Promise.resolve({
                       success: true,

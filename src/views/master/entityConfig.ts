@@ -19,13 +19,20 @@ export type MasterColumnDef = {
     accessor?: MasterColumnAccessor;
 };
 
-export type MasterFormFieldType = "text" | "textarea" | "select";
+export type MasterFormFieldType =
+    | "text"
+    | "textarea"
+    | "select"
+    | "number"
+    | "date"
+    | "file";
 
 export interface MasterFormField {
     key: string;
     label: string;
     type?: MasterFormFieldType;
     optionsKey?: string;
+    options?: Array<{ label: string; value: string }>;
     placeholder?: string;
 }
 
@@ -41,6 +48,7 @@ export interface MasterEntityConfig {
 }
 
 export const supportedMasterEntities = new Set<EntityKey>([
+    "attributes",
     "warehouses",
     "locations",
     "products",
@@ -80,35 +88,48 @@ export const isSupportedMasterPath = (path?: string) => {
 
 const resolveRelationLabel = (
     relation?: Record<string, unknown>,
-    fallback?: unknown,
 ) => {
     if (relation) {
-        const symbol = relation["symbol"];
-        if (typeof symbol === "string" && symbol) {
-            return symbol;
-        }
         const name = relation["name"];
         if (typeof name === "string" && name) {
             return name;
         }
     }
-    if (fallback) {
-        return String(fallback);
-    }
     return "";
 };
 
 const getProductUomLabel = (row: MasterRecord) =>
-    resolveRelationLabel(
-        row.uom as Record<string, unknown> | undefined,
-        row.uomId,
-    );
+    resolveRelationLabel(row.uom as Record<string, unknown> | undefined);
 
 const getProductCategoryLabel = (row: MasterRecord) =>
-    resolveRelationLabel(
-        row.category as Record<string, unknown> | undefined,
-        row.categoryId,
-    );
+    resolveRelationLabel(row.category as Record<string, unknown> | undefined);
+
+const getLocationWarehouseLabel = (row: MasterRecord) =>
+    resolveRelationLabel(row.warehouse as Record<string, unknown> | undefined);
+
+const getLocationParentLabel = (row: MasterRecord) =>
+    resolveRelationLabel(row.parent as Record<string, unknown> | undefined);
+
+const getProductAttributeSummary = (row: MasterRecord) => {
+    const values = row.attributeValues;
+    if (!Array.isArray(values) || !values.length) return 0;
+    return values
+        .map((item) => item.attribute?.name ?? item.attributeId)
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(", ");
+};
+
+const getProductUomBreakdown = (row: MasterRecord) => {
+    const parts = [row.unitType, row.unitName]
+        .map((part) => (typeof part === "string" ? part.trim() : ""))
+        .filter(Boolean);
+    const conversion = row.conversionFactor;
+    if (typeof conversion === "number" && Number.isFinite(conversion)) {
+        parts.push(`x ${conversion}`);
+    }
+    return parts.join(" ") || resolveRelationLabel(row.uom as Record<string, unknown> | undefined);
+};
 
 export const masterEntities: Partial<
     Record<MasterEntityConfig["entity"], MasterEntityConfig>
@@ -118,39 +139,59 @@ export const masterEntities: Partial<
         title: "Attributes",
         description: "Metadata that describes SKU characteristics.",
         columns: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
-            { key: "group", label: "Group" },
+            { key: "type", label: "Type" },
+            {
+                key: "items",
+                label: "List Items",
+                accessor: (row) =>
+                    Array.isArray(row.items) ? row.items.length : 0,
+            },
             { key: "createdAt", label: "Created At" },
         ],
         formFields: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
-            { key: "group", label: "Group" },
-            { key: "description", label: "Description", type: "textarea" },
+            {
+                key: "type",
+                label: "Type",
+                type: "select",
+                options: [
+                    { label: "Text", value: "text" },
+                    { label: "Number", value: "number" },
+                    { label: "Date", value: "date" },
+                    { label: "List", value: "list" },
+                ],
+            },
+            {
+                key: "items",
+                label: "List Items",
+                type: "textarea",
+                placeholder: "Enter one item per line or separate by comma",
+            },
         ],
         icon: Layers,
-        supported: false,
-        unsupportedMessage:
-            "Attributes belum tersedia karena endpoint /attributes belum disediakan oleh backend.",
+        supported: true,
     },
     customers: {
         entity: "customers",
         title: "Customer Master",
         description: "Profiles and SLAs for customers.",
         columns: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
-            { key: "email", label: "Email" },
+            { key: "address", label: "Address" },
             { key: "phone", label: "Phone" },
-            { key: "isActive", label: "Active" },
+            { key: "description", label: "Description" },
         ],
         formFields: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
-            { key: "email", label: "Email" },
-            { key: "phone", label: "Phone" },
             { key: "address", label: "Address", type: "textarea" },
+            { key: "phone", label: "Phone" },
+            {
+                key: "description",
+                label: "Description",
+                type: "textarea",
+                placeholder: "Optional description",
+            },
         ],
         icon: Users,
         supported: true,
@@ -160,18 +201,21 @@ export const masterEntities: Partial<
         title: "Supplier Master",
         description: "Approved source partners.",
         columns: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
-            { key: "email", label: "Email" },
+            { key: "address", label: "Address" },
             { key: "phone", label: "Phone" },
-            { key: "isActive", label: "Active" },
+            { key: "description", label: "Description" },
         ],
         formFields: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
-            { key: "email", label: "Email" },
-            { key: "phone", label: "Phone" },
             { key: "address", label: "Address", type: "textarea" },
+            { key: "phone", label: "Phone" },
+            {
+                key: "description",
+                label: "Description",
+                type: "textarea",
+                placeholder: "Optional description",
+            },
         ],
         icon: Truck,
         supported: true,
@@ -181,14 +225,19 @@ export const masterEntities: Partial<
         title: "Warehouse Master",
         description: "Manage facility definitions.",
         columns: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
             { key: "address", label: "Address" },
+            { key: "description", label: "Description" },
         ],
         formFields: [
-            { key: "code", label: "Code" },
             { key: "name", label: "Name" },
             { key: "address", label: "Address", type: "textarea" },
+            {
+                key: "description",
+                label: "Description",
+                type: "textarea",
+                placeholder: "Optional description",
+            },
         ],
         icon: Warehouse,
         supported: true,
@@ -198,13 +247,35 @@ export const masterEntities: Partial<
         title: "Location Master",
         description: "Map rows/columns to semantic sections.",
         columns: [
-            { key: "code", label: "Code" },
+            {
+                key: "warehouseId",
+                label: "Warehouse",
+                accessor: getLocationWarehouseLabel,
+            },
             { key: "name", label: "Name" },
+            {
+                key: "parentId",
+                label: "Parent Location",
+                accessor: getLocationParentLabel,
+            },
             { key: "path", label: "Path" },
         ],
         formFields: [
-            { key: "code", label: "Code" },
+            {
+                key: "warehouseId",
+                label: "Warehouse",
+                type: "select",
+                optionsKey: "warehouseId",
+                placeholder: "Select warehouse",
+            },
             { key: "name", label: "Name" },
+            {
+                key: "parentId",
+                label: "Parent Location",
+                type: "select",
+                optionsKey: "parentId",
+                placeholder: "Select parent location (optional)",
+            },
         ],
         icon: MapPin,
         supported: true,
@@ -214,12 +285,12 @@ export const masterEntities: Partial<
         title: "Unit of Measure",
         description: "Standardize packaging units.",
         columns: [
-            { key: "symbol", label: "Symbol" },
             { key: "name", label: "Name" },
+            { key: "symbol", label: "Symbol" },
         ],
         formFields: [
-            { key: "symbol", label: "Symbol" },
             { key: "name", label: "Name" },
+            { key: "symbol", label: "Symbol" },
         ],
         icon: Ruler,
         supported: true,
@@ -241,7 +312,7 @@ export const masterEntities: Partial<
         title: "Product Master",
         description: "Catalog of RFID-enabled products.",
         columns: [
-            { key: "code", label: "Code" },
+            { key: "code", label: "SKU / Product Code" },
             { key: "name", label: "Name" },
             { key: "uom", label: "UOM", accessor: getProductUomLabel },
             {
@@ -249,19 +320,23 @@ export const masterEntities: Partial<
                 label: "Category",
                 accessor: getProductCategoryLabel,
             },
-            { key: "status", label: "Status" },
+            {
+                key: "attributeValues",
+                label: "Attributes",
+                accessor: getProductAttributeSummary,
+            },
+            { key: "qtyMin", label: "Safety Stock" },
+            { key: "qtyMax", label: "Maximum Stock" },
+            {
+                key: "uomBreakdown",
+                label: "UOM",
+                accessor: getProductUomBreakdown,
+            },
             { key: "createdAt", label: "Created At" },
         ],
         formFields: [
-            { key: "code", label: "Code" },
+            { key: "code", label: "SKU / Product Code" },
             { key: "name", label: "Name" },
-            {
-                key: "uomId",
-                label: "Unit of Measure",
-                type: "select",
-                optionsKey: "uomId",
-                placeholder: "Select UOM",
-            },
             {
                 key: "categoryId",
                 label: "Product Category",
@@ -270,24 +345,31 @@ export const masterEntities: Partial<
                 placeholder: "Select category (optional)",
             },
             {
-                key: "supplierId",
-                label: "Supplier",
+                key: "uomId",
+                label: "Unit of Measure",
                 type: "select",
-                optionsKey: "supplierId",
-                placeholder: "Select supplier (optional)",
+                optionsKey: "uomId",
+                placeholder: "Select UOM",
             },
             {
-                key: "customerId",
-                label: "Customer",
-                type: "select",
-                optionsKey: "customerId",
-                placeholder: "Select customer (optional)",
+                key: "unitType",
+                label: "Unit Type",
+                placeholder: "e.g. pack, case, carton",
             },
             {
-                key: "description",
-                label: "Description",
-                type: "textarea",
-                placeholder: "Enter product description (optional)",
+                key: "unitName",
+                label: "Unit Name",
+                placeholder: "Breakdown unit name",
+            },
+            {
+                key: "conversionFactor",
+                label: "Conversion Factor",
+                placeholder: "How many breakdown units per UOM",
+            },
+            {
+                key: "imageFile",
+                label: "Product Image",
+                type: "file",
             },
         ],
         icon: Box,

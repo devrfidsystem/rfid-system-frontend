@@ -125,6 +125,10 @@ const routes: RouteRecordRaw[] = [
                 path: "dashboard",
                 redirect: "/dashboard/overview",
             },
+            {
+                path: "todo",
+                component: () => import("@/views/todo/TodoListPage.vue"),
+            },
             ...dashboardRoutes,
             {
                 path: "iam",

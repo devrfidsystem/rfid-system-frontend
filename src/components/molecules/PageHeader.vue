@@ -7,13 +7,13 @@
                 <div class="min-w-0">
                     <p
                         v-if="tagline"
-                        class="text-sm font-medium text-gray-500 mb-1"
+                        class="mb-1 text-xs font-medium uppercase tracking-wide text-text-secondary"
                     >
                         {{ tagline }}
                     </p>
 
                     <h1
-                        class="truncate text-2xl font-bold tracking-tight text-gray-900"
+                        class="truncate text-xl font-semibold tracking-tight text-text"
                     >
                         {{ title }}
                     </h1>
@@ -22,7 +22,7 @@
 
             <p
                 v-if="description"
-                class="mt-1.5 max-w-3xl text-sm text-gray-500"
+                class="mt-1.5 max-w-3xl text-sm text-text-secondary"
             >
                 {{ description }}
             </p>

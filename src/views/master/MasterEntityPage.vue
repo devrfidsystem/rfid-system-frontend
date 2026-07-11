@@ -10,10 +10,8 @@
                 v-model:keyword="keyword"
                 :title="config.title"
                 :can-add="isMasterApiEntitySelected"
-                :sort-order="sortOrder"
                 @add="openAdd"
                 @refresh="refresh"
-                @sort="toggleSort"
             />
             <MasterTable
                 v-model:page="pagination.page"
@@ -29,13 +27,14 @@
                 :show-pagination="isMasterApiEntitySelected"
                 @edit="openEdit"
                 @delete="confirmDelete"
+                @toggle-tree-row="toggleLocationTreeRow"
             />
         </Card>
 
         <MasterFormModal
             :is-open="showAddModal"
             :title="`Add ${config.title}`"
-            :form-fields="config.formFields"
+            :form-fields="formFields"
             :initial-state="formState"
             :is-submitting="isSubmitting"
             :is-edit="false"
@@ -43,6 +42,8 @@
             :category-options="categorySelectOptions"
             :supplier-options="supplierSelectOptions"
             :customer-options="customerSelectOptions"
+            :warehouse-options="warehouseSelectOptions"
+            :location-options="locationSelectOptions"
             @close="closeAdd"
             @submit="handleCreate"
         />
@@ -50,7 +51,7 @@
         <MasterFormModal
             :is-open="showEditModal"
             :title="`Edit ${config.title}`"
-            :form-fields="config.formFields"
+            :form-fields="formFields"
             :initial-state="formState"
             :is-submitting="isSubmitting"
             :is-edit="true"
@@ -58,6 +59,8 @@
             :category-options="categorySelectOptions"
             :supplier-options="supplierSelectOptions"
             :customer-options="customerSelectOptions"
+            :warehouse-options="warehouseSelectOptions"
+            :location-options="locationSelectOptions"
             @close="closeEdit"
             @submit="handleUpdate"
         />
@@ -84,18 +87,19 @@ const {
     config,
     keyword,
     rows,
-    sortOrder,
-    toggleSort,
     loading,
     loadError,
     showAddModal,
     showEditModal,
     showDeleteModal,
     formState,
+    formFields,
     uomSelectOptions,
     categorySelectOptions,
     supplierSelectOptions,
     customerSelectOptions,
+    warehouseSelectOptions,
+    locationSelectOptions,
     isSubmitting,
     isDeleting,
     unsupportedFeature,
@@ -114,5 +118,6 @@ const {
     handleUpdate,
     handleDelete,
     refresh,
+    toggleLocationTreeRow,
 } = useMasterEntity();
 </script>

@@ -18,8 +18,10 @@
                 :warehouse-select-options="warehouseSelectOptions"
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="partnerLabel"
+                :has-rows="displayRows.length > 0"
                 :sort-order="sortOrder"
                 @refresh="refresh"
+                @export="exportRows"
                 @new="handleNew"
                 @sort="toggleSort"
             />
@@ -94,6 +96,7 @@ const {
     emptyStateVariant,
     sortOrder,
     toggleSort,
+    exportRows,
     refresh,
 } = useTransactionList(props);
 </script>

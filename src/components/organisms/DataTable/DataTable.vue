@@ -1,13 +1,13 @@
 <template>
     <Card
-        class="p-0 border-gray-200 shadow-sm ring-0 overflow-hidden"
+        class="overflow-hidden border-border p-0 shadow-xs ring-0"
         v-bind="bindObjectId(objectId)"
     >
         <DataTableToolbar
             v-model:search="table.search"
             v-bind="toolbarBind"
             :object-id="objectId"
-            class="border-b border-gray-200"
+            class="border-b border-border"
             @update:page-size="table.setPageSize"
         >
             <slot name="filters" />
@@ -25,13 +25,28 @@
         <div class="table-panel border-none rounded-none">
             <table class="min-w-full density-table">
                 <thead
-                    class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 border-b border-gray-200"
+                    class="border-b border-border bg-surface-secondary text-left text-xs font-semibold uppercase tracking-wide text-text-secondary"
                 >
                     <tr>
                         <th v-if="selectable" class="px-4 py-3 w-10">
+                            <label
+                                :for="
+                                    objectId
+                                        ? `${objectId}SelectAll`
+                                        : 'datatable-select-all'
+                                "
+                                class="sr-only"
+                            >
+                                Select all rows
+                            </label>
                             <input
+                                :id="
+                                    objectId
+                                        ? `${objectId}SelectAll`
+                                        : 'datatable-select-all'
+                                "
                                 type="checkbox"
-                                class="h-4 w-4 rounded border border-gray-300 text-primary-600 focus:ring-primary-500"
+                                class="h-4 w-4 rounded border border-border text-primary-600 focus:ring-primary-500"
                                 :checked="allSelected"
                                 v-bind="
                                     bindObjectId(
@@ -46,7 +61,7 @@
                         <th
                             v-for="column in columns"
                             :key="column.key"
-                            class="px-4 py-3 text-left transition-colors"
+                                class="px-4 py-3 text-left transition-colors"
                             :class="[
                                 column.align === 'center'
                                     ? 'text-center'
@@ -54,7 +69,7 @@
                                       ? 'text-right'
                                       : 'text-left',
                                 column.sortable
-                                    ? 'cursor-pointer select-none hover:text-gray-900'
+                                    ? 'cursor-pointer select-none hover:text-text'
                                     : '',
                             ]"
                             @click="
@@ -102,14 +117,14 @@
                         ></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody class="divide-y divide-border bg-surface">
                     <tr v-if="loading">
                         <td :colspan="columnSpan" class="px-4 py-8">
                             <div class="space-y-3">
                                 <div
                                     v-for="n in 4"
                                     :key="n"
-                                    class="h-4 rounded bg-gray-100 animate-pulse w-full max-w-md mx-auto"
+                                    class="mx-auto h-4 w-full max-w-md animate-pulse rounded bg-surface-secondary"
                                 ></div>
                             </div>
                         </td>
@@ -118,14 +133,20 @@
                         <tr
                             v-for="(row, index) in paginatedRows"
                             :key="getRowKey(row, index)"
-                            class="transition-colors duration-150 hover:bg-gray-100/70"
-                            :class="{ 'bg-gray-50/50': index % 2 === 1 }"
+                            class="transition-colors duration-150 hover:bg-surface-secondary/60"
                         >
                             <td v-if="selectable" class="px-4 py-3 w-10">
+                                <label
+                                    :for="`datatable-select-${rowKey(row)}`"
+                                    class="sr-only"
+                                >
+                                    Select row {{ rowKey(row) }}
+                                </label>
                                 <input
+                                    :id="`datatable-select-${rowKey(row)}`"
                                     type="checkbox"
                                     :checked="table.isSelected(rowKey(row))"
-                                    class="h-4 w-4 rounded border border-gray-300 text-primary-600 focus:ring-primary-500"
+                                    class="h-4 w-4 rounded border border-border text-primary-600 focus:ring-primary-500"
                                     v-bind="
                                         bindObjectId(
                                             objectId
@@ -139,7 +160,7 @@
                             <td
                                 v-for="column in columns"
                                 :key="column.key"
-                                class="px-4 py-3 align-top text-sm text-gray-800"
+                                class="px-4 py-3 align-top text-sm text-text"
                                 :class="
                                     column.align === 'center'
                                         ? 'text-center'
@@ -164,7 +185,7 @@
             </table>
         </div>
 
-        <div class="border-t border-gray-200 bg-white rounded-b-md">
+        <div class="rounded-b-md border-t border-border bg-surface">
             <DataTablePagination
                 v-bind="paginationBind"
                 :object-id="objectId ? `pgn_${objectId}` : undefined"

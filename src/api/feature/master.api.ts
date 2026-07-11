@@ -9,6 +9,7 @@ import type {
 } from "./dto/master.dto";
 
 const entityPaths: Record<MasterEntityKey, string> = {
+    attributes: "/attributes",
     warehouses: "/warehouses",
     locations: "/locations",
     products: "/products",

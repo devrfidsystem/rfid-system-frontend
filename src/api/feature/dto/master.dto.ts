@@ -1,4 +1,5 @@
 import type {
+    AttributeRecord,
     CustomerRecord,
     LocationRecord,
     ProductRecord,
@@ -9,6 +10,7 @@ import type {
 } from "@/model/entities";
 
 export type MasterEntityKey =
+    | "attributes"
     | "warehouses"
     | "locations"
     | "products"
@@ -29,34 +31,85 @@ export interface MasterListResponse<T> {
     items: T[];
 }
 
-export type CreateWarehousePayload = Pick<
-    WarehouseRecord,
-    "code" | "name" | "region" | "manager"
->;
-export type UpdateWarehousePayload = Partial<CreateWarehousePayload>;
-
-export interface CreateLocationPayload {
-    warehouseId: string;
-    path: string;
-    rowNo?: number;
-    colNo?: number;
-    section?: string;
-}
-
-export type UpdateLocationPayload = Partial<CreateLocationPayload>;
-
-export interface CreateProductPayload {
+export type CreateWarehousePayload = {
     companyId: string;
     code: string;
     name: string;
-    uomId: string;
-    categoryId?: string;
+    address?: string;
     description?: string;
-    status?: string;
+};
+
+export type UpdateWarehousePayload = {
+    name?: string;
+    address?: string;
+    description?: string;
+    isActive?: boolean;
+};
+
+export interface CreateLocationPayload {
+    companyId: string;
+    warehouseId: string;
+    parentId?: string;
+    code: string;
+    name: string;
+}
+
+export type UpdateLocationPayload = {
+    name?: string;
+};
+
+export interface ProductAttributeValuePayload {
+    attributeId: string;
+    attributeItemId?: string;
+    valueText?: string;
+    valueNumber?: number;
+    valueDate?: string;
+}
+
+export const ATTRIBUTE_TYPES = ["text", "number", "date", "list"] as const;
+export type AttributeType = (typeof ATTRIBUTE_TYPES)[number];
+
+export interface AttributeItemPayload {
+    value: string;
+    label: string;
+}
+
+export interface CreateAttributePayload {
+    companyId: string;
+    name: string;
+    type: AttributeType;
+    items?: AttributeItemPayload[];
+}
+
+export type UpdateAttributePayload = Partial<
+    Omit<CreateAttributePayload, "companyId">
+>;
+
+export type ProductTrackingMode = "bulk" | "serial";
+
+export interface CreateProductPayload {
+    companyId: string;
+    categoryId?: string;
+    uomId: string;
+    code: string;
+    name: string;
+    description?: string;
+    barcode?: string;
+    supplierId?: string;
+    customerId?: string;
+    trackingMode?: ProductTrackingMode;
+    rfidRequired?: boolean;
+    qtyMin?: number;
+    qtyMax?: number;
+    unitType?: string;
+    unitName?: string;
+    conversionFactor?: number;
+    imageUrl?: string;
+    attributeValues?: ProductAttributeValuePayload[];
 }
 
 export type UpdateProductPayload = Partial<
-    Omit<CreateProductPayload, "companyId">
+    Omit<CreateProductPayload, "companyId" | "code">
 >;
 
 export interface CreateCustomerPayload {
@@ -107,6 +160,7 @@ export type UpdateProductCategoryPayload = Partial<
 >;
 
 export type MasterCreatePayloads = {
+    attributes: CreateAttributePayload;
     warehouses: CreateWarehousePayload;
     locations: CreateLocationPayload;
     products: CreateProductPayload;
@@ -117,6 +171,7 @@ export type MasterCreatePayloads = {
 };
 
 export type MasterUpdatePayloads = {
+    attributes: UpdateAttributePayload;
     warehouses: UpdateWarehousePayload;
     locations: UpdateLocationPayload;
     products: UpdateProductPayload;
@@ -127,6 +182,7 @@ export type MasterUpdatePayloads = {
 };
 
 export type MasterRecords = {
+    attributes: AttributeRecord;
     warehouses: WarehouseRecord;
     locations: LocationRecord;
     products: ProductRecord;
@@ -137,6 +193,7 @@ export type MasterRecords = {
 };
 
 export type MasterRemovableEntity =
+    | "attributes"
     | "warehouses"
     | "locations"
     | "products"

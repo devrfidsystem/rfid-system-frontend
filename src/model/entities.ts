@@ -1,10 +1,13 @@
 export interface AttributeRecord {
     id: string;
-    code: string;
     name: string;
-    description: string;
-    group: string;
-    createdAt: string;
+    type: string;
+    createdAt?: string;
+    items?: Array<{
+        id: string;
+        value: string;
+        label: string;
+    }>;
 }
 
 export interface CategoryRecord {
@@ -23,6 +26,7 @@ export interface CustomerRecord {
     email?: string | null;
     phone?: string | null;
     address?: string | null;
+    description?: string | null;
     isActive: boolean;
     createdAt?: string;
     updatedAt?: string;
@@ -36,6 +40,7 @@ export interface SupplierRecord {
     email?: string | null;
     phone?: string | null;
     address?: string | null;
+    description?: string | null;
     isActive: boolean;
     createdAt?: string;
     updatedAt?: string;
@@ -43,22 +48,30 @@ export interface SupplierRecord {
 
 export interface WarehouseRecord {
     id: string;
+    companyId: string;
     code: string;
     name: string;
-    region: string;
-    manager: string;
+    address?: string | null;
+    description?: string | null;
+    phone?: string | null;
+    isActive?: boolean;
     createdAt: string;
+    updatedAt?: string;
 }
 
 export interface LocationRecord {
     id: string;
+    companyId?: string;
     warehouseId: string;
+    parentId?: string | null;
+    code: string;
+    name: string;
     path: string;
     depth: number;
     rowNo: number;
     colNo: number;
-    section: string;
     createdAt: string;
+    updatedAt?: string;
 }
 
 export interface ProductCategoryRecord {
@@ -82,15 +95,26 @@ export interface UomRecord {
 
 export interface ProductRecord {
     id: string;
+    companyId?: string | null;
     code: string;
     sku?: string | null;
     name: string;
-    status: string;
+    status?: string;
     description?: string | null;
+    imageUrl?: string | null;
     categoryId?: string | null;
     uomId?: string | null;
-    companyId?: string | null;
-    minimumQty?: number;
+    supplierId?: string | null;
+    customerId?: string | null;
+    barcode?: string | null;
+    trackingMode?: string | null;
+    rfidRequired?: boolean;
+    qtyMin?: number | null;
+    qtyMax?: number | null;
+    unitType?: string | null;
+    unitName?: string | null;
+    conversionFactor?: number | null;
+    minimumQty?: number | null;
     createdAt: string;
     updatedAt?: string;
     uom?: {
@@ -102,6 +126,27 @@ export interface ProductRecord {
         id: string;
         name: string;
     };
+    supplier?: {
+        id: string;
+        name: string;
+    };
+    customer?: {
+        id: string;
+        name: string;
+    };
+    attributeValues?: Array<{
+        attributeId: string;
+        value?: string;
+        valueText?: string | null;
+        valueNumber?: number | null;
+        valueDate?: string | null;
+        attributeItemId?: string | null;
+        attribute?: {
+            id: string;
+            name: string;
+            type?: string;
+        };
+    }>;
 }
 
 export interface TagRegistrationRecord {

@@ -13,4 +13,14 @@ export const locationApi = {
             params,
         });
     },
+
+    move(id: string, newParentId?: string | null) {
+        return apiRequest<LocationRecord>({
+            url: `/locations/${id}/move`,
+            method: "patch",
+            data: {
+                newParentId: newParentId ?? null,
+            },
+        });
+    },
 };

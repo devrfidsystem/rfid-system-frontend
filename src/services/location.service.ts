@@ -12,4 +12,9 @@ export const locationService = {
     ): Promise<ApiResponse<LocationListResponse<LocationRecord>>> {
         return locationApi.list(params);
     },
+
+    async move(id: string, newParentId?: string | null): Promise<LocationRecord> {
+        const response = await locationApi.move(id, newParentId);
+        return response.data;
+    },
 };

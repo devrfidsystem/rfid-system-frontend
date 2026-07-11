@@ -18,10 +18,113 @@ const flattenTree = (nodes: MenuTreeNode[]): MenuTreeNode[] => {
     return result;
 };
 
+const cloneMenuNode = (node: MenuTreeNode): MenuTreeNode => ({
+    ...node,
+    children: node.children.map(cloneMenuNode),
+});
+
+const isRegisterTagsNode = (node: MenuTreeNode): boolean => {
+    const code = node.code.toUpperCase();
+    const name = node.name.toUpperCase();
+    return (
+        code === "RFID" ||
+        code === "TRANSACTION_REGISTER_TAGS" ||
+        name === "REGISTER TAGS"
+    );
+};
+
+const normalizeMenuTree = (nodes: MenuTreeNode[]): MenuTreeNode[] => {
+    const clonedRoots = nodes.map(cloneMenuNode);
+    const transactions = clonedRoots.find(
+        (node) => node.code === "TRANSACTIONS",
+    );
+    if (!transactions) {
+        return clonedRoots;
+    }
+
+    const movedChildren: MenuTreeNode[] = [];
+    const filteredRoots: MenuTreeNode[] = [];
+
+    for (const node of clonedRoots) {
+        if (isRegisterTagsNode(node)) {
+            movedChildren.push(...node.children);
+            continue;
+        }
+
+        if (node.code.startsWith("RFID_") && node.path?.startsWith("/rfid/")) {
+            movedChildren.push(node);
+            continue;
+        }
+
+        filteredRoots.push(node);
+    }
+
+    if (movedChildren.length === 0) {
+        return filteredRoots;
+    }
+
+    const registerTagsNode: MenuTreeNode = {
+        id: "synthetic-register-tags",
+        code: "TRANSACTION_REGISTER_TAGS",
+        name: "Register Tags",
+        path: "/rfid/tags",
+        parentId: transactions.id,
+        sortOrder: 0,
+        sort_order: 0,
+        icon: "Radio",
+        permissions: {
+            canView: true,
+            canCreate: false,
+            canUpdate: false,
+            canDelete: false,
+        },
+        children: [],
+    };
+
+    const dedupedChildren = new Map<string, MenuTreeNode>();
+    for (const child of movedChildren) {
+        if (!dedupedChildren.has(child.code)) {
+            dedupedChildren.set(child.code, child);
+        }
+    }
+
+    registerTagsNode.children = Array.from(dedupedChildren.values()).sort(
+        (a, b) =>
+            (a.sortOrder ?? a.sort_order ?? 0) -
+            (b.sortOrder ?? b.sort_order ?? 0),
+    );
+
+    const transactionChildren = [...transactions.children];
+    const existingIndex = transactionChildren.findIndex(
+        (child) => child.code === registerTagsNode.code,
+    );
+
+    if (existingIndex === -1) {
+        transactionChildren.unshift(registerTagsNode);
+    } else {
+        transactionChildren[existingIndex] = {
+            ...transactionChildren[existingIndex],
+            name: "Register Tags",
+            path: "/rfid/tags",
+            children: registerTagsNode.children,
+        };
+    }
+
+    transactions.children = transactionChildren.sort(
+        (a, b) =>
+            (a.sortOrder ?? a.sort_order ?? 0) -
+            (b.sortOrder ?? b.sort_order ?? 0),
+    );
+
+    return filteredRoots;
+};
+
 export function useAccess() {
     const authStore = useAuthStore();
 
-    const menuTree = computed(() => authStore.profile?.menuTree ?? []);
+    const menuTree = computed(() =>
+        normalizeMenuTree(authStore.profile?.menuTree ?? []),
+    );
 
     const flattenedNodes = computed(() =>
         flattenTree(menuTree.value).filter(
