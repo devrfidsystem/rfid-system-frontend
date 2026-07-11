@@ -28,5 +28,4 @@ export const reportPaths: Record<ReportKey, string> = {
     return: "/returns",
     "current-stock": "/reports/stock-balance",
     "stock-period": "/reports/stock-movement",
-    "opname-variance": "/reports/opname-variance",
 };

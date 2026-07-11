@@ -18,8 +18,7 @@ export type ReportKey =
     | "transfer"
     | "return"
     | "current-stock"
-    | "stock-period"
-    | "opname-variance";
+    | "stock-period";
 
 export interface ReportColumnDef {
     key: string;
@@ -151,19 +150,6 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         ],
         warehouseKey: "warehouseId",
         icon: Clock4,
-    },
-    "opname-variance": {
-        entity: "opname-variance" as EntityKey,
-        title: "Opname Variance",
-        description: "Stock variance discrepancies from opname execution.",
-        columns: [
-            { key: "title", label: "Title" },
-            { key: "company.name", label: "Company" },
-            { key: "status", label: "Status" },
-            { key: "createdAt", label: "Created At" },
-        ],
-        warehouseKey: "warehouseId",
-        icon: ClipboardCheck,
     },
 };
 
