@@ -5,6 +5,8 @@ import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import type { StockLedgerItem } from "@/api/feature/dto/stock.dto";
 import type { ApiMeta } from "@/lib/api/response";
 import { formatDate } from "@/utils/date";
+import { reportService } from "@/services/report.service";
+import { reportConfigs } from "@/views/report/reportConfig";
 
 const columns = [
     { key: "timestamp", label: "Timestamp" },
@@ -143,6 +145,37 @@ export function useStockLedger() {
         void loadRows();
     };
 
+    const exportRows = async () => {
+        try {
+            const blob = await reportService.exportReport(
+                "stock-period",
+                {
+                    page: pagination.page,
+                    limit: pagination.limit,
+                    search: keyword.value || undefined,
+                    warehouseId: selectedWarehouse.value || undefined,
+                },
+                reportConfigs["stock-period"].columns,
+            );
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute(
+                "download",
+                `${reportConfigs["stock-period"].title}.xlsx`,
+            );
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            error.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to export stock ledger.";
+        }
+    };
+
     useDebouncedWatch([keyword, selectedWarehouse], () => {
         pagination.page = 1;
         void loadRows();
@@ -186,5 +219,6 @@ export function useStockLedger() {
         pagination,
         pageSizeOptions,
         refresh,
+        exportRows,
     };
 }
