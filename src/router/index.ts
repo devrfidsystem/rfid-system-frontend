@@ -6,9 +6,7 @@ import {
 import { useAccess } from "@/composable/useAccess";
 import { useAuthStore } from "@/store/auth.store";
 import { masterEntities } from "@/views/master/entityConfig";
-import { reportConfigs, type ReportKey } from "@/views/report/reportConfig";
 import type { EntityKey } from "@/model/entities";
-import { reportPaths } from "@/api/feature/dto/report.dto";
 import type { TransactionKey } from "@/services/transactions.service";
 
 const masterEntityRouteAliases: Partial<Record<EntityKey, string[]>> = {
@@ -64,26 +62,6 @@ const transactionKeys = [
     "opname",
 ] as const;
 const transactionPattern = transactionKeys.join("|");
-
-const resolveReportSegment = (key: ReportKey) => {
-    const raw = reportPaths[key] ?? key;
-    const trimmed = raw.replace(/^\/+/, "");
-    if (trimmed.startsWith("reports/")) {
-        return trimmed.replace(/^reports\//, "");
-    }
-    return trimmed || key;
-};
-
-const reportChildRoutes: RouteRecordRaw[] = (
-    Object.keys(reportConfigs) as ReportKey[]
-).map((key) => ({
-    path: resolveReportSegment(key),
-    component: () => import("@/views/report/ReportEntityPage.vue"),
-    meta: {
-        report: key,
-        tagline: "Reports",
-    },
-}));
 
 const authRoutes: RouteRecordRaw[] = [
     {
@@ -228,19 +206,6 @@ const routes: RouteRecordRaw[] = [
                 }),
             },
             {
-                path: "reports",
-                component: () =>
-                    import("@/components/templates/ReportLayout.vue"),
-                children: [
-                    {
-                        path: "",
-                        redirect:
-                            reportChildRoutes[0]?.path ?? "stock-movement",
-                    },
-                    ...reportChildRoutes,
-                ],
-            },
-            {
                 path: "settings",
                 component: () =>
                     import("@/components/templates/SettingsLayout.vue"),
@@ -266,10 +231,6 @@ const routes: RouteRecordRaw[] = [
             {
                 path: "profile",
                 component: () => import("@/views/profile/ProfilePage.vue"),
-            },
-            {
-                path: "report",
-                redirect: "/reports",
             },
             {
                 path: "log/tracking",
