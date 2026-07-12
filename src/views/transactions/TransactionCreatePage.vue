@@ -31,13 +31,34 @@
                         />
 
                         <Input
-                            v-if="!isOpname"
+                            v-if="!isOpname && !isRegister"
                             id="transactionDate"
                             v-model="form.transactionDate"
                             label="Transaction Date"
                             type="date"
                             required
                             object-id="dtp_TransactionCreateDate"
+                        />
+
+                        <Input
+                            v-if="isRegister"
+                            id="transactionDate"
+                            v-model="form.transactionDate"
+                            label="Date Issue"
+                            type="date"
+                            required
+                            object-id="dtp_TransactionCreateDate"
+                        />
+
+                        <Select
+                            v-if="isRegister"
+                            id="registeredById"
+                            v-model="form.registeredById"
+                            label="User"
+                            :options="userOptions"
+                            placeholder="Select user"
+                            required
+                            object-id="cmb_TransactionCreateRegisteredBy"
                         />
 
                         <Select
@@ -129,9 +150,9 @@
                     </div>
                 </Card>
 
-                <!-- Line Items Form (Hide for Opname) -->
+                <!-- Line Items Form (Hide for Opname and Register) -->
                 <TransactionLineItems
-                    v-if="!isOpname"
+                    v-if="!isOpname && !isRegister"
                     :lines="form.lines"
                     :product-options="productOptions"
                     :location-options="locationOptions"
@@ -148,7 +169,7 @@
 
                 <!-- Opname Save Button -->
                 <Card
-                    v-else
+                    v-else-if="isOpname"
                     class="md:col-span-2"
                     no-padding
                     object-id="wdg_TransactionCreateOpname"
@@ -186,6 +207,46 @@
                         </Button>
                     </div>
                 </Card>
+
+                <!-- Register Save Button -->
+                <Card
+                    v-else
+                    class="md:col-span-2"
+                    no-padding
+                    object-id="wdg_TransactionCreateRegister"
+                >
+                    <div class="px-6 py-5 border-b border-gray-100">
+                        <h3 class="text-base font-semibold text-gray-900">
+                            Register Creation
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-2">
+                            A Register document has no line items — it records
+                            who registered tags and when, ahead of a later
+                            Inbound receipt.
+                        </p>
+                    </div>
+                    <div
+                        class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3"
+                    >
+                        <Button
+                            type="button"
+                            variant="outline"
+                            :disabled="submitting"
+                            object-id="btn_TransactionCreateCancel"
+                            @click="handleBack"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            :disabled="submitting"
+                            object-id="btn_TransactionCreateRegisterSubmit"
+                        >
+                            {{ submitting ? "Creating..." : "Create Register" }}
+                        </Button>
+                    </div>
+                </Card>
             </div>
         </form>
     </section>
@@ -215,10 +276,12 @@ const {
     showPartnerField,
     isRelocation,
     isOpname,
+    isRegister,
     partnerLabel,
     warehouseOptions,
     partnerOptions,
     productOptions,
+    userOptions,
     locationOptions,
     fromLocationOptions,
     toLocationOptions,
