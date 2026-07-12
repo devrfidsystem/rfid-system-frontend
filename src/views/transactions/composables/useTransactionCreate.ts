@@ -193,7 +193,10 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             if (isRegister.value) {
                 const usersResponse = await usersService.list({ limit: 200 });
                 userOptions.value = usersResponse.items.map((u) => {
-                    const user = u as { id: string | number; fullName?: string };
+                    const user = u as {
+                        id: string | number;
+                        fullName?: string;
+                    };
                     return {
                         label: String(user.fullName ?? user.id),
                         value: String(user.id),
