@@ -17,6 +17,7 @@ import type { ReportParams } from "@/api/feature/dto/report.dto";
 import type { TransactionRecord } from "../types";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { formatDate } from "@/utils/date";
+import { getNestedValue } from "../utils/getNestedValue";
 
 type TransactionRow = TransactionRecord & Record<string, unknown>;
 type TransactionSortableRecord = TransactionRecord & {
@@ -136,21 +137,6 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             return JSON.stringify(value);
         }
         return String(value);
-    };
-
-    const getNestedValue = (
-        obj: Record<string, unknown>,
-        path: string,
-    ): unknown => {
-        return path
-            .split(".")
-            .reduce<unknown>(
-                (current, segment) =>
-                    current !== null && typeof current === "object"
-                        ? (current as Record<string, unknown>)[segment]
-                        : undefined,
-                obj,
-            );
     };
 
     const toggleSort = () => {

@@ -64,7 +64,9 @@
                             >
                             <span
                                 class="block text-sm text-gray-900 mt-1 font-medium"
-                                >{{ record[col.key] || "-" }}</span
+                                >{{
+                                    getNestedValue(record, col.key) || "-"
+                                }}</span
                             >
                         </div>
                     </div>
@@ -165,6 +167,7 @@ import Button from "@/components/atoms/Button.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionDetail } from "./composables/useTransactionDetail";
+import { getNestedValue } from "./utils/getNestedValue";
 
 const props = defineProps<{
     transactionKey: TransactionKey;
