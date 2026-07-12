@@ -263,6 +263,7 @@ export type EntityKey =
     | "transfer"
     | "return"
     | "opname"
+    | "register"
     | "stock_balance"
     | "stock_period";
 

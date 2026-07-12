@@ -5,6 +5,7 @@ import type { TransactionRecord } from "@/views/transactions/types";
 import { transactionsApi } from "@/api/feature/transactions.api";
 
 export type TransactionKey =
+    | "register"
     | "inbound"
     | "outbound"
     | "relocation"
@@ -14,6 +15,7 @@ export type TransactionKey =
     | "opname";
 
 export const transactionPaths: Record<TransactionKey, string> = {
+    register: "/register",
     inbound: "/inbound",
     outbound: "/outbound",
     relocation: "/relocation",

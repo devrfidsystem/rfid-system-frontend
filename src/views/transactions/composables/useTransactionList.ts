@@ -27,6 +27,10 @@ const transactionTitles: Record<
     TransactionKey,
     { title: string; description: string }
 > = {
+    register: {
+        title: "Register",
+        description: "Tag registration documents recorded via /register.",
+    },
     inbound: {
         title: "Inbound Transactions",
         description:
@@ -59,6 +63,7 @@ const transactionTitles: Record<
 };
 
 const transactionToReportKey: Record<TransactionKey, ReportKey> = {
+    register: "register",
     inbound: "inbound",
     outbound: "outbound",
     relocation: "relocation",

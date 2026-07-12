@@ -53,6 +53,7 @@ const dashboardRoutes = dashboardSections.map((section) => ({
 }));
 
 const transactionKeys = [
+    "register",
     "inbound",
     "outbound",
     "relocation",
@@ -154,12 +155,9 @@ const routes: RouteRecordRaw[] = [
                     import("@/views/tag-registration/pages/TagRegistrationPage.vue"),
             },
             {
-                path: "rfid/assignments",
-                component: () => import("@/views/rfid/RfidAssignmentPage.vue"),
-            },
-            {
-                path: "rfid/events",
-                component: () => import("@/views/rfid/RfidEventPage.vue"),
+                path: "rfid/tags/new",
+                component: () =>
+                    import("@/views/tag-registration/pages/TagRegistrationCreatePage.vue"),
             },
             {
                 path: "stock",

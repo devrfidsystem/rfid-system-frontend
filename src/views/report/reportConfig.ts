@@ -17,6 +17,7 @@ export type ReportKey =
     | "relocation"
     | "transfer"
     | "return"
+    | "register"
     | "current-stock"
     | "stock-period";
 
@@ -81,6 +82,18 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         ],
         warehouseKey: "warehouseId",
         icon: ClipboardCheck,
+    },
+    register: {
+        entity: "register",
+        title: "Register",
+        description: "Tag registration documents preceding goods receipt.",
+        columns: [
+            { key: "docNumber", label: "Doc No" },
+            { key: "docDate", label: "Date Issue" },
+            { key: "registeredBy.fullName", label: "User" },
+            { key: "status", label: "Status" },
+        ],
+        icon: FileBarChart2,
     },
     relocation: {
         entity: "relocation",
