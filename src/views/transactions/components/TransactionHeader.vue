@@ -119,6 +119,7 @@
                     <Icon :icon="RefreshCw" :size="16" />
                 </Button>
                 <Button
+                    v-if="canExport ?? true"
                     variant="primary"
                     class="col-span-2 sm:col-span-1 px-3 w-full sm:w-auto justify-center"
                     :disabled="!hasRows"
@@ -176,6 +177,7 @@ const props = defineProps<{
     partnerLabel: string;
     hasRows: boolean;
     sortOrder: "asc" | "desc";
+    canExport?: boolean;
 }>();
 
 const emit = defineEmits<{

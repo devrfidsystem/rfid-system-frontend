@@ -20,6 +20,7 @@
                 :partner-label="partnerLabel"
                 :has-rows="displayRows.length > 0"
                 :sort-order="sortOrder"
+                :can-export="transactionKey !== 'register'"
                 @refresh="refresh"
                 @export="exportRows"
                 @new="handleNew"
