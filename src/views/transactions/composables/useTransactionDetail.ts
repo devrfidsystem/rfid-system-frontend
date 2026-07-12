@@ -22,6 +22,7 @@ export function useTransactionDetail(
 
     const config = computed(() => {
         const keyMap: Record<string, string> = {
+            register: "register",
             inbound: "inbound",
             outbound: "outbound",
             relocation: "relocation",

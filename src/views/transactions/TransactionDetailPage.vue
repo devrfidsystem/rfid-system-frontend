@@ -9,7 +9,7 @@
         >
             <template #actions>
                 <div
-                    v-if="record && record.status === 'DRAFT'"
+                    v-if="record && record.status === 'draft'"
                     class="flex items-center gap-3"
                 >
                     <Button
@@ -48,7 +48,7 @@
         <template v-else-if="record">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card
-                    class="md:col-span-1"
+                    :class="isRegister ? 'md:col-span-3' : 'md:col-span-1'"
                     object-id="wdg_TransactionDetailInfo"
                 >
                     <h3
@@ -71,6 +71,7 @@
                 </Card>
 
                 <Card
+                    v-if="!isRegister"
                     class="md:col-span-2"
                     no-padding
                     object-id="wdg_TransactionDetailLines"
@@ -157,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
@@ -169,6 +170,8 @@ const props = defineProps<{
     transactionKey: TransactionKey;
     id: string;
 }>();
+
+const isRegister = computed(() => props.transactionKey === "register");
 
 const {
     loading,
