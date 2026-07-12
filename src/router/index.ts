@@ -146,20 +146,6 @@ const routes: RouteRecordRaw[] = [
                 redirect: "/master-data/warehouses",
             },
             {
-                path: "rfid",
-                redirect: "/rfid/tags",
-            },
-            {
-                path: "rfid/tags",
-                component: () =>
-                    import("@/views/tag-registration/pages/TagRegistrationPage.vue"),
-            },
-            {
-                path: "rfid/tags/new",
-                component: () =>
-                    import("@/views/tag-registration/pages/TagRegistrationCreatePage.vue"),
-            },
-            {
                 path: "stock",
                 redirect: "/stock/balance",
             },
