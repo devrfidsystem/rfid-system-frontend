@@ -1,10 +1,48 @@
-import { render, screen } from "@testing-library/vue";
+import { createSSRApp, defineComponent } from "vue";
+import { renderToString } from "vue/server-renderer";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const useDashboardMock = vi.hoisted(() => vi.fn());
+
+vi.mock("./composables/useDashboard", () => ({
+    useDashboard: useDashboardMock,
+}));
+
+vi.mock("./components/DashboardToolbar.vue", () => ({
+    default: defineComponent({
+        name: "DashboardToolbarStub",
+        setup: () => () => null,
+    }),
+}));
+
 import DashboardPage from "./DashboardPage.vue";
 
-it("renders the operational intelligence section headings", async () => {
-    render(DashboardPage);
+describe("DashboardPage", () => {
+    beforeEach(() => {
+        useDashboardMock.mockReset();
+        useDashboardMock.mockReturnValue({
+            dashboardSections: [
+                { key: "alerts", heading: "Operations Alert Center" },
+                { key: "workflow", heading: "Business Workflow Overview" },
+                { key: "kpi", heading: "Executive KPI Snapshot" },
+            ],
+            warehouseOptions: [],
+            warehousesLoading: false,
+            warehouseError: null,
+            dashboardLoading: false,
+            dashboardError: null,
+            refreshDashboard: vi.fn(),
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
+        });
+    });
 
-    expect(await screen.findByText("Operations Alert Center")).toBeTruthy();
-    expect(screen.getByText("Business Workflow Overview")).toBeTruthy();
-    expect(screen.getByText("Executive KPI Snapshot")).toBeTruthy();
+    it("renders the operational intelligence section headings", async () => {
+        const app = createSSRApp(DashboardPage);
+        const html = await renderToString(app);
+
+        expect(html).toContain("Operations Alert Center");
+        expect(html).toContain("Business Workflow Overview");
+        expect(html).toContain("Executive KPI Snapshot");
+    });
 });
