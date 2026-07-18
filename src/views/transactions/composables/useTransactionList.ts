@@ -29,13 +29,17 @@ const transactionTitles: Record<
     { title: string; description: string }
 > = {
     register: {
-        title: "Register",
-        description: "Tag registration documents recorded via /register.",
+        title: "Register Tasks",
+        description: "Admin task documents recorded via /register.",
     },
     inbound: {
-        title: "Inbound Transactions",
+        title: "Inbound Documents",
         description:
-            "Track inbound drafts and approvals generated via /inbound.",
+            "Inbound documents recorded via /inbound for receipt detail review.",
+    },
+    putaway: {
+        title: "Putaway Tasks",
+        description: "Storage placement tasks generated through /putaway.",
     },
     outbound: {
         title: "Outbound Transactions",
@@ -66,6 +70,7 @@ const transactionTitles: Record<
 const transactionToReportKey: Record<TransactionKey, ReportKey> = {
     register: "register",
     inbound: "inbound",
+    putaway: "putaway",
     outbound: "outbound",
     relocation: "relocation",
     transfer: "transfer",
@@ -112,6 +117,20 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             transactionTitles[transactionKey.value]?.title ??
             config.value.title,
     );
+    const pageTagline = computed(() => {
+        if (transactionKey.value === "register") return "Tasks";
+        if (transactionKey.value === "putaway") return "Tasks";
+        if (transactionKey.value === "inbound") return "Documents";
+        return "Transactions";
+    });
+    const sectionHeading = computed(() => {
+        if (transactionKey.value === "register") return "Register Tasks";
+        if (transactionKey.value === "putaway") return "Putaway Tasks";
+        if (transactionKey.value === "inbound") return "Inbound Documents";
+        if (transactionKey.value === "relocation")
+            return "Relocation Transactions";
+        return "Transactions";
+    });
     const pageDescription = computed(() => {
         const base =
             transactionTitles[transactionKey.value]?.description ??
@@ -379,6 +398,8 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
 
     return {
         pageTitle,
+        pageTagline,
+        sectionHeading,
         pageDescription,
         keyword,
         startDate,
