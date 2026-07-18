@@ -1,10 +1,10 @@
 <template>
     <section class="space-y-6">
         <DashboardToolbar
-            :warehouse-id="dashboardFilters.filter.warehouseId"
+            :warehouse-id="selectedWarehouseId"
             :warehouse-options="warehouseOptions"
             :loading="dashboardLoading"
-            @update:warehouse-id="(val) => dashboardFilters.setWarehouse(val)"
+            @update:warehouse-id="setSelectedWarehouse"
             @refresh="refreshDashboard"
         />
 
@@ -20,6 +20,18 @@
         >
             {{ warehouseError }}
         </p>
+
+        <div class="space-y-6">
+            <section
+                v-for="dashboardSection in dashboardSections"
+                :key="dashboardSection.key"
+                class="space-y-3"
+            >
+                <h2 class="text-lg font-semibold text-slate-900">
+                    {{ dashboardSection.heading }}
+                </h2>
+            </section>
+        </div>
 
         <DashboardSummaryCards
             :loading="summaryLoading"
@@ -95,7 +107,7 @@ const DashboardLowStockAlert = defineAsyncComponent(
 );
 
 const {
-    dashboardFilters,
+    dashboardSections,
     warehouseOptions,
     warehousesLoading,
     warehouseError,
@@ -118,5 +130,7 @@ const {
     epcStatusTotal,
     epcStatusBreakdown,
     summaryCards,
+    selectedWarehouseId,
+    setSelectedWarehouse,
 } = useDashboard();
 </script>
