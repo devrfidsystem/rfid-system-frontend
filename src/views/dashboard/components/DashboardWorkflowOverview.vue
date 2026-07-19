@@ -78,7 +78,11 @@
                             }}</span>
                             <span class="text-text-secondary"
                                 >{{ stage.count }} ·
-                                {{ stage.pctOfOpen ?? 0 }}%</span
+                                {{ stage.pctOfOpen ?? 0 }}%
+                                <template v-if="stage.avgWaitHours !== null">
+                                    · Avg wait
+                                    {{ stage.avgWaitHours.toFixed(1) }}h</template
+                                ></span
                             >
                             <span
                                 v-if="stage.trendPct === null"
