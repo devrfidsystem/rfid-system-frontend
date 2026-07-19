@@ -9,18 +9,18 @@
             ></div>
         </div>
 
-        <div v-else-if="!data" class="p-6 text-center text-sm text-secondary">
+        <div v-else-if="!data" class="p-6 text-center text-sm text-text-secondary">
             No KPI data available.
         </div>
 
         <div v-else class="grid gap-6 sm:grid-cols-2">
             <div>
-                <p class="text-xs font-semibold uppercase text-muted">
+                <p class="text-xs font-semibold uppercase text-text-muted">
                     {{ data.label }}
                 </p>
                 <p class="text-4xl font-extrabold text-gray-900 mt-1">
                     {{ data.score
-                    }}<span class="text-base font-semibold text-muted">
+                    }}<span class="text-base font-semibold text-text-muted">
                         / 100</span
                     >
                 </p>
@@ -35,13 +35,13 @@
                     {{ data.trendVsPrevious >= 0 ? "+" : ""
                     }}{{ data.trendVsPrevious.toFixed(1) }}pt vs previous period
                 </p>
-                <p class="text-xs text-secondary mt-2">
+                <p class="text-xs text-text-secondary mt-2">
                     Derived from {{ data.derivedFrom }}
                 </p>
                 <div class="flex gap-6 mt-3">
                     <div>
                         <p
-                            class="text-[10px] font-semibold uppercase text-muted"
+                            class="text-[10px] font-semibold uppercase text-text-muted"
                         >
                             Current Period
                         </p>
@@ -49,7 +49,7 @@
                     </div>
                     <div>
                         <p
-                            class="text-[10px] font-semibold uppercase text-muted"
+                            class="text-[10px] font-semibold uppercase text-text-muted"
                         >
                             Previous Period
                         </p>
@@ -60,7 +60,7 @@
                 </div>
             </div>
             <div>
-                <p class="text-xs font-semibold text-secondary mb-2">
+                <p class="text-xs font-semibold text-text-secondary mb-2">
                     {{ data.label }} — Performance Timeline
                 </p>
                 <svg
@@ -75,9 +75,7 @@
                         stroke-width="2"
                     />
                 </svg>
-                <div
-                    class="flex justify-between text-[10px] text-muted mt-1"
-                >
+                <div class="flex justify-between text-[10px] text-text-muted mt-1">
                     <span>{{ data.timeline[0]?.period }}</span>
                     <span>{{
                         data.timeline[data.timeline.length - 1]?.period
