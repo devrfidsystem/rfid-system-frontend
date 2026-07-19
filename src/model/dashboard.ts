@@ -84,3 +84,15 @@ export interface DashboardSnapshot {
     epcStatus?: DashboardEpcStatusItem[];
     recentActivity?: DashboardRecentActivityItem[];
 }
+
+export type {
+    DashboardAlertSeverity,
+    DashboardAlert,
+    DashboardAlertsResponse,
+    DashboardWorkflowStage,
+    DashboardWorkflowPanel,
+    DashboardWorkflowOverviewResponse,
+    DashboardKpiSubMetric,
+    DashboardKpiCard,
+    DashboardKpiSnapshotResponse,
+} from "@/api/feature/dto/dashboard.dto";

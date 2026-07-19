@@ -55,3 +55,62 @@ export interface DashboardRecentActivityItem {
 }
 
 export type DashboardRecentActivityResponse = DashboardRecentActivityItem[];
+
+export type DashboardAlertSeverity = "critical" | "warning" | "info";
+
+export interface DashboardAlert {
+    severity: DashboardAlertSeverity;
+    title: string;
+    tag: string;
+    category: string;
+    summary: string;
+    businessImpact: string;
+    recommendedAction: string;
+    docRef: string | null;
+    occurredAt: string;
+}
+
+export interface DashboardAlertsResponse {
+    counts: { critical: number; warning: number; info: number };
+    alerts: DashboardAlert[];
+}
+
+export interface DashboardWorkflowStage {
+    name: string;
+    count: number;
+    pctOfOpen: number | null;
+    avgWaitHours: number | null;
+    trendPct: number | null;
+}
+
+export interface DashboardWorkflowPanel {
+    key: "inboundPutaway" | "outbound";
+    title: string;
+    openCount: number;
+    avgCycleTimeHours: number | null;
+    completionRate: number;
+    bottleneckStage: string;
+    stages: DashboardWorkflowStage[];
+}
+
+export interface DashboardWorkflowOverviewResponse {
+    panels: DashboardWorkflowPanel[];
+}
+
+export interface DashboardKpiSubMetric {
+    label: string;
+    value: string;
+}
+
+export interface DashboardKpiCard {
+    key: "stockIn" | "inventory" | "stockOut";
+    label: string;
+    score: number;
+    trendVsPrevious: number;
+    subMetrics: DashboardKpiSubMetric[];
+    sparkline: number[];
+}
+
+export interface DashboardKpiSnapshotResponse {
+    cards: DashboardKpiCard[];
+}
