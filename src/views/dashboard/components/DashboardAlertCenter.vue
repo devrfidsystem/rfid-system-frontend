@@ -14,12 +14,12 @@
                 class="flex items-center gap-2 text-xs font-semibold"
             >
                 <span
-                    class="rounded-full bg-red-50 px-2.5 py-1 text-signal-red ring-1 ring-red-200/60"
+                    class="rounded-full bg-red-50 px-2.5 py-1 text-danger-600 ring-1 ring-red-200/60"
                 >
                     Critical {{ data.counts.critical }}
                 </span>
                 <span
-                    class="rounded-full bg-orange-50 px-2.5 py-1 text-action-orange ring-1 ring-orange-200/60"
+                    class="rounded-full bg-orange-50 px-2.5 py-1 text-warning-600 ring-1 ring-orange-200/60"
                 >
                     Warning {{ data.counts.warning }}
                 </span>
@@ -36,7 +36,7 @@
                 <div
                     v-for="n in 3"
                     :key="`alert-skel-${n}`"
-                    class="h-24 rounded-md bg-workspace-bg animate-pulse"
+                    class="h-24 rounded-md bg-surface-secondary animate-pulse"
                 ></div>
             </div>
 
@@ -59,7 +59,7 @@
                 <li
                     v-for="(alert, index) in data.alerts"
                     :key="`${alert.title}-${index}`"
-                    class="rounded-md border border-border-default bg-white p-4 shadow-xs"
+                    class="rounded-md border border-border bg-white p-4 shadow-xs"
                 >
                     <div class="flex items-start gap-3">
                         <div
@@ -78,7 +78,7 @@
                                     >{{ alert.title }}</span
                                 >
                                 <span
-                                    class="rounded-full bg-workspace-bg px-2 py-0.5 text-xs font-medium text-text-secondary"
+                                    class="rounded-full bg-surface-secondary px-2 py-0.5 text-xs font-medium text-text-secondary"
                                 >
                                     {{ alert.tag }}
                                 </span>
@@ -92,7 +92,7 @@
                                 {{ alert.summary }}
                             </p>
                             <div
-                                class="mt-3 grid gap-2 sm:grid-cols-2 bg-workspace-bg rounded-md p-3"
+                                class="mt-3 grid gap-2 sm:grid-cols-2 bg-surface-secondary rounded-md p-3"
                             >
                                 <div>
                                     <p
@@ -141,8 +141,8 @@ const severityIcon = (severity: DashboardAlert["severity"]) =>
     severity === "info" ? Info : AlertTriangle;
 
 const severityIconClass = (severity: DashboardAlert["severity"]) => {
-    if (severity === "critical") return "bg-red-50 text-signal-red";
-    if (severity === "warning") return "bg-orange-50 text-action-orange";
+    if (severity === "critical") return "bg-red-50 text-danger-600";
+    if (severity === "warning") return "bg-orange-50 text-warning-600";
     return "bg-blue-50 text-primary-600";
 };
 </script>
