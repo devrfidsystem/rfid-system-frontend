@@ -95,4 +95,10 @@ export type {
     DashboardKpiSubMetric,
     DashboardKpiCard,
     DashboardKpiSnapshotResponse,
+    DashboardKpiDomain,
+    DashboardKpiTimelinePoint,
+    DashboardKpiWarehouseRankEntry,
+    DashboardKpiContributor,
+    DashboardKpiDetailSupportingMetric,
+    DashboardKpiDetailResponse,
 } from "@/api/feature/dto/dashboard.dto";

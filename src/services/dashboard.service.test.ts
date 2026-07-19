@@ -7,6 +7,7 @@ vi.mock("@/router", () => ({
 const fetchAlertsMock = vi.hoisted(() => vi.fn());
 const fetchWorkflowOverviewMock = vi.hoisted(() => vi.fn());
 const fetchKpiSnapshotMock = vi.hoisted(() => vi.fn());
+const fetchKpiDetailMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/api/feature/dashboard.api", () => ({
     dashboardApi: {
@@ -18,6 +19,7 @@ vi.mock("@/api/feature/dashboard.api", () => ({
         fetchAlerts: fetchAlertsMock,
         fetchWorkflowOverview: fetchWorkflowOverviewMock,
         fetchKpiSnapshot: fetchKpiSnapshotMock,
+        fetchKpiDetail: fetchKpiDetailMock,
     },
 }));
 
@@ -32,6 +34,7 @@ describe("dashboardService", () => {
         fetchAlertsMock.mockReset();
         fetchWorkflowOverviewMock.mockReset();
         fetchKpiSnapshotMock.mockReset();
+        fetchKpiDetailMock.mockReset();
     });
 
     it("fetchAlerts returns the alerts payload", async () => {
@@ -68,5 +71,32 @@ describe("dashboardService", () => {
         });
 
         expect(result.cards).toEqual([]);
+    });
+
+    it("fetchKpiDetail returns the domain detail payload with domain passed through params", async () => {
+        fetchKpiDetailMock.mockResolvedValue({
+            data: {
+                domain: "stockIn",
+                label: "Stock In Performance",
+                derivedFrom: "Receiving and Putaway",
+                score: 83,
+                previousScore: 82,
+                trendVsPrevious: 1,
+                timeline: [],
+                warehouseComparison: { top: [], bottom: [] },
+                contributors: [],
+                supportingMetrics: [],
+            },
+        });
+
+        const result = await dashboardService.fetchKpiDetail("stockIn", {
+            warehouseId: "wh-1",
+        });
+
+        expect(fetchKpiDetailMock).toHaveBeenCalledWith("stockIn", {
+            companyId: "company-1",
+            warehouseId: "wh-1",
+        });
+        expect(result.label).toBe("Stock In Performance");
     });
 });

@@ -13,6 +13,8 @@ import type {
     DashboardAlertsResponse,
     DashboardWorkflowOverviewResponse,
     DashboardKpiSnapshotResponse,
+    DashboardKpiDomain,
+    DashboardKpiDetailResponse,
 } from "@/api/feature/dto/dashboard.dto";
 import type {
     DashboardFilterState,
@@ -303,7 +305,16 @@ export const dashboardService = {
     async fetchKpiSnapshot(
         filter: DashboardFilterState,
     ): Promise<DashboardKpiSnapshotResponse> {
-        const response = await dashboardApi.fetchKpiSnapshot(
+        const response = await dashboardApi.fetchKpiSnapshot(toParams(filter));
+        return response.data;
+    },
+
+    async fetchKpiDetail(
+        domain: DashboardKpiDomain,
+        filter: DashboardFilterState,
+    ): Promise<DashboardKpiDetailResponse> {
+        const response = await dashboardApi.fetchKpiDetail(
+            domain,
             toParams(filter),
         );
         return response.data;

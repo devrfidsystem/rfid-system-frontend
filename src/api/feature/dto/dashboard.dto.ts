@@ -114,3 +114,42 @@ export interface DashboardKpiCard {
 export interface DashboardKpiSnapshotResponse {
     cards: DashboardKpiCard[];
 }
+
+export type DashboardKpiDomain = "stockIn" | "inventory" | "stockOut";
+
+export interface DashboardKpiTimelinePoint {
+    period: string;
+    score: number;
+}
+
+export interface DashboardKpiWarehouseRankEntry {
+    warehouseId: string;
+    warehouseName: string;
+    score: number;
+}
+
+export interface DashboardKpiContributor {
+    label: string;
+    pct: number;
+}
+
+export interface DashboardKpiDetailSupportingMetric {
+    label: string;
+    value: string;
+}
+
+export interface DashboardKpiDetailResponse {
+    domain: DashboardKpiDomain;
+    label: string;
+    derivedFrom: string;
+    score: number;
+    previousScore: number;
+    trendVsPrevious: number;
+    timeline: DashboardKpiTimelinePoint[];
+    warehouseComparison: {
+        top: DashboardKpiWarehouseRankEntry[];
+        bottom: DashboardKpiWarehouseRankEntry[];
+    };
+    contributors: DashboardKpiContributor[];
+    supportingMetrics: DashboardKpiDetailSupportingMetric[];
+}

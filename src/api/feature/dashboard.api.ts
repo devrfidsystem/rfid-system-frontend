@@ -8,6 +8,8 @@ import type {
     DashboardAlertsResponse,
     DashboardWorkflowOverviewResponse,
     DashboardKpiSnapshotResponse,
+    DashboardKpiDomain,
+    DashboardKpiDetailResponse,
 } from "./dto/dashboard.dto";
 
 type DashboardQueryParameters = Record<string, string | number>;
@@ -78,6 +80,14 @@ export const dashboardApi = {
             url: "/dashboard/kpi-snapshot",
             method: "get",
             params,
+        });
+    },
+
+    fetchKpiDetail(domain: DashboardKpiDomain, params: DashboardQueryParameters) {
+        return apiRequest<DashboardKpiDetailResponse>({
+            url: "/dashboard/kpi-detail",
+            method: "get",
+            params: { ...params, domain },
         });
     },
 };
