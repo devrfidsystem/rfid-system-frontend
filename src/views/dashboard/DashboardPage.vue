@@ -22,14 +22,34 @@
         </p>
 
         <div class="space-y-6">
-            <section
-                v-for="dashboardSection in dashboardSections"
-                :key="dashboardSection.key"
-                class="space-y-3"
-            >
+            <section class="space-y-3">
                 <h2 class="text-lg font-semibold text-slate-900">
-                    {{ dashboardSection.heading }}
+                    Operations Alert Center
                 </h2>
+                <DashboardAlertCenter
+                    :loading="alertsLoading"
+                    :data="alertsData"
+                />
+            </section>
+
+            <section class="space-y-3">
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Business Workflow Overview
+                </h2>
+                <DashboardWorkflowOverview
+                    :loading="workflowLoading"
+                    :data="workflowData"
+                />
+            </section>
+
+            <section class="space-y-3">
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Executive KPI Snapshot
+                </h2>
+                <DashboardKpiSnapshot
+                    :loading="kpiSnapshotLoading"
+                    :data="kpiSnapshotData"
+                />
             </section>
         </div>
     </section>
@@ -37,10 +57,12 @@
 
 <script setup lang="ts">
 import DashboardToolbar from "./components/DashboardToolbar.vue";
+import DashboardAlertCenter from "./components/DashboardAlertCenter.vue";
+import DashboardWorkflowOverview from "./components/DashboardWorkflowOverview.vue";
+import DashboardKpiSnapshot from "./components/DashboardKpiSnapshot.vue";
 import { useDashboard } from "./composables/useDashboard";
 
 const {
-    dashboardSections,
     warehouseOptions,
     warehousesLoading,
     warehouseError,
@@ -49,5 +71,11 @@ const {
     refreshDashboard,
     selectedWarehouseId,
     setSelectedWarehouse,
+    alertsData,
+    alertsLoading,
+    workflowData,
+    workflowLoading,
+    kpiSnapshotData,
+    kpiSnapshotLoading,
 } = useDashboard();
 </script>

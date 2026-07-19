@@ -15,6 +15,27 @@ vi.mock("./components/DashboardToolbar.vue", () => ({
     }),
 }));
 
+vi.mock("./components/DashboardAlertCenter.vue", () => ({
+    default: defineComponent({
+        name: "DashboardAlertCenterStub",
+        setup: () => () => null,
+    }),
+}));
+
+vi.mock("./components/DashboardWorkflowOverview.vue", () => ({
+    default: defineComponent({
+        name: "DashboardWorkflowOverviewStub",
+        setup: () => () => null,
+    }),
+}));
+
+vi.mock("./components/DashboardKpiSnapshot.vue", () => ({
+    default: defineComponent({
+        name: "DashboardKpiSnapshotStub",
+        setup: () => () => null,
+    }),
+}));
+
 import DashboardPage from "./DashboardPage.vue";
 
 describe("DashboardPage", () => {
@@ -34,6 +55,12 @@ describe("DashboardPage", () => {
             refreshDashboard: vi.fn(),
             selectedWarehouseId: null,
             setSelectedWarehouse: vi.fn(),
+            alertsData: null,
+            alertsLoading: false,
+            workflowData: null,
+            workflowLoading: false,
+            kpiSnapshotData: null,
+            kpiSnapshotLoading: false,
         });
     });
 
