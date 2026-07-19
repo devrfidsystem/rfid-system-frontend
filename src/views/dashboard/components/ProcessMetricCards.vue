@@ -29,7 +29,7 @@
                 <p
                     class="text-sm font-semibold mt-1"
                     :class="
-                        data.cycleTime.trendPct >= 0
+                        data.cycleTime.trendPct <= 0
                             ? 'text-success-600'
                             : 'text-danger-600'
                     "
