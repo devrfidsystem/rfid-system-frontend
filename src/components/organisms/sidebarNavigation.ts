@@ -9,15 +9,18 @@ import {
     Layers,
     Map,
     MapPin,
+    Radar,
     Radio,
     Ruler,
     ScrollText,
     Settings2,
     Shield,
     Store,
+    TrendingUp,
     Truck,
     Users,
     Warehouse,
+    Workflow,
 } from "lucide-vue-next";
 import type { MenuTreeNode } from "@/services/auth.service";
 import { isSupportedMasterPath } from "@/views/master/entityConfig";
@@ -27,7 +30,6 @@ export type SidebarScope =
     | "dashboard"
     | "master-data"
     | "iam"
-    | "rfid"
     | "stock"
     | "transactions"
     | "settings";
@@ -52,6 +54,9 @@ const iconMap: Record<string, Component> = {
     DASHBOARD_LOW_STOCK: Layers,
     DASHBOARD_RECENT_ACTIVITY: ScrollText,
     DASHBOARD_EPC_STATUS: Radio,
+    DASHBOARD_KPI: TrendingUp,
+    DASHBOARD_PROCESS: Workflow,
+    DASHBOARD_MONITORING: Radar,
     MASTER: Database,
     MASTER_DATA: Database,
     WAREHOUSES: Warehouse,
@@ -64,6 +69,8 @@ const iconMap: Record<string, Component> = {
     ATTRIBUTES: Shield,
     TRANSACTIONS: FileText,
     TRANSACTION_INBOUND: ArrowDownToLine,
+    TRANSACTION_REGISTER: Radio,
+    TRANSACTION_PUTAWAY: Warehouse,
     TRANSACTION_OUTBOUND: ArrowUpFromLine,
     TRANSACTION_RELOCATION: Map,
     TRANSACTION_TRANSFER: Truck,
@@ -73,10 +80,6 @@ const iconMap: Record<string, Component> = {
     STOCK: Layers,
     STOCK_BALANCE: Layers,
     STOCK_LEDGER: ScrollText,
-    RFID: Radio,
-    RFID_TAGS: Radio,
-    RFID_ASSIGNMENTS: FileText,
-    RFID_EVENTS: ScrollText,
     LOG: ScrollText,
     SETTINGS: Settings2,
     SETTINGS_APPS: Settings2,
@@ -119,7 +122,6 @@ const scopeRules: Record<
                 node.code.toUpperCase(),
             ),
     ],
-    rfid: [(node) => node.code.toUpperCase().startsWith("RFID")],
     stock: [(node) => node.code.toUpperCase().startsWith("STOCK")],
     transactions: [
         (node) => node.code.toUpperCase().startsWith("TRANSACTION"),

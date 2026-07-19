@@ -52,9 +52,40 @@ const dashboardRoutes = dashboardSections.map((section) => ({
     },
 }));
 
+const dashboardPlaceholderRoutes: RouteRecordRaw[] = [
+    {
+        path: "dashboard/kpi",
+        component: () => import("@/views/shared/PageShell.vue"),
+        props: {
+            title: "Executive KPI",
+            description:
+                "Composite performance scores and drill-down analytics for stock in, inventory, and stock out.",
+        },
+    },
+    {
+        path: "dashboard/process",
+        component: () => import("@/views/shared/PageShell.vue"),
+        props: {
+            title: "Process Performance",
+            description:
+                "Cycle-time and throughput analytics across warehouse processes.",
+        },
+    },
+    {
+        path: "dashboard/monitoring",
+        component: () => import("@/views/shared/PageShell.vue"),
+        props: {
+            title: "Monitoring",
+            description:
+                "Real-time event feed and exception monitoring across the network.",
+        },
+    },
+];
+
 const transactionKeys = [
     "register",
     "inbound",
+    "putaway",
     "outbound",
     "relocation",
     "transfer",
@@ -109,6 +140,7 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("@/views/todo/TodoListPage.vue"),
             },
             ...dashboardRoutes,
+            ...dashboardPlaceholderRoutes,
             {
                 path: "iam",
                 component: () => import("@/components/templates/IamLayout.vue"),
@@ -162,6 +194,18 @@ const routes: RouteRecordRaw[] = [
                 redirect: "/transactions/inbound",
             },
             {
+                path: "transactions/opname",
+                component: () => import("@/views/opname/OpnameTreePage.vue"),
+            },
+            {
+                path: "transactions/opname/new",
+                component: () => import("@/views/opname/OpnameCreatePage.vue"),
+            },
+            {
+                path: "transactions/opname/:id",
+                component: () => import("@/views/opname/OpnameDetailPage.vue"),
+            },
+            {
                 path: `transactions/:transactionKey(${transactionPattern})`,
                 component: () =>
                     import("@/views/transactions/TransactionListPage.vue"),
@@ -178,6 +222,11 @@ const routes: RouteRecordRaw[] = [
                     transactionKey: route.params
                         .transactionKey as TransactionKey,
                 }),
+                beforeEnter: (to) => {
+                    if (to.params.transactionKey === "inbound") {
+                        return `/transactions/${to.params.transactionKey}`;
+                    }
+                },
             },
             {
                 path: `transactions/:transactionKey(${transactionPattern})/:id`,
