@@ -54,15 +54,6 @@ const dashboardRoutes = dashboardSections.map((section) => ({
 
 const dashboardPlaceholderRoutes: RouteRecordRaw[] = [
     {
-        path: "dashboard/process",
-        component: () => import("@/views/shared/PageShell.vue"),
-        props: {
-            title: "Process Performance",
-            description:
-                "Cycle-time and throughput analytics across warehouse processes.",
-        },
-    },
-    {
         path: "dashboard/monitoring",
         component: () => import("@/views/shared/PageShell.vue"),
         props: {
@@ -135,6 +126,11 @@ const routes: RouteRecordRaw[] = [
                 path: "dashboard/kpi",
                 component: () =>
                     import("@/views/dashboard/ExecutiveKpiPage.vue"),
+            },
+            {
+                path: "dashboard/process",
+                component: () =>
+                    import("@/views/dashboard/ProcessPerformancePage.vue"),
             },
             ...dashboardPlaceholderRoutes,
             {
