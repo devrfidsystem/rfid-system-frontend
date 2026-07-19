@@ -54,15 +54,6 @@ const dashboardRoutes = dashboardSections.map((section) => ({
 
 const dashboardPlaceholderRoutes: RouteRecordRaw[] = [
     {
-        path: "dashboard/kpi",
-        component: () => import("@/views/shared/PageShell.vue"),
-        props: {
-            title: "Executive KPI",
-            description:
-                "Composite performance scores and drill-down analytics for stock in, inventory, and stock out.",
-        },
-    },
-    {
         path: "dashboard/process",
         component: () => import("@/views/shared/PageShell.vue"),
         props: {
@@ -140,6 +131,10 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("@/views/todo/TodoListPage.vue"),
             },
             ...dashboardRoutes,
+            {
+                path: "dashboard/kpi",
+                component: () => import("@/views/dashboard/ExecutiveKpiPage.vue"),
+            },
             ...dashboardPlaceholderRoutes,
             {
                 path: "iam",
