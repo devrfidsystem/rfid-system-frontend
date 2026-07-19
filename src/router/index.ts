@@ -133,7 +133,8 @@ const routes: RouteRecordRaw[] = [
             ...dashboardRoutes,
             {
                 path: "dashboard/kpi",
-                component: () => import("@/views/dashboard/ExecutiveKpiPage.vue"),
+                component: () =>
+                    import("@/views/dashboard/ExecutiveKpiPage.vue"),
             },
             ...dashboardPlaceholderRoutes,
             {
