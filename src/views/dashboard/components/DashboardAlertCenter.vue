@@ -83,7 +83,7 @@
                                     {{ alert.tag }}
                                 </span>
                                 <span
-                                    class="rounded-full bg-primary-light px-2 py-0.5 text-xs font-medium text-primary-600"
+                                    class="rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-600"
                                 >
                                     {{ alert.category }}
                                 </span>
@@ -96,7 +96,7 @@
                             >
                                 <div>
                                     <p
-                                        class="text-[10px] font-semibold uppercase text-text-tertiary"
+                                        class="text-[10px] font-semibold uppercase text-text-secondary"
                                     >
                                         Business Impact
                                     </p>
@@ -106,7 +106,7 @@
                                 </div>
                                 <div>
                                     <p
-                                        class="text-[10px] font-semibold uppercase text-text-tertiary"
+                                        class="text-[10px] font-semibold uppercase text-text-secondary"
                                     >
                                         Recommended Action
                                     </p>
