@@ -10,6 +10,9 @@ import type {
     DashboardKpiSnapshotResponse,
     DashboardKpiDomain,
     DashboardKpiDetailResponse,
+    ProcessActivity,
+    ProcessPeriod,
+    ProcessDetailResponse,
 } from "./dto/dashboard.dto";
 
 type DashboardQueryParameters = Record<string, string | number>;
@@ -83,11 +86,26 @@ export const dashboardApi = {
         });
     },
 
-    fetchKpiDetail(domain: DashboardKpiDomain, params: DashboardQueryParameters) {
+    fetchKpiDetail(
+        domain: DashboardKpiDomain,
+        params: DashboardQueryParameters,
+    ) {
         return apiRequest<DashboardKpiDetailResponse>({
             url: "/dashboard/kpi-detail",
             method: "get",
             params: { ...params, domain },
+        });
+    },
+
+    fetchProcessDetail(
+        activity: ProcessActivity,
+        period: ProcessPeriod,
+        params: DashboardQueryParameters,
+    ) {
+        return apiRequest<ProcessDetailResponse>({
+            url: "/dashboard/process-detail",
+            method: "get",
+            params: { ...params, activity, period },
         });
     },
 };

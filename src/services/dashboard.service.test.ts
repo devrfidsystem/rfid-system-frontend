@@ -8,6 +8,7 @@ const fetchAlertsMock = vi.hoisted(() => vi.fn());
 const fetchWorkflowOverviewMock = vi.hoisted(() => vi.fn());
 const fetchKpiSnapshotMock = vi.hoisted(() => vi.fn());
 const fetchKpiDetailMock = vi.hoisted(() => vi.fn());
+const fetchProcessDetailMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/api/feature/dashboard.api", () => ({
     dashboardApi: {
@@ -20,6 +21,7 @@ vi.mock("@/api/feature/dashboard.api", () => ({
         fetchWorkflowOverview: fetchWorkflowOverviewMock,
         fetchKpiSnapshot: fetchKpiSnapshotMock,
         fetchKpiDetail: fetchKpiDetailMock,
+        fetchProcessDetail: fetchProcessDetailMock,
     },
 }));
 
@@ -35,6 +37,7 @@ describe("dashboardService", () => {
         fetchWorkflowOverviewMock.mockReset();
         fetchKpiSnapshotMock.mockReset();
         fetchKpiDetailMock.mockReset();
+        fetchProcessDetailMock.mockReset();
     });
 
     it("fetchAlerts returns the alerts payload", async () => {
@@ -98,5 +101,43 @@ describe("dashboardService", () => {
             warehouseId: "wh-1",
         });
         expect(result.label).toBe("Stock In Performance");
+    });
+
+    it("fetchProcessDetail returns the activity detail payload with activity and period passed through params", async () => {
+        fetchProcessDetailMock.mockResolvedValue({
+            data: {
+                activity: "receiving",
+                domain: "stockIn",
+                label: "Receiving",
+                cycleTime: { minutes: 36, previousMinutes: 40, trendPct: -10 },
+                productivity: {
+                    unitsPerHour: 120,
+                    previousUnitsPerHour: 110,
+                    trendPct: 9.1,
+                },
+                supportingMetrics: {
+                    completedTransactions: 42,
+                    avgDailyVolumeUnits: 500,
+                    avgQueueTimeMinutes: 12,
+                },
+                trend: [],
+                hourlyDistribution: [],
+                warehouseComparison: { top: [], bottom: [] },
+                operatorRanking: [],
+            },
+        });
+
+        const result = await dashboardService.fetchProcessDetail(
+            "receiving",
+            "week",
+            { warehouseId: "wh-1" },
+        );
+
+        expect(fetchProcessDetailMock).toHaveBeenCalledWith(
+            "receiving",
+            "week",
+            { companyId: "company-1", warehouseId: "wh-1" },
+        );
+        expect(result.label).toBe("Receiving");
     });
 });

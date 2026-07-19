@@ -153,3 +153,72 @@ export interface DashboardKpiDetailResponse {
     contributors: DashboardKpiContributor[];
     supportingMetrics: DashboardKpiDetailSupportingMetric[];
 }
+
+export type ProcessActivity =
+    | "receiving"
+    | "putaway"
+    | "outbound"
+    | "transfer"
+    | "relocation"
+    | "opname";
+
+export type ProcessDomain = "stockIn" | "inventory" | "stockOut";
+
+export type ProcessPeriod = "week" | "month";
+
+export interface ProcessCycleTimeMetric {
+    minutes: number;
+    previousMinutes: number;
+    trendPct: number;
+}
+
+export interface ProcessProductivityMetric {
+    unitsPerHour: number;
+    previousUnitsPerHour: number;
+    trendPct: number;
+}
+
+export interface ProcessSupportingMetrics {
+    completedTransactions: number;
+    avgDailyVolumeUnits: number;
+    avgQueueTimeMinutes: number;
+}
+
+export interface ProcessTrendPoint {
+    period: string;
+    cycleTimeMinutes: number;
+    productivityUnitsPerHour: number;
+}
+
+export interface ProcessHourlyBucket {
+    hour: number;
+    count: number;
+}
+
+export interface ProcessWarehouseRankEntry {
+    warehouseId: string;
+    warehouseName: string;
+    score: number;
+}
+
+export interface ProcessOperatorRankEntry {
+    userId: string;
+    userName: string;
+    score: number;
+}
+
+export interface ProcessDetailResponse {
+    activity: ProcessActivity;
+    domain: ProcessDomain;
+    label: string;
+    cycleTime: ProcessCycleTimeMetric;
+    productivity: ProcessProductivityMetric;
+    supportingMetrics: ProcessSupportingMetrics;
+    trend: ProcessTrendPoint[];
+    hourlyDistribution: ProcessHourlyBucket[];
+    warehouseComparison: {
+        top: ProcessWarehouseRankEntry[];
+        bottom: ProcessWarehouseRankEntry[];
+    };
+    operatorRanking: ProcessOperatorRankEntry[];
+}

@@ -15,6 +15,9 @@ import type {
     DashboardKpiSnapshotResponse,
     DashboardKpiDomain,
     DashboardKpiDetailResponse,
+    ProcessActivity,
+    ProcessPeriod,
+    ProcessDetailResponse,
 } from "@/api/feature/dto/dashboard.dto";
 import type {
     DashboardFilterState,
@@ -315,6 +318,19 @@ export const dashboardService = {
     ): Promise<DashboardKpiDetailResponse> {
         const response = await dashboardApi.fetchKpiDetail(
             domain,
+            toParams(filter),
+        );
+        return response.data;
+    },
+
+    async fetchProcessDetail(
+        activity: ProcessActivity,
+        period: ProcessPeriod,
+        filter: DashboardFilterState,
+    ): Promise<ProcessDetailResponse> {
+        const response = await dashboardApi.fetchProcessDetail(
+            activity,
+            period,
             toParams(filter),
         );
         return response.data;
