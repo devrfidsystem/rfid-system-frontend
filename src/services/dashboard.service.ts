@@ -10,6 +10,9 @@ import type {
     DashboardEpcStatusResponse,
     DashboardRecentActivityResponse,
     DashboardStockSummaryResponse,
+    DashboardAlertsResponse,
+    DashboardWorkflowOverviewResponse,
+    DashboardKpiSnapshotResponse,
 } from "@/api/feature/dto/dashboard.dto";
 import type {
     DashboardFilterState,
@@ -279,5 +282,30 @@ export const dashboardService = {
                 locationResponse as unknown as LocationListResponse<LocationRecord>,
             ), // Keep typing simple for internal conversion
         );
+    },
+
+    async fetchAlerts(
+        filter: DashboardFilterState,
+    ): Promise<DashboardAlertsResponse> {
+        const response = await dashboardApi.fetchAlerts(toParams(filter));
+        return response.data;
+    },
+
+    async fetchWorkflowOverview(
+        filter: DashboardFilterState,
+    ): Promise<DashboardWorkflowOverviewResponse> {
+        const response = await dashboardApi.fetchWorkflowOverview(
+            toParams(filter),
+        );
+        return response.data;
+    },
+
+    async fetchKpiSnapshot(
+        filter: DashboardFilterState,
+    ): Promise<DashboardKpiSnapshotResponse> {
+        const response = await dashboardApi.fetchKpiSnapshot(
+            toParams(filter),
+        );
+        return response.data;
     },
 };
