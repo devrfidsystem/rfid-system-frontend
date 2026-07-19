@@ -1,4 +1,4 @@
-import { createSSRApp, defineComponent } from "vue";
+import { createSSRApp, defineComponent, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -18,21 +18,21 @@ vi.mock("./components/DashboardToolbar.vue", () => ({
 vi.mock("./components/DashboardAlertCenter.vue", () => ({
     default: defineComponent({
         name: "DashboardAlertCenterStub",
-        setup: () => () => null,
+        setup: () => () => h("div", {}, "DashboardAlertCenterStub"),
     }),
 }));
 
 vi.mock("./components/DashboardWorkflowOverview.vue", () => ({
     default: defineComponent({
         name: "DashboardWorkflowOverviewStub",
-        setup: () => () => null,
+        setup: () => () => h("div", {}, "DashboardWorkflowOverviewStub"),
     }),
 }));
 
 vi.mock("./components/DashboardKpiSnapshot.vue", () => ({
     default: defineComponent({
         name: "DashboardKpiSnapshotStub",
-        setup: () => () => null,
+        setup: () => () => h("div", {}, "DashboardKpiSnapshotStub"),
     }),
 }));
 
@@ -64,12 +64,25 @@ describe("DashboardPage", () => {
         });
     });
 
-    it("renders the operational intelligence section headings", async () => {
+    it("renders each dashboard section component exactly once, with no duplicated heading wrapper", async () => {
         const app = createSSRApp(DashboardPage);
         const html = await renderToString(app);
 
-        expect(html).toContain("Operations Alert Center");
-        expect(html).toContain("Business Workflow Overview");
-        expect(html).toContain("Executive KPI Snapshot");
+        // Each section component (which owns its own heading) should render
+        // exactly once. The page must not wrap them in an extra heading of
+        // its own, since that would duplicate the heading these components
+        // already render internally.
+        expect(html).toContain("DashboardAlertCenterStub");
+        expect(html).toContain("DashboardWorkflowOverviewStub");
+        expect(html).toContain("DashboardKpiSnapshotStub");
+
+        expect(html.match(/DashboardAlertCenterStub/g)).toHaveLength(1);
+        expect(html.match(/DashboardWorkflowOverviewStub/g)).toHaveLength(1);
+        expect(html.match(/DashboardKpiSnapshotStub/g)).toHaveLength(1);
+
+        // Guard against the page reintroducing its own outer <h2> headings
+        // for these sections, since each component is the single source of
+        // its own heading text now.
+        expect(html).not.toContain("<h2");
     });
 });

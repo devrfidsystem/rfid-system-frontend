@@ -22,35 +22,20 @@
         </p>
 
         <div class="space-y-6">
-            <section class="space-y-3">
-                <h2 class="text-lg font-semibold text-slate-900">
-                    Operations Alert Center
-                </h2>
-                <DashboardAlertCenter
-                    :loading="alertsLoading"
-                    :data="alertsData"
-                />
-            </section>
+            <DashboardAlertCenter
+                :loading="alertsLoading"
+                :data="alertsData"
+            />
 
-            <section class="space-y-3">
-                <h2 class="text-lg font-semibold text-slate-900">
-                    Business Workflow Overview
-                </h2>
-                <DashboardWorkflowOverview
-                    :loading="workflowLoading"
-                    :data="workflowData"
-                />
-            </section>
+            <DashboardWorkflowOverview
+                :loading="workflowLoading"
+                :data="workflowData"
+            />
 
-            <section class="space-y-3">
-                <h2 class="text-lg font-semibold text-slate-900">
-                    Executive KPI Snapshot
-                </h2>
-                <DashboardKpiSnapshot
-                    :loading="kpiSnapshotLoading"
-                    :data="kpiSnapshotData"
-                />
-            </section>
+            <DashboardKpiSnapshot
+                :loading="kpiSnapshotLoading"
+                :data="kpiSnapshotData"
+            />
         </div>
     </section>
 </template>
