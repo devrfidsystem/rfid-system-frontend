@@ -112,4 +112,11 @@ export type {
     ProcessWarehouseRankEntry,
     ProcessOperatorRankEntry,
     ProcessDetailResponse,
+    MonitoringDomainKey,
+    MonitoringHealth,
+    MonitoringPriority,
+    MonitoringQueueTask,
+    DomainHealth,
+    LiveTransactionRow,
+    MonitoringResponse,
 } from "@/api/feature/dto/dashboard.dto";

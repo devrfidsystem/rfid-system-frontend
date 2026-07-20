@@ -222,3 +222,43 @@ export interface ProcessDetailResponse {
     };
     operatorRanking: ProcessOperatorRankEntry[];
 }
+
+export type MonitoringDomainKey = "stockIn" | "stockOut" | "inventory";
+
+export type MonitoringHealth = "nominal" | "warning" | "critical";
+
+export type MonitoringPriority = "low" | "med" | "high";
+
+export interface MonitoringQueueTask {
+    docCode: string;
+    locationLabel: string | null;
+}
+
+export interface DomainHealth {
+    label: string;
+    health: MonitoringHealth;
+    queueCount: number;
+    completedTodayCount: number;
+    exceptionsCount: number;
+    queueTasks: MonitoringQueueTask[];
+}
+
+export interface LiveTransactionRow {
+    warehouseName: string;
+    zoneLabel: string | null;
+    operatorName: string;
+    eventLabel: string;
+    timestamp: string;
+    durationMinutes: number;
+    priority: MonitoringPriority;
+    slaPct: number | null;
+}
+
+export interface MonitoringResponse {
+    domains: {
+        stockIn: DomainHealth;
+        stockOut: DomainHealth;
+        inventory: DomainHealth;
+    };
+    liveTransactions: LiveTransactionRow[];
+}

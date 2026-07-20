@@ -18,6 +18,7 @@ import type {
     ProcessActivity,
     ProcessPeriod,
     ProcessDetailResponse,
+    MonitoringResponse,
 } from "@/api/feature/dto/dashboard.dto";
 import type {
     DashboardFilterState,
@@ -333,6 +334,13 @@ export const dashboardService = {
             period,
             toParams(filter),
         );
+        return response.data;
+    },
+
+    async fetchMonitoring(
+        filter: DashboardFilterState,
+    ): Promise<MonitoringResponse> {
+        const response = await dashboardApi.fetchMonitoring(toParams(filter));
         return response.data;
     },
 };

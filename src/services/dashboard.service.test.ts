@@ -9,6 +9,7 @@ const fetchWorkflowOverviewMock = vi.hoisted(() => vi.fn());
 const fetchKpiSnapshotMock = vi.hoisted(() => vi.fn());
 const fetchKpiDetailMock = vi.hoisted(() => vi.fn());
 const fetchProcessDetailMock = vi.hoisted(() => vi.fn());
+const fetchMonitoringMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/api/feature/dashboard.api", () => ({
     dashboardApi: {
@@ -22,6 +23,7 @@ vi.mock("@/api/feature/dashboard.api", () => ({
         fetchKpiSnapshot: fetchKpiSnapshotMock,
         fetchKpiDetail: fetchKpiDetailMock,
         fetchProcessDetail: fetchProcessDetailMock,
+        fetchMonitoring: fetchMonitoringMock,
     },
 }));
 
@@ -38,6 +40,7 @@ describe("dashboardService", () => {
         fetchKpiSnapshotMock.mockReset();
         fetchKpiDetailMock.mockReset();
         fetchProcessDetailMock.mockReset();
+        fetchMonitoringMock.mockReset();
     });
 
     it("fetchAlerts returns the alerts payload", async () => {
@@ -139,5 +142,50 @@ describe("dashboardService", () => {
             { companyId: "company-1", warehouseId: "wh-1" },
         );
         expect(result.label).toBe("Receiving");
+    });
+
+    it("fetchMonitoring returns the monitoring snapshot payload", async () => {
+        fetchMonitoringMock.mockResolvedValue({
+            data: {
+                domains: {
+                    stockIn: {
+                        label: "Stock In",
+                        health: "nominal",
+                        queueCount: 4,
+                        completedTodayCount: 12,
+                        exceptionsCount: 0,
+                        queueTasks: [],
+                    },
+                    stockOut: {
+                        label: "Stock Out",
+                        health: "warning",
+                        queueCount: 2,
+                        completedTodayCount: 6,
+                        exceptionsCount: 2,
+                        queueTasks: [],
+                    },
+                    inventory: {
+                        label: "Inventory",
+                        health: "critical",
+                        queueCount: 1,
+                        completedTodayCount: 3,
+                        exceptionsCount: 5,
+                        queueTasks: [],
+                    },
+                },
+                liveTransactions: [],
+            },
+        });
+
+        const result = await dashboardService.fetchMonitoring({
+            warehouseId: "wh-1",
+        });
+
+        expect(fetchMonitoringMock).toHaveBeenCalledWith({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+        });
+        expect(result.domains.stockIn.health).toBe("nominal");
+        expect(result.domains.inventory.health).toBe("critical");
     });
 });

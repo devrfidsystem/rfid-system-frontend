@@ -13,6 +13,7 @@ import type {
     ProcessActivity,
     ProcessPeriod,
     ProcessDetailResponse,
+    MonitoringResponse,
 } from "./dto/dashboard.dto";
 
 type DashboardQueryParameters = Record<string, string | number>;
@@ -106,6 +107,14 @@ export const dashboardApi = {
             url: "/dashboard/process-detail",
             method: "get",
             params: { ...params, activity, period },
+        });
+    },
+
+    fetchMonitoring(params: DashboardQueryParameters) {
+        return apiRequest<MonitoringResponse>({
+            url: "/dashboard/monitoring",
+            method: "get",
+            params,
         });
     },
 };
