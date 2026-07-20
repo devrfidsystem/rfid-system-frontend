@@ -52,17 +52,11 @@ const dashboardRoutes = dashboardSections.map((section) => ({
     },
 }));
 
-const dashboardPlaceholderRoutes: RouteRecordRaw[] = [
-    {
-        path: "dashboard/monitoring",
-        component: () => import("@/views/shared/PageShell.vue"),
-        props: {
-            title: "Monitoring",
-            description:
-                "Real-time event feed and exception monitoring across the network.",
-        },
-    },
-];
+// All four original dashboard placeholder routes (kpi, process, monitoring, and one
+// earlier) have now been replaced by real pages — this stays as an empty array (rather
+// than deleting the const and its spread below) so a future placeholder page can be
+// added here without touching the route-assembly wiring.
+const dashboardPlaceholderRoutes: RouteRecordRaw[] = [];
 
 const transactionKeys = [
     "register",
@@ -131,6 +125,11 @@ const routes: RouteRecordRaw[] = [
                 path: "dashboard/process",
                 component: () =>
                     import("@/views/dashboard/ProcessPerformancePage.vue"),
+            },
+            {
+                path: "dashboard/monitoring",
+                component: () =>
+                    import("@/views/dashboard/MonitoringPage.vue"),
             },
             ...dashboardPlaceholderRoutes,
             {
