@@ -79,9 +79,9 @@ describe("locationTree", () => {
     it("builds a tree subtitle with warehouse and parent labels", () => {
         const row = rowsById.get("loc-3") as MasterRecord;
 
-        expect(
-            buildLocationTreeSubtitle(row, rowsById, warehouseOptions),
-        ).toBe("Main Warehouse • Parent: Rack 1");
+        expect(buildLocationTreeSubtitle(row, rowsById, warehouseOptions)).toBe(
+            "Main Warehouse • Parent: Rack 1",
+        );
     });
 
     it("builds an expandable tree list for visible location rows", () => {

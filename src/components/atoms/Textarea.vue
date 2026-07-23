@@ -71,9 +71,9 @@ const onInput = (event: Event) => {
 };
 
 const baseClasses =
-    "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 transition-colors duration-150 placeholder:text-gray-400 " +
-    "focus:outline-none focus:ring-primary-500 focus:border-primary-500 " +
-    "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50";
+    "w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm font-medium text-text transition-colors duration-150 placeholder:text-text-muted " +
+    "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 " +
+    "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary";
 
 const errorClasses =
     "border-signal-red bg-red-50 focus:ring-red-500 focus:border-signal-red";

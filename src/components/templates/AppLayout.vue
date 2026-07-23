@@ -77,7 +77,6 @@ import {
     Database,
     FileText,
     LayoutDashboard,
-    Radio,
     Settings2,
     Shield,
     Layers,
@@ -131,7 +130,6 @@ const railItems: RailItem[] = [
         to: "/master-data/warehouses",
     },
     { id: "iam", icon: Shield, label: "IAM", to: "/iam/roles" },
-    { id: "rfid", icon: Radio, label: "RFID", to: "/rfid/tags" },
     { id: "stock", icon: Layers, label: "Stock", to: "/stock/balance" },
     {
         id: "transactions",
@@ -189,7 +187,6 @@ const railScopeMap: Record<Exclude<SidebarScope, "all">, SidebarScope> = {
     dashboard: "dashboard",
     "master-data": "master-data",
     iam: "iam",
-    rfid: "rfid",
     stock: "stock",
     transactions: "transactions",
     settings: "settings",

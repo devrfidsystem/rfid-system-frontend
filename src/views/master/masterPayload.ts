@@ -77,6 +77,14 @@ export const buildMasterCreatePayload = (
         payload.code = buildCodeFromName("LOC", payload.name);
     }
 
+    if (entity === "customers" && !payload.code && payload.name) {
+        payload.code = buildCodeFromName("CUST", payload.name);
+    }
+
+    if (entity === "suppliers" && !payload.code && payload.name) {
+        payload.code = buildCodeFromName("SUP", payload.name);
+    }
+
     return payload;
 };
 

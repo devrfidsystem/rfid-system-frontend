@@ -40,23 +40,18 @@
             >
                 Please select an application to view its menus.
             </div>
-            <div v-else-if="loading" class="p-6">
-                <LoadingState :lines="3" />
-            </div>
-            <div v-else-if="error" class="p-6 text-sm text-rose-600 bg-rose-50">
-                {{ error }}
-            </div>
-            <div v-else-if="tableRows.length === 0" class="p-6">
-                <EmptyState />
-            </div>
-            <AppTable
+            <DataTable
                 v-else
-                :columns="columns"
+                object-id="MenusList"
+                bare
                 :rows="tableRows"
-                class="border-none shadow-none rounded-none"
-                object-id="tbl_MenusList"
+                :columns="dataTableColumns"
+                :row-key="(row) => String(row.id ?? '')"
+                :loading="loading"
+                :load-error="error ?? undefined"
+                :show-search="false"
             >
-                <template #actions="{ row }">
+                <template #rowActions="{ row }">
                     <RowActions
                         :actions="[
                             {
@@ -67,7 +62,7 @@
                         ]"
                     />
                 </template>
-            </AppTable>
+            </DataTable>
         </Card>
 
         <Drawer
@@ -143,16 +138,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
-import AppTable from "@/components/organisms/Table.vue";
+import DataTable from "@/components/organisms/DataTable/DataTable.vue";
+import type { ColumnDef } from "@/components/organisms/DataTable/types";
 import RowActions from "@/components/ui/table/RowActions.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
-import EmptyState from "@/components/molecules/EmptyState.vue";
 import { useMenus } from "./composables/useMenus";
 
 const {
@@ -172,6 +167,12 @@ const {
     openEditModal,
     handleSubmit,
 } = useMenus();
+
+const dataTableColumns = computed<ColumnDef<Record<string, unknown>>[]>(() =>
+    columns
+        .filter((column) => column.key !== "actions")
+        .map((column) => ({ key: column.key, header: column.label })),
+);
 
 onMounted(() => {
     loadApps();

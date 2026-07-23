@@ -88,17 +88,17 @@ The backend should expose tree-oriented reads in addition to the current documen
 Recommended API shape:
 
 - `GET /opname/tree`
-  - returns the recursive hierarchy for the selected warehouse/company scope
+    - returns the recursive hierarchy for the selected warehouse/company scope
 - `POST /opname`
-  - creates a root `group`
+    - creates a root `group`
 - `POST /opname/:id/children`
-  - creates a child `profile` or `task`
+    - creates a child `profile` or `task`
 - existing execution endpoints remain in place for `task` nodes
-  - `start-counting`
-  - line updates
-  - `reconcile`
-  - `close`
-  - `cancel`
+    - `start-counting`
+    - line updates
+    - `reconcile`
+    - `close`
+    - `cancel`
 
 ### Validation rules
 
@@ -147,12 +147,12 @@ The web admin opname landing page should match the provided Figma pattern:
 - three compact filter inputs
 - `Add New` button
 - tree table with columns:
-  - `Groups`
-  - `Date`
-  - `Status`
-  - `Location`
-  - `Detail`
-  - `Action`
+    - `Groups`
+    - `Date`
+    - `Status`
+    - `Location`
+    - `Detail`
+    - `Action`
 
 ### Tree behavior
 

@@ -29,7 +29,11 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         fromWarehouseId: "",
         toWarehouseId: "",
         partnerId: "",
+        assignedById: "",
+        deadlineAt: "",
         registeredById: "",
+        referenceType: "",
+        referenceId: "",
         notes: "",
         lines: [] as {
             productId: string;
@@ -42,9 +46,10 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
 
     const transactionTitle = computed(() => {
         const titles: Record<string, string> = {
-            register: "Register",
-            inbound: "Inbound",
-            outbound: "Outbound",
+            register: "Register Task",
+            inbound: "Inbound Document",
+            outbound: "Outbound Assignment",
+            putaway: "Putaway",
             relocation: "Relocation",
             transfer: "Transfer",
             return: "Return",
@@ -58,10 +63,13 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
     const isRelocation = computed(() => transactionKey === "relocation");
     const isOpname = computed(() => transactionKey === "opname");
     const isRegister = computed(() => transactionKey === "register");
+    const isOutbound = computed(() => transactionKey === "outbound");
+    const isPutaway = computed(() => transactionKey === "putaway");
 
     const showSingleWarehouse = computed(() =>
         [
             "inbound",
+            "putaway",
             "outbound",
             "return",
             "returns",
@@ -70,6 +78,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         ].includes(transactionKey),
     );
     const showDualWarehouse = computed(() => isTransfer.value);
+    const showPutawayLocations = computed(() => isPutaway.value);
 
     const showPartnerField = computed(() => {
         return ["inbound", "outbound", "return", "returns"].includes(
@@ -190,7 +199,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
 
     const loadOptions = async () => {
         try {
-            if (isRegister.value) {
+            if (isRegister.value || isOutbound.value) {
                 const usersResponse = await usersService.list({ limit: 200 });
                 userOptions.value = usersResponse.items.map((u) => {
                     const user = u as {
@@ -202,7 +211,9 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         value: String(user.id),
                     };
                 });
-                return;
+                if (isRegister.value) {
+                    return;
+                }
             }
 
             if (showSingleWarehouse.value || showDualWarehouse.value) {
@@ -250,6 +261,14 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             return;
         }
 
+        if (
+            isOutbound.value &&
+            (!form.value.assignedById || !form.value.deadlineAt)
+        ) {
+            notifyError("Please select an assigned user and deadline.");
+            return;
+        }
+
         const cId = companyId.value;
         if (!cId) {
             notifyError(
@@ -268,6 +287,9 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
 
             const docDateStr = form.value.transactionDate
                 ? new Date(form.value.transactionDate).toISOString()
+                : undefined;
+            const deadlineAtStr = form.value.deadlineAt
+                ? new Date(form.value.deadlineAt).toISOString()
                 : undefined;
 
             let finalPayload: Record<string, unknown> = {};
@@ -290,6 +312,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         ...basePayload,
                         docDate: docDateStr,
                         customerId: form.value.partnerId || undefined,
+                        assignedById: form.value.assignedById || undefined,
+                        deadlineAt: deadlineAtStr,
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
                             locationId: l.locationId,
@@ -350,6 +374,22 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         taskPeriod: form.value.period || undefined,
                     };
                     break;
+                case "putaway":
+                    finalPayload = {
+                        ...basePayload,
+                        docDate: docDateStr,
+                        warehouseId: form.value.warehouseId,
+                        referenceType: form.value.referenceType || undefined,
+                        referenceId: form.value.referenceId || undefined,
+                        lines: form.value.lines.map((l, index) => ({
+                            lineNo: index + 1,
+                            productId: l.productId,
+                            qty: Number(l.qty),
+                            sourceLocationId: l.fromLocationId || undefined,
+                            targetLocationId: l.toLocationId,
+                        })),
+                    };
+                    break;
                 case "register":
                     finalPayload = {
                         ...basePayload,
@@ -394,6 +434,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         isRelocation,
         isOpname,
         isRegister,
+        isOutbound,
+        isPutaway,
         partnerLabel,
         warehouseOptions,
         partnerOptions,
@@ -402,6 +444,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         locationOptions,
         fromLocationOptions,
         toLocationOptions,
+        showPutawayLocations,
         opnameProfileOptions,
         quartalOptions,
         monthOptions,

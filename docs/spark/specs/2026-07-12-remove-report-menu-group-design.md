@@ -13,18 +13,21 @@ Goal: delete the Report menu/pages/routes, and add the export capability directl
 ## Scope
 
 **In scope:**
+
 - Delete Report's page components and routes.
 - Remove the "Reports" entry from the Rail and the sidebar scope-matching rule.
 - Remove the `opname-variance` entry from `reportConfig.ts`.
 - Add an "Export XLS" button to `StockBalancePage.vue` and `StockLedgerPage.vue`, wired to the existing `reportService.exportReport` mechanism with the `current-stock` / `stock-period` keys respectively — replicating the exact pattern already used by `useTransactionList.ts`'s `exportRows`.
 
 **Out of scope / explicit non-goals:**
+
 - Renaming `reportConfig.ts`/`reportService.ts`/`report.api.ts`/`report.dto.ts` — these stay in place and keep their names. `reportConfig.ts` stays at `src/views/report/reportConfig.ts` (the only file remaining in that directory) because `useTransactionList.ts`, `useTransactionDetail.ts`, `TransactionTable.vue`, `report.api.ts`, and `report.service.ts` all import from that exact path — moving it is a larger, unrelated refactor with no behavioral benefit.
 - Backend/database changes. The sidebar's "Reports" menu item is populated from a backend-managed menu tree (the Menu Management feature under Settings > Menus), matched on the frontend by a `code.startsWith("REPORT")` rule. Deleting the frontend routes and rail entry does **not** remove that backend menu node — after this change ships, the "Reports" entry must be deactivated or deleted via Settings > Menus (or directly in the backend) or it will appear in the sidebar as a dead link. This is called out, not silently handled, because it requires a data change outside this frontend codebase.
 
 ## Deletions
 
 Files removed entirely:
+
 - `src/views/report/ReportEntityPage.vue`
 - `src/views/report/components/ReportHeader.vue`
 - `src/views/report/components/ReportTable.vue`
@@ -32,13 +35,18 @@ Files removed entirely:
 - `src/components/templates/ReportLayout.vue` and its `ReportLayout.stories.ts` (this is the layout the deleted `/reports` parent route mounted — confirmed via `router/index.ts`'s `import("@/components/templates/ReportLayout.vue")`; it lives under `templates/`, not `views/report/`)
 
 Files kept, edited:
+
 - `src/views/report/reportConfig.ts` — remove the `"opname-variance"` key from `reportConfigs`, remove `"opname-variance"` from the `ReportKey` union type. Keep the `ClipboardCheck` import — `stock-opname` also uses it.
+- `src/api/feature/dto/report.dto.ts` — `reportPaths` is typed `Record<ReportKey, string>` and also has an `"opname-variance"` entry; it must be removed in the same change or `ReportKey`'s narrowing breaks `npm run type-check` with an excess-property error. (Found during planning — the original design pass missed this second file.)
 - `src/router/index.ts` — remove `reportChildRoutes`, the `resolveReportSegment` helper, the `/reports` parent route block (~line 231-240) that mounts `ReportLayout.vue`, and the legacy `path: "report"` redirect (~line 271-272). Confirmed `reportConfigs`/`ReportKey` (line 9) and `reportPaths` (line 11) are used only by the code being deleted (`resolveReportSegment`, `reportChildRoutes`) — remove both imports entirely.
 - `src/components/templates/AppLayout.vue` — remove the `{ id: "reports", icon: LineChart, label: "Reports", to: "/reports/stock-movement" }` entry from `railItems` (line 145), remove the `reports` key from `railScopeMap`. Confirmed `LineChart` (imported line 83) is used only by this one rail item — remove the import too.
-- `src/components/organisms/sidebarNavigation.ts` — remove `"reports"` from the `SidebarScope` union type, remove the `reports: [(node) => node.code.toUpperCase().startsWith("REPORT")]` entry from `scopeRules`, remove the `REPORT`/`REPORTS` → `LineChart` icon-map entries (lines 82-83). Confirmed `LOG` maps to `ScrollText` (line 84), not `LineChart` — no other scope uses it, so remove the `LineChart` import too.
+- `src/components/organisms/sidebarNavigation.ts` — remove `"reports"` from the `SidebarScope` union type, remove the `REPORT`/`REPORTS` → `LineChart` icon-map entries (lines 82-83). Confirmed `LOG` maps to `ScrollText` (line 84), not `LineChart` — no other scope uses it, so remove the `LineChart` import too.
+
+    **Correction found during planning:** `scopeRules.reports` (lines 132-135) is `[(node) => node.code.toUpperCase().startsWith("REPORT"), (node) => node.code.toUpperCase() === "LOG"]` — the `LOG` rule is unrelated to Report entities; it's how the "Log/Tracking" page (`/log/tracking`) surfaces in the sidebar today (there's no dedicated rail item for it — it only appears via the "reports" scope). Deleting the whole `reports` entry from `scopeRules` would silently make Log/Tracking unreachable from any menu. Per user decision: move the `LOG` rule into `scopeRules.settings` instead of deleting it, so Log/Tracking becomes reachable via the Settings sidebar. Concretely: `scopeRules.reports` is deleted entirely, and `scopeRules.settings` (lines 136-139) gains a third rule, `(node) => node.code.toUpperCase() === "LOG"`.
 
 Files unchanged (confirmed still needed):
-- `src/services/report.service.ts`, `src/api/feature/report.api.ts`, `src/api/feature/dto/report.dto.ts` — the generic fetch/export mechanism Transaction and (after this change) Stock both depend on.
+
+- `src/services/report.service.ts`, `src/api/feature/report.api.ts` — the generic fetch/export mechanism Transaction and (after this change) Stock both depend on. (`report.dto.ts` gets the one small edit noted above, not a full rewrite.)
 
 ## Stock export addition
 
@@ -47,7 +55,9 @@ Both `useStockBalance.ts` and `useStockLedger.ts` gain an `exportRows` function,
 ```ts
 const exportRows = async () => {
     try {
-        const params = { /* same shape already built for loadRows */ };
+        const params = {
+            /* same shape already built for loadRows */
+        };
         const blob = await reportService.exportReport(
             "current-stock", // or "stock-period" for the ledger
             params,
@@ -56,7 +66,10 @@ const exportRows = async () => {
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.href = url;
-        link.setAttribute("download", `${reportConfigs["current-stock"].title}.xlsx`);
+        link.setAttribute(
+            "download",
+            `${reportConfigs["current-stock"].title}.xlsx`,
+        );
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

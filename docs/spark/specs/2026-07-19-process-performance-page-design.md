@@ -48,14 +48,14 @@ New endpoint, new `DashboardProcessDetailService` (separate file, following the 
 
 ### Activity → domain mapping and backing model
 
-| Activity | Domain | Model | Notes |
-|---|---|---|---|
-| Receiving | stockIn | `InboundDoc` | |
-| Putaway | stockIn | `PutawayDoc` | Known accepted dependency on the user's uncommitted Putaway WIP, same as Executive Summary/KPI |
-| Outbound | stockOut | `OutboundDoc` | Replaces mockup's Picking/Packing/Shipping — one activity, one real model |
-| Transfer | inventory | `TransferDoc` | Queue time uses `updatedAt - createdAt` proxy |
-| Relocation | inventory | `RelocationDoc` | Queue time uses `updatedAt - createdAt` proxy |
-| Stock Opname | inventory | `OpnameDoc`/`OpnameLine` | |
+| Activity     | Domain    | Model                    | Notes                                                                                          |
+| ------------ | --------- | ------------------------ | ---------------------------------------------------------------------------------------------- |
+| Receiving    | stockIn   | `InboundDoc`             |                                                                                                |
+| Putaway      | stockIn   | `PutawayDoc`             | Known accepted dependency on the user's uncommitted Putaway WIP, same as Executive Summary/KPI |
+| Outbound     | stockOut  | `OutboundDoc`            | Replaces mockup's Picking/Packing/Shipping — one activity, one real model                      |
+| Transfer     | inventory | `TransferDoc`            | Queue time uses `updatedAt - createdAt` proxy                                                  |
+| Relocation   | inventory | `RelocationDoc`          | Queue time uses `updatedAt - createdAt` proxy                                                  |
+| Stock Opname | inventory | `OpnameDoc`/`OpnameLine` |                                                                                                |
 
 ### Cycle time & productivity
 
@@ -78,6 +78,7 @@ Reuses `DashboardKpiDetailService`'s existing idle-exclusion ranking logic uncha
 ### Operator ranking (net-new)
 
 Groups the activity's docs by `createdById` within the window. For each operator:
+
 - `throughputScore = (operator.completedCount / maxCompletedCountAmongPeers) × 100`
 - `speedScore = (fastestAvgCycleTimeAmongPeers / operator.avgCycleTime) × 100`, capped at 100
 - `score = round((throughputScore + speedScore) / 2)`

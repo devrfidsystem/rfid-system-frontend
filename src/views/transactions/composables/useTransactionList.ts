@@ -18,6 +18,7 @@ import type { TransactionRecord } from "../types";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { formatDate } from "@/utils/date";
 import { getNestedValue } from "../utils/getNestedValue";
+import { useWarehouseStore } from "@/store/warehouse.store";
 
 type TransactionRow = TransactionRecord & Record<string, unknown>;
 type TransactionSortableRecord = TransactionRecord & {
@@ -42,8 +43,9 @@ const transactionTitles: Record<
         description: "Storage placement tasks generated through /putaway.",
     },
     outbound: {
-        title: "Outbound Transactions",
-        description: "Monitor outbound shipments created through /outbound.",
+        title: "Outbound Assignment",
+        description:
+            "Manage outbound tasks and execution progress from /outbound.",
     },
     relocation: {
         title: "Relocation Transactions",
@@ -83,7 +85,6 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const keyword = ref("");
     const startDate = ref("");
     const endDate = ref("");
-    const selectedWarehouse = ref("");
     const selectedPartner = ref("");
     const rows = ref<TransactionRecord[]>([]);
     const sortOrder = ref<"desc" | "asc">("desc");
@@ -99,6 +100,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const partnerError = ref<string | null>(null);
     const warehouseOptions = useWarehouseOptions();
     const suppressFilterWatch = ref(false);
+    const warehouseStore = useWarehouseStore();
 
     const transactionKey = computed(() => props.transactionKey);
     const config = computed(
@@ -111,6 +113,10 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const partnerFilterSupported = computed(() =>
         hasPartnerDatasetSupport(config.value.partnerDataset),
     );
+    const selectedWarehouse = computed({
+        get: () => warehouseStore.selectedWarehouseId ?? "",
+        set: (value: string) => warehouseStore.setWarehouse(value || null),
+    });
 
     const pageTitle = computed(
         () =>
@@ -120,17 +126,12 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const pageTagline = computed(() => {
         if (transactionKey.value === "register") return "Tasks";
         if (transactionKey.value === "putaway") return "Tasks";
+        if (transactionKey.value === "outbound") return "Tasks";
         if (transactionKey.value === "inbound") return "Documents";
         return "Transactions";
     });
-    const sectionHeading = computed(() => {
-        if (transactionKey.value === "register") return "Register Tasks";
-        if (transactionKey.value === "putaway") return "Putaway Tasks";
-        if (transactionKey.value === "inbound") return "Inbound Documents";
-        if (transactionKey.value === "relocation")
-            return "Relocation Transactions";
-        return "Transactions";
-    });
+    const sectionHeading = computed(() => pageTitle.value);
+    const canCreate = computed(() => transactionKey.value !== "inbound");
     const pageDescription = computed(() => {
         const base =
             transactionTitles[transactionKey.value]?.description ??
@@ -396,10 +397,21 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         },
     );
 
+    watch(
+        () => warehouseOptions.options.value,
+        (options) => {
+            warehouseStore.syncWarehouseSelection(
+                options.map((warehouse) => warehouse.id),
+            );
+        },
+        { immediate: true },
+    );
+
     return {
         pageTitle,
         pageTagline,
         sectionHeading,
+        canCreate,
         pageDescription,
         keyword,
         startDate,

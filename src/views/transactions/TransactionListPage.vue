@@ -21,7 +21,7 @@
                 :partner-label="partnerLabel"
                 :has-rows="displayRows.length > 0"
                 :can-export="transactionKey !== 'register'"
-                :can-create="transactionKey !== 'inbound'"
+                :can-create="canCreate"
                 @refresh="refresh"
                 @export="exportRows"
                 @new="handleNew"
@@ -78,6 +78,7 @@ const {
     pageTitle,
     pageTagline,
     sectionHeading,
+    canCreate,
     pageDescription,
     keyword,
     startDate,

@@ -22,10 +22,7 @@
         </p>
 
         <div class="space-y-6">
-            <DashboardAlertCenter
-                :loading="alertsLoading"
-                :data="alertsData"
-            />
+            <DashboardAlertCenter :loading="alertsLoading" :data="alertsData" />
 
             <DashboardWorkflowOverview
                 :loading="workflowLoading"

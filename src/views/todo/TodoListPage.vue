@@ -58,7 +58,9 @@
 
                 <div class="flex flex-wrap gap-3">
                     <Badge tone="info">{{ totalTodos }} total</Badge>
-                    <Badge tone="neutral">{{ visibleTodos.length }} shown</Badge>
+                    <Badge tone="neutral"
+                        >{{ visibleTodos.length }} shown</Badge
+                    >
                     <Badge tone="success">{{ completedTodos }} done</Badge>
                     <Badge tone="warning">{{ activeTodos }} open</Badge>
                 </div>
@@ -100,9 +102,11 @@
                                     {{ todo.title }}
                                 </h3>
                                 <Badge
-                                    :tone="todo.completed ? 'success' : 'neutral'"
+                                    :tone="
+                                        todo.completed ? 'success' : 'neutral'
+                                    "
                                 >
-                                    {{ todo.completed ? 'Completed' : 'Open' }}
+                                    {{ todo.completed ? "Completed" : "Open" }}
                                 </Badge>
                             </div>
                             <p class="mt-1 text-xs text-gray-500">
@@ -147,13 +151,17 @@
                         </div>
 
                         <div class="space-y-2">
-                            <div class="flex items-center justify-between text-sm">
+                            <div
+                                class="flex items-center justify-between text-sm"
+                            >
                                 <span class="text-gray-600">Completed</span>
                                 <span class="font-semibold text-gray-900">
                                     {{ completionRate }}%
                                 </span>
                             </div>
-                            <div class="h-3 overflow-hidden rounded-full bg-gray-100">
+                            <div
+                                class="h-3 overflow-hidden rounded-full bg-gray-100"
+                            >
                                 <div
                                     class="h-full rounded-full bg-primary-600 transition-all duration-300"
                                     :style="{ width: `${completionRate}%` }"
@@ -206,11 +214,7 @@ import EmptyState from "@/components/molecules/EmptyState.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
 import Badge from "@/components/atoms/Badge.vue";
-import {
-    filterTodos,
-    type TodoFilter,
-    type TodoItem,
-} from "./todo.helpers";
+import { filterTodos, type TodoFilter, type TodoItem } from "./todo.helpers";
 
 const STORAGE_KEY = "warehouse.todo-list";
 

@@ -128,8 +128,7 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: "dashboard/monitoring",
-                component: () =>
-                    import("@/views/dashboard/MonitoringPage.vue"),
+                component: () => import("@/views/dashboard/MonitoringPage.vue"),
             },
             ...dashboardPlaceholderRoutes,
             {

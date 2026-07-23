@@ -3,19 +3,18 @@
         :model-value="isOpen"
         title="Notifications & Activity"
         side="right"
-        width="sm"
+        width="xs"
         @update:model-value="emit('update:isOpen', $event)"
         @close="emit('close')"
     >
-        <div class="space-y-8">
-            <!-- Notifications Section -->
+        <div class="space-y-6">
             <section>
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-sm font-semibold text-gray-900">
+                <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-sm font-semibold text-text">
                         Recent Notifications
                     </h4>
                     <button
-                        class="text-xs font-medium text-primary-600 hover:text-primary-700"
+                        class="text-xs font-medium text-primary-600 transition-colors hover:text-primary-700"
                     >
                         Mark all as read
                     </button>
@@ -24,38 +23,36 @@
                     <div
                         v-for="notification in notifications"
                         :key="notification.id"
-                        class="flex gap-3 p-3 rounded-lg border transition-colors"
+                        class="flex gap-3 rounded-md border p-3 transition-colors"
                         :class="
                             notification.unread
-                                ? 'bg-primary-50/50 border-primary-100'
-                                : 'bg-white border-gray-100 hover:bg-gray-50'
+                                ? 'border-primary-100 bg-primary-50/60'
+                                : 'border-border bg-surface hover:bg-surface-secondary'
                         "
                     >
                         <div class="mt-0.5">
                             <div
-                                class="h-8 w-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center"
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-600"
                             >
                                 <Icon :icon="notification.icon" :size="16" />
                             </div>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p
-                                class="text-sm font-medium text-gray-900 truncate"
-                            >
+                            <p class="truncate text-sm font-medium text-text">
                                 {{ notification.title }}
                             </p>
                             <p
-                                class="text-xs text-gray-500 mt-0.5 line-clamp-2"
+                                class="mt-0.5 line-clamp-2 text-xs text-text-secondary"
                             >
                                 {{ notification.message }}
                             </p>
-                            <p class="text-xs text-gray-400 mt-1.5">
+                            <p class="mt-1.5 text-xs text-text-muted">
                                 {{ notification.time }}
                             </p>
                         </div>
                         <div
                             v-if="notification.unread"
-                            class="w-2 h-2 rounded-full bg-primary-600 mt-1.5 shrink-0"
+                            class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-600"
                         ></div>
                     </div>
                 </div>

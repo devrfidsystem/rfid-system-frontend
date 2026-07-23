@@ -17,6 +17,7 @@ import {
     buildMasterCreatePayload,
     buildMasterUpdatePayload,
 } from "../masterPayload";
+import { parseMasterExcelFile } from "../masterExcel";
 
 type FormValue = string | File | null;
 
@@ -54,9 +55,7 @@ const makeProductAttributeFields = (
                 : `Enter ${attribute.name}`,
     }));
 
-const buildIndentedLocationLabel = (
-    location: LocationRecord,
-) => {
+const buildIndentedLocationLabel = (location: LocationRecord) => {
     const depth = Number(location.depth ?? 0);
     const prefix = depth > 0 ? `${"|-- ".repeat(depth)}` : "";
     return `${prefix}${location.name ?? location.path ?? location.code ?? location.id ?? ""}`;
@@ -93,6 +92,7 @@ export function useMasterForm(
     const productAttributeDefinitions = ref<ProductAttributeDefinition[]>([]);
     const isSubmitting = ref(false);
     const isDeleting = ref(false);
+    const isImporting = ref(false);
 
     const productAttributeFields = computed(() =>
         makeProductAttributeFields(productAttributeDefinitions.value),
@@ -101,7 +101,9 @@ export function useMasterForm(
     const formFields = computed<MasterFormField[]>(() => {
         const fields = [...config.value.formFields];
         if (entityKey.value === "products") {
-            const imageIndex = fields.findIndex((field) => field.key === "imageFile");
+            const imageIndex = fields.findIndex(
+                (field) => field.key === "imageFile",
+            );
             const insertAt = imageIndex >= 0 ? imageIndex : fields.length;
             fields.splice(insertAt, 0, ...productAttributeFields.value);
         }
@@ -139,7 +141,10 @@ export function useMasterForm(
                 masterService.fetchOptions("product-categories", params),
                 masterService.fetchOptions("suppliers", params),
                 masterService.fetchOptions("customers", params),
-                masterService.fetchList("attributes", params),
+                masterService.fetchList("attributes", {
+                    ...(params ?? {}),
+                    limit: 200,
+                }),
             ]);
             const attributeRecords = attributeResponse.items;
 
@@ -159,18 +164,20 @@ export function useMasterForm(
                 value: String(customer.id),
                 label: customer.name,
             }));
-            productAttributeDefinitions.value = attributeRecords.map((attribute) => ({
-                id: String(attribute.id),
-                name: attribute.name,
-                type: attribute.type as AttributeType,
-                items: Array.isArray(attribute.items)
-                    ? attribute.items.map((item) => ({
-                          id: String(item.id),
-                          value: item.value,
-                          label: item.label,
-                      }))
-                    : undefined,
-            }));
+            productAttributeDefinitions.value = attributeRecords.map(
+                (attribute) => ({
+                    id: String(attribute.id),
+                    name: attribute.name,
+                    type: attribute.type as AttributeType,
+                    items: Array.isArray(attribute.items)
+                        ? attribute.items.map((item) => ({
+                              id: String(item.id),
+                              value: item.value,
+                              label: item.label,
+                          }))
+                        : undefined,
+                }),
+            );
         } catch {
             notifyError("Gagal memuat referensi produk.");
         }
@@ -191,10 +198,12 @@ export function useMasterForm(
                 limit: 200,
                 ...(params ?? {}),
             });
-            warehouseSelectOptions.value = warehouses.items.map((warehouse) => ({
-                value: String(warehouse.id),
-                label: warehouse.name,
-            }));
+            warehouseSelectOptions.value = warehouses.items.map(
+                (warehouse) => ({
+                    value: String(warehouse.id),
+                    label: warehouse.name,
+                }),
+            );
 
             const currentWarehouseId =
                 formState.warehouseId?.toString() ||
@@ -228,9 +237,15 @@ export function useMasterForm(
                       companyId: authStore.currentCompanyId,
                   }
                 : { warehouseId, limit: 200 };
-            const locations = await masterService.fetchList("locations", params);
+            const locations = await masterService.fetchList(
+                "locations",
+                params,
+            );
             locationSelectOptions.value = locations.items
-                .filter((location) => String(location.id) !== String(excludeId ?? ""))
+                .filter(
+                    (location) =>
+                        String(location.id) !== String(excludeId ?? ""),
+                )
                 .map((location) => ({
                     value: String(location.id),
                     label: buildIndentedLocationLabel(location),
@@ -332,10 +347,14 @@ export function useMasterForm(
         return values;
     };
 
-const getImageFile = (submittedData: Record<string, string | File | null>) => {
-    const value = submittedData.imageFile;
-    return typeof File !== "undefined" && value instanceof File ? value : null;
-};
+    const getImageFile = (
+        submittedData: Record<string, string | File | null>,
+    ) => {
+        const value = submittedData.imageFile;
+        return typeof File !== "undefined" && value instanceof File
+            ? value
+            : null;
+    };
 
     const toUpdatePayload = (payload: Record<string, any>) => {
         switch (entityKey.value) {
@@ -496,7 +515,9 @@ const getImageFile = (submittedData: Record<string, string | File | null>) => {
                                 imageFile,
                             );
                         } catch {
-                            notifyError("Produk tersimpan, tetapi upload gambar gagal.");
+                            notifyError(
+                                "Produk tersimpan, tetapi upload gambar gagal.",
+                            );
                         }
                     }
                 },
@@ -568,7 +589,9 @@ const getImageFile = (submittedData: Record<string, string | File | null>) => {
                                 imageFile,
                             );
                         } catch {
-                            notifyError("Produk diperbarui, tetapi upload gambar gagal.");
+                            notifyError(
+                                "Produk diperbarui, tetapi upload gambar gagal.",
+                            );
                         }
                     }
                 },
@@ -614,6 +637,66 @@ const getImageFile = (submittedData: Record<string, string | File | null>) => {
         }
     };
 
+    const resolveImportFieldValue = (
+        row: Record<string, string>,
+        field: MasterFormField,
+    ) => row[field.key] ?? row[field.label] ?? "";
+
+    const buildSubmittedDataFromImportRow = (row: Record<string, string>) =>
+        formFields.value.reduce<Record<string, FormValue>>((acc, field) => {
+            if (field.type === "file") return acc;
+            const value = resolveImportFieldValue(row, field);
+            if (value) {
+                acc[field.key] = value;
+            }
+            return acc;
+        }, {});
+
+    const handleImport = async (file: File) => {
+        const key = entityKey.value;
+        if (!isMasterApiEntity(key)) {
+            loadError.value = "API endpoint not available for this entity.";
+            return;
+        }
+        const masterKey = key as MasterEntityKey;
+        isImporting.value = true;
+        try {
+            await withToast(
+                async () => {
+                    const importedRows = await parseMasterExcelFile(file);
+                    if (!importedRows.length) {
+                        throw new Error("Excel file does not contain data.");
+                    }
+
+                    for (const row of importedRows) {
+                        const submittedData =
+                            buildSubmittedDataFromImportRow(row);
+                        const payload = buildMasterCreatePayload(
+                            masterKey,
+                            submittedData,
+                        );
+                        if (!Object.keys(payload).length) continue;
+                        const attributeValues =
+                            buildProductAttributeValues(submittedData);
+                        if (attributeValues?.length) {
+                            payload.attributeValues = attributeValues;
+                        }
+                        await applyLocationWarehouseContext(payload);
+                        attachCompanyContext(payload);
+                        await masterService.create(masterKey, payload as never);
+                    }
+                },
+                {
+                    successMessage: `Imported ${config.value.title}`,
+                    errorMessage: `Failed to import ${config.value.title}`,
+                },
+            );
+            await loadRows();
+        } finally {
+            isImporting.value = false;
+        }
+    };
+
     const resetFormState = () => {
         resetForm();
         selectedRow.value = null;
@@ -636,7 +719,8 @@ const getImageFile = (submittedData: Record<string, string | File | null>) => {
         () => authStore.currentCompanyId,
         () => {
             if (entityKey.value === "products") void loadProductReferenceData();
-            if (entityKey.value === "locations") void loadLocationReferenceData();
+            if (entityKey.value === "locations")
+                void loadLocationReferenceData();
         },
     );
 
@@ -687,6 +771,7 @@ const getImageFile = (submittedData: Record<string, string | File | null>) => {
         locationSelectOptions,
         isSubmitting,
         isDeleting,
+        isImporting,
         openAdd,
         closeAdd,
         openEdit,
@@ -696,5 +781,6 @@ const getImageFile = (submittedData: Record<string, string | File | null>) => {
         handleCreate,
         handleUpdate,
         handleDelete,
+        handleImport,
     };
 }

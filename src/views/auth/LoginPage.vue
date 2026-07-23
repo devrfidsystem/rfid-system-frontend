@@ -1,5 +1,5 @@
 <template>
-    <AuthShell form-title="Masuk ke Control Room">
+    <AuthShell>
         <template #subtitle>
             Belum punya akun?
             <RouterLink
@@ -73,7 +73,7 @@
                 <Button
                     type="submit"
                     variant="primary"
-                    class="w-full justify-center !rounded-full"
+                    class="w-full justify-center"
                     :disabled="submitting || !canSubmit"
                     object-id="btn_LoginSubmit"
                 >

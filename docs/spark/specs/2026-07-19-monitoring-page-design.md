@@ -58,10 +58,10 @@ LiveTransactionRow = {
 
 ### Domain → doc type mapping
 
-| Domain | Doc types |
-|---|---|
-| Stock In | `InboundDoc`, `PutawayDoc` |
-| Stock Out | `OutboundDoc` |
+| Domain    | Doc types                                   |
+| --------- | ------------------------------------------- |
+| Stock In  | `InboundDoc`, `PutawayDoc`                  |
+| Stock Out | `OutboundDoc`                               |
 | Inventory | `TransferDoc`, `RelocationDoc`, `OpnameDoc` |
 
 `queueCount`/`completedTodayCount`/`exceptionsCount` sum across all doc types in the domain. "Terminal status" per doc type: `posted` for Inbound/Outbound/Transfer/Relocation, `done` for Putaway, `closed` for Opname.

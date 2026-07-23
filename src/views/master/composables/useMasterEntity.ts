@@ -5,12 +5,17 @@ import { useMasterForm } from "./useMasterForm";
 import type { MasterRecord } from "../types";
 import { masterService } from "@/services/master.service";
 import {
+    exportMasterRowsToExcel,
+    exportMasterTemplateToExcel,
+} from "../masterExcel";
+import {
     buildLocationTreeSubtitle,
     buildLocationTreeRows,
     resolveLocationParentLabel,
     resolveLocationWarehouseLabel,
     resolveLocationTreeLabel,
 } from "../locationTree";
+import { attributeTypeOptions } from "../entityConfig";
 
 /**
  * Facade composable that orchestrates Context, Table, and Form composables.
@@ -38,6 +43,8 @@ export function useMasterEntity() {
         loadError,
         unsupportedFeature,
         pagination,
+        filters,
+        resetFilters,
         refresh,
     } = table;
 
@@ -55,6 +62,7 @@ export function useMasterEntity() {
         locationSelectOptions,
         isSubmitting,
         isDeleting,
+        isImporting,
         openAdd,
         closeAdd,
         openEdit,
@@ -64,6 +72,7 @@ export function useMasterEntity() {
         handleCreate,
         handleUpdate,
         handleDelete,
+        handleImport,
     } = form;
 
     const showDeleteButton = computed(
@@ -138,6 +147,50 @@ export function useMasterEntity() {
             : rows.value,
     );
 
+    const columnDefs = computed(() =>
+        config.value.columns.map((column) => ({
+            ...column,
+            accessor:
+                entityKey.value === "locations" &&
+                locationColumnAccessors[column.key]
+                    ? locationColumnAccessors[column.key]
+                    : (column.accessor ??
+                      ((row: MasterRecord) =>
+                          row[column.key] as
+                              | string
+                              | number
+                              | boolean
+                              | null
+                              | undefined)),
+        })),
+    );
+
+    const handleExport = () => {
+        exportMasterRowsToExcel({
+            rows: displayRows.value as Record<string, unknown>[],
+            columns: columnDefs.value,
+            filename: `${config.value.title}.xlsx`,
+            sheetName: config.value.title,
+        });
+    };
+
+    const importTemplateColumns = computed(() =>
+        formFields.value
+            .filter((field) => field.type !== "file")
+            .map((field) => ({
+                key: field.key,
+                label: field.label,
+            })),
+    );
+
+    const handleExportTemplate = () => {
+        exportMasterTemplateToExcel({
+            columns: importTemplateColumns.value,
+            filename: `${config.value.title} Template.xlsx`,
+            sheetName: `${config.value.title} Template`,
+        });
+    };
+
     return {
         config,
         keyword,
@@ -159,26 +212,14 @@ export function useMasterEntity() {
         locationSelectOptions,
         isSubmitting,
         isDeleting,
+        isImporting,
         unsupportedFeature,
         unsupportedFeatureMessage,
         pagination,
-        columnDefs: computed(() =>
-            config.value.columns.map((column) => ({
-                ...column,
-                accessor:
-                    entityKey.value === "locations" &&
-                    locationColumnAccessors[column.key]
-                        ? locationColumnAccessors[column.key]
-                        : column.accessor ??
-                          ((row: MasterRecord) =>
-                              row[column.key] as
-                                  | string
-                                  | number
-                                  | boolean
-                                  | null
-                                  | undefined),
-            })),
-        ),
+        filters,
+        resetFilters,
+        attributeTypeOptions,
+        columnDefs,
         isMasterApiEntitySelected,
         showDeleteButton,
         openAdd,
@@ -190,6 +231,9 @@ export function useMasterEntity() {
         handleCreate,
         handleUpdate,
         handleDelete,
+        handleImport,
+        handleExport,
+        handleExportTemplate,
         refresh,
         toggleLocationTreeRow,
     };

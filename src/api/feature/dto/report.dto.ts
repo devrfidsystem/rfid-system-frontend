@@ -22,6 +22,7 @@ export type ReportListResult = ApiPaginatedResult<ReportRow>;
 export const reportPaths: Record<ReportKey, string> = {
     register: "/register",
     inbound: "/reports/inbound",
+    putaway: "/putaway",
     outbound: "/reports/outbound",
     "stock-opname": "/opname",
     relocation: "/relocation",

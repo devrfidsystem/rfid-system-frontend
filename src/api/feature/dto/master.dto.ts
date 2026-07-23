@@ -25,6 +25,9 @@ export interface MasterListParams {
     search?: string;
     warehouseId?: string;
     companyId?: string;
+    categoryId?: string;
+    uomId?: string;
+    type?: string;
 }
 
 export interface MasterListResponse<T> {

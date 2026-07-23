@@ -86,9 +86,7 @@ export const isSupportedMasterPath = (path?: string) => {
     return supportedMasterEntities.has(entity);
 };
 
-const resolveRelationLabel = (
-    relation?: Record<string, unknown>,
-) => {
+const resolveRelationLabel = (relation?: Record<string, unknown>) => {
     if (relation) {
         const name = relation["name"];
         if (typeof name === "string" && name) {
@@ -128,8 +126,18 @@ const getProductUomBreakdown = (row: MasterRecord) => {
     if (typeof conversion === "number" && Number.isFinite(conversion)) {
         parts.push(`x ${conversion}`);
     }
-    return parts.join(" ") || resolveRelationLabel(row.uom as Record<string, unknown> | undefined);
+    return (
+        parts.join(" ") ||
+        resolveRelationLabel(row.uom as Record<string, unknown> | undefined)
+    );
 };
+
+export const attributeTypeOptions: Array<{ label: string; value: string }> = [
+    { label: "Text", value: "text" },
+    { label: "Number", value: "number" },
+    { label: "Date", value: "date" },
+    { label: "List", value: "list" },
+];
 
 export const masterEntities: Partial<
     Record<MasterEntityConfig["entity"], MasterEntityConfig>
@@ -155,12 +163,7 @@ export const masterEntities: Partial<
                 key: "type",
                 label: "Type",
                 type: "select",
-                options: [
-                    { label: "Text", value: "text" },
-                    { label: "Number", value: "number" },
-                    { label: "Date", value: "date" },
-                    { label: "List", value: "list" },
-                ],
+                options: attributeTypeOptions,
             },
             {
                 key: "items",

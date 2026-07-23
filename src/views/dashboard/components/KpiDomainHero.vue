@@ -9,7 +9,10 @@
             ></div>
         </div>
 
-        <div v-else-if="!data" class="p-6 text-center text-sm text-text-secondary">
+        <div
+            v-else-if="!data"
+            class="p-6 text-center text-sm text-text-secondary"
+        >
             No KPI data available.
         </div>
 
@@ -75,7 +78,9 @@
                         stroke-width="2"
                     />
                 </svg>
-                <div class="flex justify-between text-[10px] text-text-muted mt-1">
+                <div
+                    class="flex justify-between text-[10px] text-text-muted mt-1"
+                >
                     <span>{{ data.timeline[0]?.period }}</span>
                     <span>{{
                         data.timeline[data.timeline.length - 1]?.period

@@ -13,7 +13,10 @@ export const locationService = {
         return locationApi.list(params);
     },
 
-    async move(id: string, newParentId?: string | null): Promise<LocationRecord> {
+    async move(
+        id: string,
+        newParentId?: string | null,
+    ): Promise<LocationRecord> {
         const response = await locationApi.move(id, newParentId);
         return response.data;
     },

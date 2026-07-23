@@ -1,5 +1,9 @@
 <template>
-    <Card class="md:col-span-2" no-padding object-id="wdg_TransactionLineItems">
+    <Card
+        class="md:col-span-2 h-full flex flex-col"
+        no-padding
+        object-id="wdg_TransactionLineItems"
+    >
         <div
             class="px-6 py-5 border-b border-gray-100 flex justify-between items-center"
         >
@@ -13,11 +17,11 @@
                 >Add Line</Button
             >
         </div>
-        <div class="overflow-x-auto p-6 space-y-4">
+        <div class="flex-1 overflow-x-auto p-6 space-y-4">
             <div
                 v-for="(line, idx) in lines"
                 :key="idx"
-                class="flex flex-col xl:flex-row gap-4 xl:items-end border-b border-gray-100 xl:border-none pb-4 xl:pb-0 last:border-0"
+                class="flex flex-col xl:flex-row xl:flex-wrap gap-4 xl:items-end border-b border-gray-100 xl:border-none pb-6 xl:pb-0 last:border-0"
             >
                 <div class="flex-1">
                     <Select
@@ -31,7 +35,11 @@
                 </div>
 
                 <div
-                    v-if="showSingleWarehouse && !isRelocation"
+                    v-if="
+                        showSingleWarehouse &&
+                        !isRelocation &&
+                        !showPutawayLocations
+                    "
                     class="w-full xl:w-48"
                 >
                     <Select
@@ -43,6 +51,30 @@
                         :object-id="`cmb_TransactionLineItemsLocation_Row${idx}`"
                     />
                 </div>
+
+                <template v-if="showPutawayLocations">
+                    <div class="w-full xl:w-48">
+                        <Select
+                            v-model="line.fromLocationId"
+                            :options="locationOptions"
+                            label="Source Location"
+                            placeholder="Select source location"
+                            required
+                            :object-id="`cmb_TransactionLineItemsSourceLocation_Row${idx}`"
+                        />
+                    </div>
+
+                    <div class="w-full xl:w-48">
+                        <Select
+                            v-model="line.toLocationId"
+                            :options="locationOptions"
+                            label="Target Location"
+                            placeholder="Select target location"
+                            required
+                            :object-id="`cmb_TransactionLineItemsTargetLocation_Row${idx}`"
+                        />
+                    </div>
+                </template>
 
                 <div
                     v-if="showDualWarehouse || isRelocation"
@@ -87,15 +119,17 @@
                         :object-id="`nmf_TransactionLineItemsQty_Row${idx}`"
                     />
                 </div>
-                <Button
-                    type="button"
-                    variant="outline"
-                    class="text-rose-600 border-rose-200 hover:bg-rose-50 px-3"
-                    :object-id="`btn_TransactionLineItemsRemove_Row${idx}`"
-                    @click="$emit('remove-line', idx)"
-                >
-                    Remove
-                </Button>
+                <div class="w-full xl:w-auto xl:ml-auto xl:self-end">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        class="w-full xl:w-auto text-rose-600 border-rose-200 hover:bg-rose-50 px-3"
+                        :object-id="`btn_TransactionLineItemsRemove_Row${idx}`"
+                        @click="$emit('remove-line', idx)"
+                    >
+                        Remove
+                    </Button>
+                </div>
             </div>
             <p
                 v-if="lines.length === 0"
@@ -104,10 +138,13 @@
                 No line items added yet. Click "Add Line" to begin.
             </p>
         </div>
-        <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+        <div
+            class="mt-auto px-6 py-3 border-t border-gray-100 flex justify-end gap-3"
+        >
             <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 :disabled="submitting"
                 object-id="btn_TransactionLineItemsCancel"
                 @click="$emit('back')"
@@ -116,6 +153,7 @@
             <Button
                 type="submit"
                 variant="primary"
+                size="sm"
                 :disabled="submitting || lines.length === 0"
                 object-id="btn_TransactionLineItemsSave"
             >
@@ -146,6 +184,7 @@ defineProps<{
     showSingleWarehouse: boolean;
     isRelocation: boolean;
     showDualWarehouse: boolean;
+    showPutawayLocations: boolean;
     submitting: boolean;
 }>();
 

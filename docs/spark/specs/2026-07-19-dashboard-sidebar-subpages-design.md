@@ -17,10 +17,10 @@ Replace the current single "Executive Summary" entry under Dashboard with 4 sub-
 Following the same pattern used for prior menu changes in this project (a direct data mutation, not a schema migration — the `Menu`/`RoleMenu` tables already exist):
 
 1. Insert 3 new `Menu` rows under the existing `DASHBOARD` parent:
-   - `DASHBOARD_KPI` — "Executive KPI" — `/dashboard/kpi` — sortOrder 1
-   - `DASHBOARD_PROCESS` — "Process Performance" — `/dashboard/process` — sortOrder 2
-   - `DASHBOARD_MONITORING` — "Monitoring" — `/dashboard/monitoring` — sortOrder 3
-   (existing `DASHBOARD_OVERVIEW` keeps sortOrder 0)
+    - `DASHBOARD_KPI` — "Executive KPI" — `/dashboard/kpi` — sortOrder 1
+    - `DASHBOARD_PROCESS` — "Process Performance" — `/dashboard/process` — sortOrder 2
+    - `DASHBOARD_MONITORING` — "Monitoring" — `/dashboard/monitoring` — sortOrder 3
+      (existing `DASHBOARD_OVERVIEW` keeps sortOrder 0)
 2. Insert matching `RoleMenu` grants for each new menu, for every role currently granted `DASHBOARD_OVERVIEW` (mirror its role assignments exactly).
 3. Delete the `RoleMenu` rows and `Menu` rows for `DASHBOARD_LOW_STOCK`, `DASHBOARD_RECENT_ACTIVITY`, `DASHBOARD_EPC_STATUS`.
 

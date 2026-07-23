@@ -1,5 +1,6 @@
 import { ref } from "vue";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
 
 vi.mock("@/composable/useDebouncedWatch", () => ({
     useDebouncedWatch: vi.fn(),
@@ -14,32 +15,50 @@ vi.mock("@/composable/useWarehouseOptions", () => ({
     }),
 }));
 
-vi.mock("@/services/master.service", () => ({
-    masterService: {
-        fetchList: vi.fn().mockResolvedValue({ items: [], meta: null }),
-    },
-}));
-
-vi.mock("@/services/transactions.service", () => ({
-    transactionPaths: {
-        register: "/register",
-        inbound: "/inbound",
-        putaway: "/putaway",
-        outbound: "/outbound",
-        relocation: "/relocation",
-        transfer: "/transfer",
-        return: "/returns",
-        returns: "/returns",
-        opname: "/opname",
-    },
-    transactionService: {
-        list: vi.fn().mockResolvedValue({ items: [], meta: null }),
+vi.mock("@/api/feature/transactions.api", () => ({
+    transactionsApi: {
+        list: vi.fn(),
         get: vi.fn(),
         create: vi.fn(),
         post: vi.fn(),
         cancel: vi.fn(),
     },
 }));
+
+vi.mock("@/services/master.service", () => ({
+    masterService: {
+        fetchList: vi.fn().mockResolvedValue({ items: [], meta: null }),
+    },
+}));
+
+vi.mock("@/services/transactions.service", async (importOriginal) => {
+    const actual =
+        await importOriginal<
+            typeof import("@/services/transactions.service")
+        >();
+
+    return {
+        ...actual,
+        transactionPaths: {
+            register: "/register",
+            inbound: "/inbound",
+            putaway: "/putaway",
+            outbound: "/outbound",
+            relocation: "/relocation",
+            transfer: "/transfer",
+            return: "/returns",
+            returns: "/returns",
+            opname: "/opname",
+        },
+        transactionService: {
+            list: vi.fn().mockResolvedValue({ items: [], meta: null }),
+            get: vi.fn(),
+            create: vi.fn(),
+            post: vi.fn(),
+            cancel: vi.fn(),
+        },
+    };
+});
 
 vi.mock("@/services/report.service", () => ({
     reportService: {
@@ -49,9 +68,16 @@ vi.mock("@/services/report.service", () => ({
 
 vi.mock("@/views/report/reportConfig", () => ({
     reportConfigs: {
+        inbound: {
+            title: "Inbound Documents",
+            description:
+                "Inbound documents recorded via /inbound for receipt detail review.",
+            columns: [],
+        },
         relocation: {
             title: "Relocation Transactions",
-            description: "See inventory movements between locations (/relocation).",
+            description:
+                "See inventory movements between locations (/relocation).",
             columns: [],
         },
     },
@@ -59,6 +85,10 @@ vi.mock("@/views/report/reportConfig", () => ({
 }));
 
 describe("useTransactionList", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+
     it("renders relocation list metadata and create entrypoint", async () => {
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "relocation" });
@@ -66,8 +96,66 @@ describe("useTransactionList", () => {
         expect(list.pageTitle.value).toBe("Relocation Transactions");
         expect(list.pageTagline.value).toBe("Transactions");
         expect(list.sectionHeading.value).toBe("Relocation Transactions");
+        expect(list.canCreate.value).toBe(true);
         expect(list.pageDescription.value).toBe(
             "See inventory movements between locations (/relocation). · powered by /relocation",
         );
+    });
+
+    it("disables create entrypoint for inbound", async () => {
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "inbound" });
+
+        expect(list.pageTitle.value).toBe("Inbound Documents");
+        expect(list.sectionHeading.value).toBe("Inbound Documents");
+        expect(list.canCreate.value).toBe(false);
+    });
+
+    it("renders outbound list metadata and wireframe columns", async () => {
+        vi.resetModules();
+        vi.unmock("@/views/report/reportConfig");
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "outbound" });
+
+        expect(list.pageTitle.value).toBe("Outbound Assignment");
+        expect(list.pageTagline.value).toBe("Tasks");
+        expect(list.sectionHeading.value).toBe("Outbound Assignment");
+        expect(list.canCreate.value).toBe(true);
+        expect(list.pageDescription.value).toBe(
+            "Manage outbound tasks and execution progress from /outbound. · powered by /outbound",
+        );
+        expect(
+            list.columns.value.map(({ key, label }) => ({ key, label })),
+        ).toEqual([
+            { key: "docNo", label: "ID Number" },
+            { key: "type", label: "Type" },
+            { key: "assignedBy.fullName", label: "Assigned User" },
+            { key: "deadlineAt", label: "Deadline" },
+            { key: "status", label: "Status" },
+            { key: "actions", label: "" },
+        ]);
+    });
+
+    it("normalizes outbound assignment metadata for list rows", async () => {
+        const { normalizeTransactionRecord } =
+            await import("@/services/transactions.service");
+
+        const normalized = normalizeTransactionRecord({
+            id: "out-1",
+            outbound_no: "OUT-001",
+            outbound_date: "2026-07-18T00:00:00.000Z",
+            assigned_by: "Jane Doe",
+            deadline_at: "2026-07-25T00:00:00.000Z",
+            transaction_type: "Outbound",
+        });
+
+        expect(normalized.docNo).toBe("OUT-001");
+        expect(normalized.date).toBe("2026-07-18T00:00:00.000Z");
+        expect(normalized.assignedBy).toMatchObject({
+            fullName: "Jane Doe",
+        });
+        expect(normalized.deadlineAt).toBe("2026-07-25T00:00:00.000Z");
+        expect(normalized.type).toBe("Outbound");
     });
 });

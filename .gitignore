@@ -15,3 +15,8 @@ GEMINI.md
 /.codex/hooks/
 /.codex-cli-plugin/
 /.docs
+.docs
+.codex
+.vscode
+.spark
+.storybook

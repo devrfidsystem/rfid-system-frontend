@@ -4,7 +4,7 @@
 
 ## Goal
 
-Build the Executive KPI page from the mockup's "Page 2: Executive KPI" — a domain drill-down (Stock In / Inventory / Stock Out) explaining *why* a KPI score changed: hero score + timeline, per-warehouse ranking, sub-process contribution breakdown, and supporting metrics — backed by real data, following the app's existing Tailwind design system.
+Build the Executive KPI page from the mockup's "Page 2: Executive KPI" — a domain drill-down (Stock In / Inventory / Stock Out) explaining _why_ a KPI score changed: hero score + timeline, per-warehouse ranking, sub-process contribution breakdown, and supporting metrics — backed by real data, following the app's existing Tailwind design system.
 
 ## Background
 

@@ -263,4 +263,3 @@ Test focus:
 - status values support `partial`, `dispatched`, and `done`
 - admin UI does not manually advance mobile execution states
 - outbound list, create, and detail pages match the project’s standard layout
-

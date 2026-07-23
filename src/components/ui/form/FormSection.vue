@@ -29,7 +29,7 @@ const props = defineProps<{
 
 const sectionClass = computed(() =>
     props.variant === "card"
-        ? "space-y-4 border border-gray-200 rounded-md bg-white p-6 shadow-sm"
+        ? "space-y-4 border border-border rounded-md bg-surface px-6 py-5 shadow-sm"
         : "space-y-4",
 );
 </script>

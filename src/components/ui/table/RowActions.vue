@@ -6,7 +6,6 @@
             type="button"
             aria-haspopup="menu"
             :aria-expanded="isOpen"
-            class="text-base"
             :disabled="disabled"
             data-testid="row-actions-btn"
             @click="toggleMenu"
@@ -17,7 +16,7 @@
             v-if="isOpen"
             ref="menuRef"
             :class="[
-                'absolute z-50 mt-2 w-40 space-y-1 rounded-md border border-gray-200 bg-white p-1 shadow-lg',
+                'absolute z-50 mt-2 w-40 space-y-1 rounded-md border border-border bg-surface p-1 shadow-sm',
                 alignClass,
             ]"
             role="menu"
@@ -26,9 +25,9 @@
                 v-for="action in actions"
                 :key="action.key"
                 type="button"
-                class="w-full rounded-md px-3 py-2 text-left text-sm transition hover:bg-gray-50"
+                class="w-full rounded-md px-3 py-2 text-left text-sm transition-colors duration-150 hover:bg-surface-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/20"
                 :class="[
-                    action.danger ? 'text-error-600' : 'text-gray-700',
+                    action.danger ? 'text-error-600' : 'text-text',
                     action.disabled ? 'opacity-50 pointer-events-none' : '',
                 ]"
                 role="menuitem"

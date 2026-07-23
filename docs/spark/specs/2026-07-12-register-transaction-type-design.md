@@ -13,10 +13,10 @@ The user clarified the real intent: **Register should behave exactly like the ot
 
 1. Register becomes a new Transaction document type (`transactionKey: "register"`), reusing `TransactionListPage.vue`, `TransactionCreatePage.vue`, `TransactionDetailPage.vue`, and the generic per-type module pattern already used by Inbound/Outbound/Relocation/Transfer/Return/Opname.
 2. Register's document has exactly 4 fields, no line items:
-   - **Document Number** (`docNumber`, required, unique per company)
-   - **Date Issue** (`docDate`, required)
-   - **User** (`registeredById`, required) — a dropdown of staff who performed the physical registration, distinct from `createdById` (the account that created the document record, tracked automatically like every other document type)
-   - **Notes / Description** (`notes`, optional)
+    - **Document Number** (`docNumber`, required, unique per company)
+    - **Date Issue** (`docDate`, required)
+    - **User** (`registeredById`, required) — a dropdown of staff who performed the physical registration, distinct from `createdById` (the account that created the document record, tracked automatically like every other document type)
+    - **Notes / Description** (`notes`, optional)
 3. Register has the same status workflow as other types: `draft → posted`, cancellable while `draft`. Posting a Register document is a pure status transition — it has no stock/inventory side effect (no lines exist to move).
 4. Register appears in the Transaction sidebar submenu **first**, before Inbound, reflecting that tag registration precedes goods receipt in the warehouse process. No data relationship exists between a Register document and any Inbound document.
 5. The old RFID-specific Register UI is retired: `TagRegistrationPage.vue`, `TagRegistrationCreatePage.vue`, `useTagRegistration.ts`, and routes `/rfid/tags` and `/rfid/tags/new` are deleted.
@@ -29,37 +29,39 @@ The user clarified the real intent: **Register should behave exactly like the ot
 Follows the existing per-type module pattern (mirrors `OpnameDoc`/`opname` module, the only other header-only-at-creation type):
 
 - **Prisma model** `RegisterDoc` (new, header-only — no `RegisterLine` table):
-  ```prisma
-  model RegisterDoc {
-    id             String    @id @default(uuid()) @db.Uuid
-    companyId      String    @map("company_id") @db.Uuid
-    docNumber      String    @map("doc_number") @db.VarChar
-    docDate        DateTime  @map("doc_date") @db.Date
-    registeredById String    @map("registered_by_id") @db.Uuid
-    notes          String?   @db.VarChar
-    status         String    @default("draft") @db.VarChar
-    createdById    String    @map("created_by") @db.Uuid
-    createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt      DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-    company      Company @relation(fields: [companyId], references: [id])
-    registeredBy User    @relation("RegisterDocRegisteredBy", fields: [registeredById], references: [id])
-    createdBy    User    @relation("RegisterDocCreatedBy", fields: [createdById], references: [id])
+    ```prisma
+    model RegisterDoc {
+      id             String    @id @default(uuid()) @db.Uuid
+      companyId      String    @map("company_id") @db.Uuid
+      docNumber      String    @map("doc_number") @db.VarChar
+      docDate        DateTime  @map("doc_date") @db.Date
+      registeredById String    @map("registered_by_id") @db.Uuid
+      notes          String?   @db.VarChar
+      status         String    @default("draft") @db.VarChar
+      createdById    String    @map("created_by") @db.Uuid
+      createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+      updatedAt      DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-    @@unique([companyId, docNumber], map: "register_docs_company_id_doc_number_idx")
-    @@map("register_docs")
-  }
-  ```
-  A new Prisma migration adds this table. `User` gets two new back-relations (named, since there are two FKs to the same table — matching how other doc types with dual user/partner FKs are already modeled).
+      company      Company @relation(fields: [companyId], references: [id])
+      registeredBy User    @relation("RegisterDocRegisteredBy", fields: [registeredById], references: [id])
+      createdBy    User    @relation("RegisterDocCreatedBy", fields: [createdById], references: [id])
+
+      @@unique([companyId, docNumber], map: "register_docs_company_id_doc_number_idx")
+      @@map("register_docs")
+    }
+    ```
+
+    A new Prisma migration adds this table. `User` gets two new back-relations (named, since there are two FKs to the same table — matching how other doc types with dual user/partner FKs are already modeled).
 
 - **Module** `src/modules/warehouse/register/` (new): `register.controller.ts`, `register.service.ts`, `register.module.ts`, `dto/register-doc.dto.ts`, registered in the parent warehouse module alongside `opname`, `inbound`, etc.
-  - `@Controller('register')`
-  - `POST /register` — `CreateRegisterDocDto { companyId, docNumber, docDate, registeredById, notes? }`. Validates company exists and `docNumber` is unique within the company (same pattern as `OpnameMutationService.create()`), then `prisma.registerDoc.create(...)` with `status: "draft"` and `createdById` from the authenticated user.
-  - `GET /register` — paginated list, filters: `search` (docNumber), `dateFrom`/`dateTo`, `registeredById`. Mirrors `OpnameService.list()`.
-  - `GET /register/:id` — single record with `registeredBy`/`createdBy` relations included.
-  - `PATCH /register/:id` — edit while `draft`.
-  - `POST /register/:id/post` — sets `status: "posted"`. No stock-balance mutation (unlike Inbound/Outbound's post, which writes stock movements) — this is the one behavioral difference from other posted types, and is called out explicitly so an implementer doesn't copy Inbound's post logic wholesale.
-  - `POST /register/:id/cancel` — sets `status: "cancelled"`, only while `draft`.
+    - `@Controller('register')`
+    - `POST /register` — `CreateRegisterDocDto { companyId, docNumber, docDate, registeredById, notes? }`. Validates company exists and `docNumber` is unique within the company (same pattern as `OpnameMutationService.create()`), then `prisma.registerDoc.create(...)` with `status: "draft"` and `createdById` from the authenticated user.
+    - `GET /register` — paginated list, filters: `search` (docNumber), `dateFrom`/`dateTo`, `registeredById`. Mirrors `OpnameService.list()`.
+    - `GET /register/:id` — single record with `registeredBy`/`createdBy` relations included.
+    - `PATCH /register/:id` — edit while `draft`.
+    - `POST /register/:id/post` — sets `status: "posted"`. No stock-balance mutation (unlike Inbound/Outbound's post, which writes stock movements) — this is the one behavioral difference from other posted types, and is called out explicitly so an implementer doesn't copy Inbound's post logic wholesale.
+    - `POST /register/:id/cancel` — sets `status: "cancelled"`, only while `draft`.
 
 - **Users list for the "User" dropdown**: reuse the existing `GET /users` endpoint backing `src/services/users.service.ts`'s `usersService.list(...)` (already used by the IAM Users page) — no new backend endpoint needed for this lookup.
 

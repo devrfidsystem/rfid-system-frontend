@@ -33,6 +33,26 @@ describe("buildMasterCreatePayload", () => {
         });
     });
 
+    it("generates codes for customer and supplier create payloads", () => {
+        expect(
+            buildMasterCreatePayload("customers", {
+                name: "Retail Partner",
+            }),
+        ).toEqual({
+            name: "Retail Partner",
+            code: "CUST-RETAIL-PARTNER",
+        });
+
+        expect(
+            buildMasterCreatePayload("suppliers", {
+                name: "Source Partner",
+            }),
+        ).toEqual({
+            name: "Source Partner",
+            code: "SUP-SOURCE-PARTNER",
+        });
+    });
+
     it("ignores file fields and generates location codes", () => {
         const payload = buildMasterCreatePayload("locations", {
             warehouseId: "wh-1",

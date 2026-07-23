@@ -6,10 +6,7 @@ type TreeIdSet = ReadonlySet<string> | Set<string>;
 const normalizeLabel = (value: unknown) =>
     typeof value === "string" ? value.trim() : "";
 
-const getWarehouseLabel = (
-    row: MasterRecord,
-    warehouseLabels: LabelMap,
-) => {
+const getWarehouseLabel = (row: MasterRecord, warehouseLabels: LabelMap) => {
     const relationName = normalizeLabel(row.warehouse?.name);
     if (relationName) return relationName;
 

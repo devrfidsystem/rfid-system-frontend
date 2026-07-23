@@ -7,6 +7,7 @@ import { transactionsApi } from "@/api/feature/transactions.api";
 export type TransactionKey =
     | "register"
     | "inbound"
+    | "putaway"
     | "outbound"
     | "relocation"
     | "transfer"
@@ -17,6 +18,7 @@ export type TransactionKey =
 export const transactionPaths: Record<TransactionKey, string> = {
     register: "/register",
     inbound: "/inbound",
+    putaway: "/putaway",
     outbound: "/outbound",
     relocation: "/relocation",
     transfer: "/transfer",
@@ -34,7 +36,9 @@ export const normalizeTransactionRecord = (
 
     mapped.docNo =
         row.docNo ??
+        row.docNumber ??
         row.inbound_no ??
+        row.putaway_no ??
         row.outbound_no ??
         row.transfer_no ??
         row.relocation_no ??
@@ -42,12 +46,30 @@ export const normalizeTransactionRecord = (
         row.profile_id;
     mapped.date =
         row.date ??
+        row.docDate ??
         row.inbound_date ??
+        row.putaway_date ??
         row.outbound_date ??
         row.transfer_date ??
         row.relocation_date ??
         row.return_date;
     mapped.scheduledAt = row.scheduledAt ?? row.createdAt;
+    if (row.assignedBy && typeof row.assignedBy === "object") {
+        mapped.assignedBy = row.assignedBy;
+    } else {
+        const assignedByFullName =
+            (row.assigned_by as string | number | null | undefined) ??
+            (row.assignedByName as string | number | null | undefined) ??
+            (row.assignedById as string | number | null | undefined) ??
+            (row.assignedBy as string | number | null | undefined);
+        if (assignedByFullName !== undefined) {
+            mapped.assignedBy = { fullName: assignedByFullName };
+        }
+    }
+    mapped.deadlineAt =
+        row.deadlineAt ?? row.deadline_at ?? row.deadline ?? row.dueDate;
+    mapped.type =
+        row.type ?? row.docType ?? row.transactionType ?? row.transaction_type;
 
     mapped.partnerId =
         (row.supplier as Record<string, unknown>)?.name ??

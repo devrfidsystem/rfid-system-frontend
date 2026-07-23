@@ -1,9 +1,10 @@
 <template>
     <div
-        class="flex flex-wrap items-center justify-between gap-4 rounded-t-lg border-b border-border bg-surface px-4 py-3"
+        class="flex flex-wrap items-center justify-between gap-4 rounded-t-md border-b border-border bg-surface px-4 py-3"
     >
         <div class="flex flex-1 min-w-[240px] items-center gap-3">
             <div
+                v-if="showSearch !== false"
                 class="flex h-[var(--control-h-md)] w-full max-w-sm items-center gap-2 rounded-md border border-border bg-surface px-3 transition-colors duration-150 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20"
             >
                 <label :for="searchId" class="sr-only">Search</label>
@@ -80,6 +81,7 @@ const props = defineProps<{
     rows: unknown[];
     visibleRows: unknown[];
     objectId?: string;
+    showSearch?: boolean;
 }>();
 
 const emit = defineEmits<{

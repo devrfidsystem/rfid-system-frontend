@@ -21,12 +21,14 @@
 ### Task 1: Rework shared form atoms
 
 **Files:**
+
 - Modify: `src/components/atoms/Button.vue`
 - Modify: `src/components/atoms/Input.vue`
 - Modify: `src/components/atoms/Select.vue`
 - Modify: `src/components/atoms/Badge.vue`
 
 **Interfaces:**
+
 - Consumes: existing `variant`, `size`, `tone`, `label`, `hint`, `error`, `invalid`, and `objectId` props.
 - Produces: compact button, input, select, and badge visuals that match the shared design system tokens.
 
@@ -38,11 +40,13 @@
 ### Task 2: Align table navigation primitives
 
 **Files:**
+
 - Modify: `src/components/ui/table/Pagination.vue`
 - Modify: `src/components/organisms/DataTable/DataTable.vue` if shared table spacing or action layout still diverges
 - Modify: `src/components/ui/feedback/EmptyState.vue` if empty-state spacing conflicts with dense admin layouts
 
 **Interfaces:**
+
 - Consumes: existing `page`, `pageSize`, `total`, and table column props.
 - Produces: compact pagination controls and table spacing consistent with dense admin pages.
 
@@ -54,10 +58,12 @@
 ### Task 3: Normalize global page chrome
 
 **Files:**
+
 - Modify: `src/components/organisms/Sidebar.vue`
 - Modify: `src/components/molecules/PageHeader.vue`
 
 **Interfaces:**
+
 - Consumes: existing nav tree, collapsed state, tagline/title/description slots.
 - Produces: denser sidebar and page headers that fit the shared admin language.
 
@@ -68,12 +74,14 @@
 ### Task 4: Apply the foundation to Master Data pages
 
 **Files:**
+
 - Modify: `src/views/master/components/MasterHeader.vue`
 - Modify: `src/views/master/components/MasterTable.vue`
 - Modify: `src/views/master/components/MasterFormModal.vue`
 - Modify: related master view/composable files only if a field layout depends on the shared atoms
 
 **Interfaces:**
+
 - Consumes: shared atoms, dense table primitives, and existing master data field configs.
 - Produces: master data pages that automatically inherit the new design system without page-specific styling hacks.
 
@@ -87,4 +95,3 @@
 - Run `npm run -s type-check`
 - Run `npm run -s build`
 - If the app is being checked in a browser, hard refresh or restart the dev server before concluding that a style change did not apply.
-

@@ -9,23 +9,20 @@
                 :aria-label="title || 'Dialog'"
                 @keydown.esc.prevent="close"
             >
-                <div
-                    class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm"
-                    @click="close"
-                />
+                <div class="absolute inset-0 bg-gray-900/50" @click="close" />
 
                 <div
                     ref="panelRef"
-                    class="relative w-full max-w-lg rounded-md border border-border-default bg-white shadow-xl"
+                    class="relative w-full max-w-lg rounded-md border border-border bg-surface shadow-sm"
                     tabindex="-1"
                     v-bind="bindObjectId(objectId)"
                 >
                     <header
-                        class="flex items-center justify-between border-b border-border-default px-5 py-4"
+                        class="flex items-center justify-between border-b border-border px-6 py-4"
                     >
                         <div class="min-w-0">
                             <h3
-                                class="truncate text-base font-semibold text-gray-900"
+                                class="truncate text-lg font-semibold text-text"
                             >
                                 {{ title }}
                             </h3>
@@ -33,7 +30,7 @@
 
                         <button
                             type="button"
-                            class="rounded-full border border-border-default bg-workspace-bg px-2 py-1 text-sm text-text-secondary transition hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                            class="rounded-full border border-border bg-surface px-2 py-1 text-sm text-text-secondary transition-colors duration-150 hover:bg-surface-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                             aria-label="Close dialog"
                             v-bind="
                                 bindObjectId(
@@ -48,7 +45,7 @@
                         </button>
                     </header>
 
-                    <div class="px-5 py-5">
+                    <div class="px-6 py-5">
                         <slot />
                     </div>
                 </div>
@@ -77,6 +74,7 @@ let lastActiveElement: HTMLElement | null = null;
 const close = () => emit("close");
 
 const lockBody = (locked: boolean) => {
+    if (typeof document === "undefined") return;
     document.body.style.overflow = locked ? "hidden" : "";
 };
 
@@ -86,7 +84,10 @@ watch(
         lockBody(open);
 
         if (open) {
-            lastActiveElement = document.activeElement as HTMLElement | null;
+            lastActiveElement =
+                typeof document === "undefined"
+                    ? null
+                    : (document.activeElement as HTMLElement | null);
             await nextTick();
             panelRef.value?.focus();
         } else {
@@ -109,11 +110,6 @@ onUnmounted(() => {
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modal-fade-enter-active .backdrop-blur-sm,
-.modal-fade-leave-active .backdrop-blur-sm {
-    transition: backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .modal-fade-enter-active .max-w-lg,
 .modal-fade-leave-active .max-w-lg {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -122,11 +118,6 @@ onUnmounted(() => {
 .modal-fade-enter-from,
 .modal-fade-leave-to {
     opacity: 0;
-}
-
-.modal-fade-enter-from .backdrop-blur-sm,
-.modal-fade-leave-to .backdrop-blur-sm {
-    backdrop-filter: blur(0px);
 }
 
 .modal-fade-enter-from .max-w-lg,

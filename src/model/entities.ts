@@ -228,6 +228,38 @@ export interface OpnameRecord {
     status: string;
 }
 
+export interface PutawayLineRecord {
+    id?: string;
+    lineNo: number;
+    productId: string;
+    sourceLocationId?: string | null;
+    targetLocationId: string;
+    qty: number;
+    note?: string | null;
+    status?: string;
+}
+
+export interface PutawayRecord {
+    id: string;
+    docNo: string;
+    date?: string;
+    warehouseId: string;
+    referenceType?: string | null;
+    referenceId?: string | null;
+    note?: string | null;
+    status: string;
+    lines?: PutawayLineRecord[];
+    createdBy?: {
+        id: string;
+        fullName?: string | null;
+    };
+    warehouse?: {
+        id: string;
+        code?: string | null;
+        name?: string | null;
+    };
+}
+
 export interface StockBalanceRecord {
     id: string;
     productId: string;
@@ -258,6 +290,7 @@ export type EntityKey =
     | "tag_registrations"
     | "epc_events"
     | "inbound"
+    | "putaway"
     | "outbound"
     | "relocation"
     | "transfer"
@@ -296,6 +329,7 @@ export interface EntityMap {
     tag_registrations: TagRegistrationRecord[];
     epc_events: EpcEventRecord[];
     inbound: TransactionRecord[];
+    putaway: PutawayRecord[];
     outbound: TransactionRecord[];
     relocation: RelocationRecord[];
     transfer: TransferRecord[];

@@ -26,11 +26,7 @@ const cloneMenuNode = (node: MenuTreeNode): MenuTreeNode => ({
 const isRegisterTagsNode = (node: MenuTreeNode): boolean => {
     const code = node.code.toUpperCase();
     const name = node.name.toUpperCase();
-    return (
-        code === "RFID" ||
-        code === "TRANSACTION_REGISTER_TAGS" ||
-        name === "REGISTER TAGS"
-    );
+    return code === "TRANSACTION_REGISTER" || name === "REGISTER";
 };
 
 const normalizeMenuTree = (nodes: MenuTreeNode[]): MenuTreeNode[] => {
@@ -51,11 +47,6 @@ const normalizeMenuTree = (nodes: MenuTreeNode[]): MenuTreeNode[] => {
             continue;
         }
 
-        if (node.code.startsWith("RFID_") && node.path?.startsWith("/rfid/")) {
-            movedChildren.push(node);
-            continue;
-        }
-
         filteredRoots.push(node);
     }
 
@@ -65,9 +56,9 @@ const normalizeMenuTree = (nodes: MenuTreeNode[]): MenuTreeNode[] => {
 
     const registerTagsNode: MenuTreeNode = {
         id: "synthetic-register-tags",
-        code: "TRANSACTION_REGISTER_TAGS",
-        name: "Register Tags",
-        path: "/rfid/tags",
+        code: "TRANSACTION_REGISTER",
+        name: "Register",
+        path: "/transactions/register",
         parentId: transactions.id,
         sortOrder: 0,
         sort_order: 0,
@@ -104,8 +95,8 @@ const normalizeMenuTree = (nodes: MenuTreeNode[]): MenuTreeNode[] => {
     } else {
         transactionChildren[existingIndex] = {
             ...transactionChildren[existingIndex],
-            name: "Register Tags",
-            path: "/rfid/tags",
+            name: "Register",
+            path: "/transactions/register",
             children: registerTagsNode.children,
         };
     }

@@ -6,6 +6,7 @@ import type { StockBalanceRecord } from "@/model/entities";
 import type { ApiMeta } from "@/lib/api/response";
 import { reportService } from "@/services/report.service";
 import { reportConfigs } from "@/views/report/reportConfig";
+import { useWarehouseStore } from "@/store/warehouse.store";
 
 const columns = [
     { key: "productId", label: "Product" },
@@ -20,11 +21,11 @@ type StockBalanceSortableRecord = StockBalanceRecord & {
 
 export function useStockBalance() {
     const keyword = ref("");
-    const selectedWarehouse = ref("");
     const rows = ref<StockBalanceRecord[]>([]);
     const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
+    const warehouseStore = useWarehouseStore();
 
     const isFilterOpen = ref(false);
     const filterPopoverRef = ref<HTMLElement | null>(null);
@@ -65,6 +66,10 @@ export function useStockBalance() {
             label: `${warehouse.code} · ${warehouse.name}`,
         })),
     );
+    const selectedWarehouse = computed({
+        get: () => warehouseStore.selectedWarehouseId ?? "",
+        set: (value: string) => warehouseStore.setWarehouse(value || null),
+    });
 
     const formatValue = (value: unknown) => {
         if (value === undefined || value === null) {
@@ -192,10 +197,11 @@ export function useStockBalance() {
     watch(
         () => warehouseOptions.options.value,
         (options) => {
-            if (options.length === 1 && selectedWarehouse.value === "") {
-                selectedWarehouse.value = options[0].id;
-            }
+            warehouseStore.syncWarehouseSelection(
+                options.map((warehouse) => warehouse.id),
+            );
         },
+        { immediate: true },
     );
 
     return {

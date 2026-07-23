@@ -23,10 +23,10 @@ Replace the two-column split-card (`.auth-card` grid with `.hero` + `.form-panel
 - Background: full-page soft pastel gradient (diagonal, peach → lavender → light blue), replacing the current `linear-gradient(160deg, #f0f4ff 0%, #f8fafc 40%, #f0fdfa 100%)` with a warmer multi-stop pastel gradient closer to the reference. Remove the dot-grid and ambient-glow decorative layers — the reference is a flat, texture-free gradient.
 - No card border, no box-shadow, no grid split. A single centered column, `max-width: 440px`, vertically and horizontally centered in the viewport (flex, `min-height: 100vh`).
 - Contents, top to bottom, centered text-align:
-  1. Logo mark (`@/assets/image.png`), natural colors (no `invert(1)` filter), small (`h-10`–`h-12`), centered.
-  2. Bold heading (`formTitle` prop), large, dark, centered — replaces `.hero__title`'s role.
-  3. Short subtitle line (`formSubtitle` prop) — for Login this becomes a short "Belum punya akun? **Daftar**" style line (see below); for Register it stays the existing short descriptive sentence.
-  4. `<slot />` — the form content, unchanged mounting point.
+    1. Logo mark (`@/assets/image.png`), natural colors (no `invert(1)` filter), small (`h-10`–`h-12`), centered.
+    2. Bold heading (`formTitle` prop), large, dark, centered — replaces `.hero__title`'s role.
+    3. Short subtitle line (`formSubtitle` prop) — for Login this becomes a short "Belum punya akun? **Daftar**" style line (see below); for Register it stays the existing short descriptive sentence.
+    4. `<slot />` — the form content, unchanged mounting point.
 - Footer copyright line stays as-is, small and centered below the column.
 - Remove `asideTitle`/`asideDescription` props, the `features` list, `hero__badge`, and all `.hero*`/`.form-panel*` styles — they no longer apply. Remove the now-unused `ShieldCheck` import.
 

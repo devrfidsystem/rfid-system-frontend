@@ -17,23 +17,17 @@
         </div>
 
         <Card no-padding object-id="wdg_CompaniesList">
-            <div v-if="loading" class="p-6">
-                <LoadingState :lines="3" />
-            </div>
-            <div v-else-if="error" class="p-6 text-sm text-rose-600 bg-rose-50">
-                {{ error }}
-            </div>
-            <div v-else-if="tableRows.length === 0" class="p-6">
-                <EmptyState />
-            </div>
-            <AppTable
-                v-else
-                :columns="columns"
+            <DataTable
+                object-id="CompaniesList"
+                bare
                 :rows="tableRows"
-                class="border-none shadow-none rounded-none"
-                object-id="tbl_CompaniesList"
+                :columns="dataTableColumns"
+                :row-key="(row) => String(row.id ?? '')"
+                :loading="loading"
+                :load-error="error ?? undefined"
+                :show-search="false"
             >
-                <template #actions="{ row }">
+                <template #rowActions="{ row }">
                     <RowActions
                         :actions="[
                             {
@@ -44,7 +38,7 @@
                         ]"
                     />
                 </template>
-            </AppTable>
+            </DataTable>
         </Card>
 
         <Drawer
@@ -119,15 +113,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
-import AppTable from "@/components/organisms/Table.vue";
+import DataTable from "@/components/organisms/DataTable/DataTable.vue";
+import type { ColumnDef } from "@/components/organisms/DataTable/types";
 import RowActions from "@/components/ui/table/RowActions.vue";
-import LoadingState from "@/components/ui/states/LoadingState.vue";
-import EmptyState from "@/components/molecules/EmptyState.vue";
 import { useCompanies } from "./composables/useCompanies";
 
 const {
@@ -144,6 +137,12 @@ const {
     openEditModal,
     handleSubmit,
 } = useCompanies();
+
+const dataTableColumns = computed<ColumnDef<Record<string, unknown>>[]>(() =>
+    columns
+        .filter((column) => column.key !== "actions")
+        .map((column) => ({ key: column.key, header: column.label })),
+);
 
 onMounted(() => loadData());
 </script>

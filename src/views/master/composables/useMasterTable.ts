@@ -27,6 +27,12 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
     const loadError = ref<string | null>(null);
     const unsupportedFeature = ref(false);
     const pagination = reactive({ page: 1, limit: 20, total: 0 });
+    const filters = reactive({
+        categoryId: "",
+        uomId: "",
+        type: "",
+        warehouseId: "",
+    });
 
     const updatePaginationMeta = (meta: ApiMeta | null) => {
         if (!meta) {
@@ -48,7 +54,9 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
             };
             const selectedEntity = entityKey.value as MasterEntityKey;
             if (entityKey.value === "locations") {
-                const warehouseId = await ensureLocationWarehouseContext();
+                const warehouseId =
+                    filters.warehouseId ||
+                    (await ensureLocationWarehouseContext());
                 if (!warehouseId) {
                     rows.value = [];
                     pagination.total = 0;
@@ -57,6 +65,13 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
                     return null;
                 }
                 params.warehouseId = warehouseId;
+            }
+            if (entityKey.value === "products") {
+                if (filters.categoryId) params.categoryId = filters.categoryId;
+                if (filters.uomId) params.uomId = filters.uomId;
+            }
+            if (entityKey.value === "attributes" && filters.type) {
+                params.type = filters.type;
             }
             if (
                 companyAwareEntities.includes(selectedEntity) &&
@@ -100,13 +115,34 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
         void loadRows();
     };
 
+    const resetFilters = () => {
+        filters.categoryId = "";
+        filters.uomId = "";
+        filters.type = "";
+        filters.warehouseId = "";
+    };
+
     useDebouncedWatch(keyword, () => {
         pagination.page = 1;
         void loadRows();
     });
 
+    useDebouncedWatch(
+        () => [
+            filters.categoryId,
+            filters.uomId,
+            filters.type,
+            filters.warehouseId,
+        ],
+        () => {
+            pagination.page = 1;
+            void loadRows();
+        },
+    );
+
     const resetTableState = () => {
         keyword.value = "";
+        resetFilters();
         pagination.page = 1;
         pagination.limit = 20;
         pagination.total = 0;
@@ -161,6 +197,8 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
         loadError,
         unsupportedFeature,
         pagination,
+        filters,
+        resetFilters,
         loadRows,
         refresh,
     };

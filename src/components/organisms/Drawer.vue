@@ -1,26 +1,29 @@
 <template>
-    <transition name="drawer-fade">
-        <Teleport to="body">
+    <Teleport to="body">
+        <transition name="drawer-fade">
             <div
                 v-if="isOpen"
                 class="fixed inset-0 z-50"
                 @mousedown.self="handleBackdropClick"
             >
                 <div
-                    class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm"
+                    class="absolute inset-0 bg-gray-900/50"
                     aria-hidden="true"
                 ></div>
 
-                <div
+                <dialog
                     ref="drawerRef"
-                    role="dialog"
+                    open
                     aria-modal="true"
                     :aria-labelledby="titleId"
                     :aria-describedby="descriptionId"
-                    class="absolute inset-0 flex"
+                    class="absolute inset-0 m-0 flex h-full w-full max-h-none max-w-none items-stretch border-0 bg-transparent p-0"
+                    :class="
+                        props.side === 'left' ? 'justify-start' : 'justify-end'
+                    "
                 >
                     <aside
-                        class="relative flex h-full flex-col bg-white shadow-2xl border-l border-border-default"
+                        class="relative flex h-full max-h-[calc(100vh-2.5rem)] flex-col overflow-hidden rounded-md border border-border bg-surface shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
                         :class="[widthClass, sideClass]"
                         tabindex="-1"
                         v-bind="bindObjectId(objectId)"
@@ -28,13 +31,13 @@
                         @click.stop
                     >
                         <header
-                            class="flex items-center justify-between border-b border-border-default px-6 py-4"
+                            class="flex items-center justify-between px-4 py-3"
                         >
                             <div class="space-y-1">
                                 <p
                                     v-if="title"
                                     :id="titleId"
-                                    class="text-lg font-semibold text-gray-900"
+                                    class="text-lg font-semibold text-text"
                                 >
                                     {{ title }}
                                 </p>
@@ -49,7 +52,7 @@
                             <button
                                 v-if="!hideClose"
                                 type="button"
-                                class="rounded-full border border-border-default bg-workspace-bg px-2 py-1 text-sm text-text-secondary transition hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary-200"
                                 aria-label="Close drawer"
                                 v-bind="
                                     bindObjectId(
@@ -60,7 +63,11 @@
                                 "
                                 @click="close"
                             >
-                                ×
+                                <span
+                                    aria-hidden="true"
+                                    class="text-xl leading-none"
+                                    >×</span
+                                >
                             </button>
                         </header>
 
@@ -70,15 +77,15 @@
 
                         <footer
                             v-if="$slots.footer"
-                            class="border-t border-border-default bg-workspace-bg px-6 py-4"
+                            class="border-t border-border bg-surface px-6 py-4"
                         >
                             <slot name="footer" />
                         </footer>
                     </aside>
-                </div>
+                </dialog>
             </div>
-        </Teleport>
-    </transition>
+        </transition>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -98,7 +105,7 @@ const props = defineProps<{
     title?: string;
     description?: string;
     side?: "right" | "left";
-    width?: "sm" | "md" | "lg";
+    width?: "xs" | "sm" | "md" | "lg";
     closeOnBackdrop?: boolean;
     closeOnEsc?: boolean;
     persistent?: boolean;
@@ -125,6 +132,8 @@ const descriptionId = computed(() =>
 
 const widthClass = computed(() => {
     switch (props.width) {
+        case "xs":
+            return "max-w-xs w-full";
         case "sm":
             return "max-w-sm w-full";
         case "lg":
@@ -136,8 +145,8 @@ const widthClass = computed(() => {
 
 const sideClass = computed(() =>
     props.side === "left"
-        ? "mr-auto h-full translate-x-0 border-r border-l-0"
-        : "ml-auto h-full translate-x-0",
+        ? "m-2 mr-auto h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)] translate-x-0"
+        : "m-2 ml-auto h-[calc(100vh-2rem)] max-h-[calc(100vh-2rem)] translate-x-0",
 );
 
 const lockScroll = () => {
@@ -218,13 +227,8 @@ onBeforeUnmount(() => {
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.drawer-fade-enter-active .backdrop-blur-sm,
-.drawer-fade-leave-active .backdrop-blur-sm {
-    transition: backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.drawer-fade-enter-active > div > aside,
-.drawer-fade-leave-active > div > aside {
+.drawer-fade-enter-active > div > dialog > aside,
+.drawer-fade-leave-active > div > dialog > aside {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -233,18 +237,13 @@ onBeforeUnmount(() => {
     opacity: 0;
 }
 
-.drawer-fade-enter-from .backdrop-blur-sm,
-.drawer-fade-leave-to .backdrop-blur-sm {
-    backdrop-filter: blur(0px);
-}
-
-.drawer-fade-enter-from > div > aside.ml-auto,
-.drawer-fade-leave-to > div > aside.ml-auto {
+.drawer-fade-enter-from > div > dialog > aside.ml-auto,
+.drawer-fade-leave-to > div > dialog > aside.ml-auto {
     transform: translateX(100%);
 }
 
-.drawer-fade-enter-from > div > aside.mr-auto,
-.drawer-fade-leave-to > div > aside.mr-auto {
+.drawer-fade-enter-from > div > dialog > aside.mr-auto,
+.drawer-fade-leave-to > div > dialog > aside.mr-auto {
     transform: translateX(-100%);
 }
 </style>

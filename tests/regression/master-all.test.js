@@ -11,9 +11,9 @@ const MASTER_ENTITIES = [
         route: "warehouses",
         name: "Warehouse",
         fields: {
-            code: { value: `WH-${Date.now()}`, type: "text" },
             name: { value: `E2E Warehouse ${Date.now()}`, type: "text" },
             address: { value: "Test Address", type: "textarea" },
+            description: { value: "Test Warehouse", type: "textarea" },
         },
         searchKey: "name",
     },
@@ -21,10 +21,7 @@ const MASTER_ENTITIES = [
         route: "locations",
         name: "Location",
         fields: {
-            code: { value: `LOC-${Date.now()}`, type: "text" },
             name: { value: `E2E Location ${Date.now()}`, type: "text" },
-            type: { value: "Aisle", type: "text" },
-            warehouseId: { value: "WH-E2E", type: "text" }, // Simulated relation typing
         },
         searchKey: "name",
     },
@@ -32,9 +29,10 @@ const MASTER_ENTITIES = [
         route: "customers",
         name: "Customer",
         fields: {
-            code: { value: `CUST-${Date.now()}`, type: "text" },
             name: { value: `E2E Customer ${Date.now()}`, type: "text" },
-            email: { value: `cust${Date.now()}@e2e.test`, type: "text" },
+            phone: { value: "08123456789", type: "text" },
+            address: { value: "Test Customer Address", type: "textarea" },
+            description: { value: "Test Customer", type: "textarea" },
         },
         searchKey: "name",
     },
@@ -42,9 +40,10 @@ const MASTER_ENTITIES = [
         route: "suppliers",
         name: "Supplier",
         fields: {
-            code: { value: `SUP-${Date.now()}`, type: "text" },
             name: { value: `E2E Supplier ${Date.now()}`, type: "text" },
-            email: { value: `sup${Date.now()}@e2e.test`, type: "text" },
+            phone: { value: "08123456789", type: "text" },
+            address: { value: "Test Supplier Address", type: "textarea" },
+            description: { value: "Test Supplier", type: "textarea" },
         },
         searchKey: "name",
     },
@@ -52,8 +51,8 @@ const MASTER_ENTITIES = [
         route: "uoms",
         name: "UOM",
         fields: {
-            code: { value: `UOM-${Date.now()}`, type: "text" },
             name: { value: `E2E UOM ${Date.now()}`, type: "text" },
+            symbol: { value: "PCS", type: "text" },
         },
         searchKey: "name",
     },
@@ -61,7 +60,6 @@ const MASTER_ENTITIES = [
         route: "product-categories",
         name: "Category",
         fields: {
-            code: { value: `CAT-${Date.now()}`, type: "text" },
             name: { value: `E2E Category ${Date.now()}`, type: "text" },
         },
         searchKey: "name",

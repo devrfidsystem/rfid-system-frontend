@@ -13,7 +13,7 @@
                     </p>
 
                     <h1
-                        class="truncate text-xl font-semibold tracking-tight text-text"
+                        class="truncate text-lg font-semibold tracking-tight text-text"
                     >
                         {{ title }}
                     </h1>
