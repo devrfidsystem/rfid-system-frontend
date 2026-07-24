@@ -20,7 +20,9 @@ export interface ReportParams {
 export type ReportListResult = ApiPaginatedResult<ReportRow>;
 
 export const reportPaths: Record<ReportKey, string> = {
+    register: "/register",
     inbound: "/reports/inbound",
+    putaway: "/putaway",
     outbound: "/reports/outbound",
     "stock-opname": "/opname",
     relocation: "/relocation",
@@ -28,5 +30,4 @@ export const reportPaths: Record<ReportKey, string> = {
     return: "/returns",
     "current-stock": "/reports/stock-balance",
     "stock-period": "/reports/stock-movement",
-    "opname-variance": "/reports/opname-variance",
 };

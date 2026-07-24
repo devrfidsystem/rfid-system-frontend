@@ -1,10 +1,10 @@
 <template>
     <section class="space-y-6">
         <DashboardToolbar
-            :warehouse-id="dashboardFilters.filter.warehouseId"
+            :warehouse-id="selectedWarehouseId"
             :warehouse-options="warehouseOptions"
             :loading="dashboardLoading"
-            @update:warehouse-id="(val) => dashboardFilters.setWarehouse(val)"
+            @update:warehouse-id="setSelectedWarehouse"
             @refresh="refreshDashboard"
         />
 
@@ -21,102 +21,43 @@
             {{ warehouseError }}
         </p>
 
-        <DashboardSummaryCards
-            :loading="summaryLoading"
-            :cards="summaryCards"
-        />
+        <div class="space-y-6">
+            <DashboardAlertCenter :loading="alertsLoading" :data="alertsData" />
 
-        <!-- Main Details Area based on Active Route Section -->
-        <template v-if="section === 'overview'">
-            <DashboardOverview
-                :loading="heatmapLoading || chartLoading"
-                :heatmap-rows="heatmapRows"
-                :heatmap-max="heatmapMax"
-                :chart-bars="chartBars"
+            <DashboardWorkflowOverview
+                :loading="workflowLoading"
+                :data="workflowData"
             />
 
-            <!-- Alerts Area -->
-            <div class="grid gap-4 mt-4">
-                <DashboardLowStockAlert
-                    :total-low-stock="totalLowStock"
-                    :items="lowStockItems"
-                    :loading="lowStockLoading"
-                    :error="dashboardError"
-                    @retry="refreshDashboard"
-                />
-            </div>
-        </template>
-
-        <template v-else-if="section === 'low-stock'">
-            <DashboardLowStockSection
-                :loading="lowStockLoading"
-                :total-low-stock="totalLowStock"
-                :low-stock-items="lowStockItems"
+            <DashboardKpiSnapshot
+                :loading="kpiSnapshotLoading"
+                :data="kpiSnapshotData"
             />
-        </template>
-
-        <template v-else-if="section === 'recent-activity'">
-            <DashboardRecentActivity
-                :loading="recentActivityLoading"
-                :recent-activity="recentActivity"
-            />
-        </template>
-
-        <template v-else-if="section === 'epc-status'">
-            <DashboardEpcStatus
-                :loading="epcStatusLoading"
-                :epc-status-total="epcStatusTotal"
-                :epc-status-breakdown="epcStatusBreakdown"
-            />
-        </template>
+        </div>
     </section>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
-import DashboardSummaryCards from "./components/DashboardSummaryCards.vue";
+import DashboardAlertCenter from "./components/DashboardAlertCenter.vue";
+import DashboardWorkflowOverview from "./components/DashboardWorkflowOverview.vue";
+import DashboardKpiSnapshot from "./components/DashboardKpiSnapshot.vue";
 import { useDashboard } from "./composables/useDashboard";
 
-const DashboardOverview = defineAsyncComponent(
-    () => import("./components/DashboardOverview.vue"),
-);
-const DashboardLowStockSection = defineAsyncComponent(
-    () => import("./components/DashboardLowStockSection.vue"),
-);
-const DashboardRecentActivity = defineAsyncComponent(
-    () => import("./components/DashboardRecentActivity.vue"),
-);
-const DashboardEpcStatus = defineAsyncComponent(
-    () => import("./components/DashboardEpcStatus.vue"),
-);
-const DashboardLowStockAlert = defineAsyncComponent(
-    () => import("./components/DashboardLowStockAlert.vue"),
-);
-
 const {
-    dashboardFilters,
     warehouseOptions,
     warehousesLoading,
     warehouseError,
     dashboardLoading,
-    summaryLoading,
-    heatmapLoading,
-    chartLoading,
-    lowStockLoading,
-    epcStatusLoading,
-    recentActivityLoading,
     dashboardError,
     refreshDashboard,
-    heatmapRows,
-    heatmapMax,
-    chartBars,
-    lowStockItems,
-    totalLowStock,
-    section,
-    recentActivity,
-    epcStatusTotal,
-    epcStatusBreakdown,
-    summaryCards,
+    selectedWarehouseId,
+    setSelectedWarehouse,
+    alertsData,
+    alertsLoading,
+    workflowData,
+    workflowLoading,
+    kpiSnapshotData,
+    kpiSnapshotLoading,
 } = useDashboard();
 </script>

@@ -52,7 +52,7 @@ export function useCompanies() {
         error.value = null;
         try {
             const response = await settingsService.fetchList("companies");
-            rows.value = (response.items as CompanyRecord[]) || [];
+            rows.value = (response.items as unknown as CompanyRecord[]) || [];
         } catch (err) {
             error.value =
                 err instanceof Error ? err.message : "Failed to load companies";

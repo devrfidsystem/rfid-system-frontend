@@ -63,6 +63,7 @@ export function useMasterContext() {
     };
 
     const companyAwareEntities: MasterEntityKey[] = [
+        "attributes",
         "customers",
         "suppliers",
         "products",

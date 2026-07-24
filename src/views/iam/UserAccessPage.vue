@@ -22,6 +22,20 @@
             </div>
         </div>
 
+        <ConfirmDialog
+            v-model="confirmationOpen"
+            :title="confirmation?.title || 'Confirm Action'"
+            :description="confirmation?.description || ''"
+            :confirm-text="confirmation?.confirmText || 'Confirm'"
+            :cancel-text="confirmation?.cancelText || 'Cancel'"
+            :variant="confirmation?.variant || 'danger'"
+            :loading="submitting"
+            persistent
+            object-id="dlg_UserAccessConfirm"
+            @confirm="confirmRemoval"
+            @cancel="clearConfirmation"
+        />
+
         <div v-if="loadingUsers" class="p-6 text-center text-gray-500">
             <LoadingState :lines="1" />
         </div>
@@ -75,7 +89,9 @@
                                 class="text-rose-500 hover:text-rose-700 text-xs font-medium"
                                 :disabled="submitting"
                                 :object-id="`btn_UserAccessRemoveRole_Item${role.id}`"
-                                @click="removeRole(role.id)"
+                                @click="
+                                    openRemoveRoleConfirm(role.id, role.name)
+                                "
                             >
                                 Remove
                             </button>
@@ -131,7 +147,10 @@
                                 :disabled="submitting"
                                 :object-id="`btn_UserAccessRemoveWarehouse_Item${wh.id}`"
                                 @click="
-                                    removeWarehouse(wh.warehouseId || wh.id)
+                                    openRemoveWarehouseConfirm(
+                                        wh.warehouseId || wh.id,
+                                        wh.name,
+                                    )
                                 "
                             >
                                 Remove
@@ -198,11 +217,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import Select from "@/components/atoms/Select.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
+import ConfirmDialog from "@/components/organisms/ConfirmDialog.vue";
 import { useUserAccess } from "./composables/useUserAccess";
 
 const {
@@ -220,14 +240,24 @@ const {
     selectedRole,
     selectedWarehouse,
     selectedCompany,
+    confirmation,
     loadDropdowns,
     loadUsers,
     addRole,
-    removeRole,
+    openRemoveRoleConfirm,
     addWarehouse,
-    removeWarehouse,
+    openRemoveWarehouseConfirm,
     addCompany,
+    clearConfirmation,
+    confirmRemoval,
 } = useUserAccess();
+
+const confirmationOpen = computed({
+    get: () => Boolean(confirmation.value),
+    set: (value: boolean) => {
+        if (!value) clearConfirmation();
+    },
+});
 
 onMounted(() => {
     loadDropdowns();

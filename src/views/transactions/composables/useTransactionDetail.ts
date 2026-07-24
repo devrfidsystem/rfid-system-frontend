@@ -8,6 +8,43 @@ import { reportConfigs } from "@/views/report/reportConfig";
 import type { TransactionRecord } from "../types";
 import { useNotifier } from "@/composable/useNotifier";
 
+const formatStatusLabel = (value?: string | null) => {
+    if (!value) return "-";
+    return value
+        .replace(/[_-]+/g, " ")
+        .trim()
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const getStatusTone = (value?: string | null) => {
+    switch ((value ?? "").toLowerCase()) {
+        case "draft":
+            return "warning";
+        case "posted":
+        case "dispatched":
+            return "info";
+        case "partial":
+            return "teal";
+        case "done":
+            return "success";
+        case "canceled":
+            return "error";
+        default:
+            return "neutral";
+    }
+};
+
+type TransactionConfirmationAction = "post" | "cancel";
+
+type TransactionConfirmationState = {
+    action: TransactionConfirmationAction;
+    title: string;
+    description: string;
+    confirmText: string;
+    cancelText: string;
+    variant: "primary" | "danger";
+};
+
 export function useTransactionDetail(
     transactionKey: TransactionKey,
     id: string,
@@ -19,10 +56,17 @@ export function useTransactionDetail(
     const actionLoading = ref(false);
     const error = ref<string | null>(null);
     const record = ref<TransactionRecord | null>(null);
+    const confirmation = ref<TransactionConfirmationState | null>(null);
+    const isInbound = computed(() => transactionKey === "inbound");
+    const isPutaway = computed(() => transactionKey === "putaway");
+    const isRelocation = computed(() => transactionKey === "relocation");
+    const isOutbound = computed(() => transactionKey === "outbound");
 
     const config = computed(() => {
         const keyMap: Record<string, string> = {
+            register: "register",
             inbound: "inbound",
+            putaway: "putaway",
             outbound: "outbound",
             relocation: "relocation",
             transfer: "transfer",
@@ -38,11 +82,77 @@ export function useTransactionDetail(
     });
 
     const pageTitle = computed(() => {
-        return record.value?.docNo || "Transaction Detail";
+        return String(
+            record.value?.docNo ??
+                record.value?.docNumber ??
+                "Transaction Detail",
+        );
     });
 
     const pageDescription = computed(() => {
+        if (isOutbound.value) {
+            if ((record.value?.status ?? "").toLowerCase() === "draft") {
+                return "Review outbound draft details before posting.";
+            }
+            return "Review outbound document details and execution status.";
+        }
+        if (isRelocation.value) {
+            return "Details for relocation transaction";
+        }
+        if (transactionKey === "register" || transactionKey === "putaway") {
+            return `Details for ${transactionKey} task`;
+        }
+        if (isInbound.value) {
+            return "Details for inbound document";
+        }
         return `Details for ${transactionKey} transaction`;
+    });
+
+    const pageTagline = computed(() => {
+        if (transactionKey === "register" || transactionKey === "putaway") {
+            return "Task Detail";
+        }
+        if (isInbound.value) {
+            return "Document Detail";
+        }
+        return "Transaction Detail";
+    });
+
+    const actionLabel = computed(() => {
+        if (transactionKey === "register" || transactionKey === "putaway") {
+            return "Task";
+        }
+        if (isInbound.value) {
+            return "Document";
+        }
+        if (isOutbound.value) {
+            return "Outbound document";
+        }
+        return "Transaction";
+    });
+
+    const canShowActions = computed(() =>
+        Boolean(
+            record.value && record.value.status === "draft" && !isInbound.value,
+        ),
+    );
+
+    const isOutboundReadOnly = computed(
+        () => isOutbound.value && (record.value?.status ?? "") !== "draft",
+    );
+
+    const statusLabel = computed(() =>
+        formatStatusLabel(record.value?.status ?? null),
+    );
+
+    const statusTone = computed(() => getStatusTone(record.value?.status));
+
+    const outboundReviewNote = computed(() => {
+        if (!isOutbound.value) return "";
+        if ((record.value?.status ?? "") === "draft") {
+            return "Draft outbound documents can still be posted or canceled from web admin.";
+        }
+        return `Read-only review. Outbound execution status is ${formatStatusLabel(record.value?.status).toLowerCase()}.`;
     });
 
     const lines = computed(() => {
@@ -58,6 +168,14 @@ export function useTransactionDetail(
             actualQty?: number;
             uom?: { code?: string };
             uomId?: string;
+            sourceLocation?: { name?: string; code?: string };
+            targetLocation?: { name?: string; code?: string };
+            sourceLocationId?: string;
+            targetLocationId?: string;
+            fromLocation?: { name?: string; code?: string };
+            toLocation?: { name?: string; code?: string };
+            fromLocationId?: string;
+            toLocationId?: string;
         }[];
     });
 
@@ -81,41 +199,85 @@ export function useTransactionDetail(
         }
     };
 
-    const handlePost = async () => {
-        if (!confirm("Are you sure you want to post this transaction?")) return;
+    const clearConfirmation = () => {
+        confirmation.value = null;
+    };
+
+    const openConfirmation = (action: TransactionConfirmationAction) => {
+        if (isInbound.value) return;
+        if (isOutboundReadOnly.value) return;
+        const label = actionLabel.value.toLowerCase();
+        confirmation.value = {
+            action,
+            title:
+                action === "post"
+                    ? `Post ${actionLabel.value}`
+                    : `Cancel ${actionLabel.value}`,
+            description:
+                action === "post"
+                    ? `Are you sure you want to post this ${label}?`
+                    : `Are you sure you want to cancel this ${label}?`,
+            confirmText: action === "post" ? "Post" : "Cancel Task",
+            cancelText: "Back",
+            variant: action === "post" ? "primary" : "danger",
+        };
+    };
+
+    const executePost = async () => {
+        if (isInbound.value) return;
+        if (isOutboundReadOnly.value) return;
         actionLoading.value = true;
         try {
             await transactionService.post(transactionKey, id);
-            notifySuccess("Transaction posted successfully.");
+            notifySuccess(`${actionLabel.value} posted successfully.`);
             await loadTransaction();
         } catch (err) {
             notifyError(
                 err instanceof Error
                     ? err.message
-                    : "Failed to post transaction.",
+                    : `Failed to post ${actionLabel.value.toLowerCase()}.`,
             );
         } finally {
             actionLoading.value = false;
         }
     };
 
-    const handleCancel = async () => {
-        if (!confirm("Are you sure you want to cancel this transaction?"))
-            return;
+    const executeCancel = async () => {
+        if (isInbound.value) return;
+        if (isOutboundReadOnly.value) return;
         actionLoading.value = true;
         try {
             await transactionService.cancel(transactionKey, id);
-            notifySuccess("Transaction canceled successfully.");
+            notifySuccess(`${actionLabel.value} canceled successfully.`);
             await loadTransaction();
         } catch (err) {
             notifyError(
                 err instanceof Error
                     ? err.message
-                    : "Failed to cancel transaction.",
+                    : `Failed to cancel ${actionLabel.value.toLowerCase()}.`,
             );
         } finally {
             actionLoading.value = false;
         }
+    };
+
+    const handleConfirmAction = async () => {
+        if (!confirmation.value) return;
+        const action = confirmation.value.action;
+        clearConfirmation();
+        if (action === "post") {
+            await executePost();
+            return;
+        }
+        await executeCancel();
+    };
+
+    const handlePost = () => {
+        openConfirmation("post");
+    };
+
+    const handleCancel = () => {
+        openConfirmation("cancel");
     };
 
     return {
@@ -123,13 +285,28 @@ export function useTransactionDetail(
         actionLoading,
         error,
         record,
+        confirmation,
         headerColumns,
         pageTitle,
         pageDescription,
+        pageTagline,
         lines,
         handleBack,
         loadTransaction,
         handlePost,
         handleCancel,
+        openConfirmation,
+        clearConfirmation,
+        handleConfirmAction,
+        actionLabel,
+        canShowActions,
+        isInbound,
+        isPutaway,
+        isRelocation,
+        isOutbound,
+        isOutboundReadOnly,
+        statusLabel,
+        statusTone,
+        outboundReviewNote,
     };
 }

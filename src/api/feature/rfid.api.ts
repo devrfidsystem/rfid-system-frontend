@@ -7,11 +7,21 @@ import type {
     RfidTagListParams,
     RegisterEpcTagDto,
     TransitionEpcStatusDto,
+    RegistrationActivity,
+    RegistrationActivityListParams,
 } from "./dto/rfid.dto";
 
 const BASE_PATH = "/rfid";
 
 export const rfidApi = {
+    listRegistrationActivities(params: RegistrationActivityListParams = {}) {
+        return apiRequest<RegistrationActivity[]>({
+            url: `${BASE_PATH}/registration-activities`,
+            method: "get",
+            params,
+        });
+    },
+
     listTags(params: RfidTagListParams = {}) {
         return apiRequest<RfidTag[]>({
             url: `${BASE_PATH}/tags`,

@@ -1,45 +1,47 @@
 <template>
     <div
-        class="flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500"
+        class="flex flex-wrap items-center justify-between gap-3 text-sm text-text-secondary"
     >
         <div>
             Showing
-            <span class="font-semibold text-gray-900"
+            <span class="font-semibold text-text"
                 >{{ rangeStart }} - {{ rangeEnd }}</span
             >
             of
-            <span class="font-semibold text-gray-900">{{ total }}</span>
+            <span class="font-semibold text-text">{{ total }}</span>
             records
         </div>
 
         <div class="flex items-center gap-2">
-            <button
+            <Button
                 type="button"
-                class="rounded-md border border-gray-200 px-3 py-1 transition disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 text-gray-700 disabled:text-gray-400"
+                variant="outline"
+                size="sm"
                 :disabled="disabled || page <= 1"
                 @click="goToPage(page - 1)"
             >
                 Prev
-            </button>
-            <button
+            </Button>
+            <Button
                 type="button"
-                class="rounded-md border border-gray-200 px-3 py-1 transition disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 text-gray-700 disabled:text-gray-400"
+                variant="outline"
+                size="sm"
                 :disabled="disabled || page >= totalPages"
                 @click="goToPage(page + 1)"
             >
                 Next
-            </button>
+            </Button>
 
             <label v-if="pageSizeOptions.length" :for="id">
                 <span
-                    class="text-xs font-medium uppercase tracking-wider text-gray-500 ml-2"
+                    class="ml-2 text-xs font-medium uppercase tracking-wide text-text-secondary"
                     >Rows per page</span
                 >
             </label>
             <select
                 v-if="pageSizeOptions.length"
                 :id="id"
-                class="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                class="h-[var(--control-h-sm)] rounded-md border border-border bg-surface px-3 text-xs text-text transition-colors duration-150 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none"
                 :value="pageSize"
                 :disabled="disabled"
                 @change="onPageSizeSelectChange($event)"
@@ -58,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from "vue";
+import Button from "@/components/atoms/Button.vue";
 
 const props = defineProps<{
     page: number;

@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
-import { useDashboardFilters } from "@/store/dashboardFilters.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { useAuthStore } from "@/store/auth.store";
+import { useWarehouseStore } from "@/store/warehouse.store";
 import { dashboardService } from "@/services/dashboard.service";
+import type {
+    DashboardAlertsResponse,
+    DashboardWorkflowOverviewResponse,
+    DashboardKpiSnapshotResponse,
+} from "@/model/dashboard";
 import {
     Box,
     Zap,
@@ -14,12 +19,17 @@ import {
     ClipboardCheck,
 } from "lucide-vue-next";
 
+const dashboardSections = [
+    { key: "alerts", heading: "Operations Alert Center" },
+    { key: "workflow", heading: "Business Workflow Overview" },
+    { key: "kpi", heading: "Executive KPI Snapshot" },
+] as const;
+
 export function useDashboard() {
     const route = useRoute();
     const router = useRouter();
     const authStore = useAuthStore();
-
-    const dashboardFilters = useDashboardFilters();
+    const warehouseStore = useWarehouseStore();
 
     const {
         options: warehouseOptionsRaw,
@@ -50,7 +60,7 @@ export function useDashboard() {
     const selectedWarehouse = computed(
         () =>
             selectableWarehouses.value.find(
-                (option) => option.id === dashboardFilters.filter.warehouseId,
+                (option) => option.id === warehouseStore.selectedWarehouseId,
             ) ?? null,
     );
 
@@ -68,16 +78,16 @@ export function useDashboard() {
     watch(
         normalizedQueryWarehouseId,
         (queryValue) => {
-            if (queryValue === dashboardFilters.filter.warehouseId) {
+            if (queryValue === warehouseStore.selectedWarehouseId) {
                 return;
             }
-            dashboardFilters.setWarehouse(queryValue);
+            warehouseStore.setWarehouse(queryValue);
         },
         { immediate: true },
     );
 
     watch(
-        () => dashboardFilters.filter.warehouseId,
+        () => warehouseStore.selectedWarehouseId,
         (warehouseId) => {
             const current = normalizedQueryWarehouseId.value;
             if (warehouseId === current) {
@@ -94,9 +104,9 @@ export function useDashboard() {
     watch(
         selectableWarehouses,
         (options) => {
-            if (options.length === 1 && !dashboardFilters.filter.warehouseId) {
-                dashboardFilters.setWarehouse(options[0].id);
-            }
+            warehouseStore.syncWarehouseSelection(
+                options.map((warehouse) => warehouse.id),
+            );
         },
         { immediate: true },
     );
@@ -112,6 +122,9 @@ export function useDashboard() {
     const lowStockData = ref<any>(null);
     const epcStatusData = ref<any[]>([]);
     const recentActivityData = ref<any[]>([]);
+    const alertsData = ref<DashboardAlertsResponse | null>(null);
+    const workflowData = ref<DashboardWorkflowOverviewResponse | null>(null);
+    const kpiSnapshotData = ref<DashboardKpiSnapshotResponse | null>(null);
 
     // Loading Refs
     const summaryLoading = ref(false);
@@ -120,6 +133,9 @@ export function useDashboard() {
     const lowStockLoading = ref(false);
     const epcStatusLoading = ref(false);
     const recentActivityLoading = ref(false);
+    const alertsLoading = ref(false);
+    const workflowLoading = ref(false);
+    const kpiSnapshotLoading = ref(false);
 
     const dashboardError = ref<string | null>(null);
 
@@ -130,12 +146,17 @@ export function useDashboard() {
             chartLoading.value ||
             lowStockLoading.value ||
             epcStatusLoading.value ||
-            recentActivityLoading.value,
+            recentActivityLoading.value ||
+            alertsLoading.value ||
+            workflowLoading.value ||
+            kpiSnapshotLoading.value,
     );
 
     const refreshDashboard = async () => {
         dashboardError.value = null;
-        const filter = dashboardFilters.filter;
+        const filter = {
+            warehouseId: warehouseStore.selectedWarehouseId ?? null,
+        };
 
         summaryLoading.value = true;
         dashboardService
@@ -165,6 +186,27 @@ export function useDashboard() {
                 .then((res) => (lowStockData.value = res))
                 .catch((err) => (dashboardError.value = err.message))
                 .finally(() => (lowStockLoading.value = false));
+
+            alertsLoading.value = true;
+            dashboardService
+                .fetchAlerts(filter)
+                .then((res) => (alertsData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (alertsLoading.value = false));
+
+            workflowLoading.value = true;
+            dashboardService
+                .fetchWorkflowOverview(filter)
+                .then((res) => (workflowData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (workflowLoading.value = false));
+
+            kpiSnapshotLoading.value = true;
+            dashboardService
+                .fetchKpiSnapshot(filter)
+                .then((res) => (kpiSnapshotData.value = res))
+                .catch((err) => (dashboardError.value = err.message))
+                .finally(() => (kpiSnapshotLoading.value = false));
         } else if (section.value === "low-stock") {
             lowStockLoading.value = true;
             dashboardService
@@ -226,7 +268,7 @@ export function useDashboard() {
     });
 
     useDebouncedWatch(
-        () => dashboardFilters.filter.warehouseId,
+        () => warehouseStore.selectedWarehouseId,
         () => {
             void refreshDashboard();
         },
@@ -356,7 +398,7 @@ export function useDashboard() {
     });
 
     return {
-        dashboardFilters,
+        dashboardSections,
         warehouseOptions,
         warehousesLoading,
         warehouseError,
@@ -367,6 +409,12 @@ export function useDashboard() {
         lowStockLoading,
         epcStatusLoading,
         recentActivityLoading,
+        alertsData,
+        alertsLoading,
+        workflowData,
+        workflowLoading,
+        kpiSnapshotData,
+        kpiSnapshotLoading,
         dashboardError,
         refreshDashboard,
         heatmapRows,
@@ -379,5 +427,8 @@ export function useDashboard() {
         epcStatusTotal,
         epcStatusBreakdown,
         summaryCards,
+        selectedWarehouseId: computed(() => warehouseStore.selectedWarehouseId),
+        setSelectedWarehouse: (warehouseId: string | null) =>
+            warehouseStore.setWarehouse(warehouseId),
     };
 }

@@ -8,6 +8,8 @@ import type {
     RfidTagListParams,
     RegisterEpcTagDto,
     TransitionEpcStatusDto,
+    RegistrationActivity,
+    RegistrationActivityListParams,
 } from "@/api/feature/dto/rfid.dto";
 import { rfidApi } from "@/api/feature/rfid.api";
 
@@ -49,6 +51,21 @@ export const normalizeRfidTag = (
 };
 
 export const rfidService = {
+    async listRegistrationActivities(
+        params: RegistrationActivityListParams = {},
+    ): Promise<ApiPaginatedResult<RegistrationActivity>> {
+        const response = await rfidApi.listRegistrationActivities(params);
+        const items = normalizePaginationItems(
+            response as ApiResponse<{ items?: RegistrationActivity[] }>,
+        );
+        return {
+            items: items as unknown as RegistrationActivity[],
+            meta: (
+                response as unknown as ApiPaginatedResult<RegistrationActivity>
+            ).meta,
+        };
+    },
+
     async listTags(
         params: RfidTagListParams = {},
     ): Promise<ApiPaginatedResult<RfidTag>> {

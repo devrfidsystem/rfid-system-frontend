@@ -26,7 +26,7 @@ const props = defineProps<{
 }>();
 
 const containerClass = computed(() => [
-    "flex flex-col items-center text-center rounded-lg border border-gray-100 bg-gray-50/50 px-6 py-8",
+    "flex flex-col items-center text-center rounded-md border border-gray-100 bg-gray-50/50 px-6 py-8",
     props.size === "sm" ? "max-w-xs" : "max-w-md",
 ]);
 </script>

@@ -3,11 +3,12 @@
         <PageHeader
             :title="pageTitle"
             :description="pageDescription"
-            tagline="Transactions"
+            :tagline="pageTagline"
         />
 
         <Card no-padding object-id="wdg_TransactionList">
             <TransactionHeader
+                :heading="sectionHeading"
                 v-model:keyword="keyword"
                 v-model:start-date="startDate"
                 v-model:end-date="endDate"
@@ -18,10 +19,12 @@
                 :warehouse-select-options="warehouseSelectOptions"
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="partnerLabel"
-                :sort-order="sortOrder"
+                :has-rows="displayRows.length > 0"
+                :can-export="transactionKey !== 'register'"
+                :can-create="canCreate"
                 @refresh="refresh"
+                @export="exportRows"
                 @new="handleNew"
-                @sort="toggleSort"
             />
 
             <div class="px-6">
@@ -73,6 +76,9 @@ const handleView = (id: string) => {
 
 const {
     pageTitle,
+    pageTagline,
+    sectionHeading,
+    canCreate,
     pageDescription,
     keyword,
     startDate,
@@ -92,8 +98,7 @@ const {
     displayRows,
     columns,
     emptyStateVariant,
-    sortOrder,
-    toggleSort,
+    exportRows,
     refresh,
 } = useTransactionList(props);
 </script>

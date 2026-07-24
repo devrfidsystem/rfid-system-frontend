@@ -1,8 +1,11 @@
 <template>
-    <label class="flex flex-col gap-1.5 text-sm">
-        <span v-if="label" class="font-semibold text-gray-700">{{
-            label
-        }}</span>
+    <label class="flex flex-col gap-1.5 text-sm" :for="id">
+        <span
+            v-if="label"
+            :class="labelClass ?? 'font-medium text-text-secondary'"
+        >
+            {{ label }}
+        </span>
 
         <div class="relative">
             <div
@@ -13,14 +16,26 @@
             </div>
 
             <input
+                :id="id"
                 :value="modelValue ?? ''"
                 :placeholder="placeholder"
                 :type="type"
                 :disabled="disabled"
-                :class="[inputClasses, $slots.icon ? 'pl-10' : '']"
+                :class="[
+                    inputClasses,
+                    $slots.icon ? 'pl-10' : '',
+                    $slots.trailingIcon ? 'pr-10' : '',
+                ]"
                 v-bind="{ ...attrs, ...bindObjectId(objectId) }"
                 @input="onInput"
             />
+
+            <div
+                v-if="$slots.trailingIcon"
+                class="absolute right-3 top-1/2 flex -translate-y-1/2 items-center text-text-secondary"
+            >
+                <slot name="trailingIcon" />
+            </div>
         </div>
 
         <p
@@ -43,6 +58,8 @@ import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     label?: string;
+    labelClass?: string;
+    id?: string;
     modelValue?: string;
     placeholder?: string;
     error?: string;
@@ -66,11 +83,10 @@ const onInput = (e: Event) => {
 };
 
 const baseClasses =
-    "bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-colors duration-150 placeholder:text-gray-400 " +
-    "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-gray-50";
+    "block h-[var(--control-h-md)] w-full rounded-md border border-border bg-surface px-3 text-sm text-text transition-colors duration-150 placeholder:text-text-muted focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary";
 
 const errorClasses =
-    "border-signal-red bg-red-50 text-signal-red placeholder-red-300 focus:ring-red-500 focus:border-signal-red";
+    "border-danger-500 bg-danger-50 text-danger-600 placeholder:text-danger-300 focus:border-danger-500 focus:ring-danger-500/30";
 
 const hasVisualError = computed(() => props.invalid || Boolean(props.error));
 const inputClasses = computed(() =>

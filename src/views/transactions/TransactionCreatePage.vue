@@ -1,14 +1,40 @@
 <template>
     <section class="space-y-6">
         <PageHeader
-            :title="`New ${transactionTitle}`"
-            :description="`Create a new ${transactionKey} transaction`"
+            :title="isInbound ? transactionTitle : `New ${transactionTitle}`"
+            :description="
+                isRegister
+                    ? 'Create a new register task'
+                    : isPutaway
+                      ? 'Create a new putaway task'
+                      : isOutbound
+                        ? 'Create a new outbound assignment with an assigned user and deadline'
+                        : transactionKey === 'inbound'
+                          ? 'Inbound documents are read-only in web admin'
+                          : `Create a new ${transactionKey} transaction`
+            "
             tagline="Transactions"
             back-link
             @back="handleBack"
         />
 
-        <form @submit.prevent="handleSubmit">
+        <div v-if="isInbound" class="grid grid-cols-1 gap-6">
+            <Card
+                class="md:col-span-3"
+                object-id="wdg_TransactionCreateInboundBlocked"
+            >
+                <h3 class="text-base font-semibold text-gray-900 mb-3">
+                    Inbound is read-only
+                </h3>
+                <p class="text-sm text-gray-600 leading-6">
+                    Inbound documents are only displayed from data that has
+                    already been registered. Web admin only reviews inbound data
+                    and does not create it directly.
+                </p>
+            </Card>
+        </div>
+
+        <form v-else @submit.prevent="handleSubmit">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Header Form -->
                 <Card
@@ -31,13 +57,34 @@
                         />
 
                         <Input
-                            v-if="!isOpname"
+                            v-if="!isOpname && !isRegister"
                             id="transactionDate"
                             v-model="form.transactionDate"
                             label="Transaction Date"
                             type="date"
                             required
                             object-id="dtp_TransactionCreateDate"
+                        />
+
+                        <Input
+                            v-if="isRegister"
+                            id="transactionDate"
+                            v-model="form.transactionDate"
+                            label="Date Issue"
+                            type="date"
+                            required
+                            object-id="dtp_TransactionCreateDate"
+                        />
+
+                        <Select
+                            v-if="isRegister"
+                            id="registeredById"
+                            v-model="form.registeredById"
+                            label="User"
+                            :options="userOptions"
+                            placeholder="Select user"
+                            required
+                            object-id="cmb_TransactionCreateRegisteredBy"
                         />
 
                         <Select
@@ -119,6 +166,26 @@
                             object-id="cmb_TransactionCreatePartner"
                         />
 
+                        <Select
+                            v-if="isOutbound"
+                            v-model="form.assignedById"
+                            :options="userOptions"
+                            label="Assigned User"
+                            placeholder="Select assigned user"
+                            required
+                            object-id="cmb_TransactionCreateAssignedBy"
+                        />
+
+                        <Input
+                            v-if="isOutbound"
+                            id="deadlineAt"
+                            v-model="form.deadlineAt"
+                            label="Deadline"
+                            type="date"
+                            required
+                            object-id="dtp_TransactionCreateDeadline"
+                        />
+
                         <Input
                             id="notes"
                             v-model="form.notes"
@@ -126,12 +193,29 @@
                             placeholder="Optional notes"
                             object-id="txt_TransactionCreateNotes"
                         />
+
+                        <template v-if="isPutaway">
+                            <Input
+                                id="referenceType"
+                                v-model="form.referenceType"
+                                label="Reference Type"
+                                placeholder="Inbound, GRN, ASN, etc."
+                                object-id="txt_TransactionCreateReferenceType"
+                            />
+                            <Input
+                                id="referenceId"
+                                v-model="form.referenceId"
+                                label="Reference Number / ID"
+                                placeholder="Optional source document"
+                                object-id="txt_TransactionCreateReferenceId"
+                            />
+                        </template>
                     </div>
                 </Card>
 
-                <!-- Line Items Form (Hide for Opname) -->
+                <!-- Line Items Form (Hide for Opname and Register) -->
                 <TransactionLineItems
-                    v-if="!isOpname"
+                    v-if="!isOpname && !isRegister"
                     :lines="form.lines"
                     :product-options="productOptions"
                     :location-options="locationOptions"
@@ -140,6 +224,7 @@
                     :show-single-warehouse="showSingleWarehouse"
                     :is-relocation="isRelocation"
                     :show-dual-warehouse="showDualWarehouse"
+                    :show-putaway-locations="showPutawayLocations"
                     :submitting="submitting"
                     @add-line="addLine"
                     @remove-line="removeLine"
@@ -148,7 +233,7 @@
 
                 <!-- Opname Save Button -->
                 <Card
-                    v-else
+                    v-else-if="isOpname"
                     class="md:col-span-2"
                     no-padding
                     object-id="wdg_TransactionCreateOpname"
@@ -165,11 +250,12 @@
                         </p>
                     </div>
                     <div
-                        class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3"
+                        class="px-6 py-3 border-t border-gray-100 flex justify-end gap-3"
                     >
                         <Button
                             type="button"
                             variant="outline"
+                            size="sm"
                             :disabled="submitting"
                             object-id="btn_TransactionCreateCancel"
                             @click="handleBack"
@@ -179,10 +265,57 @@
                         <Button
                             type="submit"
                             variant="primary"
+                            size="sm"
                             :disabled="submitting"
                             object-id="btn_TransactionCreateOpnameSubmit"
                         >
                             {{ submitting ? "Creating..." : "Create Opname" }}
+                        </Button>
+                    </div>
+                </Card>
+
+                <!-- Register Save Button -->
+                <Card
+                    v-else-if="isRegister"
+                    class="md:col-span-2"
+                    no-padding
+                    object-id="wdg_TransactionCreateRegister"
+                >
+                    <div class="px-6 py-5 border-b border-gray-100">
+                        <h3 class="text-base font-semibold text-gray-900">
+                            Register Task Creation
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-2">
+                            A Register task has no line items — it records the
+                            admin task header before goods receipt happens in
+                            the next module.
+                        </p>
+                    </div>
+                    <div
+                        class="px-6 py-3 border-t border-gray-100 flex justify-end gap-3"
+                    >
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            :disabled="submitting"
+                            object-id="btn_TransactionCreateCancel"
+                            @click="handleBack"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="sm"
+                            :disabled="submitting"
+                            object-id="btn_TransactionCreateRegisterSubmit"
+                        >
+                            {{
+                                submitting
+                                    ? "Creating..."
+                                    : "Create Register Task"
+                            }}
                         </Button>
                     </div>
                 </Card>
@@ -212,13 +345,18 @@ const {
     transactionTitle,
     showSingleWarehouse,
     showDualWarehouse,
+    showPutawayLocations,
     showPartnerField,
     isRelocation,
     isOpname,
+    isRegister,
+    isOutbound,
+    isPutaway,
     partnerLabel,
     warehouseOptions,
     partnerOptions,
     productOptions,
+    userOptions,
     locationOptions,
     fromLocationOptions,
     toLocationOptions,
@@ -232,7 +370,16 @@ const {
     handleSubmit,
 } = useTransactionCreate(props.transactionKey);
 
+const isInbound = props.transactionKey === "inbound";
+
 onMounted(() => {
-    loadOptions();
+    if (isInbound) {
+        handleBack();
+        return;
+    }
+
+    if (!isInbound) {
+        loadOptions();
+    }
 });
 </script>

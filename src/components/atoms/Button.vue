@@ -48,22 +48,22 @@ const resolvedType = computed(() => props.type ?? "button");
 
 const variantClasses: Record<ButtonVariant, string> = {
     primary:
-        "text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 focus:outline-none border-transparent",
+        "border-transparent bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500/30 focus:outline-none",
     outline:
-        "text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-none",
-    ghost: "text-gray-700 bg-transparent hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 focus:outline-none",
-    danger: "text-white bg-signal-red hover:bg-red-700 focus:ring-4 focus:ring-red-200 focus:outline-none border-transparent",
+        "border border-border bg-surface text-text hover:bg-surface-secondary focus:ring-2 focus:ring-primary-500/20 focus:outline-none",
+    ghost: "border border-transparent bg-transparent text-text-secondary hover:bg-surface-secondary focus:ring-2 focus:ring-primary-500/20 focus:outline-none",
+    danger: "border-transparent bg-danger-500 text-white hover:bg-danger-600 focus:ring-2 focus:ring-danger-500/30 focus:outline-none",
     neutral:
-        "text-gray-900 bg-gray-50 border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 focus:outline-none",
+        "border border-border bg-surface text-text hover:bg-surface-secondary focus:ring-2 focus:ring-primary-500/20 focus:outline-none",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-    sm: "px-3 py-2 text-xs",
-    md: "px-5 py-2.5 text-sm",
+    sm: "h-[var(--control-h-sm)] px-3 text-xs",
+    md: "h-[var(--control-h-md)] px-4 text-sm",
 };
 
 const buttonClasses = computed(() => [
-    "inline-flex items-center justify-center gap-2 rounded-md transition-all duration-150 font-medium",
+    "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors duration-150",
     variantClasses[variant.value],
     sizeClasses[size.value],
     isDisabled.value ? "cursor-not-allowed opacity-50" : "",

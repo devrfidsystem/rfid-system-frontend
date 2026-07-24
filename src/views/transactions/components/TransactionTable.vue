@@ -1,58 +1,49 @@
 <template>
-    <div>
-        <div v-if="loading" class="px-6 pb-5">
-            <LoadingState :lines="5" />
-        </div>
-
-        <div v-else-if="!rows.length" class="px-6 pb-5">
-            <EmptyState :variant="emptyStateVariant" />
-        </div>
-
-        <div v-else>
-            <AppTable
-                :columns="columns"
-                :rows="rows"
-                class="border-none shadow-none rounded-none"
-                object-id="tbl_TransactionList"
+    <DataTable
+        object-id="TransactionList"
+        bare
+        :rows="rows"
+        :columns="dataTableColumns"
+        :row-key="(row) => String(row.id ?? '')"
+        :loading="loading"
+        :empty-state-variant="emptyStateVariant"
+        :show-search="false"
+        :page="page"
+        :page-size="limit"
+        :total="total"
+        :page-size-options="pageSizeOptions"
+        @update:page="emit('update:page', $event)"
+        @update:page-size="emit('update:limit', $event)"
+    >
+        <template #status="{ row }">
+            <Badge :tone="getStatusTone(String(row.status))">
+                {{ formatStatus(String(row.status)) }}
+            </Badge>
+        </template>
+        <template #rowActions="{ row }">
+            <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                object-id="btn_TransactionTableViewDetails"
+                @click="emit('view', String(row.id))"
             >
-                <template #status="{ row }">
-                    <Badge :tone="getStatusTone(String(row.status))">
-                        {{ formatStatus(String(row.status)) }}
-                    </Badge>
-                </template>
-                <template #actions="{ row }">
-                    <RowActions
-                        :actions="[
-                            {
-                                key: 'view',
-                                label: 'View Details',
-                                onClick: () => $emit('view', String(row.id)),
-                            },
-                        ]"
-                    />
-                </template>
-            </AppTable>
-            <div class="border-t border-gray-200 px-6 py-4">
-                <Pagination
-                    v-model:page="localPage"
-                    v-model:page-size="localLimit"
-                    :total="total"
-                    :page-size-options="pageSizeOptions"
-                />
-            </div>
-        </div>
-    </div>
+                <Icon :icon="Eye" :size="12" />
+                View Details
+            </Button>
+        </template>
+    </DataTable>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import AppTable from "@/components/organisms/Table.vue";
-import LoadingState from "@/components/ui/states/LoadingState.vue";
-import EmptyState from "@/components/molecules/EmptyState.vue";
-import Pagination from "@/components/ui/table/Pagination.vue";
-import RowActions from "@/components/ui/table/RowActions.vue";
+import DataTable from "@/components/organisms/DataTable/DataTable.vue";
+import type { ColumnDef } from "@/components/organisms/DataTable/types";
+import Button from "@/components/atoms/Button.vue";
+import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import type { ReportColumnDef } from "@/views/report/reportConfig";
+import { Eye } from "lucide-vue-next";
 
 const props = defineProps<{
     loading: boolean;
@@ -88,13 +79,9 @@ const emit = defineEmits<{
     (e: "view", id: string): void;
 }>();
 
-const localPage = computed({
-    get: () => props.page,
-    set: (value) => emit("update:page", value),
-});
-
-const localLimit = computed({
-    get: () => props.limit,
-    set: (value) => emit("update:limit", value),
-});
+const dataTableColumns = computed<ColumnDef<Record<string, unknown>>[]>(() =>
+    props.columns
+        .filter((column) => column.key !== "actions")
+        .map((column) => ({ key: column.key, header: column.label })),
+);
 </script>

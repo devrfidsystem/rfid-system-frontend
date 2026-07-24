@@ -17,6 +17,7 @@ export interface RfidTag {
     metadata?: Record<string, unknown>;
     createdAt: string;
     updatedAt: string;
+    userName?: string | null;
 }
 
 export interface RegisterEpcTagDto {
@@ -57,3 +58,21 @@ export interface LogEpcEventDto {
 
 // backward-compat alias (if any code still imports RfidEventDto)
 export type RfidEventDto = LogEpcEventDto;
+
+export interface RegistrationActivity {
+    activityDate: string;
+    userId: string;
+    userName: string | null;
+    productId: string;
+    productName: string | null;
+    quantity: number;
+}
+
+export interface RegistrationActivityListParams {
+    page?: number;
+    limit?: number;
+    productId?: string;
+    userId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+}

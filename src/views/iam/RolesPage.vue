@@ -17,20 +17,17 @@
         </div>
 
         <Card no-padding object-id="wdg_RolesList">
-            <div v-if="loading" class="p-6">
-                <LoadingState :lines="3" />
-            </div>
-            <div v-else-if="error" class="p-6 text-sm text-rose-600 bg-rose-50">
-                {{ error }}
-            </div>
-            <AppTable
-                v-else
-                :columns="columns"
+            <DataTable
+                object-id="RolesList"
+                bare
                 :rows="tableRows"
-                class="border-none shadow-none rounded-none"
-                object-id="tbl_RolesList"
+                :columns="dataTableColumns"
+                :row-key="(row) => String(row.id ?? '')"
+                :loading="loading"
+                :load-error="error ?? undefined"
+                :show-search="false"
             >
-                <template #actions="{ row }">
+                <template #rowActions="{ row }">
                     <RowActions
                         :actions="[
                             {
@@ -41,7 +38,7 @@
                         ]"
                     />
                 </template>
-            </AppTable>
+            </DataTable>
         </Card>
 
         <Drawer
@@ -100,9 +97,9 @@ import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
-import AppTable from "@/components/organisms/Table.vue";
+import DataTable from "@/components/organisms/DataTable/DataTable.vue";
+import type { ColumnDef } from "@/components/organisms/DataTable/types";
 import RowActions from "@/components/ui/table/RowActions.vue";
-import LoadingState from "@/components/ui/states/LoadingState.vue";
 import { iamService } from "@/services/iam.service";
 
 const columns = [
@@ -181,6 +178,12 @@ const handleSubmit = async () => {
         submitting.value = false;
     }
 };
+
+const dataTableColumns = computed<ColumnDef<Record<string, unknown>>[]>(() =>
+    columns
+        .filter((column) => column.key !== "actions")
+        .map((column) => ({ key: column.key, header: column.label })),
+);
 
 onMounted(() => loadData());
 </script>

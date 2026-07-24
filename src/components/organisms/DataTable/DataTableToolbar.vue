@@ -1,11 +1,13 @@
 <template>
     <div
-        class="flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-white rounded-t-md"
+        class="flex flex-wrap items-center justify-between gap-4 rounded-t-md border-b border-border bg-surface px-4 py-3"
     >
         <div class="flex flex-1 min-w-[240px] items-center gap-3">
             <div
-                class="flex w-full max-w-sm items-center gap-2 rounded-md bg-workspace-bg border border-border-default px-3 py-2 focus-within:ring-2 focus-within:ring-primary-100 focus-within:border-primary-400 transition-all"
+                v-if="showSearch !== false"
+                class="flex h-[var(--control-h-md)] w-full max-w-sm items-center gap-2 rounded-md border border-border bg-surface px-3 transition-colors duration-150 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20"
             >
+                <label :for="searchId" class="sr-only">Search</label>
                 <slot name="search-icon">
                     <Icon
                         :icon="Search"
@@ -14,8 +16,9 @@
                     />
                 </slot>
                 <input
+                    :id="searchId"
                     v-model="search"
-                    class="w-full bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                    class="w-full bg-transparent text-sm text-text placeholder:text-text-muted focus:outline-none"
                     placeholder="Search..."
                     v-bind="
                         bindObjectId(
@@ -32,15 +35,18 @@
             <slot name="actions" :rows="rows" :visible-rows="visibleRows" />
             <div
                 v-if="pageSizeOptions?.length"
-                class="flex items-center gap-2 text-xs text-text-secondary pl-3 border-l border-border-default"
+                class="flex items-center gap-2 border-l border-border pl-3 text-xs text-text-secondary"
             >
-                <span
-                    class="text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >Rows</span
+                <label
+                    :for="pageSizeId"
+                    class="text-xs font-medium uppercase tracking-wide text-text-secondary"
                 >
+                    Rows
+                </label>
                 <select
+                    :id="pageSizeId"
                     v-model.number="localPageSize"
-                    class="rounded-md border border-border-default bg-workspace-bg px-2 py-1 text-xs focus:border-primary-400 focus:ring-1 focus:ring-primary-100 cursor-pointer"
+                    class="h-[var(--control-h-sm)] cursor-pointer rounded-md border border-border bg-surface px-2 text-xs text-text transition-colors duration-150 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
                     v-bind="
                         bindObjectId(
                             objectId
@@ -75,6 +81,7 @@ const props = defineProps<{
     rows: unknown[];
     visibleRows: unknown[];
     objectId?: string;
+    showSearch?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -84,6 +91,8 @@ const emit = defineEmits<{
 
 const search = ref(props.modelValue ?? "");
 const localPageSize = ref(props.pageSize ?? props.pageSizeOptions?.[0] ?? 10);
+const searchId = `dt-search-${Math.random().toString(36).slice(2, 9)}`;
+const pageSizeId = `dt-page-size-${Math.random().toString(36).slice(2, 9)}`;
 
 watch(search, (value) => emit("update:modelValue", value));
 watch(

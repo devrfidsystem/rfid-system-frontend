@@ -12,14 +12,15 @@ import {
 
 export type ReportKey =
     | "inbound"
+    | "putaway"
     | "outbound"
     | "stock-opname"
     | "relocation"
     | "transfer"
     | "return"
+    | "register"
     | "current-stock"
-    | "stock-period"
-    | "opname-variance";
+    | "stock-period";
 
 export interface ReportColumnDef {
     key: string;
@@ -55,20 +56,31 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         warehouseKey: "warehouseId",
         icon: FileBarChart2,
     },
+    putaway: {
+        entity: "putaway",
+        title: "Putaway Report",
+        description: "Storage placement tasks after receiving goods.",
+        columns: [
+            { key: "docNumber", label: "Doc No" },
+            { key: "docDate", label: "Date" },
+            { key: "warehouse.name", label: "Warehouse" },
+            { key: "referenceType", label: "Reference" },
+            { key: "status", label: "Status" },
+        ],
+        warehouseKey: "warehouseId",
+        icon: ClipboardCheck,
+    },
     outbound: {
         entity: "outbound",
         title: "Outbound Report",
         description: "Shipments and finished goods.",
         columns: [
-            { key: "outbound_no", label: "Doc No" },
-            { key: "outbound_date", label: "Date" },
-            { key: "customer.name", label: "Customer" },
+            { key: "docNo", label: "ID Number" },
+            { key: "type", label: "Type" },
+            { key: "assignedBy.fullName", label: "Assigned User" },
+            { key: "deadlineAt", label: "Deadline" },
             { key: "status", label: "Status" },
         ],
-        partnerLabel: "Customer",
-        partnerDataset: "customers",
-        partnerKey: "partnerId",
-        warehouseKey: "warehouseId",
         icon: FileBarChart2,
     },
     "stock-opname": {
@@ -82,6 +94,18 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         ],
         warehouseKey: "warehouseId",
         icon: ClipboardCheck,
+    },
+    register: {
+        entity: "register",
+        title: "Register",
+        description: "Admin task documents created before goods receipt.",
+        columns: [
+            { key: "docNumber", label: "Doc No" },
+            { key: "docDate", label: "Date Issue" },
+            { key: "registeredBy.fullName", label: "User" },
+            { key: "status", label: "Status" },
+        ],
+        icon: FileBarChart2,
     },
     relocation: {
         entity: "relocation",
@@ -151,19 +175,6 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         ],
         warehouseKey: "warehouseId",
         icon: Clock4,
-    },
-    "opname-variance": {
-        entity: "opname-variance" as EntityKey,
-        title: "Opname Variance",
-        description: "Stock variance discrepancies from opname execution.",
-        columns: [
-            { key: "title", label: "Title" },
-            { key: "company.name", label: "Company" },
-            { key: "status", label: "Status" },
-            { key: "createdAt", label: "Created At" },
-        ],
-        warehouseKey: "warehouseId",
-        icon: ClipboardCheck,
     },
 };
 

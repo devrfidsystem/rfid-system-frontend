@@ -5,7 +5,7 @@ import { MasterSelectors } from "../selectors/master.selectors.js";
 export class MasterDataPage {
     constructor(driver, appUrl, entityRoute) {
         this.driver = driver;
-        this.url = `${appUrl}/master-data/${entityRoute}`;
+        this.url = `${appUrl}/master-data/${entityRoute ?? "products"}`;
     }
 
     async navigate() {
@@ -73,6 +73,26 @@ export class MasterDataPage {
         await searchInput.clear();
         await searchInput.sendKeys(text);
         await this.driver.sleep(1500); // Wait for debounce
+    }
+
+    async fillProductCode(value) {
+        await this.fillForm({ code: { value, type: "text" } });
+    }
+
+    async fillProductName(value) {
+        await this.fillForm({ name: { value, type: "text" } });
+    }
+
+    async searchProduct(text) {
+        await this.search(text);
+    }
+
+    async editFirstProduct() {
+        await this.editFirstItem();
+    }
+
+    async deleteFirstProduct() {
+        await this.deleteFirstItem();
     }
 
     async editFirstItem() {

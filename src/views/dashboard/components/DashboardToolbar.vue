@@ -3,7 +3,7 @@
         <div
             class="mx-auto w-full max-w-[1400px] px-4 py-3 lg:px-6 flex flex-wrap items-center justify-between gap-4"
         >
-            <!-- Left: Filters & Tools -->
+            <!-- Warehouse scope remains the source-of-truth filter. -->
             <div class="flex items-center gap-2">
                 <!-- Real Warehouse Filter -->
                 <div class="w-[200px]">
@@ -19,22 +19,6 @@
                         "
                     />
                 </div>
-
-                <!-- Sort Stub (matches reference visual) -->
-                <Button
-                    variant="outline"
-                    size="sm"
-                    object-id="btn_DashboardSort"
-                >
-                    <template #leftIcon>
-                        <Icon
-                            :icon="ArrowUpDown"
-                            :size="14"
-                            class-name="text-gray-500"
-                        />
-                    </template>
-                    Sort
-                </Button>
             </div>
 
             <!-- Right: Actions -->
@@ -69,7 +53,7 @@ import { ref, onMounted } from "vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { ArrowUpDown, RefreshCw } from "lucide-vue-next";
+import { RefreshCw } from "lucide-vue-next";
 
 defineProps<{
     warehouseId: string | null | undefined;

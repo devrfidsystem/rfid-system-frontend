@@ -1,38 +1,51 @@
 <template>
-    <Card object-id="wdg_DashboardRecentActivity">
-        <div>
-            <h2 class="text-lg font-semibold text-gray-900">
-                Operational Activity
+    <Card
+        object-id="wdg_DashboardRecentActivity"
+        class="bg-transparent border-0 shadow-none p-0"
+    >
+        <div class="mb-4">
+            <h2
+                class="text-lg font-semibold text-gray-900 flex justify-between items-center"
+            >
+                <span>Recent Activity</span>
+                <span
+                    class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600"
+                >
+                    <span
+                        class="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                    ></span>
+                    LIVE
+                </span>
             </h2>
             <p class="text-sm text-gray-500 mt-0.5">
-                Real-time tracking of physical movements and documents.
+                Live warehouse operations
             </p>
         </div>
 
-        <div class="mt-8">
-            <div v-if="loading" class="space-y-6">
+        <div>
+            <div v-if="loading" class="space-y-4">
                 <div
-                    v-for="n in 5"
+                    v-for="n in 4"
                     :key="`act-skel-${n}`"
-                    class="flex gap-4 animate-pulse"
+                    class="flex gap-4 animate-pulse bg-white p-4 rounded-xl"
                 >
                     <div
-                        class="h-10 w-10 bg-workspace-bg rounded-full shrink-0"
+                        class="h-12 w-12 bg-workspace-bg rounded-xl shrink-0"
                     ></div>
                     <div class="space-y-2 flex-1 pt-2">
-                        <div class="h-3.5 bg-workspace-bg rounded w-3/4"></div>
-                        <div class="h-3 bg-workspace-bg rounded w-1/4"></div>
+                        <div class="h-4 bg-workspace-bg rounded w-1/4"></div>
+                        <div class="h-3 bg-workspace-bg rounded w-3/4"></div>
                     </div>
                 </div>
             </div>
             <div
                 v-else-if="!recentActivity.length"
-                class="rounded-lg border border-gray-100 bg-gray-50/50 p-8 flex flex-col items-center text-center"
+                class="rounded-xl border border-gray-100 bg-white p-8 flex flex-col items-center text-center shadow-sm"
             >
                 <div
-                    class="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-gray-200 mb-3 text-gray-400"
+                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-50 mb-3 text-gray-400"
                 >
-                    <Icon :icon="LayoutDashboard" :size="20" />
+                    <Icon :icon="LayoutDashboard" :size="24" />
                 </div>
                 <p class="text-sm font-medium text-gray-900">
                     No operational activity
@@ -41,114 +54,58 @@
                     No operations have been recorded yet.
                 </p>
             </div>
-            <div v-else class="flow-root pl-4">
-                <ul role="list" class="-mb-8">
-                    <li
-                        v-for="(activity, actIdx) in recentActivity"
-                        :key="activity.id"
-                    >
-                        <div class="relative pb-8">
-                            <span
-                                v-if="actIdx !== recentActivity.length - 1"
-                                class="absolute left-6 top-6 -ml-px h-full w-0.5 bg-gray-100"
-                                aria-hidden="true"
-                            ></span>
-                            <div class="relative flex space-x-4">
-                                <div>
-                                    <span
-                                        class="flex h-12 w-12 items-center justify-center rounded-full ring-8 ring-white shrink-0 animate-fade-in"
-                                        :class="
-                                            activity.qty >= 0
-                                                ? 'bg-emerald-50 text-emerald-700 ring-emerald-50/50'
-                                                : 'bg-orange-50 text-orange-700 ring-orange-50/50'
-                                        "
-                                    >
-                                        <Icon
-                                            :icon="
-                                                activity.qty >= 0
-                                                    ? ArrowDownRight
-                                                    : ArrowUpRight
-                                            "
-                                            :size="18"
-                                        />
-                                    </span>
-                                </div>
-                                <div
-                                    class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5"
-                                >
-                                    <div>
-                                        <p class="text-sm text-gray-800">
-                                            <span
-                                                class="font-bold text-gray-900"
-                                                >{{
-                                                    activity.qty >= 0
-                                                        ? "Inbound"
-                                                        : "Outbound"
-                                                }}</span
-                                            >
-                                            dari
-                                            <span
-                                                class="font-bold text-gray-900"
-                                                >{{
-                                                    activity.productName
-                                                }}</span
-                                            >
-                                            (<span
-                                                class="font-semibold text-primary-600"
-                                                >{{
-                                                    activity.productCode
-                                                }}</span
-                                            >) di lokasi
-                                            <span
-                                                class="font-semibold text-text-secondary"
-                                                >{{ activity.warehouseCode }}
-                                                ·
-                                                {{
-                                                    activity.locationCode
-                                                }}</span
-                                            >
-                                        </p>
-                                        <div
-                                            class="mt-1.5 flex items-center gap-2"
-                                        >
-                                            <span
-                                                class="inline-flex items-center rounded bg-gray-50 px-2 py-0.5 text-xs font-semibold text-gray-600 ring-1 ring-inset ring-gray-500/10"
-                                            >
-                                                {{ activity.docReference }}
-                                            </span>
-                                            <span
-                                                class="text-xs text-text-secondary"
-                                                >{{
-                                                    formatActivityTime(
-                                                        activity.createdAt,
-                                                    )
-                                                }}</span
-                                            >
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="whitespace-nowrap text-right text-sm"
-                                    >
-                                        <span
-                                            class="font-extrabold"
-                                            :class="
-                                                activity.qty >= 0
-                                                    ? 'text-emerald-600'
-                                                    : 'text-orange-600'
-                                            "
-                                        >
-                                            {{
-                                                activity.qty >= 0
-                                                    ? `+${activity.qty}`
-                                                    : activity.qty
-                                            }}
-                                        </span>
-                                    </div>
-                                </div>
+            <div v-else class="space-y-3">
+                <div
+                    v-for="activity in recentActivity"
+                    :key="activity.id"
+                    class="flex space-x-4 p-4 rounded-2xl"
+                    :class="getCardBgColor(activity.type)"
+                >
+                    <div class="shrink-0">
+                        <span
+                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm ring-1"
+                            :class="getIconColorClass(activity.type)"
+                        >
+                            <Icon
+                                :icon="getIconForType(activity.type)"
+                                :size="22"
+                            />
+                        </span>
+                    </div>
+                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                        <div class="flex items-center justify-between">
+                            <p
+                                class="text-sm font-bold"
+                                :class="getTitleColorClass(activity.type)"
+                            >
+                                {{ activity.title }}
+                            </p>
+                            <div
+                                class="flex items-center text-xs text-gray-500"
+                            >
+                                <Icon
+                                    :icon="Clock"
+                                    :size="12"
+                                    class="mr-1 opacity-70"
+                                />
+                                {{ formatActivityTime(activity.createdAt) }}
                             </div>
                         </div>
-                    </li>
-                </ul>
+                        <p class="text-sm text-gray-700 mt-0.5 truncate">
+                            {{ activity.summary }}
+                        </p>
+                        <div
+                            class="flex items-center text-xs text-gray-500 mt-1.5 font-medium"
+                        >
+                            <Icon
+                                :icon="User"
+                                :size="12"
+                                class="mr-1.5 opacity-70"
+                            />
+                            {{ activity.userName }}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </Card>
@@ -157,22 +114,97 @@
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { LayoutDashboard, ArrowDownRight, ArrowUpRight } from "lucide-vue-next";
-import { formatDate } from "@/utils/date";
+import {
+    LayoutDashboard,
+    Tag,
+    ArrowLeftRight,
+    LogOut,
+    LogIn,
+    Clock,
+    User,
+} from "lucide-vue-next";
+import { formatDistanceToNow } from "@/utils/date";
+
+type ActivityType =
+    | "tag_registration"
+    | "item_movement"
+    | "outbound"
+    | "inbound";
 
 defineProps<{
     loading: boolean;
     recentActivity: Array<{
         id: string;
-        qty: number;
-        productName: string;
-        productCode: string;
-        warehouseCode: string;
-        locationCode: string;
-        docReference: string;
+        type: ActivityType;
+        title: string;
+        summary: string;
+        userName: string;
         createdAt: string;
     }>;
 }>();
 
-const formatActivityTime = (timestamp?: string) => formatDate(timestamp);
+const formatActivityTime = (timestamp?: string) => {
+    if (!timestamp) return "";
+    return formatDistanceToNow(new Date(timestamp));
+};
+
+const getIconForType = (type: ActivityType) => {
+    switch (type) {
+        case "tag_registration":
+            return Tag;
+        case "item_movement":
+            return ArrowLeftRight;
+        case "outbound":
+            return LogOut;
+        case "inbound":
+            return LogIn; // Using LogIn or Truck
+        default:
+            return LayoutDashboard;
+    }
+};
+
+const getCardBgColor = (type: ActivityType) => {
+    switch (type) {
+        case "tag_registration":
+            return "bg-purple-50/50 border border-purple-100/50";
+        case "item_movement":
+            return "bg-cyan-50/50 border border-cyan-100/50";
+        case "outbound":
+            return "bg-red-50/50 border border-red-100/50";
+        case "inbound":
+            return "bg-emerald-50/50 border border-emerald-100/50";
+        default:
+            return "bg-gray-50/50 border border-gray-100/50";
+    }
+};
+
+const getIconColorClass = (type: ActivityType) => {
+    switch (type) {
+        case "tag_registration":
+            return "text-purple-600 ring-purple-100";
+        case "item_movement":
+            return "text-cyan-600 ring-cyan-100";
+        case "outbound":
+            return "text-red-600 ring-red-100";
+        case "inbound":
+            return "text-emerald-600 ring-emerald-100";
+        default:
+            return "text-gray-600 ring-gray-100";
+    }
+};
+
+const getTitleColorClass = (type: ActivityType) => {
+    switch (type) {
+        case "tag_registration":
+            return "text-purple-600";
+        case "item_movement":
+            return "text-cyan-600";
+        case "outbound":
+            return "text-red-600";
+        case "inbound":
+            return "text-emerald-600";
+        default:
+            return "text-gray-900";
+    }
+};
 </script>

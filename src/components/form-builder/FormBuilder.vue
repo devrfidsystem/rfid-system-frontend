@@ -12,7 +12,7 @@
             <slot name="actions" :meta="meta" :errors="errors">
                 <button
                     type="submit"
-                    class="inline-flex items-center justify-center rounded-md bg-primary-500 px-4 py-2 text-white transition hover:bg-primary-600 disabled:opacity-60"
+                    class="inline-flex items-center justify-center rounded-md bg-primary-500 px-4 py-2 text-white transition-colors duration-150 hover:bg-primary-600 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
                     :disabled="isSubmitting || !meta.valid"
                 >
                     Submit

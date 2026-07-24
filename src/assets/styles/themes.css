@@ -1,45 +1,65 @@
+/*
+ * These variables are consumed by tailwind.config.ts.
+ * `data-theme` and `data-density` are already being set by your
+ * useTheme.ts composable (applyThemeAttributes) — this file just
+ * needs to react to them.
+ */
+
 :root {
-    --color-surface: #f8fafc;
-    --color-card: #ffffff;
-    --color-text-default: #0f172a;
-    --color-text-muted: #64748b;
-    --color-border-default: #e2e8f0;
-    --density-vertical: 0.75rem;
-    --density-horizontal: 1rem;
-    --density-font-size: 0.875rem;
+    /* Light theme surfaces (RGB triplets, no commas, for Tailwind's
+       rgb(var(--x) / <alpha-value>) pattern) */
+    --surface: 255 255 255;
+    --surface-secondary: 248 250 252;
+    --border: 226 232 240;
+    --text: 15 23 42;
+    --text-secondary: 100 116 139;
+    --text-muted: 148 163 184;
+
+    /* Spacing scale — this is what "comfortable" density uses */
+    --space-2xs: 2px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+
+    /* Fixed control heights keep buttons/inputs/table-rows aligned
+       regardless of their content */
+    --control-h-sm: 28px;
+    --control-h-md: 32px;
+    --control-h-lg: 36px;
 }
 
-html[data-theme="dark"] {
-    --color-surface: #020617;
-    --color-card: #0f172a;
-    --color-text-default: #e2e8f0;
-    --color-text-muted: #94a3b8;
-    --color-border-default: #1e293b;
-
-    --brand-gradient-from: #1e3a8a;
-    --brand-gradient-via: #1d4ed8;
-    --brand-gradient-to: #0d9488;
+[data-theme="dark"] {
+    /* Light-only product UI: keep dark-theme hooks mapped to light tokens
+       so stale preferences or accidental toggles do not change the palette. */
+    --surface: 255 255 255;
+    --surface-secondary: 248 250 252;
+    --border: 226 232 240;
+    --text: 15 23 42;
+    --text-secondary: 100 116 139;
+    --text-muted: 148 163 184;
 }
 
-html[data-density="compact"] {
-    --density-vertical: 0.45rem;
-    --density-horizontal: 0.75rem;
-    --density-font-size: 0.78rem;
-}
+/*
+ * Compact density: tighter spacing + shorter controls, same font sizes.
+ * This is the actual mechanism behind ClickUp's "Comfortable / Compact"
+ * view toggle — most teams don't realize it's just a spacing swap.
+ */
+[data-density="compact"] {
+    --space-2xs: 1px;
+    --space-xs: 2px;
+    --space-sm: 6px;
+    --space-md: 8px;
+    --space-lg: 12px;
+    --space-xl: 16px;
 
-html[data-density="comfortable"] {
-    --density-vertical: 0.75rem;
-    --density-horizontal: 1rem;
-    --density-font-size: 0.875rem;
+    --control-h-sm: 24px;
+    --control-h-md: 28px;
+    --control-h-lg: 32px;
 }
 
 body {
-    background-color: var(--color-surface);
-    color: var(--color-text-default);
-}
-
-.density-table th,
-.density-table td {
-    padding: var(--density-vertical) var(--density-horizontal);
-    font-size: var(--density-font-size);
+    font-size: 13px; /* matches fontSize.base in tailwind.config.ts */
+    -webkit-font-smoothing: antialiased;
 }

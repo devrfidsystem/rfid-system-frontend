@@ -1,17 +1,21 @@
 <template>
     <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-5"
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-3"
     >
         <div>
             <h3 class="text-base font-semibold text-gray-900">
-                Transactions List
+                {{ heading }} List
             </h3>
         </div>
         <div
             class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-1 sm:justify-end"
         >
             <Input
+                id="txt_TransactionHeaderSearch"
                 v-model="localKeyword"
+                label="Search documents"
+                label-class="sr-only"
+                aria-label="Search documents"
                 placeholder="Search documents"
                 class="w-full sm:max-w-xs"
                 object-id="txt_TransactionHeaderSearch"
@@ -44,6 +48,7 @@
                                 v-model="localStartDate"
                                 type="date"
                                 label="From"
+                                aria-label="From date"
                                 object-id="dtp_TransactionHeaderFromDate"
                             />
                             <Input
@@ -51,15 +56,18 @@
                                 v-model="localEndDate"
                                 type="date"
                                 label="To"
+                                aria-label="To date"
                                 object-id="dtp_TransactionHeaderToDate"
                             />
                         </div>
                         <Select
                             v-if="showWarehouseFilter"
+                            id="cmb_TransactionHeaderWarehouse"
                             v-model="localSelectedWarehouse"
                             :options="warehouseSelectOptions"
                             placeholder="Select warehouse"
                             label="Warehouse"
+                            aria-label="Warehouse"
                             class="w-full"
                             object-id="cmb_TransactionHeaderWarehouse"
                         />
@@ -68,10 +76,12 @@
                                 partnerFilterSupported &&
                                 partnerSelectOptions.length
                             "
+                            id="cmb_TransactionHeaderPartner"
                             v-model="localSelectedPartner"
                             :options="partnerSelectOptions"
                             placeholder="Select partner"
                             :label="partnerLabel"
+                            :aria-label="partnerLabel"
                             class="w-full"
                             object-id="cmb_TransactionHeaderPartner"
                         />
@@ -89,18 +99,6 @@
                 </div>
                 <Button
                     variant="outline"
-                    class="px-3 w-full sm:w-auto justify-center"
-                    object-id="btn_TransactionHeaderSort"
-                    @click="$emit('sort')"
-                >
-                    <Icon
-                        :icon="sortOrder === 'desc' ? ArrowDown : ArrowUp"
-                        :size="14"
-                    />
-                    {{ sortOrder === "desc" ? "Newest" : "Oldest" }}
-                </Button>
-                <Button
-                    variant="outline"
                     class="px-2 w-full sm:w-auto justify-center"
                     title="Refresh"
                     object-id="btn_TransactionHeaderRefresh"
@@ -109,6 +107,18 @@
                     <Icon :icon="RefreshCw" :size="16" />
                 </Button>
                 <Button
+                    v-if="canExport ?? true"
+                    variant="primary"
+                    class="col-span-2 sm:col-span-1 px-3 w-full sm:w-auto justify-center"
+                    :disabled="!hasRows"
+                    object-id="btn_TransactionHeaderExport"
+                    @click="$emit('export')"
+                >
+                    <Icon :icon="Download" :size="14" />
+                    Export XLS
+                </Button>
+                <Button
+                    v-if="showCreateButton"
                     variant="primary"
                     class="px-3 w-full sm:w-auto justify-center"
                     object-id="btn_TransactionHeaderNew"
@@ -128,33 +138,37 @@ import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import {
-    Search,
-    Filter,
-    ArrowUp,
-    ArrowDown,
-    RefreshCw,
-    Plus,
-} from "lucide-vue-next";
+import { Search, Filter, RefreshCw, Download, Plus } from "lucide-vue-next";
 
 interface SelectOption {
     label: string;
     value: string;
 }
 
-const props = defineProps<{
-    keyword: string;
-    startDate: string;
-    endDate: string;
-    selectedWarehouse: string;
-    selectedPartner: string;
-    showWarehouseFilter: boolean;
-    partnerFilterSupported: boolean;
-    warehouseSelectOptions: SelectOption[];
-    partnerSelectOptions: SelectOption[];
-    partnerLabel: string;
-    sortOrder: "asc" | "desc";
-}>();
+const props = withDefaults(
+    defineProps<{
+        heading: string;
+        keyword: string;
+        startDate: string;
+        endDate: string;
+        selectedWarehouse: string;
+        selectedPartner: string;
+        showWarehouseFilter: boolean;
+        partnerFilterSupported: boolean;
+        warehouseSelectOptions: SelectOption[];
+        partnerSelectOptions: SelectOption[];
+        partnerLabel: string;
+        hasRows: boolean;
+        canExport?: boolean;
+        canCreate?: boolean;
+    }>(),
+    {
+        canExport: true,
+        canCreate: true,
+    },
+);
+
+const showCreateButton = computed(() => props.canCreate !== false);
 
 const emit = defineEmits<{
     (e: "update:keyword", value: string): void;
@@ -163,8 +177,8 @@ const emit = defineEmits<{
     (e: "update:selectedWarehouse", value: string): void;
     (e: "update:selectedPartner", value: string): void;
     (e: "refresh"): void;
+    (e: "export"): void;
     (e: "new"): void;
-    (e: "sort"): void;
 }>();
 
 const localKeyword = computed({

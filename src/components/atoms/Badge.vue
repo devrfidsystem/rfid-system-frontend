@@ -19,18 +19,18 @@ const props = defineProps<{
 }>();
 
 const toneMap: Record<string, string> = {
-    neutral: "bg-gray-100 text-gray-700 ring-1 ring-gray-200",
-    success: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-    warning: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-    error: "bg-red-50 text-signal-red ring-1 ring-red-200",
-    info: "bg-blue-50 text-primary-600 ring-1 ring-blue-200",
-    purple: "bg-purple-50 text-insight-purple ring-1 ring-purple-200",
-    teal: "bg-teal-50 text-primary-teal ring-1 ring-teal-200",
+    neutral: "bg-surface-secondary text-text-secondary ring-1 ring-border",
+    success: "bg-success-50 text-success-600 ring-1 ring-success-500/20",
+    warning: "bg-warning-50 text-warning-600 ring-1 ring-warning-500/20",
+    error: "bg-danger-50 text-danger-600 ring-1 ring-danger-500/20",
+    info: "bg-info-50 text-info-600 ring-1 ring-info-500/20",
+    purple: "bg-info-50 text-info-600 ring-1 ring-info-500/20",
+    teal: "bg-success-50 text-success-600 ring-1 ring-success-500/20",
 };
 
 const badgeClasses = computed(() =>
     [
-        "inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full",
+        "inline-flex min-h-[20px] items-center rounded-sm px-2 py-0.5 text-xs font-medium",
         toneMap[props.tone ?? "neutral"],
     ].join(" "),
 );

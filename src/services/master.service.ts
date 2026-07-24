@@ -11,6 +11,7 @@ import { normalizePaginationItems } from "@/lib/api/normalizers";
 import { masterApi } from "@/api/feature/master.api";
 
 const removableEntities: MasterEntityKey[] = [
+    "attributes",
     "warehouses",
     "locations",
     "products",

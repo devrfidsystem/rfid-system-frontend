@@ -10,6 +10,15 @@ import type {
     DashboardEpcStatusResponse,
     DashboardRecentActivityResponse,
     DashboardStockSummaryResponse,
+    DashboardAlertsResponse,
+    DashboardWorkflowOverviewResponse,
+    DashboardKpiSnapshotResponse,
+    DashboardKpiDomain,
+    DashboardKpiDetailResponse,
+    ProcessActivity,
+    ProcessPeriod,
+    ProcessDetailResponse,
+    MonitoringResponse,
 } from "@/api/feature/dto/dashboard.dto";
 import type {
     DashboardFilterState,
@@ -262,7 +271,7 @@ export const dashboardService = {
             filter.warehouseId
                 ? locationService.list({
                       warehouseId: filter.warehouseId,
-                      limit: 500,
+                      limit: 200,
                   })
                 : Promise.resolve({
                       success: true,
@@ -279,5 +288,59 @@ export const dashboardService = {
                 locationResponse as unknown as LocationListResponse<LocationRecord>,
             ), // Keep typing simple for internal conversion
         );
+    },
+
+    async fetchAlerts(
+        filter: DashboardFilterState,
+    ): Promise<DashboardAlertsResponse> {
+        const response = await dashboardApi.fetchAlerts(toParams(filter));
+        return response.data;
+    },
+
+    async fetchWorkflowOverview(
+        filter: DashboardFilterState,
+    ): Promise<DashboardWorkflowOverviewResponse> {
+        const response = await dashboardApi.fetchWorkflowOverview(
+            toParams(filter),
+        );
+        return response.data;
+    },
+
+    async fetchKpiSnapshot(
+        filter: DashboardFilterState,
+    ): Promise<DashboardKpiSnapshotResponse> {
+        const response = await dashboardApi.fetchKpiSnapshot(toParams(filter));
+        return response.data;
+    },
+
+    async fetchKpiDetail(
+        domain: DashboardKpiDomain,
+        filter: DashboardFilterState,
+    ): Promise<DashboardKpiDetailResponse> {
+        const response = await dashboardApi.fetchKpiDetail(
+            domain,
+            toParams(filter),
+        );
+        return response.data;
+    },
+
+    async fetchProcessDetail(
+        activity: ProcessActivity,
+        period: ProcessPeriod,
+        filter: DashboardFilterState,
+    ): Promise<ProcessDetailResponse> {
+        const response = await dashboardApi.fetchProcessDetail(
+            activity,
+            period,
+            toParams(filter),
+        );
+        return response.data;
+    },
+
+    async fetchMonitoring(
+        filter: DashboardFilterState,
+    ): Promise<MonitoringResponse> {
+        const response = await dashboardApi.fetchMonitoring(toParams(filter));
+        return response.data;
     },
 };
