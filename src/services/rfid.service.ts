@@ -34,9 +34,7 @@ export const normalizeRfidTag = (
     const active = r.activeAssignment as Record<string, unknown> | undefined;
     if (active) {
         const product = active.products as Record<string, unknown> | undefined;
-        mapped.productId =
-            active.product_id ??
-            mapped.productId;
+        mapped.productId = active.product_id ?? mapped.productId;
         mapped.productName = product?.name ?? mapped.productName;
         mapped.productCode = product?.code ?? mapped.productCode;
         mapped.warehouseId =

@@ -7,7 +7,10 @@
         />
 
         <Card object-id="wdg_TagRegistrationCreate">
-            <form class="grid grid-cols-1 gap-4 md:grid-cols-4" @submit.prevent="handleRegister">
+            <form
+                class="grid grid-cols-1 gap-4 md:grid-cols-4"
+                @submit.prevent="handleRegister"
+            >
                 <Input
                     id="txt_TagRegistrationEpc"
                     v-model="form.epcCode"
@@ -59,7 +62,9 @@
             </div>
             <div v-else class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-100 text-sm">
-                    <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
+                    <thead
+                        class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500"
+                    >
                         <tr>
                             <th class="px-6 py-3">EPC</th>
                             <th class="px-6 py-3">Product</th>
@@ -96,7 +101,10 @@
                             </td>
                         </tr>
                         <tr v-if="items.length === 0">
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                            <td
+                                colspan="5"
+                                class="px-6 py-8 text-center text-gray-500"
+                            >
                                 No registered EPC tags found.
                             </td>
                         </tr>
@@ -163,7 +171,9 @@ const handleRegister = async () => {
         form.epcCode = "";
         form.productId = "";
     } catch (err) {
-        notifyError(err instanceof Error ? err.message : "Failed to register EPC.");
+        notifyError(
+            err instanceof Error ? err.message : "Failed to register EPC.",
+        );
     }
 };
 
@@ -174,7 +184,9 @@ const handleDelete = async (id: string) => {
         await deleteTag(id);
         notifySuccess("EPC deleted successfully.");
     } catch (err) {
-        notifyError(err instanceof Error ? err.message : "Failed to delete EPC.");
+        notifyError(
+            err instanceof Error ? err.message : "Failed to delete EPC.",
+        );
     }
 };
 
