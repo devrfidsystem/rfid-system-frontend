@@ -33,10 +33,12 @@ export const normalizeRfidTag = (
 
     const active = r.activeAssignment as Record<string, unknown> | undefined;
     if (active) {
+        const product = active.products as Record<string, unknown> | undefined;
         mapped.productId =
-            (active.products as Record<string, unknown>)?.name ??
             active.product_id ??
             mapped.productId;
+        mapped.productName = product?.name ?? mapped.productName;
+        mapped.productCode = product?.code ?? mapped.productCode;
         mapped.warehouseId =
             (active.warehouse as Record<string, unknown>)?.name ??
             active.warehouse_id ??
@@ -124,6 +126,11 @@ export const rfidService = {
 
     async unassignTag(assignmentId: string): Promise<null> {
         const response = await rfidApi.unassignTag(assignmentId);
+        return response.data;
+    },
+
+    async deleteTag(id: string): Promise<{ id: string }> {
+        const response = await rfidApi.deleteTag(id);
         return response.data;
     },
 

@@ -20,10 +20,12 @@
 ### Task 1: Excel Template Helper
 
 **Files:**
+
 - Modify: `src/views/master/masterExcel.ts`
 - Modify: `src/views/master/masterExcel.test.ts`
 
 **Interfaces:**
+
 - Produces: `exportMasterTemplateToExcel({ columns, filename, sheetName }): void`
 
 - [ ] Add a unit test proving template export builds one blank row with the expected headers.
@@ -33,10 +35,12 @@
 ### Task 2: Import Dialog UI
 
 **Files:**
+
 - Modify: `src/views/master/components/MasterHeader.vue`
 - Modify: `src/views/master/components/MasterHeader.test.ts`
 
 **Interfaces:**
+
 - Consumes: `isImporting?: boolean`
 - Emits: `import(file: File)`, `export`, `export-template`
 
@@ -50,10 +54,12 @@
 ### Task 3: Master Data Wiring
 
 **Files:**
+
 - Modify: `src/views/master/MasterEntityPage.vue`
 - Modify: `src/views/master/composables/useMasterEntity.ts`
 
 **Interfaces:**
+
 - Produces: `handleExportTemplate(): void`
 
 - [ ] Create import-template column definitions from `formFields`, excluding file fields and dynamic `attribute:` product fields.

@@ -19,10 +19,12 @@
 ### Task 1: Transaction Table Direct Button
 
 **Files:**
+
 - Modify: `src/views/transactions/components/TransactionTable.vue`
 - Verify: `src/views/transactions/composables/useTransactionList.test.ts`
 
 **Interfaces:**
+
 - Consumes: row objects with `id`.
 - Produces: direct button that emits `view` with `String(row.id)`.
 

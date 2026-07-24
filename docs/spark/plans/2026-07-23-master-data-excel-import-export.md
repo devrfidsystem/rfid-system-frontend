@@ -20,10 +20,12 @@
 ### Task 1: Excel Helper
 
 **Files:**
+
 - Create: `src/views/master/masterExcel.ts`
 - Test: `src/views/master/masterExcel.test.ts`
 
 **Interfaces:**
+
 - Produces: `exportMasterRowsToExcel(args): void`
 - Produces: `parseMasterExcelFile(file: File): Promise<Record<string, string>[]>`
 
@@ -46,6 +48,7 @@ Expected: PASS.
 ### Task 2: Master Data Wiring
 
 **Files:**
+
 - Modify: `src/views/master/components/MasterHeader.vue`
 - Modify: `src/views/master/MasterEntityPage.vue`
 - Modify: `src/views/master/composables/useMasterEntity.ts`
@@ -54,6 +57,7 @@ Expected: PASS.
 - Test: `src/views/master/composables/useMasterForm.test.ts`
 
 **Interfaces:**
+
 - Consumes: `exportMasterRowsToExcel`
 - Consumes: `parseMasterExcelFile`
 - Produces: `handleExport(): void`
@@ -82,6 +86,7 @@ Expected: PASS.
 ### Task 3: Final Verification
 
 **Files:**
+
 - Verify all files modified by Tasks 1-2.
 
 - [ ] **Step 1: Run compiler**

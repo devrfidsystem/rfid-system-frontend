@@ -38,7 +38,10 @@
                     object-id="file_MasterHeaderImport"
                     @change="handleImportFile"
                 />
-                <p v-if="selectedImportFile" class="text-xs text-text-secondary">
+                <p
+                    v-if="selectedImportFile"
+                    class="text-xs text-text-secondary"
+                >
                     Selected: {{ selectedImportFile.name }}
                 </p>
             </div>

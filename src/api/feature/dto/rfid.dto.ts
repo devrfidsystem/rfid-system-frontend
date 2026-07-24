@@ -11,6 +11,8 @@ export interface RfidTag {
     epcCode: string;
     status: RfidTagStatus;
     productId: string | null;
+    productName?: string | null;
+    productCode?: string | null;
     companyId: string;
     warehouseId?: string | null;
     locationId?: string | null;
@@ -47,6 +49,7 @@ export interface RfidTagListParams {
     status?: RfidTagStatus;
     warehouseId?: string;
     productId?: string;
+    epcCode?: string;
 }
 
 export interface LogEpcEventDto {

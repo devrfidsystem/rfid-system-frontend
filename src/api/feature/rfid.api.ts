@@ -76,6 +76,13 @@ export const rfidApi = {
         });
     },
 
+    deleteTag(id: string) {
+        return apiRequest<{ id: string }>({
+            url: `${BASE_PATH}/tags/${id}`,
+            method: "delete",
+        });
+    },
+
     logEvent(payload: RfidEventDto) {
         return apiRequest<null>({
             url: `${BASE_PATH}/events`,

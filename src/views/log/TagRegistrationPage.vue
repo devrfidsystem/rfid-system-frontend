@@ -1,169 +1,191 @@
 <template>
     <section class="space-y-6">
         <PageHeader
-            title="Tag Registration"
-            description="Capture new RFID tags."
-            tagline="Log"
+            title="Registered EPC"
+            description="Registered EPC tags and their products."
+            tagline="RFID"
         />
 
-        <FormRoot @submit="handleSubmit">
-            <FormSection
-                title="Tag Info"
-                subtitle="Identitas tag"
-                variant="card"
-            >
-                <FormGrid>
-                    <FormField label="EPC" required :error="errors.epc">
-                        <input
-                            id="txt_TagRegistrationEpc"
-                            v-model="formState.epc"
-                            type="text"
-                            placeholder="Enter EPC"
-                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
-                            data-testid="txt_TagRegistrationEpc"
-                        />
-                    </FormField>
-                    <FormField
-                        label="Tag Type"
-                        required
-                        :error="errors.tagType"
+        <Card object-id="wdg_TagRegistrationCreate">
+            <form class="grid grid-cols-1 gap-4 md:grid-cols-4" @submit.prevent="handleRegister">
+                <Input
+                    id="txt_TagRegistrationEpc"
+                    v-model="form.epcCode"
+                    label="EPC"
+                    placeholder="Enter EPC hex"
+                    required
+                    object-id="txt_TagRegistrationEpc"
+                />
+                <Select
+                    v-model="form.productId"
+                    :options="productOptions"
+                    label="Product"
+                    placeholder="Select product"
+                    required
+                    object-id="cmb_TagRegistrationProduct"
+                />
+                <div class="flex items-end gap-2 md:col-span-2">
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        :disabled="registering"
+                        object-id="btn_TagRegistrationSubmit"
                     >
-                        <select
-                            id="cmb_TagRegistrationTagType"
-                            v-model="formState.tagType"
-                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
-                            data-testid="cmb_TagRegistrationTagType"
-                        >
-                            <option value="" disabled>Select type</option>
-                            <option
-                                v-for="type in tagTypes"
-                                :key="type"
-                                :value="type"
-                            >
-                                {{ type }}
-                            </option>
-                        </select>
-                    </FormField>
-                </FormGrid>
-            </FormSection>
-
-            <FormSection
-                title="Item Info"
-                subtitle="Detail item terkait"
-                description="Gunakan informasi ini untuk track lokasi."
-            >
-                <FormGrid>
-                    <FormField label="SKU" required :error="errors.sku">
-                        <input
-                            id="txt_TagRegistrationSku"
-                            v-model="formState.sku"
-                            type="text"
-                            placeholder="Item SKU"
-                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
-                            data-testid="txt_TagRegistrationSku"
-                        />
-                    </FormField>
-                    <FormField
-                        label="Location"
-                        :hint="'Optional storage location'"
+                        {{ registering ? "Registering..." : "Register EPC" }}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        object-id="btn_TagRegistrationRefresh"
+                        @click="refreshList"
                     >
-                        <input
-                            id="txt_TagRegistrationLocation"
-                            v-model="formState.location"
-                            type="text"
-                            placeholder="Warehouse aisle"
-                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
-                            data-testid="txt_TagRegistrationLocation"
-                        />
-                    </FormField>
-                    <FormField label="Notes" full>
-                        <textarea
-                            id="txa_TagRegistrationNotes"
-                            v-model="formState.notes"
-                            rows="3"
-                            placeholder="Short memo"
-                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
-                            data-testid="txa_TagRegistrationNotes"
-                        ></textarea>
-                    </FormField>
-                </FormGrid>
-            </FormSection>
+                        Refresh
+                    </Button>
+                </div>
+            </form>
+        </Card>
 
-            <FormActions>
-                <Button
-                    variant="ghost"
-                    type="button"
-                    object-id="btn_TagRegistrationReset"
-                    @click="resetForm"
-                    >Reset</Button
-                >
-                <Button
-                    variant="primary"
-                    type="submit"
-                    object-id="btn_TagRegistrationSubmit"
-                    >Submit</Button
-                >
-            </FormActions>
-        </FormRoot>
+        <Card no-padding object-id="wdg_TagRegistrationList">
+            <div class="border-b border-gray-100 px-6 py-4">
+                <h3 class="text-base font-semibold text-gray-900">
+                    Registered EPC List
+                </h3>
+            </div>
+            <div v-if="loading" class="p-6 text-sm text-gray-500">
+                Loading EPC tags...
+            </div>
+            <div v-else-if="error" class="p-6 text-sm text-red-600">
+                {{ error }}
+            </div>
+            <div v-else class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-100 text-sm">
+                    <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
+                        <tr>
+                            <th class="px-6 py-3">EPC</th>
+                            <th class="px-6 py-3">Product</th>
+                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Registered By</th>
+                            <th class="px-6 py-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr v-for="tag in items" :key="tag.id">
+                            <td class="px-6 py-4 font-medium text-gray-900">
+                                {{ tag.epcCode }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">
+                                {{ formatProduct(tag) }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">
+                                {{ tag.status }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">
+                                {{ tag.userName || "-" }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    class="border-rose-200 text-rose-600 hover:bg-rose-50"
+                                    :disabled="deleting"
+                                    :object-id="`btn_TagRegistrationDelete_${tag.id}`"
+                                    @click="handleDelete(tag.id)"
+                                >
+                                    Delete
+                                </Button>
+                            </td>
+                        </tr>
+                        <tr v-if="items.length === 0">
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                No registered EPC tags found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </Card>
     </section>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import Button from "@/components/atoms/Button.vue";
+import Input from "@/components/atoms/Input.vue";
+import Select from "@/components/atoms/Select.vue";
+import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
-import {
-    FormRoot,
-    FormSection,
-    FormGrid,
-    FormField,
-    FormActions,
-} from "@/components/ui/form";
 import { useNotifier } from "@/composable/useNotifier";
+import { useRfidTags } from "@/composable/useRfidTags";
+import { masterService } from "@/services/master.service";
+import { useAuthStore } from "@/store/auth.store";
+import type { RfidTag } from "@/api/feature/dto/rfid.dto";
 
-const { notifySuccess } = useNotifier();
+const authStore = useAuthStore();
+const { notifyError, notifySuccess } = useNotifier();
+const {
+    items,
+    loading,
+    error,
+    registering,
+    deleting,
+    registerTag,
+    deleteTag,
+    refreshList,
+} = useRfidTags({ autoFetch: true });
 
-const formState = reactive({
-    epc: "",
-    tagType: "",
-    sku: "",
-    location: "",
-    notes: "",
+const form = reactive({
+    epcCode: "",
+    productId: "",
 });
+const productOptions = ref<Array<{ label: string; value: string }>>([]);
 
-const errors = reactive({
-    epc: "",
-    tagType: "",
-    sku: "",
-});
+const loadProducts = async () => {
+    const response = await masterService.fetchList("products", { limit: 200 });
+    productOptions.value = response.items.map((product) => ({
+        label: `${product.code} - ${product.name}`,
+        value: String(product.id),
+    }));
+};
 
-const tagTypes = ["Asset", "Pallet", "Unit"];
-
-const validate = () => {
-    let isValid = true;
-    errors.epc = formState.epc.trim() ? "" : "EPC diperlukan";
-    errors.tagType = formState.tagType ? "" : "Pilih tipe tag";
-    errors.sku = formState.sku.trim() ? "" : "SKU diperlukan";
-    if (errors.epc || errors.tagType || errors.sku) {
-        isValid = false;
+const handleRegister = async () => {
+    const companyId = authStore.currentCompanyId;
+    if (!companyId) {
+        notifyError("No active company found.");
+        return;
     }
-    return isValid;
+    try {
+        await registerTag({
+            companyId,
+            productId: form.productId,
+            epcCode: form.epcCode,
+        });
+        notifySuccess("EPC registered successfully.");
+        form.epcCode = "";
+        form.productId = "";
+    } catch (err) {
+        notifyError(err instanceof Error ? err.message : "Failed to register EPC.");
+    }
 };
 
-const handleSubmit = () => {
-    if (!validate()) return;
-    notifySuccess("Tag berhasil didaftarkan");
-    resetForm();
+const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Delete this registered EPC?");
+    if (!confirmed) return;
+    try {
+        await deleteTag(id);
+        notifySuccess("EPC deleted successfully.");
+    } catch (err) {
+        notifyError(err instanceof Error ? err.message : "Failed to delete EPC.");
+    }
 };
 
-const resetForm = () => {
-    formState.epc = "";
-    formState.tagType = "";
-    formState.sku = "";
-    formState.location = "";
-    formState.notes = "";
-    errors.epc = "";
-    errors.tagType = "";
-    errors.sku = "";
+const formatProduct = (tag: RfidTag) => {
+    if (tag.productCode && tag.productName) {
+        return `${tag.productCode} - ${tag.productName}`;
+    }
+    return tag.productName || tag.productId || "-";
 };
+
+onMounted(() => {
+    void loadProducts();
+});
 </script>

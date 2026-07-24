@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+// @ts-expect-error Vite raw imports are resolved at test runtime.
+import pageSource from "../TransactionDetailPage.vue?raw";
 
 const mocks = vi.hoisted(() => ({
     getSpy: vi.fn(),
@@ -52,6 +54,17 @@ vi.mock("@/views/report/reportConfig", () => ({
                 { key: "type", label: "Type" },
                 { key: "assignedBy.fullName", label: "Assigned User" },
                 { key: "deadlineAt", label: "Deadline" },
+                { key: "status", label: "Status" },
+            ],
+        },
+        register: {
+            entity: "register",
+            title: "Register",
+            description: "Admin task documents created before goods receipt.",
+            columns: [
+                { key: "docNumber", label: "Doc No" },
+                { key: "docDate", label: "Date Issue" },
+                { key: "registeredBy.fullName", label: "User" },
                 { key: "status", label: "Status" },
             ],
         },
@@ -181,5 +194,11 @@ describe("useTransactionDetail", () => {
 
         expect(mocks.postSpy).toHaveBeenCalledWith("register", "reg-1");
         expect(detail.confirmation.value).toBeNull();
+    });
+
+    it("keeps register task line items visible in the detail template", () => {
+        expect(pageSource).toContain("Task Meta");
+        expect(pageSource).not.toContain('v-else-if="!isRegister"');
+        expect(pageSource).toContain("Line Items");
     });
 });

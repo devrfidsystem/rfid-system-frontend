@@ -26,6 +26,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         title: "",
         period: "",
         warehouseId: "",
+        locationId: "",
         fromWarehouseId: "",
         toWarehouseId: "",
         partnerId: "",
@@ -211,12 +212,13 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         value: String(user.id),
                     };
                 });
-                if (isRegister.value) {
-                    return;
-                }
             }
 
-            if (showSingleWarehouse.value || showDualWarehouse.value) {
+            if (
+                isRegister.value ||
+                showSingleWarehouse.value ||
+                showDualWarehouse.value
+            ) {
                 const whResponse = await masterService.fetchList("warehouses", {
                     limit: 100,
                 });
@@ -252,12 +254,36 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
     };
 
     const handleSubmit = async () => {
-        if (
-            !isOpname.value &&
-            !isRegister.value &&
-            form.value.lines.length === 0
-        ) {
+        if (!isOpname.value && form.value.lines.length === 0) {
             notifyError("Please add at least one line item.");
+            return;
+        }
+
+        const hasInvalidLine = form.value.lines.some((line) => {
+            const qty = Number(line.qty);
+            if (!line.productId || !Number.isFinite(qty) || qty <= 0) {
+                return true;
+            }
+            if (
+                (["inbound", "outbound", "return", "returns"].includes(
+                    transactionKey,
+                ) &&
+                    !line.locationId) ||
+                (isRelocation.value &&
+                    (!line.fromLocationId || !line.toLocationId)) ||
+                (isTransfer.value &&
+                    (!line.fromLocationId || !line.toLocationId)) ||
+                (isPutaway.value && !line.toLocationId)
+            ) {
+                return true;
+            }
+            return false;
+        });
+
+        if (!isOpname.value && hasInvalidLine) {
+            notifyError(
+                "Please complete product, location, and quantity for every line item.",
+            );
             return;
         }
 
@@ -266,6 +292,16 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             (!form.value.assignedById || !form.value.deadlineAt)
         ) {
             notifyError("Please select an assigned user and deadline.");
+            return;
+        }
+
+        if (
+            isRegister.value &&
+            (!form.value.registeredById ||
+                !form.value.warehouseId ||
+                !form.value.locationId)
+        ) {
+            notifyError("Please select user, warehouse, and location.");
             return;
         }
 
@@ -395,6 +431,12 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         ...basePayload,
                         docDate: docDateStr,
                         registeredById: form.value.registeredById,
+                        warehouseId: form.value.warehouseId,
+                        locationId: form.value.locationId,
+                        lines: form.value.lines.map((l) => ({
+                            productId: l.productId,
+                            qtyExpected: Number(l.qty),
+                        })),
                     };
                     break;
             }
