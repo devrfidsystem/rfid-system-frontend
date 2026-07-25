@@ -58,7 +58,7 @@ const dashboardRoutes = dashboardSections.map((section) => ({
 // added here without touching the route-assembly wiring.
 const dashboardPlaceholderRoutes: RouteRecordRaw[] = [];
 
-const transactionKeys = [
+const genericTransactionKeys = [
     "register",
     "inbound",
     "putaway",
@@ -67,9 +67,8 @@ const transactionKeys = [
     "transfer",
     "return",
     "returns",
-    "opname",
 ] as const;
-const transactionPattern = transactionKeys.join("|");
+const transactionPattern = genericTransactionKeys.join("|");
 
 const authRoutes: RouteRecordRaw[] = [
     {
@@ -258,6 +257,11 @@ const routes: RouteRecordRaw[] = [
             {
                 path: "log/tracking",
                 component: () => import("@/views/log/TrackingPage.vue"),
+            },
+            {
+                path: "rfid/tags",
+                alias: "log/tag-registration",
+                component: () => import("@/views/log/TagRegistrationPage.vue"),
             },
             {
                 path: "menus",

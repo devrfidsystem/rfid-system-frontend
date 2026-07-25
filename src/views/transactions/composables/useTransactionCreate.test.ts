@@ -157,6 +157,38 @@ describe("useTransactionCreate", () => {
         );
     });
 
+    it("blocks register submit when a line is missing product or valid quantity", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+
+        create.form.value.registeredById = "user-7";
+        create.form.value.warehouseId = "warehouse-1";
+        create.form.value.locationId = "location-1";
+        create.form.value.lines.push({
+            productId: "",
+            qty: "0",
+            locationId: "",
+            fromLocationId: "",
+            toLocationId: "",
+        });
+
+        await create.handleSubmit();
+
+        expect(mocks.createSpy).not.toHaveBeenCalled();
+        expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
+            "Please complete product, location, and quantity for every line item.",
+        );
+    });
+
+    it("does not expose the generic single warehouse field for register tasks", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+
+        expect(create.showSingleWarehouse.value).toBe(false);
+        expect(pageSource).toContain("cmb_TransactionCreateRegisterWarehouse");
+        expect(pageSource).toContain("cmb_TransactionCreateRegisterLocation");
+    });
+
     it("renders outbound create fields in the page template", () => {
         expect(pageSource).toContain("isOutbound");
         expect(pageSource).toContain(

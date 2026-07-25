@@ -24,7 +24,7 @@ describe("TransactionTable", () => {
 
         expect(html).toContain("btn_TransactionTableViewDetails");
         expect(html).toContain("View Details");
-        expect(html).not.toContain("data-testid=\"row-actions-btn\"");
-        expect(html).not.toContain("aria-haspopup=\"menu\"");
+        expect(html).not.toContain('data-testid="row-actions-btn"');
+        expect(html).not.toContain('aria-haspopup="menu"');
     });
 });

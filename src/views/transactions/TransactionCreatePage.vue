@@ -88,6 +88,26 @@
                         />
 
                         <Select
+                            v-if="isRegister"
+                            v-model="form.warehouseId"
+                            :options="warehouseOptions"
+                            label="Warehouse"
+                            placeholder="Select warehouse"
+                            required
+                            object-id="cmb_TransactionCreateRegisterWarehouse"
+                        />
+
+                        <Select
+                            v-if="isRegister"
+                            v-model="form.locationId"
+                            :options="locationOptions"
+                            label="Location"
+                            placeholder="Select location"
+                            required
+                            object-id="cmb_TransactionCreateRegisterLocation"
+                        />
+
+                        <Select
                             v-if="isOpname"
                             id="title"
                             v-model="form.title"
@@ -213,15 +233,15 @@
                     </div>
                 </Card>
 
-                <!-- Line Items Form (Hide for Opname and Register) -->
+                <!-- Line Items Form (Hide for Opname only) -->
                 <TransactionLineItems
-                    v-if="!isOpname && !isRegister"
+                    v-if="!isOpname"
                     :lines="form.lines"
                     :product-options="productOptions"
                     :location-options="locationOptions"
                     :from-location-options="fromLocationOptions"
                     :to-location-options="toLocationOptions"
-                    :show-single-warehouse="showSingleWarehouse"
+                    :show-single-warehouse="showSingleWarehouse && !isRegister"
                     :is-relocation="isRelocation"
                     :show-dual-warehouse="showDualWarehouse"
                     :show-putaway-locations="showPutawayLocations"
@@ -270,52 +290,6 @@
                             object-id="btn_TransactionCreateOpnameSubmit"
                         >
                             {{ submitting ? "Creating..." : "Create Opname" }}
-                        </Button>
-                    </div>
-                </Card>
-
-                <!-- Register Save Button -->
-                <Card
-                    v-else-if="isRegister"
-                    class="md:col-span-2"
-                    no-padding
-                    object-id="wdg_TransactionCreateRegister"
-                >
-                    <div class="px-6 py-5 border-b border-gray-100">
-                        <h3 class="text-base font-semibold text-gray-900">
-                            Register Task Creation
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-2">
-                            A Register task has no line items — it records the
-                            admin task header before goods receipt happens in
-                            the next module.
-                        </p>
-                    </div>
-                    <div
-                        class="px-6 py-3 border-t border-gray-100 flex justify-end gap-3"
-                    >
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            :disabled="submitting"
-                            object-id="btn_TransactionCreateCancel"
-                            @click="handleBack"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="sm"
-                            :disabled="submitting"
-                            object-id="btn_TransactionCreateRegisterSubmit"
-                        >
-                            {{
-                                submitting
-                                    ? "Creating..."
-                                    : "Create Register Task"
-                            }}
                         </Button>
                     </div>
                 </Card>

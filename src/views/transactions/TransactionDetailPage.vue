@@ -173,8 +173,8 @@
                 />
 
                 <Card
-                    v-else-if="!isRegister"
-                    class="md:col-span-2"
+                    v-else
+                    :class="isRegister ? 'md:col-span-3' : 'md:col-span-2'"
                     no-padding
                     object-id="wdg_TransactionDetailLines"
                 >

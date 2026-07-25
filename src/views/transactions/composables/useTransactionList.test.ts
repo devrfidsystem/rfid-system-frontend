@@ -158,4 +158,54 @@ describe("useTransactionList", () => {
         expect(normalized.deadlineAt).toBe("2026-07-25T00:00:00.000Z");
         expect(normalized.type).toBe("Outbound");
     });
+
+    it("configures register list with warehouse filter and register-specific columns", async () => {
+        vi.resetModules();
+        vi.unmock("@/views/report/reportConfig");
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "register" });
+
+        expect(list.showWarehouseFilter.value).toBe(true);
+        expect(
+            list.columns.value.map(({ key, label }) => ({ key, label })),
+        ).toEqual([
+            { key: "docNumber", label: "Doc No" },
+            { key: "docDate", label: "Date Issue" },
+            { key: "warehouseId", label: "Warehouse" },
+            { key: "locationName", label: "Location" },
+            { key: "productSummary", label: "Products" },
+            { key: "registeredBy.fullName", label: "User" },
+            { key: "status", label: "Status" },
+            { key: "actions", label: "" },
+        ]);
+    });
+
+    it("normalizes register warehouse, location, and product summary for list rows", async () => {
+        const { normalizeTransactionRecord } =
+            await import("@/services/transactions.service");
+
+        const normalized = normalizeTransactionRecord({
+            id: "reg-1",
+            docNumber: "REG-001",
+            warehouse: { name: "Main WH" },
+            location: { name: "Rack A" },
+            lines: [
+                {
+                    qty: 2,
+                    product: { code: "SKU-1", name: "Product One" },
+                },
+                {
+                    qty: 3,
+                    product: { name: "Product Two" },
+                },
+            ],
+        });
+
+        expect(normalized.warehouseId).toBe("Main WH");
+        expect(normalized.locationName).toBe("Rack A");
+        expect(normalized.productSummary).toBe(
+            "SKU-1 - Product One (2), Product Two (3)",
+        );
+    });
 });

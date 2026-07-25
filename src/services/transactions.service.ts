@@ -15,6 +15,25 @@ export type TransactionKey =
     | "returns"
     | "opname";
 
+const formatRegisterLine = (line: Record<string, unknown>): string => {
+    const product = line.product as Record<string, unknown> | undefined;
+    const code = product?.code ?? line.productCode;
+    const name = product?.name ?? line.productName ?? line.productId;
+    const qty = line.qtyExpected ?? line.expectedQty ?? line.qty;
+    const productLabel = code && name ? `${code} - ${name}` : (name ?? code);
+    if (!productLabel) return qty === undefined ? "-" : `Qty ${qty}`;
+    return qty === undefined
+        ? String(productLabel)
+        : `${productLabel} (${qty})`;
+};
+
+const summarizeRegisterLines = (lines: unknown): string | undefined => {
+    if (!Array.isArray(lines) || lines.length === 0) return undefined;
+    return lines
+        .map((line) => formatRegisterLine(line as Record<string, unknown>))
+        .join(", ");
+};
+
 export const transactionPaths: Record<TransactionKey, string> = {
     register: "/register",
     inbound: "/inbound",
@@ -84,6 +103,13 @@ export const normalizeTransactionRecord = (
         (row.warehouse as Record<string, unknown>)?.name ??
         row.warehouse_id ??
         row.warehouseId;
+    mapped.locationName =
+        (row.location as Record<string, unknown>)?.name ??
+        (row.location as Record<string, unknown>)?.code ??
+        row.locationName ??
+        row.locationId;
+    mapped.productSummary =
+        row.productSummary ?? summarizeRegisterLines(row.lines);
 
     mapped.sourceWarehouseId =
         (row.origin_warehouse as Record<string, unknown>)?.name ??
