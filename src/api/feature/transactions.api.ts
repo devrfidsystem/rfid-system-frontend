@@ -35,11 +35,12 @@ export const transactionsApi = {
         });
     },
 
-    post(key: TransactionKey, id: string) {
+    post(key: TransactionKey, id: string, payload?: Record<string, unknown>) {
         const path = transactionPaths[key];
         return apiRequest({
             url: `${path}/${id}/post`,
             method: "post",
+            data: payload,
         });
     },
 
