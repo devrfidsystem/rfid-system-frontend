@@ -1,13 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 const getSpy = vi.hoisted(() => vi.fn());
+const postSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("@/api/feature/transactions.api", () => ({
     transactionsApi: {
         list: vi.fn(),
         get: getSpy,
         create: vi.fn(),
-        post: vi.fn(),
+        post: postSpy,
         cancel: vi.fn(),
     },
 }));
@@ -64,5 +65,16 @@ describe("transactions.service", () => {
             fromLocationId: "loc-a",
             toLocationId: "loc-b",
         });
+    });
+
+    it("passes optional EPC scan payloads through post calls", async () => {
+        const { transactionService } = await import("./transactions.service");
+        const payload = {
+            lines: [{ lineNo: 1, epcCodes: ["A001", "A002"] }],
+        };
+
+        await transactionService.post("outbound", "doc-1", payload);
+
+        expect(postSpy).toHaveBeenCalledWith("outbound", "doc-1", payload);
     });
 });
