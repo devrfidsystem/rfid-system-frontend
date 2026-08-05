@@ -7,11 +7,9 @@
         />
 
         <TransactionSummaryWidget
-            v-if="!error"
-            :loading="loading"
-            :total-count="totalCount"
-            :status-breakdown="statusBreakdown"
-            :date-range="dateRange"
+            :loading="summaryLoading"
+            :error="summaryError"
+            :summary="summary"
         />
 
         <Card no-padding object-id="wdg_TransactionList">
@@ -70,7 +68,6 @@ import TransactionTable from "./components/TransactionTable.vue";
 import TransactionSummaryWidget from "./components/TransactionSummaryWidget.vue";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionList } from "./composables/useTransactionList";
-import { useTransactionSummary } from "./composables/useTransactionSummary";
 import { useRouter } from "vue-router";
 
 const props = defineProps<{ transactionKey: TransactionKey }>();
@@ -106,16 +103,13 @@ const {
     loading,
     pagination,
     pageSizeOptions,
-    rows,
+    summary,
+    summaryLoading,
+    summaryError,
     displayRows,
     columns,
     emptyStateVariant,
     exportRows,
     refresh,
 } = useTransactionList(props);
-
-const { totalCount, statusBreakdown, dateRange } = useTransactionSummary(
-    rows,
-    pagination,
-);
 </script>
