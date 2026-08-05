@@ -6,6 +6,14 @@
             :tagline="pageTagline"
         />
 
+        <TransactionSummaryWidget
+            v-if="!error"
+            :loading="loading"
+            :total-count="totalCount"
+            :status-breakdown="statusBreakdown"
+            :date-range="dateRange"
+        />
+
         <Card no-padding object-id="wdg_TransactionList">
             <TransactionHeader
                 :heading="sectionHeading"
@@ -20,7 +28,7 @@
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="partnerLabel"
                 :has-rows="displayRows.length > 0"
-                :can-export="transactionKey !== 'register'"
+                :can-export="canExport"
                 :can-create="canCreate"
                 @refresh="refresh"
                 @export="exportRows"
@@ -59,8 +67,10 @@ import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import TransactionHeader from "./components/TransactionHeader.vue";
 import TransactionTable from "./components/TransactionTable.vue";
+import TransactionSummaryWidget from "./components/TransactionSummaryWidget.vue";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionList } from "./composables/useTransactionList";
+import { useTransactionSummary } from "./composables/useTransactionSummary";
 import { useRouter } from "vue-router";
 
 const props = defineProps<{ transactionKey: TransactionKey }>();
@@ -79,6 +89,7 @@ const {
     pageTagline,
     sectionHeading,
     canCreate,
+    canExport,
     pageDescription,
     keyword,
     startDate,
@@ -95,10 +106,16 @@ const {
     loading,
     pagination,
     pageSizeOptions,
+    rows,
     displayRows,
     columns,
     emptyStateVariant,
     exportRows,
     refresh,
 } = useTransactionList(props);
+
+const { totalCount, statusBreakdown, dateRange } = useTransactionSummary(
+    rows,
+    pagination,
+);
 </script>
