@@ -48,4 +48,39 @@ describe("TransactionSummaryWidget", () => {
         expect(html).toContain(formatDate(latest));
         expect(html).toContain("wdg_TransactionSummary");
     });
+
+    it("colors each status badge by its semantic meaning", async () => {
+        const app = createSSRApp(TransactionSummaryWidget, {
+            loading: false,
+            totalCount: 3,
+            statusBreakdown: [
+                { label: "posted", count: 1 },
+                { label: "draft", count: 1 },
+                { label: "cancelled", count: 1 },
+                { label: "some-unmapped-status", count: 1 },
+            ],
+            dateRange: { earliest: null, latest: null },
+        });
+        const html = await renderToString(app);
+
+        // Badge tones resolve to these real Tailwind color classes (Badge.vue's toneMap).
+        expect(html).toContain("text-success-600"); // posted
+        expect(html).toContain("text-warning-600"); // draft
+        expect(html).toContain("text-danger-600"); // cancelled
+        expect(html).toContain("text-text-secondary"); // unmapped -> neutral
+    });
+
+    it("gives each card a distinct colored icon accent", async () => {
+        const app = createSSRApp(TransactionSummaryWidget, {
+            loading: false,
+            totalCount: 1,
+            statusBreakdown: [{ label: "posted", count: 1 }],
+            dateRange: { earliest: null, latest: null },
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("text-primary-600"); // Total icon accent
+        expect(html).toContain("text-info-600"); // Date Range icon accent
+        expect(html.match(/<svg/g) ?? []).toHaveLength(3); // one icon per card
+    });
 });
