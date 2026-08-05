@@ -14,7 +14,7 @@ import {
 } from "@/views/report/reportConfig";
 import type { ApiMeta } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
-import type { TransactionRecord } from "../types";
+import type { TransactionRecord, TransactionSummaryResponse } from "../types";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { formatDate } from "@/utils/date";
 import { getNestedValue } from "../utils/getNestedValue";
@@ -98,6 +98,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const endDate = ref("");
     const selectedPartner = ref("");
     const rows = ref<TransactionRecord[]>([]);
+    const summary = ref<TransactionSummaryResponse | null>(null);
+    const summaryLoading = ref(false);
+    const summaryError = ref<string | null>(null);
     const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
@@ -319,6 +322,26 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         }
     };
 
+    const loadSummary = async () => {
+        summaryLoading.value = true;
+        summaryError.value = null;
+        try {
+            const params = buildParams();
+            summary.value = await transactionService.summary(
+                transactionKey.value,
+                params,
+            );
+        } catch (err) {
+            summary.value = null;
+            summaryError.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load transaction summary.";
+        } finally {
+            summaryLoading.value = false;
+        }
+    };
+
     const exportRows = async () => {
         try {
             const params = buildParams();
@@ -350,6 +373,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const refresh = () => {
         pagination.page = 1;
         void loadRows();
+        void loadSummary();
     };
 
     useDebouncedWatch(
@@ -364,6 +388,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             if (suppressFilterWatch.value) return;
             pagination.page = 1;
             void loadRows();
+            void loadSummary();
         },
     );
 
@@ -398,6 +423,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             suppressFilterWatch.value = false;
             void loadPartnerOptions();
             void loadRows();
+            void loadSummary();
         },
         { immediate: true },
     );
@@ -444,6 +470,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         pagination,
         pageSizeOptions,
         rows,
+        summary,
+        summaryLoading,
+        summaryError,
         displayRows,
         columns,
         emptyStateVariant,

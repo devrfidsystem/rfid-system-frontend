@@ -56,6 +56,16 @@ vi.mock("@/services/transactions.service", async (importOriginal) => {
             create: vi.fn(),
             post: vi.fn(),
             cancel: vi.fn(),
+            summary: vi.fn().mockResolvedValue({
+                totalCount: 0,
+                statusBreakdown: [],
+                mostRecent: null,
+                needsAttention: {
+                    count: 0,
+                    canceledCount: 0,
+                    staleDraftCount: 0,
+                },
+            }),
         },
     };
 });
@@ -264,5 +274,71 @@ describe("useTransactionList", () => {
             "posted",
             "draft",
         ]);
+    });
+
+    it("fetches the summary alongside the table rows on mount", async () => {
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        const mockSummary = {
+            totalCount: 2,
+            statusBreakdown: [{ status: "posted", count: 2, percentage: 100 }],
+            mostRecent: null,
+            needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
+        };
+        vi.mocked(transactionService.summary).mockResolvedValueOnce(mockSummary);
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(list.summary.value).toEqual(mockSummary);
+        expect(transactionService.summary).toHaveBeenCalledWith(
+            "relocation",
+            expect.objectContaining({ page: 1, limit: 20 }),
+        );
+    });
+
+    it("isolates a summary fetch failure from the table's own rows/error state", async () => {
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        vi.mocked(transactionService.summary).mockRejectedValueOnce(
+            new Error("Summary down"),
+        );
+        vi.mocked(transactionService.list).mockResolvedValueOnce({
+            items: [{ id: "1", status: "posted" }],
+            meta: { page: 1, limit: 20, total: 1 },
+        });
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(list.summaryError.value).toBe("Summary down");
+        expect(list.error.value).toBeNull();
+        expect(list.rows.value).toHaveLength(1);
+    });
+
+    it("does not refetch the summary on a page-only change", async () => {
+        const { transactionService } =
+            await import("@/services/transactions.service");
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+        vi.mocked(transactionService.summary).mockClear();
+
+        list.pagination.page = 2;
+        await flushPromises();
+
+        expect(transactionService.summary).not.toHaveBeenCalled();
     });
 });
