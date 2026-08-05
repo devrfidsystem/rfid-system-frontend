@@ -69,6 +69,17 @@ const transactionTitles: Record<
     },
 };
 
+// The backend only implements Excel export for `/reports/inbound/export` and
+// `/reports/outbound/export` (see reports.controller.ts's exportReport
+// switch: stock-balance/stock-movement/inbound/outbound/opname-variance).
+// Every other transaction type's reportPaths entry points at its own entity
+// route (e.g. /putaway, /relocation), which has no `/export` sibling on the
+// backend at all — exporting those 404s regardless of any UI gating.
+const exportableTransactionKeys = new Set<TransactionKey>([
+    "inbound",
+    "outbound",
+]);
+
 const transactionToReportKey: Record<TransactionKey, ReportKey> = {
     register: "register",
     inbound: "inbound",
@@ -132,6 +143,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     });
     const sectionHeading = computed(() => pageTitle.value);
     const canCreate = computed(() => transactionKey.value !== "inbound");
+    const canExport = computed(() =>
+        exportableTransactionKeys.has(transactionKey.value),
+    );
     const pageDescription = computed(() => {
         const base =
             transactionTitles[transactionKey.value]?.description ??
@@ -412,6 +426,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         pageTagline,
         sectionHeading,
         canCreate,
+        canExport,
         pageDescription,
         keyword,
         startDate,
@@ -428,6 +443,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         loading,
         pagination,
         pageSizeOptions,
+        rows,
         displayRows,
         columns,
         emptyStateVariant,

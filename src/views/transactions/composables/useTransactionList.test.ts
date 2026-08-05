@@ -159,6 +159,36 @@ describe("useTransactionList", () => {
         expect(normalized.type).toBe("Outbound");
     });
 
+    it("only allows export for inbound/outbound — the only two backend-supported export routes", async () => {
+        vi.resetModules();
+        vi.unmock("@/views/report/reportConfig");
+
+        const { useTransactionList } = await import("./useTransactionList");
+
+        expect(
+            useTransactionList({ transactionKey: "inbound" }).canExport.value,
+        ).toBe(true);
+        expect(
+            useTransactionList({ transactionKey: "outbound" }).canExport.value,
+        ).toBe(true);
+        expect(
+            useTransactionList({ transactionKey: "register" }).canExport.value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "putaway" }).canExport.value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "relocation" }).canExport
+                .value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "transfer" }).canExport.value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "returns" }).canExport.value,
+        ).toBe(false);
+    });
+
     it("configures register list with warehouse filter and register-specific columns", async () => {
         vi.resetModules();
         vi.unmock("@/views/report/reportConfig");
@@ -207,5 +237,32 @@ describe("useTransactionList", () => {
         expect(normalized.productSummary).toBe(
             "SKU-1 - Product One (2), Product Two (3)",
         );
+    });
+
+    it("exposes the raw loaded rows for downstream summary derivation", async () => {
+        vi.resetModules();
+        vi.unmock("@/views/report/reportConfig");
+
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        vi.mocked(transactionService.list).mockResolvedValueOnce({
+            items: [
+                { id: "1", status: "posted" },
+                { id: "2", status: "draft" },
+            ],
+            meta: { page: 1, limit: 20, total: 2 },
+        });
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(list.rows.value.map((row) => row.status)).toEqual([
+            "posted",
+            "draft",
+        ]);
     });
 });
