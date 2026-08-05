@@ -30,7 +30,7 @@
 
             <Card>
                 <p class="text-xs font-semibold uppercase text-text-muted">
-                    Status Breakdown
+                    Status Breakdown (this page)
                 </p>
                 <div class="mt-2 flex flex-wrap gap-2">
                     <Badge v-for="item in statusBreakdown" :key="item.label">

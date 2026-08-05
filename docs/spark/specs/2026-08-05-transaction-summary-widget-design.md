@@ -22,9 +22,9 @@ Kept separate from `useTransactionList.ts` (already ~450 lines) to stay isolated
 
 ```ts
 function useTransactionSummary(
-  rows: Ref<TransactionRecord[]>,
-  pagination: { total: number },
-)
+    rows: Ref<TransactionRecord[]>,
+    pagination: { total: number },
+);
 ```
 
 Returns three `computed()` values, re-derived whenever `rows`/`pagination.total` change:
@@ -45,17 +45,24 @@ Props:
 
 ```ts
 {
-  loading: boolean;
-  totalCount: number;
-  statusBreakdown: { label: string; count: number }[];
-  dateRange: { earliest: string | null; latest: string | null };
+    loading: boolean;
+    totalCount: number;
+    statusBreakdown: {
+        label: string;
+        count: number;
+    }
+    [];
+    dateRange: {
+        earliest: string | null;
+        latest: string | null;
+    }
 }
 ```
 
 Layout — three cards:
 
 1. **Total** — `totalCount`, formatted with the existing `formatDate`-style number formatting already used elsewhere (plain `toLocaleString()`, no new dependency).
-2. **Status Breakdown** — small list/badge per status label + count, reusing the existing `Badge` atom (`src/components/atoms/Badge.vue`) for each status pill.
+2. **Status Breakdown (this page)** — small list/badge per status label + count, reusing the existing `Badge` atom (`src/components/atoms/Badge.vue`) for each status pill. Labeled "(this page)" for the same reason as the Date Range card below: `totalCount` reflects the full filtered/paginated result set, but the breakdown only covers the currently-loaded rows, so the two numbers won't sum together on any result set larger than one page — the label prevents that from reading as a bug.
 3. **Date Range (this page)** — `earliest`–`latest`, formatted via the existing `formatDate` util (`src/utils/date.ts`); explicitly labeled as covering only the currently-loaded rows, not the full filtered result set, so it isn't mistaken for a global range.
 
 States:
