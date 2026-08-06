@@ -68,10 +68,12 @@ describe("OpnameSummaryWidget", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("6");
+        expect(html).toContain("Total Tasks");
+        expect(html.match(/>6</g) ?? []).not.toHaveLength(0);
         expect(html).toContain("counting 2 (33.3%)");
         expect(html).toContain("closed 4 (66.7%)");
-        expect(html).toContain("2");
+        expect(html).toContain("task(s) with a counting discrepancy");
+        expect(html.match(/>2</g) ?? []).not.toHaveLength(0);
         expect(html).toContain("Stock Opname Q3 - Task 4");
         expect(html).toContain("Jane Doe");
         expect(html).toContain(formatDate("2026-08-01T12:00:00.000Z"));

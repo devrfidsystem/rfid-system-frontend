@@ -125,7 +125,11 @@ describe("useOpnameTree", () => {
             totalCount: 0,
             statusBreakdown: [],
             varianceTaskCount: 0,
-            needsAttention: { count: 0, canceledCount: 0, stuckCountingCount: 0 },
+            needsAttention: {
+                count: 0,
+                canceledCount: 0,
+                stuckCountingCount: 0,
+            },
             mostRecent: null,
         });
     });
@@ -158,5 +162,54 @@ describe("useOpnameTree", () => {
         expect(composable.summaryError.value).toBe("Summary down");
         expect(composable.error.value).toBeNull();
         expect(composable.rows.value).toHaveLength(1);
+    });
+
+    it("isolates a tree fetch failure from the summary's own state", async () => {
+        getTreeMock.mockRejectedValueOnce(new Error("Tree down"));
+        const mockSummary = {
+            totalCount: 2,
+            statusBreakdown: [{ status: "counting", count: 2, percentage: 100 }],
+            varianceTaskCount: 0,
+            needsAttention: {
+                count: 0,
+                canceledCount: 0,
+                stuckCountingCount: 0,
+            },
+            mostRecent: null,
+        };
+        getSummaryMock.mockResolvedValueOnce(mockSummary);
+
+        const composable = mountOpnameTree();
+        await nextTick();
+
+        authStoreState.setProfile({ currentCompanyId: "company-1" });
+        await nextTick();
+        await Promise.resolve();
+
+        expect(composable.error.value).toBe("Tree down");
+        expect(composable.summaryError.value).toBeNull();
+        expect(composable.summary.value).toEqual(mockSummary);
+    });
+
+    it("does not refetch the summary when a client-side filter changes", async () => {
+        const composable = mountOpnameTree();
+        await nextTick();
+
+        authStoreState.setProfile({ currentCompanyId: "company-1" });
+        await nextTick();
+        await Promise.resolve();
+
+        expect(getSummaryMock).toHaveBeenCalledTimes(1);
+        getSummaryMock.mockClear();
+
+        composable.keyword.value = "search term";
+        composable.statusFilter.value = "counting";
+        composable.locationFilter.value = "Rack A";
+        composable.startDate.value = "2026-08-01";
+        composable.endDate.value = "2026-08-06";
+        await nextTick();
+        await Promise.resolve();
+
+        expect(getSummaryMock).not.toHaveBeenCalled();
     });
 });

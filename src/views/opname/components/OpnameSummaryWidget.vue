@@ -169,11 +169,13 @@ defineProps<{
     summary: OpnameSummaryResponse | null;
 }>();
 
-// Purely presentational grouping of Opname's own status vocabulary into the
-// Badge atom's existing tone set — draft/counting/reconciled/closed/canceled
-// is a different vocabulary from the other 7 transaction modules'
-// draft/posted/canceled, so this mapping is NOT shared with
-// TransactionSummaryWidget.vue's statusTone().
+// Purely presentational grouping of Opname's own status vocabulary
+// (draft/counting/reconciled/closed/canceled) into the Badge atom's
+// existing tone set. Defined locally rather than imported from the
+// sibling TransactionSummaryWidget.vue to keep this component
+// self-contained — its tone sets happen to be a superset that already
+// covers Opname's statuses too, but importing across unrelated view
+// folders for a same-output mapping isn't worth the coupling.
 const SUCCESS_STATUSES = new Set(["closed", "reconciled"]);
 const WARNING_STATUSES = new Set(["counting", "draft"]);
 const ERROR_STATUSES = new Set(["canceled", "cancelled"]);
