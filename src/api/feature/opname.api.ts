@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import type { OpnameTreeNode } from "@/views/opname/opnameTree";
+import type { OpnameSummaryResponse } from "@/views/opname/opnameSummary";
 
 export interface OpnameLineDetail {
     id: string;
@@ -57,6 +58,14 @@ export const opnameApi = {
         });
     },
 
+    summary(params: OpnameTreeFilterParams = {}) {
+        return apiRequest<OpnameSummaryResponse>({
+            url: "/opname/summary",
+            method: "get",
+            params,
+        });
+    },
+
     create(payload: OpnameNodePayload) {
         return apiRequest<OpnameTreeNode>({
             url: "/opname",
@@ -94,6 +103,35 @@ export const opnameApi = {
             url: `/opname/${docId}/lines/${lineId}`,
             method: "patch",
             data: payload,
+        });
+    },
+
+    startCounting(id: string, warehouseId: string) {
+        return apiRequest({
+            url: `/opname/${id}/start-counting`,
+            method: "post",
+            data: { warehouseId },
+        });
+    },
+
+    reconcile(id: string) {
+        return apiRequest({
+            url: `/opname/${id}/reconcile`,
+            method: "post",
+        });
+    },
+
+    close(id: string) {
+        return apiRequest({
+            url: `/opname/${id}/close`,
+            method: "post",
+        });
+    },
+
+    cancel(id: string) {
+        return apiRequest({
+            url: `/opname/${id}/cancel`,
+            method: "post",
         });
     },
 };
