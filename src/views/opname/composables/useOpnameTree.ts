@@ -5,6 +5,7 @@ import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import {
     opnameService,
     type OpnameTreeFilterParams,
+    type OpnameSummaryResponse,
 } from "@/services/opname.service";
 import {
     flattenOpnameTree,
@@ -30,6 +31,9 @@ export function useOpnameTree() {
     const expandedIds = ref<Set<string>>(new Set());
     const isDetailOpen = ref(false);
     const selectedNode = ref<OpnameTreeNode | null>(null);
+    const summary = ref<OpnameSummaryResponse | null>(null);
+    const summaryLoading = ref(false);
+    const summaryError = ref<string | null>(null);
 
     const companyId = computed(() => authStore.currentCompanyId ?? "");
 
@@ -159,8 +163,33 @@ export function useOpnameTree() {
         }
     };
 
+    const loadSummary = async () => {
+        if (!companyId.value || !selectedWarehouseId.value) {
+            summary.value = null;
+            return;
+        }
+
+        summaryLoading.value = true;
+        summaryError.value = null;
+        try {
+            summary.value = await opnameService.summary({
+                companyId: companyId.value,
+                warehouseId: selectedWarehouseId.value,
+            });
+        } catch (err) {
+            summary.value = null;
+            summaryError.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load opname summary.";
+        } finally {
+            summaryLoading.value = false;
+        }
+    };
+
     const refresh = async () => {
         await loadTree();
+        await loadSummary();
     };
 
     watch(
@@ -179,9 +208,11 @@ export function useOpnameTree() {
             if (!nextCompanyId || !nextWarehouseId) {
                 tree.value = [];
                 expandedIds.value = new Set();
+                summary.value = null;
                 return;
             }
             void loadTree();
+            void loadSummary();
         },
         { immediate: true },
     );
@@ -234,6 +265,9 @@ export function useOpnameTree() {
     return {
         loading,
         error,
+        summary,
+        summaryLoading,
+        summaryError,
         keyword,
         startDate,
         endDate,
