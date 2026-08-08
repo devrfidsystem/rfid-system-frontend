@@ -1,0 +1,31 @@
+services:
+  wms-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Vite inlines VITE_* at BUILD time, so these are build args —
+      # not runtime environment. Changing them requires a rebuild,
+      # not a restart.
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_APP_TITLE: ${VITE_APP_TITLE:-Alir Smart System}
+    image: alir-wms-frontend:staging
+    restart: unless-stopped
+    ports:
+      # Host port is published so an external proxy (Cloudflare) can
+      # reach it. nginx serves on 80 inside the container.
+      - "${HOST_PORT:-7002}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
