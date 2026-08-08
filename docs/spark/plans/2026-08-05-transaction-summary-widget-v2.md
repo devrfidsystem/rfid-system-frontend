@@ -100,85 +100,98 @@ First, in `src/modules/warehouse/inbound/inbound.service.spec.ts`, add `groupBy:
 Then add this `describe` block to the same file, before the final closing `});` of the outer `describe('InboundService', ...)`:
 
 ```ts
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.inboundDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3) // totalCount
-        .mockResolvedValueOnce(1) // canceledCount
-        .mockResolvedValueOnce(1); // staleDraftCount
-      mockPrismaService.inboundDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.inboundDoc.findFirst = jest.fn().mockResolvedValue({
-        inbound_no: 'IN-010',
-        createdAt: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
+describe("getSummary()", () => {
+    it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+        mockPrismaService.inboundDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(3) // totalCount
+            .mockResolvedValueOnce(1) // canceledCount
+            .mockResolvedValueOnce(1); // staleDraftCount
+        mockPrismaService.inboundDoc.groupBy = jest.fn().mockResolvedValue([
+            { status: "posted", _count: { _all: 1 } },
+            { status: "draft", _count: { _all: 2 } },
+        ]);
+        mockPrismaService.inboundDoc.findFirst = jest.fn().mockResolvedValue({
+            inbound_no: "IN-010",
+            createdAt: new Date("2026-08-01T00:00:00.000Z"),
+            users: { fullName: "Jane Doe" },
+        });
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'IN-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+        expect(result.totalCount).toBe(3);
+        expect(result.statusBreakdown).toEqual([
+            { status: "posted", count: 1, percentage: 33.3 },
+            { status: "draft", count: 2, percentage: 66.7 },
+        ]);
+        expect(result.mostRecent).toEqual({
+            docNo: "IN-010",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        });
+        expect(result.needsAttention).toEqual({
+            count: 2,
+            canceledCount: 1,
+            staleDraftCount: 1,
+        });
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      mockPrismaService.inboundDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.inboundDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.inboundDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+        mockPrismaService.inboundDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.inboundDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.inboundDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        expect(result.totalCount).toBe(0);
+        expect(result.statusBreakdown).toEqual([]);
+        expect(result.mostRecent).toBeNull();
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            staleDraftCount: 0,
+        });
     });
 
-    it('combines the 3-day staleness cutoff with an existing date-range filter via AND, not override', async () => {
-      mockPrismaService.inboundDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.inboundDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.inboundDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("combines the 3-day staleness cutoff with an existing date-range filter via AND, not override", async () => {
+        mockPrismaService.inboundDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.inboundDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.inboundDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      await service.getSummary({
-        page: 1,
-        limit: 20,
-        dateFrom: '2026-07-01T00:00:00.000Z',
-      } as never);
+        await service.getSummary({
+            page: 1,
+            limit: 20,
+            dateFrom: "2026-07-01T00:00:00.000Z",
+        } as never);
 
-      const staleDraftCall = mockPrismaService.inboundDoc.count.mock.calls[2][0];
-      expect(staleDraftCall.where.AND).toEqual([
-        expect.objectContaining({ createdAt: { gte: new Date('2026-07-01T00:00:00.000Z') } }),
-        expect.objectContaining({ status: 'draft' }),
-      ]);
+        const staleDraftCall =
+            mockPrismaService.inboundDoc.count.mock.calls[2][0];
+        expect(staleDraftCall.where.AND).toEqual([
+            expect.objectContaining({
+                createdAt: { gte: new Date("2026-07-01T00:00:00.000Z") },
+            }),
+            expect.objectContaining({ status: "draft" }),
+        ]);
     });
-  });
+});
 ```
 
 - [ ] **Step 4: Run the test to verify it fails**
@@ -363,63 +376,71 @@ Expected: PASS (all pre-existing tests).
 Add to `src/modules/warehouse/outbound/outbound.service.spec.ts` (adjust the mock setup to match this file's existing `mockPrismaService` variable name and structure — add `groupBy: jest.fn()` and `findFirst: jest.fn()` to the `outboundDoc` mock object if not already present):
 
 ```ts
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.outboundDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1);
-      mockPrismaService.outboundDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.outboundDoc.findFirst = jest.fn().mockResolvedValue({
-        outbound_no: 'OUT-010',
-        createdAt: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
+describe("getSummary()", () => {
+    it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+        mockPrismaService.outboundDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(3)
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(1);
+        mockPrismaService.outboundDoc.groupBy = jest.fn().mockResolvedValue([
+            { status: "posted", _count: { _all: 1 } },
+            { status: "draft", _count: { _all: 2 } },
+        ]);
+        mockPrismaService.outboundDoc.findFirst = jest.fn().mockResolvedValue({
+            outbound_no: "OUT-010",
+            createdAt: new Date("2026-08-01T00:00:00.000Z"),
+            users: { fullName: "Jane Doe" },
+        });
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'OUT-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+        expect(result.totalCount).toBe(3);
+        expect(result.statusBreakdown).toEqual([
+            { status: "posted", count: 1, percentage: 33.3 },
+            { status: "draft", count: 2, percentage: 66.7 },
+        ]);
+        expect(result.mostRecent).toEqual({
+            docNo: "OUT-010",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        });
+        expect(result.needsAttention).toEqual({
+            count: 2,
+            canceledCount: 1,
+            staleDraftCount: 1,
+        });
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      mockPrismaService.outboundDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.outboundDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.outboundDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+        mockPrismaService.outboundDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.outboundDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.outboundDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        expect(result.totalCount).toBe(0);
+        expect(result.statusBreakdown).toEqual([]);
+        expect(result.mostRecent).toBeNull();
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            staleDraftCount: 0,
+        });
     });
-  });
+});
 ```
 
 - [ ] **Step 4: Run the test to verify it fails**
@@ -661,86 +682,98 @@ Add to `src/modules/warehouse/relocation/relocation.service.ts`, directly after 
 Add to `src/modules/warehouse/relocation/relocation.service.spec.ts` — first extend the `relocationDoc` mock object (near the top of the file) to include `findMany: jest.fn(), count: jest.fn(), groupBy: jest.fn(), findFirst: jest.fn()` alongside its existing `findUnique`/`update`/`findUniqueOrThrow` entries, then add:
 
 ```ts
-  describe('list()', () => {
-    it('filters by status and applies date range', async () => {
-      mockPrismaService.relocationDoc.findMany.mockResolvedValue([]);
-      mockPrismaService.relocationDoc.count.mockResolvedValue(0);
+describe("list()", () => {
+    it("filters by status and applies date range", async () => {
+        mockPrismaService.relocationDoc.findMany.mockResolvedValue([]);
+        mockPrismaService.relocationDoc.count.mockResolvedValue(0);
 
-      await service.list({
-        page: 1,
-        limit: 20,
-        status: 'posted',
-        dateFrom: '2026-07-01T00:00:00.000Z',
-      } as never);
+        await service.list({
+            page: 1,
+            limit: 20,
+            status: "posted",
+            dateFrom: "2026-07-01T00:00:00.000Z",
+        } as never);
 
-      expect(mockPrismaService.relocationDoc.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            status: 'posted',
-            createdAt: { gte: new Date('2026-07-01T00:00:00.000Z') },
-          }),
-        }),
-      );
+        expect(mockPrismaService.relocationDoc.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: expect.objectContaining({
+                    status: "posted",
+                    createdAt: { gte: new Date("2026-07-01T00:00:00.000Z") },
+                }),
+            }),
+        );
     });
-  });
+});
 
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.relocationDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1);
-      mockPrismaService.relocationDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.relocationDoc.findFirst = jest.fn().mockResolvedValue({
-        relocation_no: 'REL-010',
-        createdAt: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
+describe("getSummary()", () => {
+    it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+        mockPrismaService.relocationDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(3)
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(1);
+        mockPrismaService.relocationDoc.groupBy = jest.fn().mockResolvedValue([
+            { status: "posted", _count: { _all: 1 } },
+            { status: "draft", _count: { _all: 2 } },
+        ]);
+        mockPrismaService.relocationDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue({
+                relocation_no: "REL-010",
+                createdAt: new Date("2026-08-01T00:00:00.000Z"),
+                users: { fullName: "Jane Doe" },
+            });
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'REL-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+        expect(result.totalCount).toBe(3);
+        expect(result.statusBreakdown).toEqual([
+            { status: "posted", count: 1, percentage: 33.3 },
+            { status: "draft", count: 2, percentage: 66.7 },
+        ]);
+        expect(result.mostRecent).toEqual({
+            docNo: "REL-010",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        });
+        expect(result.needsAttention).toEqual({
+            count: 2,
+            canceledCount: 1,
+            staleDraftCount: 1,
+        });
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      mockPrismaService.relocationDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.relocationDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.relocationDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+        mockPrismaService.relocationDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.relocationDoc.groupBy = jest
+            .fn()
+            .mockResolvedValue([]);
+        mockPrismaService.relocationDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        expect(result.totalCount).toBe(0);
+        expect(result.statusBreakdown).toEqual([]);
+        expect(result.mostRecent).toBeNull();
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            staleDraftCount: 0,
+        });
     });
-  });
+});
 ```
 
 - [ ] **Step 4: Run the tests to verify they pass**
@@ -921,128 +954,144 @@ Add to `src/modules/warehouse/transfer/transfer.service.ts`, directly after `lis
 Create `src/modules/warehouse/transfer/transfer.service.spec.ts`:
 
 ```ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { StockService } from '../stock/stock.service';
-import { TransferService } from './transfer.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaService } from "../../../shared/prisma/prisma.service";
+import { StockService } from "../stock/stock.service";
+import { TransferService } from "./transfer.service";
 
-describe('TransferService', () => {
-  let service: TransferService;
+describe("TransferService", () => {
+    let service: TransferService;
 
-  const mockPrismaService = {
-    transferDoc: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-      groupBy: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    getPaginationArgs: jest.fn().mockReturnValue({ skip: 0, take: 20 }),
-    $transaction: jest.fn(),
-  };
+    const mockPrismaService = {
+        transferDoc: {
+            findMany: jest.fn(),
+            count: jest.fn(),
+            groupBy: jest.fn(),
+            findFirst: jest.fn(),
+        },
+        getPaginationArgs: jest.fn().mockReturnValue({ skip: 0, take: 20 }),
+        $transaction: jest.fn(),
+    };
 
-  mockPrismaService.$transaction.mockImplementation((arg: unknown) => {
-    if (typeof arg === 'function') return arg(mockPrismaService);
-    return Promise.all(arg as Promise<unknown>[]);
-  });
-
-  const mockStockService = {};
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        TransferService,
-        { provide: PrismaService, useValue: mockPrismaService },
-        { provide: StockService, useValue: mockStockService },
-      ],
-    }).compile();
-
-    service = module.get<TransferService>(TransferService);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('list()', () => {
-    it('filters by status and applies date range', async () => {
-      mockPrismaService.transferDoc.findMany.mockResolvedValue([]);
-      mockPrismaService.transferDoc.count.mockResolvedValue(0);
-
-      await service.list({
-        page: 1,
-        limit: 20,
-        status: 'posted',
-        dateFrom: '2026-07-01T00:00:00.000Z',
-      } as never);
-
-      expect(mockPrismaService.transferDoc.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            status: 'posted',
-            createdAt: { gte: new Date('2026-07-01T00:00:00.000Z') },
-          }),
-        }),
-      );
-    });
-  });
-
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.transferDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1);
-      mockPrismaService.transferDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.transferDoc.findFirst = jest.fn().mockResolvedValue({
-        transfer_no: 'TRF-010',
-        createdAt: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
-
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
-
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'TRF-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+    mockPrismaService.$transaction.mockImplementation((arg: unknown) => {
+        if (typeof arg === "function") return arg(mockPrismaService);
+        return Promise.all(arg as Promise<unknown>[]);
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      mockPrismaService.transferDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.transferDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.transferDoc.findFirst = jest.fn().mockResolvedValue(null);
+    const mockStockService = {};
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                TransferService,
+                { provide: PrismaService, useValue: mockPrismaService },
+                { provide: StockService, useValue: mockStockService },
+            ],
+        }).compile();
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        service = module.get<TransferService>(TransferService);
     });
-  });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    describe("list()", () => {
+        it("filters by status and applies date range", async () => {
+            mockPrismaService.transferDoc.findMany.mockResolvedValue([]);
+            mockPrismaService.transferDoc.count.mockResolvedValue(0);
+
+            await service.list({
+                page: 1,
+                limit: 20,
+                status: "posted",
+                dateFrom: "2026-07-01T00:00:00.000Z",
+            } as never);
+
+            expect(mockPrismaService.transferDoc.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: expect.objectContaining({
+                        status: "posted",
+                        createdAt: {
+                            gte: new Date("2026-07-01T00:00:00.000Z"),
+                        },
+                    }),
+                }),
+            );
+        });
+    });
+
+    describe("getSummary()", () => {
+        it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+            mockPrismaService.transferDoc.count = jest
+                .fn()
+                .mockResolvedValueOnce(3)
+                .mockResolvedValueOnce(1)
+                .mockResolvedValueOnce(1);
+            mockPrismaService.transferDoc.groupBy = jest
+                .fn()
+                .mockResolvedValue([
+                    { status: "posted", _count: { _all: 1 } },
+                    { status: "draft", _count: { _all: 2 } },
+                ]);
+            mockPrismaService.transferDoc.findFirst = jest
+                .fn()
+                .mockResolvedValue({
+                    transfer_no: "TRF-010",
+                    createdAt: new Date("2026-08-01T00:00:00.000Z"),
+                    users: { fullName: "Jane Doe" },
+                });
+
+            const result = await service.getSummary({
+                page: 1,
+                limit: 20,
+            } as never);
+
+            expect(result.totalCount).toBe(3);
+            expect(result.statusBreakdown).toEqual([
+                { status: "posted", count: 1, percentage: 33.3 },
+                { status: "draft", count: 2, percentage: 66.7 },
+            ]);
+            expect(result.mostRecent).toEqual({
+                docNo: "TRF-010",
+                createdByName: "Jane Doe",
+                createdAt: "2026-08-01T00:00:00.000Z",
+            });
+            expect(result.needsAttention).toEqual({
+                count: 2,
+                canceledCount: 1,
+                staleDraftCount: 1,
+            });
+        });
+
+        it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+            mockPrismaService.transferDoc.count = jest
+                .fn()
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(0);
+            mockPrismaService.transferDoc.groupBy = jest
+                .fn()
+                .mockResolvedValue([]);
+            mockPrismaService.transferDoc.findFirst = jest
+                .fn()
+                .mockResolvedValue(null);
+
+            const result = await service.getSummary({
+                page: 1,
+                limit: 20,
+            } as never);
+
+            expect(result.totalCount).toBe(0);
+            expect(result.statusBreakdown).toEqual([]);
+            expect(result.mostRecent).toBeNull();
+            expect(result.needsAttention).toEqual({
+                count: 0,
+                canceledCount: 0,
+                staleDraftCount: 0,
+            });
+        });
+    });
 });
 ```
 
@@ -1223,128 +1272,142 @@ Add to `src/modules/warehouse/returns/returns.service.ts`, directly after `list(
 Create `src/modules/warehouse/returns/returns.service.spec.ts`:
 
 ```ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { StockService } from '../stock/stock.service';
-import { ReturnsService } from './returns.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaService } from "../../../shared/prisma/prisma.service";
+import { StockService } from "../stock/stock.service";
+import { ReturnsService } from "./returns.service";
 
-describe('ReturnsService', () => {
-  let service: ReturnsService;
+describe("ReturnsService", () => {
+    let service: ReturnsService;
 
-  const mockPrismaService = {
-    returnDoc: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-      groupBy: jest.fn(),
-      findFirst: jest.fn(),
-    },
-    getPaginationArgs: jest.fn().mockReturnValue({ skip: 0, take: 20 }),
-    $transaction: jest.fn(),
-  };
+    const mockPrismaService = {
+        returnDoc: {
+            findMany: jest.fn(),
+            count: jest.fn(),
+            groupBy: jest.fn(),
+            findFirst: jest.fn(),
+        },
+        getPaginationArgs: jest.fn().mockReturnValue({ skip: 0, take: 20 }),
+        $transaction: jest.fn(),
+    };
 
-  mockPrismaService.$transaction.mockImplementation((arg: unknown) => {
-    if (typeof arg === 'function') return arg(mockPrismaService);
-    return Promise.all(arg as Promise<unknown>[]);
-  });
-
-  const mockStockService = {};
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ReturnsService,
-        { provide: PrismaService, useValue: mockPrismaService },
-        { provide: StockService, useValue: mockStockService },
-      ],
-    }).compile();
-
-    service = module.get<ReturnsService>(ReturnsService);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('list()', () => {
-    it('filters by status and applies date range', async () => {
-      mockPrismaService.returnDoc.findMany.mockResolvedValue([]);
-      mockPrismaService.returnDoc.count.mockResolvedValue(0);
-
-      await service.list({
-        page: 1,
-        limit: 20,
-        status: 'posted',
-        dateFrom: '2026-07-01T00:00:00.000Z',
-      } as never);
-
-      expect(mockPrismaService.returnDoc.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            status: 'posted',
-            createdAt: { gte: new Date('2026-07-01T00:00:00.000Z') },
-          }),
-        }),
-      );
-    });
-  });
-
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.returnDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1);
-      mockPrismaService.returnDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.returnDoc.findFirst = jest.fn().mockResolvedValue({
-        return_no: 'RET-010',
-        createdAt: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
-
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
-
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'RET-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+    mockPrismaService.$transaction.mockImplementation((arg: unknown) => {
+        if (typeof arg === "function") return arg(mockPrismaService);
+        return Promise.all(arg as Promise<unknown>[]);
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      mockPrismaService.returnDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.returnDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.returnDoc.findFirst = jest.fn().mockResolvedValue(null);
+    const mockStockService = {};
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                ReturnsService,
+                { provide: PrismaService, useValue: mockPrismaService },
+                { provide: StockService, useValue: mockStockService },
+            ],
+        }).compile();
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        service = module.get<ReturnsService>(ReturnsService);
     });
-  });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    describe("list()", () => {
+        it("filters by status and applies date range", async () => {
+            mockPrismaService.returnDoc.findMany.mockResolvedValue([]);
+            mockPrismaService.returnDoc.count.mockResolvedValue(0);
+
+            await service.list({
+                page: 1,
+                limit: 20,
+                status: "posted",
+                dateFrom: "2026-07-01T00:00:00.000Z",
+            } as never);
+
+            expect(mockPrismaService.returnDoc.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: expect.objectContaining({
+                        status: "posted",
+                        createdAt: {
+                            gte: new Date("2026-07-01T00:00:00.000Z"),
+                        },
+                    }),
+                }),
+            );
+        });
+    });
+
+    describe("getSummary()", () => {
+        it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+            mockPrismaService.returnDoc.count = jest
+                .fn()
+                .mockResolvedValueOnce(3)
+                .mockResolvedValueOnce(1)
+                .mockResolvedValueOnce(1);
+            mockPrismaService.returnDoc.groupBy = jest.fn().mockResolvedValue([
+                { status: "posted", _count: { _all: 1 } },
+                { status: "draft", _count: { _all: 2 } },
+            ]);
+            mockPrismaService.returnDoc.findFirst = jest
+                .fn()
+                .mockResolvedValue({
+                    return_no: "RET-010",
+                    createdAt: new Date("2026-08-01T00:00:00.000Z"),
+                    users: { fullName: "Jane Doe" },
+                });
+
+            const result = await service.getSummary({
+                page: 1,
+                limit: 20,
+            } as never);
+
+            expect(result.totalCount).toBe(3);
+            expect(result.statusBreakdown).toEqual([
+                { status: "posted", count: 1, percentage: 33.3 },
+                { status: "draft", count: 2, percentage: 66.7 },
+            ]);
+            expect(result.mostRecent).toEqual({
+                docNo: "RET-010",
+                createdByName: "Jane Doe",
+                createdAt: "2026-08-01T00:00:00.000Z",
+            });
+            expect(result.needsAttention).toEqual({
+                count: 2,
+                canceledCount: 1,
+                staleDraftCount: 1,
+            });
+        });
+
+        it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+            mockPrismaService.returnDoc.count = jest
+                .fn()
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(0)
+                .mockResolvedValueOnce(0);
+            mockPrismaService.returnDoc.groupBy = jest
+                .fn()
+                .mockResolvedValue([]);
+            mockPrismaService.returnDoc.findFirst = jest
+                .fn()
+                .mockResolvedValue(null);
+
+            const result = await service.getSummary({
+                page: 1,
+                limit: 20,
+            } as never);
+
+            expect(result.totalCount).toBe(0);
+            expect(result.statusBreakdown).toEqual([]);
+            expect(result.mostRecent).toBeNull();
+            expect(result.needsAttention).toEqual({
+                count: 0,
+                canceledCount: 0,
+                staleDraftCount: 0,
+            });
+        });
+    });
 });
 ```
 
@@ -1474,84 +1537,99 @@ Expected: PASS (all pre-existing tests).
 Add to `src/modules/warehouse/putaway/putaway.service.spec.ts` (add `groupBy: jest.fn(), findFirst: jest.fn()` to the `putawayDoc` mock object alongside its existing `findMany`/`count`):
 
 ```ts
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.putawayDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1);
-      mockPrismaService.putawayDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.putawayDoc.findFirst = jest.fn().mockResolvedValue({
-        docNumber: 'PUT-010',
-        docDate: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
+describe("getSummary()", () => {
+    it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+        mockPrismaService.putawayDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(3)
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(1);
+        mockPrismaService.putawayDoc.groupBy = jest.fn().mockResolvedValue([
+            { status: "posted", _count: { _all: 1 } },
+            { status: "draft", _count: { _all: 2 } },
+        ]);
+        mockPrismaService.putawayDoc.findFirst = jest.fn().mockResolvedValue({
+            docNumber: "PUT-010",
+            docDate: new Date("2026-08-01T00:00:00.000Z"),
+            users: { fullName: "Jane Doe" },
+        });
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'PUT-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+        expect(result.totalCount).toBe(3);
+        expect(result.statusBreakdown).toEqual([
+            { status: "posted", count: 1, percentage: 33.3 },
+            { status: "draft", count: 2, percentage: 66.7 },
+        ]);
+        expect(result.mostRecent).toEqual({
+            docNo: "PUT-010",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        });
+        expect(result.needsAttention).toEqual({
+            count: 2,
+            canceledCount: 1,
+            staleDraftCount: 1,
+        });
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      mockPrismaService.putawayDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.putawayDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.putawayDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+        mockPrismaService.putawayDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.putawayDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.putawayDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        expect(result.totalCount).toBe(0);
+        expect(result.statusBreakdown).toEqual([]);
+        expect(result.mostRecent).toBeNull();
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            staleDraftCount: 0,
+        });
     });
 
-    it('correctly buckets the done status without treating it as needing attention', async () => {
-      mockPrismaService.putawayDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.putawayDoc.groupBy = jest
-        .fn()
-        .mockResolvedValue([{ status: 'done', _count: { _all: 1 } }]);
-      mockPrismaService.putawayDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("correctly buckets the done status without treating it as needing attention", async () => {
+        mockPrismaService.putawayDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.putawayDoc.groupBy = jest
+            .fn()
+            .mockResolvedValue([{ status: "done", _count: { _all: 1 } }]);
+        mockPrismaService.putawayDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.statusBreakdown).toEqual([{ status: 'done', count: 1, percentage: 100 }]);
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        expect(result.statusBreakdown).toEqual([
+            { status: "done", count: 1, percentage: 100 },
+        ]);
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            staleDraftCount: 0,
+        });
     });
-  });
+});
 ```
 
 - [ ] **Step 4: Run the test to verify it fails**
@@ -1729,63 +1807,69 @@ Expected: PASS (all pre-existing tests).
 Add to `src/modules/warehouse/register/register.service.spec.ts` (add `groupBy: jest.fn(), findFirst: jest.fn()` to the `registerDoc` mock object in the `prisma` variable's type and its `beforeEach` initialization, alongside its existing `findMany`/`count`):
 
 ```ts
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, most recent doc, and needs-attention counts', async () => {
-      prisma.registerDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1);
-      prisma.registerDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'posted', _count: { _all: 1 } },
-        { status: 'draft', _count: { _all: 2 } },
-      ]);
-      prisma.registerDoc.findFirst = jest.fn().mockResolvedValue({
-        docNumber: 'REG-010',
-        docDate: new Date('2026-08-01T00:00:00.000Z'),
-        createdBy: { fullName: 'Jane Doe' },
-      });
+describe("getSummary()", () => {
+    it("computes totals, status-breakdown percentages, most recent doc, and needs-attention counts", async () => {
+        prisma.registerDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(3)
+            .mockResolvedValueOnce(1)
+            .mockResolvedValueOnce(1);
+        prisma.registerDoc.groupBy = jest.fn().mockResolvedValue([
+            { status: "posted", _count: { _all: 1 } },
+            { status: "draft", _count: { _all: 2 } },
+        ]);
+        prisma.registerDoc.findFirst = jest.fn().mockResolvedValue({
+            docNumber: "REG-010",
+            docDate: new Date("2026-08-01T00:00:00.000Z"),
+            createdBy: { fullName: "Jane Doe" },
+        });
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'posted', count: 1, percentage: 33.3 },
-        { status: 'draft', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.mostRecent).toEqual({
-        docNo: 'REG-010',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        staleDraftCount: 1,
-      });
+        expect(result.totalCount).toBe(3);
+        expect(result.statusBreakdown).toEqual([
+            { status: "posted", count: 1, percentage: 33.3 },
+            { status: "draft", count: 2, percentage: 66.7 },
+        ]);
+        expect(result.mostRecent).toEqual({
+            docNo: "REG-010",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        });
+        expect(result.needsAttention).toEqual({
+            count: 2,
+            canceledCount: 1,
+            staleDraftCount: 1,
+        });
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching documents', async () => {
-      prisma.registerDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      prisma.registerDoc.groupBy = jest.fn().mockResolvedValue([]);
-      prisma.registerDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("returns a null mostRecent and an empty breakdown when there are no matching documents", async () => {
+        prisma.registerDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        prisma.registerDoc.groupBy = jest.fn().mockResolvedValue([]);
+        prisma.registerDoc.findFirst = jest.fn().mockResolvedValue(null);
 
-      const result = await service.getSummary({ page: 1, limit: 20 } as never);
+        const result = await service.getSummary({
+            page: 1,
+            limit: 20,
+        } as never);
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        staleDraftCount: 0,
-      });
+        expect(result.totalCount).toBe(0);
+        expect(result.statusBreakdown).toEqual([]);
+        expect(result.mostRecent).toBeNull();
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            staleDraftCount: 0,
+        });
     });
-  });
+});
 ```
 
 - [ ] **Step 4: Run the test to verify it fails**
@@ -2116,32 +2200,32 @@ describe("transactions.service", () => {
 Add a `summarySpy` following this exact same pattern: add `const summarySpy = vi.hoisted(() => vi.fn());` alongside the existing `getSpy`/`postSpy` hoisted declarations, add `summary: summarySpy` to the `vi.mock` factory's `transactionsApi` object, then add this test inside the existing `describe("transactions.service", ...)` block:
 
 ```ts
-    it("returns the summary response data unwrapped", async () => {
-        const mockSummary = {
-            totalCount: 5,
-            statusBreakdown: [{ status: "posted", count: 5, percentage: 100 }],
-            mostRecent: {
-                docNo: "IN-001",
-                createdByName: "Jane Doe",
-                createdAt: "2026-08-01T00:00:00.000Z",
-            },
-            needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
-        };
-        summarySpy.mockResolvedValue({
-            success: true,
-            message: "Inbound summary",
-            data: mockSummary,
-        });
-
-        const { transactionService } = await import("./transactions.service");
-        const result = await transactionService.summary("inbound", {
-            page: 1,
-            limit: 20,
-        });
-
-        expect(result).toEqual(mockSummary);
-        expect(summarySpy).toHaveBeenCalledWith("inbound", { page: 1, limit: 20 });
+it("returns the summary response data unwrapped", async () => {
+    const mockSummary = {
+        totalCount: 5,
+        statusBreakdown: [{ status: "posted", count: 5, percentage: 100 }],
+        mostRecent: {
+            docNo: "IN-001",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        },
+        needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
+    };
+    summarySpy.mockResolvedValue({
+        success: true,
+        message: "Inbound summary",
+        data: mockSummary,
     });
+
+    const { transactionService } = await import("./transactions.service");
+    const result = await transactionService.summary("inbound", {
+        page: 1,
+        limit: 20,
+    });
+
+    expect(result).toEqual(mockSummary);
+    expect(summarySpy).toHaveBeenCalledWith("inbound", { page: 1, limit: 20 });
+});
 ```
 
 - [ ] **Step 4: Run the test to verify it fails**
@@ -2194,74 +2278,71 @@ rm src/views/transactions/composables/useTransactionSummary.test.ts
 Add these tests to `src/views/transactions/composables/useTransactionList.test.ts`, inside the existing `describe("useTransactionList", ...)` block (this file already mocks `@/services/transactions.service` with a factory that spreads `actual` and overrides `transactionService.list` — extend that same mock factory to also provide a `summary` mock, e.g. `summary: vi.fn().mockResolvedValue({ totalCount: 0, statusBreakdown: [], mostRecent: null, needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 } })`):
 
 ```ts
-    it("fetches the summary alongside the table rows on mount", async () => {
-        const { transactionService } = await import(
-            "@/services/transactions.service"
-        );
-        const mockSummary = {
-            totalCount: 2,
-            statusBreakdown: [{ status: "posted", count: 2, percentage: 100 }],
-            mostRecent: null,
-            needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
-        };
-        vi.mocked(transactionService.summary).mockResolvedValueOnce(mockSummary);
+it("fetches the summary alongside the table rows on mount", async () => {
+    const { transactionService } =
+        await import("@/services/transactions.service");
+    const mockSummary = {
+        totalCount: 2,
+        statusBreakdown: [{ status: "posted", count: 2, percentage: 100 }],
+        mostRecent: null,
+        needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
+    };
+    vi.mocked(transactionService.summary).mockResolvedValueOnce(mockSummary);
 
-        const { useTransactionList } = await import("./useTransactionList");
-        const list = useTransactionList({ transactionKey: "relocation" });
+    const { useTransactionList } = await import("./useTransactionList");
+    const list = useTransactionList({ transactionKey: "relocation" });
 
-        const flushPromises = () =>
-            new Promise((resolve) => setTimeout(resolve, 0));
-        await flushPromises();
+    const flushPromises = () =>
+        new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
 
-        expect(list.summary.value).toEqual(mockSummary);
-        expect(transactionService.summary).toHaveBeenCalledWith(
-            "relocation",
-            expect.objectContaining({ page: 1, limit: 20 }),
-        );
+    expect(list.summary.value).toEqual(mockSummary);
+    expect(transactionService.summary).toHaveBeenCalledWith(
+        "relocation",
+        expect.objectContaining({ page: 1, limit: 20 }),
+    );
+});
+
+it("isolates a summary fetch failure from the table's own rows/error state", async () => {
+    const { transactionService } =
+        await import("@/services/transactions.service");
+    vi.mocked(transactionService.summary).mockRejectedValueOnce(
+        new Error("Summary down"),
+    );
+    vi.mocked(transactionService.list).mockResolvedValueOnce({
+        items: [{ id: "1", status: "posted" }],
+        meta: { page: 1, limit: 20, total: 1 },
     });
 
-    it("isolates a summary fetch failure from the table's own rows/error state", async () => {
-        const { transactionService } = await import(
-            "@/services/transactions.service"
-        );
-        vi.mocked(transactionService.summary).mockRejectedValueOnce(
-            new Error("Summary down"),
-        );
-        vi.mocked(transactionService.list).mockResolvedValueOnce({
-            items: [{ id: "1", status: "posted" }],
-            meta: { page: 1, limit: 20, total: 1 },
-        });
+    const { useTransactionList } = await import("./useTransactionList");
+    const list = useTransactionList({ transactionKey: "relocation" });
 
-        const { useTransactionList } = await import("./useTransactionList");
-        const list = useTransactionList({ transactionKey: "relocation" });
+    const flushPromises = () =>
+        new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
 
-        const flushPromises = () =>
-            new Promise((resolve) => setTimeout(resolve, 0));
-        await flushPromises();
+    expect(list.summaryError.value).toBe("Summary down");
+    expect(list.error.value).toBeNull();
+    expect(list.rows.value).toHaveLength(1);
+});
 
-        expect(list.summaryError.value).toBe("Summary down");
-        expect(list.error.value).toBeNull();
-        expect(list.rows.value).toHaveLength(1);
-    });
+it("does not refetch the summary on a page-only change", async () => {
+    const { transactionService } =
+        await import("@/services/transactions.service");
 
-    it("does not refetch the summary on a page-only change", async () => {
-        const { transactionService } = await import(
-            "@/services/transactions.service"
-        );
+    const { useTransactionList } = await import("./useTransactionList");
+    const list = useTransactionList({ transactionKey: "relocation" });
 
-        const { useTransactionList } = await import("./useTransactionList");
-        const list = useTransactionList({ transactionKey: "relocation" });
+    const flushPromises = () =>
+        new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
+    vi.mocked(transactionService.summary).mockClear();
 
-        const flushPromises = () =>
-            new Promise((resolve) => setTimeout(resolve, 0));
-        await flushPromises();
-        vi.mocked(transactionService.summary).mockClear();
+    list.pagination.page = 2;
+    await flushPromises();
 
-        list.pagination.page = 2;
-        await flushPromises();
-
-        expect(transactionService.summary).not.toHaveBeenCalled();
-    });
+    expect(transactionService.summary).not.toHaveBeenCalled();
+});
 ```
 
 - [ ] **Step 3: Run the tests to verify they fail**
@@ -2278,89 +2359,89 @@ Add `TransactionSummaryResponse` to the existing type-only import from `../types
 Add these three refs directly after the existing `const rows = ref<TransactionRecord[]>([]);` (line 100):
 
 ```ts
-    const summary = ref<TransactionSummaryResponse | null>(null);
-    const summaryLoading = ref(false);
-    const summaryError = ref<string | null>(null);
+const summary = ref<TransactionSummaryResponse | null>(null);
+const summaryLoading = ref(false);
+const summaryError = ref<string | null>(null);
 ```
 
 Add a `loadSummary` function directly after the existing `loadRows` function:
 
 ```ts
-    const loadSummary = async () => {
-        summaryLoading.value = true;
-        summaryError.value = null;
-        try {
-            const params = buildParams();
-            summary.value = await transactionService.summary(
-                transactionKey.value,
-                params,
-            );
-        } catch (err) {
-            summary.value = null;
-            summaryError.value =
-                err instanceof Error
-                    ? err.message
-                    : "Failed to load transaction summary.";
-        } finally {
-            summaryLoading.value = false;
-        }
-    };
+const loadSummary = async () => {
+    summaryLoading.value = true;
+    summaryError.value = null;
+    try {
+        const params = buildParams();
+        summary.value = await transactionService.summary(
+            transactionKey.value,
+            params,
+        );
+    } catch (err) {
+        summary.value = null;
+        summaryError.value =
+            err instanceof Error
+                ? err.message
+                : "Failed to load transaction summary.";
+    } finally {
+        summaryLoading.value = false;
+    }
+};
 ```
 
 Update the `refresh` function to also call `loadSummary()`:
 
 ```ts
-    const refresh = () => {
-        pagination.page = 1;
-        void loadRows();
-        void loadSummary();
-    };
+const refresh = () => {
+    pagination.page = 1;
+    void loadRows();
+    void loadSummary();
+};
 ```
 
 Update the debounced filter watcher to also call `loadSummary()`:
 
 ```ts
-    useDebouncedWatch(
-        () => [
-            keyword.value,
-            startDate.value,
-            endDate.value,
-            selectedWarehouse.value,
-            selectedPartner.value,
-        ],
-        () => {
-            if (suppressFilterWatch.value) return;
-            pagination.page = 1;
-            void loadRows();
-            void loadSummary();
-        },
-    );
+useDebouncedWatch(
+    () => [
+        keyword.value,
+        startDate.value,
+        endDate.value,
+        selectedWarehouse.value,
+        selectedPartner.value,
+    ],
+    () => {
+        if (suppressFilterWatch.value) return;
+        pagination.page = 1;
+        void loadRows();
+        void loadSummary();
+    },
+);
 ```
 
 Update the `transactionKey` immediate watcher to also call `loadSummary()` (add the call directly after the existing `void loadRows();` line):
 
 ```ts
-    watch(
-        () => props.transactionKey,
-        () => {
-            suppressFilterWatch.value = true;
-            keyword.value = "";
-            startDate.value = "";
-            endDate.value = "";
-            selectedWarehouse.value = "";
-            selectedPartner.value = "";
-            pagination.page = 1;
-            pagination.limit = 20;
-            pagination.total = 0;
-            rows.value = [];
-            partners.value = [];
-            suppressFilterWatch.value = false;
-            void loadPartnerOptions();
-            void loadRows();
-            void loadSummary();
-        },
-        { immediate: true },
-    );
+watch(
+    () => props.transactionKey,
+    () => {
+        suppressFilterWatch.value = true;
+        keyword.value = "";
+        startDate.value = "";
+        endDate.value = "";
+        selectedWarehouse.value = "";
+        selectedPartner.value = "";
+        pagination.page = 1;
+        pagination.limit = 20;
+        pagination.total = 0;
+        rows.value = [];
+        partners.value = [];
+        suppressFilterWatch.value = false;
+        void loadPartnerOptions();
+        void loadRows();
+        void loadSummary();
+    },
+    { immediate: true },
+);
 ```
 
 Add `summary`, `summaryLoading`, `summaryError` to the return object, directly after `rows`:
@@ -2471,7 +2552,11 @@ describe("TransactionSummaryWidget", () => {
                     createdByName: "Jane Doe",
                     createdAt: "2026-08-01T12:00:00.000Z",
                 },
-                needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
+                needsAttention: {
+                    count: 0,
+                    canceledCount: 0,
+                    staleDraftCount: 0,
+                },
             },
         });
         const html = await renderToString(app);
@@ -2492,9 +2577,15 @@ describe("TransactionSummaryWidget", () => {
             error: null,
             summary: {
                 totalCount: 10,
-                statusBreakdown: [{ status: "canceled", count: 3, percentage: 30 }],
+                statusBreakdown: [
+                    { status: "canceled", count: 3, percentage: 30 },
+                ],
                 mostRecent: null,
-                needsAttention: { count: 5, canceledCount: 3, staleDraftCount: 2 },
+                needsAttention: {
+                    count: 5,
+                    canceledCount: 3,
+                    staleDraftCount: 2,
+                },
             },
         });
         const html = await renderToString(app);
@@ -2652,7 +2743,13 @@ Replace the full contents of `src/views/transactions/components/TransactionSumma
 import Card from "@/components/molecules/Card.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { AlertTriangle, CheckCircle2, Clock, FileText, Tags } from "lucide-vue-next";
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Clock,
+    FileText,
+    Tags,
+} from "lucide-vue-next";
 import { formatDate } from "@/utils/date";
 import type { TransactionSummaryResponse } from "../types";
 

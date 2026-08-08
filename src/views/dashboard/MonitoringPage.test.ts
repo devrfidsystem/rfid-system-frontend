@@ -18,6 +18,9 @@ vi.mock("./components/MonitoringDomainCard.vue", () => ({
 vi.mock("./components/MonitoringLiveFeed.vue", () => ({
     default: stub("MonitoringLiveFeedStub"),
 }));
+vi.mock("./components/MonitoringExceptionFeed.vue", () => ({
+    default: stub("MonitoringExceptionFeedStub"),
+}));
 
 import MonitoringPage from "./MonitoringPage.vue";
 
@@ -31,11 +34,17 @@ describe("MonitoringPage", () => {
         stop.mockReset();
         useMonitoringMock.mockReturnValue({
             data: { value: null },
-            loading: { value: false },
+            loading: false,
             error: { value: null },
             refresh: vi.fn(),
             start,
             stop,
+            // DashboardToolbar is a real (unstubbed) component in this test —
+            // unlike the other mocked fields above, these must be plain
+            // values so its prop validation doesn't warn.
+            warehouseOptions: [],
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
         });
     });
 
@@ -48,11 +57,14 @@ describe("MonitoringPage", () => {
     it("renders the error banner when the composable reports an error", async () => {
         useMonitoringMock.mockReturnValue({
             data: { value: null },
-            loading: { value: false },
+            loading: false,
             error: { value: "network down" },
             refresh: vi.fn(),
             start,
             stop,
+            warehouseOptions: [],
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
         });
 
         const app = createSSRApp(MonitoringPage);
@@ -93,11 +105,14 @@ describe("MonitoringPage", () => {
                     liveTransactions: [],
                 },
             },
-            loading: { value: false },
+            loading: false,
             error: { value: null },
             refresh: vi.fn(),
             start,
             stop,
+            warehouseOptions: [],
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
         });
 
         const app = createSSRApp(MonitoringPage);

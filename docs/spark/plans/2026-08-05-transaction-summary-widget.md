@@ -37,33 +37,32 @@
 Add this test at the end of the `describe("useTransactionList", ...)` block in `src/views/transactions/composables/useTransactionList.test.ts`, just before its closing `});`:
 
 ```ts
-    it("exposes the raw loaded rows for downstream summary derivation", async () => {
-        vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+it("exposes the raw loaded rows for downstream summary derivation", async () => {
+    vi.resetModules();
+    vi.unmock("@/views/report/reportConfig");
 
-        const { transactionService } = await import(
-            "@/services/transactions.service"
-        );
-        vi.mocked(transactionService.list).mockResolvedValueOnce({
-            items: [
-                { id: "1", status: "posted" },
-                { id: "2", status: "draft" },
-            ],
-            meta: { page: 1, limit: 20, total: 2 },
-        });
-
-        const { useTransactionList } = await import("./useTransactionList");
-        const list = useTransactionList({ transactionKey: "relocation" });
-
-        const flushPromises = () =>
-            new Promise((resolve) => setTimeout(resolve, 0));
-        await flushPromises();
-
-        expect(list.rows.value.map((row) => row.status)).toEqual([
-            "posted",
-            "draft",
-        ]);
+    const { transactionService } =
+        await import("@/services/transactions.service");
+    vi.mocked(transactionService.list).mockResolvedValueOnce({
+        items: [
+            { id: "1", status: "posted" },
+            { id: "2", status: "draft" },
+        ],
+        meta: { page: 1, limit: 20, total: 2 },
     });
+
+    const { useTransactionList } = await import("./useTransactionList");
+    const list = useTransactionList({ transactionKey: "relocation" });
+
+    const flushPromises = () =>
+        new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
+
+    expect(list.rows.value.map((row) => row.status)).toEqual([
+        "posted",
+        "draft",
+    ]);
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -76,37 +75,37 @@ Expected: FAIL — `list.rows` is `undefined`, so `.value` throws a `TypeError`.
 In `src/views/transactions/composables/useTransactionList.ts`, find the `return` statement (currently starting `return { pageTitle, pageTagline, ...`). Add `rows,` immediately before `displayRows,`:
 
 ```ts
-    return {
-        pageTitle,
-        pageTagline,
-        sectionHeading,
-        canCreate,
-        canExport,
-        pageDescription,
-        keyword,
-        startDate,
-        endDate,
-        selectedWarehouse,
-        selectedPartner,
-        showWarehouseFilter,
-        partnerFilterSupported,
-        warehouseSelectOptions,
-        partnerSelectOptions,
-        partnerLabel,
-        partnerError,
-        error,
-        loading,
-        pagination,
-        pageSizeOptions,
-        rows,
-        displayRows,
-        columns,
-        emptyStateVariant,
-        sortOrder,
-        toggleSort,
-        exportRows,
-        refresh,
-    };
+return {
+    pageTitle,
+    pageTagline,
+    sectionHeading,
+    canCreate,
+    canExport,
+    pageDescription,
+    keyword,
+    startDate,
+    endDate,
+    selectedWarehouse,
+    selectedPartner,
+    showWarehouseFilter,
+    partnerFilterSupported,
+    warehouseSelectOptions,
+    partnerSelectOptions,
+    partnerLabel,
+    partnerError,
+    error,
+    loading,
+    pagination,
+    pageSizeOptions,
+    rows,
+    displayRows,
+    columns,
+    emptyStateVariant,
+    sortOrder,
+    toggleSort,
+    exportRows,
+    refresh,
+};
 ```
 
 - [ ] **Step 4: Run test to verify it passes**

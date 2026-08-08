@@ -76,7 +76,7 @@ export function useMasterForm(
         route,
     } = context;
     const { loadRows, loadError } = table;
-    const { withToast, notifyError } = useNotifier();
+    const { withToast, notifyError, notifySuccess } = useNotifier();
 
     const showAddModal = ref(false);
     const showEditModal = ref(false);
@@ -112,7 +112,11 @@ export function useMasterForm(
 
     const resetForm = () => {
         formFields.value.forEach((field) => {
-            formState[field.key] = field.type === "file" ? null : "";
+            if (field.type === "file") {
+                formState[field.key] = null;
+                return;
+            }
+            formState[field.key] = field.key === "isActive" ? "true" : "";
         });
     };
 
@@ -365,7 +369,25 @@ export function useMasterForm(
                     description: payload.description,
                     isActive: payload.isActive,
                 };
+            case "customers":
+            case "suppliers":
+                return {
+                    name: payload.name,
+                    address: payload.address,
+                    phone: payload.phone,
+                    description: payload.description,
+                    isActive: payload.isActive,
+                };
+            case "uoms":
+                return {
+                    name: payload.name,
+                    symbol: payload.symbol,
+                };
+            case "product-categories":
             case "locations":
+                // Locations only ever send `name` on update — the backend's
+                // UpdateLocationDto has no warehouseId field; the warehouse
+                // select is disabled while editing to match.
                 return {
                     name: payload.name,
                 };
@@ -379,6 +401,8 @@ export function useMasterForm(
                 return {
                     categoryId: payload.categoryId,
                     uomId: payload.uomId,
+                    supplierId: payload.supplierId,
+                    customerId: payload.customerId,
                     name: payload.name,
                     qtyMin: payload.qtyMin,
                     qtyMax: payload.qtyMax,
@@ -652,6 +676,89 @@ export function useMasterForm(
             return acc;
         }, {});
 
+    const describeImportRow = (row: Record<string, string>, index: number) => {
+        const label = row.name ?? row.Name ?? row.code ?? row.Code;
+        return label ? `Row ${index + 1} (${label})` : `Row ${index + 1}`;
+    };
+
+    const importOneRow = async (
+        masterKey: MasterEntityKey,
+        row: Record<string, string>,
+    ): Promise<"created" | "skipped"> => {
+        const submittedData = buildSubmittedDataFromImportRow(row);
+        const payload = buildMasterCreatePayload(masterKey, submittedData);
+        if (!Object.keys(payload).length) return "skipped";
+        const attributeValues = buildProductAttributeValues(submittedData);
+        if (attributeValues?.length) {
+            payload.attributeValues = attributeValues;
+        }
+        await applyLocationWarehouseContext(payload);
+        attachCompanyContext(payload);
+        await masterService.create(masterKey, payload as never);
+        return "created";
+    };
+
+    type ImportSummary = {
+        createdCount: number;
+        skippedCount: number;
+        failures: string[];
+    };
+
+    const runImportRows = async (
+        masterKey: MasterEntityKey,
+        rows: Record<string, string>[],
+    ): Promise<ImportSummary> => {
+        const summary: ImportSummary = {
+            createdCount: 0,
+            skippedCount: 0,
+            failures: [],
+        };
+
+        for (const [index, row] of rows.entries()) {
+            try {
+                const outcome = await importOneRow(masterKey, row);
+                if (outcome === "created") {
+                    summary.createdCount += 1;
+                } else {
+                    summary.skippedCount += 1;
+                }
+            } catch (error) {
+                const reason =
+                    error instanceof Error ? error.message : "Unknown error";
+                summary.failures.push(
+                    `${describeImportRow(row, index)}: ${reason}`,
+                );
+            }
+        }
+
+        return summary;
+    };
+
+    const reportImportSummary = (title: string, summary: ImportSummary) => {
+        const { createdCount, skippedCount, failures } = summary;
+        const summaryParts = [`${createdCount} imported`];
+        if (skippedCount) summaryParts.push(`${skippedCount} skipped`);
+        if (failures.length) summaryParts.push(`${failures.length} failed`);
+
+        if (failures.length) {
+            notifyError(
+                `${title}: ${summaryParts.join(", ")}. ${failures.join("; ")}`,
+            );
+            return;
+        }
+        if (createdCount) {
+            notifySuccess(`${title}: ${summaryParts.join(", ")}.`);
+            return;
+        }
+        notifyError(`${title}: no rows were imported (all rows skipped).`);
+    };
+
+    /**
+     * Each row is created independently so one bad row (validation error,
+     * duplicate, etc.) never blocks the rows after it and never gets silently
+     * swallowed by an all-or-nothing toast — the user gets an exact count of
+     * what succeeded and, per failed row, why.
+     */
     const handleImport = async (file: File) => {
         const key = entityKey.value;
         if (!isMasterApiEntity(key)) {
@@ -661,37 +768,16 @@ export function useMasterForm(
         const masterKey = key as MasterEntityKey;
         isImporting.value = true;
         try {
-            await withToast(
-                async () => {
-                    const importedRows = await parseMasterExcelFile(file);
-                    if (!importedRows.length) {
-                        throw new Error("Excel file does not contain data.");
-                    }
+            const importedRows = await parseMasterExcelFile(file);
+            if (!importedRows.length) {
+                notifyError("Excel file does not contain data.");
+                return;
+            }
 
-                    for (const row of importedRows) {
-                        const submittedData =
-                            buildSubmittedDataFromImportRow(row);
-                        const payload = buildMasterCreatePayload(
-                            masterKey,
-                            submittedData,
-                        );
-                        if (!Object.keys(payload).length) continue;
-                        const attributeValues =
-                            buildProductAttributeValues(submittedData);
-                        if (attributeValues?.length) {
-                            payload.attributeValues = attributeValues;
-                        }
-                        await applyLocationWarehouseContext(payload);
-                        attachCompanyContext(payload);
-                        await masterService.create(masterKey, payload as never);
-                    }
-                },
-                {
-                    successMessage: `Imported ${config.value.title}`,
-                    errorMessage: `Failed to import ${config.value.title}`,
-                },
-            );
-            await loadRows();
+            const summary = await runImportRows(masterKey, importedRows);
+            reportImportSummary(config.value.title, summary);
+
+            if (summary.createdCount) await loadRows();
         } finally {
             isImporting.value = false;
         }

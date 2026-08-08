@@ -285,7 +285,9 @@ describe("useTransactionList", () => {
             mostRecent: null,
             needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
         };
-        vi.mocked(transactionService.summary).mockResolvedValueOnce(mockSummary);
+        vi.mocked(transactionService.summary).mockResolvedValueOnce(
+            mockSummary,
+        );
 
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "relocation" });

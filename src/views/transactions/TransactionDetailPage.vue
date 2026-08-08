@@ -10,6 +10,7 @@
             <template #actions>
                 <div v-if="canShowActions" class="flex items-center gap-3">
                     <Button
+                        v-if="canCancel"
                         variant="outline"
                         class="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
                         object-id="btn_TransactionDetailCancel"
@@ -25,6 +26,7 @@
                         }}
                     </Button>
                     <Button
+                        v-if="canPost"
                         variant="primary"
                         object-id="btn_TransactionDetailPost"
                         :disabled="actionLoading"
@@ -37,6 +39,15 @@
                                   ? "Post Document"
                                   : "Post Transaction"
                         }}
+                    </Button>
+                    <Button
+                        v-if="canComplete"
+                        variant="primary"
+                        object-id="btn_TransactionDetailComplete"
+                        :disabled="actionLoading"
+                        @click="handleComplete"
+                    >
+                        Complete Task
                     </Button>
                 </div>
             </template>
@@ -410,12 +421,16 @@ const {
     loadTransaction,
     handlePost,
     handleCancel,
+    handleComplete,
     confirmation,
     clearConfirmation,
     handleConfirmAction,
     isInbound,
     isPutaway,
     canShowActions,
+    canPost,
+    canCancel,
+    canComplete,
     isOutboundReadOnly,
     statusLabel,
     statusTone,

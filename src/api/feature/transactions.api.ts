@@ -25,7 +25,9 @@ export const transactionsApi = {
 
     summary(key: TransactionKey, params: ReportParams = {}) {
         const path = transactionPaths[key];
-        return apiRequest<import("@/views/transactions/types").TransactionSummaryResponse>({
+        return apiRequest<
+            import("@/views/transactions/types").TransactionSummaryResponse
+        >({
             url: `${path}/summary`,
             method: "get",
             params,

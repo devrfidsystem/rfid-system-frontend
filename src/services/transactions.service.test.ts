@@ -104,6 +104,9 @@ describe("transactions.service", () => {
         });
 
         expect(result).toEqual(mockSummary);
-        expect(summarySpy).toHaveBeenCalledWith("inbound", { page: 1, limit: 20 });
+        expect(summarySpy).toHaveBeenCalledWith("inbound", {
+            page: 1,
+            limit: 20,
+        });
     });
 });

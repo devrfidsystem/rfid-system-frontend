@@ -168,7 +168,9 @@ describe("useOpnameTree", () => {
         getTreeMock.mockRejectedValueOnce(new Error("Tree down"));
         const mockSummary = {
             totalCount: 2,
-            statusBreakdown: [{ status: "counting", count: 2, percentage: 100 }],
+            statusBreakdown: [
+                { status: "counting", count: 2, percentage: 100 },
+            ],
             varianceTaskCount: 0,
             needsAttention: {
                 count: 0,

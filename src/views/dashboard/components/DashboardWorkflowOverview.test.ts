@@ -80,7 +80,9 @@ describe("DashboardWorkflowOverview", () => {
         expect(html).toContain("2.4h");
         expect(html).toContain("QC Hold");
 
-        const qcHoldSection = html.slice(html.indexOf("QC Hold"));
+        // "QC Hold" now also appears in the donut chart legend above the
+        // detailed stage list, so scope to the LAST occurrence (the list row).
+        const qcHoldSection = html.slice(html.lastIndexOf("QC Hold"));
         expect(qcHoldSection).not.toContain("Avg wait");
     });
 

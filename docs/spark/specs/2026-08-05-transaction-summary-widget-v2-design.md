@@ -52,23 +52,23 @@ Response shape (via `successResponse(summary, '<Type> summary')`):
 
 1. **Extract** the existing inline `where` construction out of `list()` into a new private method, e.g. `private buildListWhere(query: InboundListFilterDto, user?: RequestUser): Prisma.InboundDocWhereInput`. `list()` calls this method instead of inlining the logic; behavior is unchanged (this is a pure refactor, not a behavior change).
 2. **Add** `async getSummary(query: InboundListFilterDto, user?: RequestUser)`:
-   - `where = this.buildListWhere(query, user)`
-   - Single `this.prisma.$transaction([...])` running: `count({ where })`, `groupBy({ by: ['status'], where, _count: { _all: true } })`, `findFirst({ where, orderBy: { [dateField]: 'desc' }, select: { [docNoField]: true, [dateField]: true, users: { select: { fullName: true } } } })`, `count({ where: { ...where, status: 'canceled' } })`, `count({ where: { ...where, status: 'draft', [dateField]: { lt: threeDaysAgoDate } } })`.
-   - `threeDaysAgoDate` is computed once per request as `new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)` — a fixed, documented threshold, not configurable per company/warehouse in this iteration.
-   - Assembles the response shape above; `percentage` computed per status bucket as `totalCount > 0 ? Math.round((count / totalCount) * 1000) / 10 : 0`. The `findFirst` result's raw doc-number field (e.g. `inbound_no`, or `docNumber` for putaway/register — see table below) is explicitly renamed to the response's `docNo` key when assembling `mostRecent` — the Prisma field name is never passed through as-is, since it differs per module and the response contract must not.
+    - `where = this.buildListWhere(query, user)`
+    - Single `this.prisma.$transaction([...])` running: `count({ where })`, `groupBy({ by: ['status'], where, _count: { _all: true } })`, `findFirst({ where, orderBy: { [dateField]: 'desc' }, select: { [docNoField]: true, [dateField]: true, users: { select: { fullName: true } } } })`, `count({ where: { ...where, status: 'canceled' } })`, `count({ where: { ...where, status: 'draft', [dateField]: { lt: threeDaysAgoDate } } })`.
+    - `threeDaysAgoDate` is computed once per request as `new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)` — a fixed, documented threshold, not configurable per company/warehouse in this iteration.
+    - Assembles the response shape above; `percentage` computed per status bucket as `totalCount > 0 ? Math.round((count / totalCount) * 1000) / 10 : 0`. The `findFirst` result's raw doc-number field (e.g. `inbound_no`, or `docNumber` for putaway/register — see table below) is explicitly renamed to the response's `docNo` key when assembling `mostRecent` — the Prisma field name is never passed through as-is, since it differs per module and the response contract must not.
 3. **Controller** adds `@Get('summary')` (before `@Get(':id')`) with `@ApiBearerAuthProtected()`, `@ApiOperation({ summary: 'Get <type> summary' })`, `@ApiStandardOkResponse('<Type> summary')`, `@ApiUnauthorizedResponse()`, `@ApiForbiddenResponse()` — matching the existing decorator style on `list()`. Calls `<type>Service.getSummary(query, user)`, returns `successResponse(summary, '<Type> summary')`.
 
 This is the same shape repeated 7 times with module-specific field names (doc-number field, date field, model name). The doc-number and date-field mapping per module:
 
-| Module | Model | Doc-no field | Date field |
-|---|---|---|---|
-| inbound | `InboundDoc` | `inbound_no` | `createdAt` |
-| outbound | `OutboundDoc` | `outbound_no` | `createdAt` |
+| Module     | Model           | Doc-no field    | Date field  |
+| ---------- | --------------- | --------------- | ----------- |
+| inbound    | `InboundDoc`    | `inbound_no`    | `createdAt` |
+| outbound   | `OutboundDoc`   | `outbound_no`   | `createdAt` |
 | relocation | `RelocationDoc` | `relocation_no` | `createdAt` |
-| transfer | `TransferDoc` | `transfer_no` | `createdAt` |
-| returns | `ReturnDoc` | `return_no` | `createdAt` |
-| putaway | `PutawayDoc` | `docNumber` | `docDate` |
-| register | `RegisterDoc` | `docNumber` | `docDate` |
+| transfer   | `TransferDoc`   | `transfer_no`   | `createdAt` |
+| returns    | `ReturnDoc`     | `return_no`     | `createdAt` |
+| putaway    | `PutawayDoc`    | `docNumber`     | `docDate`   |
+| register   | `RegisterDoc`   | `docNumber`     | `docDate`   |
 
 ### Testing (backend)
 
@@ -81,29 +81,29 @@ Per module: a unit test for `getSummary()` (mocked Prisma `$transaction`) coveri
 - `src/api/feature/transactions.api.ts`: add `summary(key: TransactionKey, params: ReportParams)` → `GET {transactionPaths[key]}/summary`.
 - `src/services/transactions.service.ts`: add `transactionService.summary(key, params): Promise<TransactionSummaryResponse>` — the backend response fields (`totalCount`, `statusBreakdown`, `mostRecent`, `needsAttention`) are already camelCase and match the type directly; no normalization step is needed (unlike `normalizeTransactionRecord`, which exists because list/detail rows have inconsistent per-module raw field names — the summary endpoint's response is uniform by construction).
 - New type `TransactionSummaryResponse` in `src/views/transactions/types.ts`:
-  ```ts
-  export interface TransactionSummaryStatusCount {
-    status: string;
-    count: number;
-    percentage: number;
-  }
-  export interface TransactionSummaryMostRecent {
-    docNo: string;
-    createdByName: string | null;
-    createdAt: string;
-  }
-  export interface TransactionSummaryNeedsAttention {
-    count: number;
-    canceledCount: number;
-    staleDraftCount: number;
-  }
-  export interface TransactionSummaryResponse {
-    totalCount: number;
-    statusBreakdown: TransactionSummaryStatusCount[];
-    mostRecent: TransactionSummaryMostRecent | null;
-    needsAttention: TransactionSummaryNeedsAttention;
-  }
-  ```
+    ```ts
+    export interface TransactionSummaryStatusCount {
+        status: string;
+        count: number;
+        percentage: number;
+    }
+    export interface TransactionSummaryMostRecent {
+        docNo: string;
+        createdByName: string | null;
+        createdAt: string;
+    }
+    export interface TransactionSummaryNeedsAttention {
+        count: number;
+        canceledCount: number;
+        staleDraftCount: number;
+    }
+    export interface TransactionSummaryResponse {
+        totalCount: number;
+        statusBreakdown: TransactionSummaryStatusCount[];
+        mostRecent: TransactionSummaryMostRecent | null;
+        needsAttention: TransactionSummaryNeedsAttention;
+    }
+    ```
 
 ### `useTransactionList.ts` changes
 
@@ -119,9 +119,9 @@ Props change from the v1 derived-values shape to the fetched-response shape plus
 
 ```ts
 defineProps<{
-  loading: boolean;   // summaryLoading
-  error: string | null; // summaryError
-  summary: TransactionSummaryResponse | null;
+    loading: boolean; // summaryLoading
+    error: string | null; // summaryError
+    summary: TransactionSummaryResponse | null;
 }>();
 ```
 
@@ -133,6 +133,7 @@ Layout becomes a 2×2 grid (`sm:grid-cols-2`) of 4 cards:
 4. **Needs Attention** — new card, the one place color carries meaning beyond decoration: `needsAttention.count` rendered large; when `count > 0` the card uses warning/danger tones (red icon circle, red count) and a one-line breakdown ("`{{ canceledCount }}` cancelled, `{{ staleDraftCount }}` pending >3 days"); when `count === 0` it renders a calm "All clear" state in success tones (green check icon, no breakdown line).
 
 States:
+
 - **Loading** (`loading === true`): 4 pulsing skeleton blocks (was 3 in v1), same `animate-pulse` treatment.
 - **Error** (`error` set, `loading === false`): a single inline error message card spanning the grid width — this widget can now fail independently of the table (network/backend error on `/summary`), so it needs its own error state distinct from `TransactionListPage.vue`'s existing table-error banner. It does NOT hide the table — only this widget's own area shows the error.
 - **Empty** (`summary?.totalCount === 0`, no error): single "No transactions match the current filters." message, same as v1 — `mostRecent`/`needsAttention` are moot at zero rows so they're not rendered separately in this state.

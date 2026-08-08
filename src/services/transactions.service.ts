@@ -1,7 +1,10 @@
 import { normalizePaginationItems } from "@/lib/api/normalizers";
 import type { ApiPaginatedResult, ApiResponse } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
-import type { TransactionRecord, TransactionSummaryResponse } from "@/views/transactions/types";
+import type {
+    TransactionRecord,
+    TransactionSummaryResponse,
+} from "@/views/transactions/types";
 import { transactionsApi } from "@/api/feature/transactions.api";
 
 // "opname" is intentionally part of this union/the maps below for

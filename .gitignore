@@ -19,4 +19,4 @@ GEMINI.md
 .codex
 .vscode
 .spark
-.storybook
+.storybook/.codex/.spark-managed.json

@@ -34,6 +34,7 @@ export interface MasterFormField {
     optionsKey?: string;
     options?: Array<{ label: string; value: string }>;
     placeholder?: string;
+    required?: boolean;
 }
 
 export interface MasterEntityConfig {
@@ -102,6 +103,12 @@ const getProductUomLabel = (row: MasterRecord) =>
 const getProductCategoryLabel = (row: MasterRecord) =>
     resolveRelationLabel(row.category as Record<string, unknown> | undefined);
 
+const getProductSupplierLabel = (row: MasterRecord) =>
+    resolveRelationLabel(row.supplier as Record<string, unknown> | undefined);
+
+const getProductCustomerLabel = (row: MasterRecord) =>
+    resolveRelationLabel(row.customer as Record<string, unknown> | undefined);
+
 const getLocationWarehouseLabel = (row: MasterRecord) =>
     resolveRelationLabel(row.warehouse as Record<string, unknown> | undefined);
 
@@ -139,6 +146,11 @@ export const attributeTypeOptions: Array<{ label: string; value: string }> = [
     { label: "List", value: "list" },
 ];
 
+export const activeStatusOptions: Array<{ label: string; value: string }> = [
+    { label: "Active", value: "true" },
+    { label: "Inactive", value: "false" },
+];
+
 export const masterEntities: Partial<
     Record<MasterEntityConfig["entity"], MasterEntityConfig>
 > = {
@@ -158,12 +170,13 @@ export const masterEntities: Partial<
             { key: "createdAt", label: "Created At" },
         ],
         formFields: [
-            { key: "name", label: "Name" },
+            { key: "name", label: "Name", required: true },
             {
                 key: "type",
                 label: "Type",
                 type: "select",
                 options: attributeTypeOptions,
+                required: true,
             },
             {
                 key: "items",
@@ -184,9 +197,10 @@ export const masterEntities: Partial<
             { key: "address", label: "Address" },
             { key: "phone", label: "Phone" },
             { key: "description", label: "Description" },
+            { key: "isActive", label: "Status" },
         ],
         formFields: [
-            { key: "name", label: "Name" },
+            { key: "name", label: "Name", required: true },
             { key: "address", label: "Address", type: "textarea" },
             { key: "phone", label: "Phone" },
             {
@@ -194,6 +208,12 @@ export const masterEntities: Partial<
                 label: "Description",
                 type: "textarea",
                 placeholder: "Optional description",
+            },
+            {
+                key: "isActive",
+                label: "Status",
+                type: "select",
+                options: activeStatusOptions,
             },
         ],
         icon: Users,
@@ -208,9 +228,10 @@ export const masterEntities: Partial<
             { key: "address", label: "Address" },
             { key: "phone", label: "Phone" },
             { key: "description", label: "Description" },
+            { key: "isActive", label: "Status" },
         ],
         formFields: [
-            { key: "name", label: "Name" },
+            { key: "name", label: "Name", required: true },
             { key: "address", label: "Address", type: "textarea" },
             { key: "phone", label: "Phone" },
             {
@@ -218,6 +239,12 @@ export const masterEntities: Partial<
                 label: "Description",
                 type: "textarea",
                 placeholder: "Optional description",
+            },
+            {
+                key: "isActive",
+                label: "Status",
+                type: "select",
+                options: activeStatusOptions,
             },
         ],
         icon: Truck,
@@ -231,15 +258,22 @@ export const masterEntities: Partial<
             { key: "name", label: "Name" },
             { key: "address", label: "Address" },
             { key: "description", label: "Description" },
+            { key: "isActive", label: "Status" },
         ],
         formFields: [
-            { key: "name", label: "Name" },
+            { key: "name", label: "Name", required: true },
             { key: "address", label: "Address", type: "textarea" },
             {
                 key: "description",
                 label: "Description",
                 type: "textarea",
                 placeholder: "Optional description",
+            },
+            {
+                key: "isActive",
+                label: "Status",
+                type: "select",
+                options: activeStatusOptions,
             },
         ],
         icon: Warehouse,
@@ -270,8 +304,9 @@ export const masterEntities: Partial<
                 type: "select",
                 optionsKey: "warehouseId",
                 placeholder: "Select warehouse",
+                required: true,
             },
-            { key: "name", label: "Name" },
+            { key: "name", label: "Name", required: true },
             {
                 key: "parentId",
                 label: "Parent Location",
@@ -292,8 +327,8 @@ export const masterEntities: Partial<
             { key: "symbol", label: "Symbol" },
         ],
         formFields: [
-            { key: "name", label: "Name" },
-            { key: "symbol", label: "Symbol" },
+            { key: "name", label: "Name", required: true },
+            { key: "symbol", label: "Symbol", required: true },
         ],
         icon: Ruler,
         supported: true,
@@ -306,7 +341,7 @@ export const masterEntities: Partial<
             { key: "name", label: "Name" },
             { key: "createdAt", label: "Created At" },
         ],
-        formFields: [{ key: "name", label: "Name" }],
+        formFields: [{ key: "name", label: "Name", required: true }],
         icon: Layers,
         supported: true,
     },
@@ -324,6 +359,16 @@ export const masterEntities: Partial<
                 accessor: getProductCategoryLabel,
             },
             {
+                key: "supplier",
+                label: "Supplier",
+                accessor: getProductSupplierLabel,
+            },
+            {
+                key: "customer",
+                label: "Customer",
+                accessor: getProductCustomerLabel,
+            },
+            {
                 key: "attributeValues",
                 label: "Attributes",
                 accessor: getProductAttributeSummary,
@@ -338,8 +383,8 @@ export const masterEntities: Partial<
             { key: "createdAt", label: "Created At" },
         ],
         formFields: [
-            { key: "code", label: "SKU / Product Code" },
-            { key: "name", label: "Name" },
+            { key: "code", label: "SKU / Product Code", required: true },
+            { key: "name", label: "Name", required: true },
             {
                 key: "categoryId",
                 label: "Product Category",
@@ -353,6 +398,21 @@ export const masterEntities: Partial<
                 type: "select",
                 optionsKey: "uomId",
                 placeholder: "Select UOM",
+                required: true,
+            },
+            {
+                key: "supplierId",
+                label: "Supplier",
+                type: "select",
+                optionsKey: "supplierId",
+                placeholder: "Select supplier (optional)",
+            },
+            {
+                key: "customerId",
+                label: "Customer",
+                type: "select",
+                optionsKey: "customerId",
+                placeholder: "Select customer (optional)",
             },
             {
                 key: "unitType",

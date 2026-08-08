@@ -48,125 +48,143 @@ Add `groupBy: jest.fn(), findFirst: jest.fn()` to the `opnameDoc` mock object in
 Then add this `describe` block to the end of the file, before the final closing `});`:
 
 ```ts
-  describe('getSummary()', () => {
-    it('computes totals, status-breakdown percentages, variance task count, most recent doc, and needs-attention counts', async () => {
-      mockPrismaService.opnameDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(3) // totalCount
-        .mockResolvedValueOnce(1) // varianceTaskCount
-        .mockResolvedValueOnce(1) // canceledCount
-        .mockResolvedValueOnce(1); // stuckCountingCount
-      mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([
-        { status: 'counting', _count: { _all: 1 } },
-        { status: 'closed', _count: { _all: 2 } },
-      ]);
-      mockPrismaService.opnameDoc.findFirst = jest.fn().mockResolvedValue({
-        title: 'Stock Opname Q3 - Task 4',
-        createdAt: new Date('2026-08-01T00:00:00.000Z'),
-        users: { fullName: 'Jane Doe' },
-      });
+describe("getSummary()", () => {
+    it("computes totals, status-breakdown percentages, variance task count, most recent doc, and needs-attention counts", async () => {
+        mockPrismaService.opnameDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(3) // totalCount
+            .mockResolvedValueOnce(1) // varianceTaskCount
+            .mockResolvedValueOnce(1) // canceledCount
+            .mockResolvedValueOnce(1); // stuckCountingCount
+        mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([
+            { status: "counting", _count: { _all: 1 } },
+            { status: "closed", _count: { _all: 2 } },
+        ]);
+        mockPrismaService.opnameDoc.findFirst = jest.fn().mockResolvedValue({
+            title: "Stock Opname Q3 - Task 4",
+            createdAt: new Date("2026-08-01T00:00:00.000Z"),
+            users: { fullName: "Jane Doe" },
+        });
 
-      const result = await service.getSummary({
-        companyId: 'company-1',
-        warehouseId: 'wh-1',
-      });
+        const result = await service.getSummary({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+        });
 
-      expect(result.totalCount).toBe(3);
-      expect(result.statusBreakdown).toEqual([
-        { status: 'counting', count: 1, percentage: 33.3 },
-        { status: 'closed', count: 2, percentage: 66.7 },
-      ]);
-      expect(result.varianceTaskCount).toBe(1);
-      expect(result.mostRecent).toEqual({
-        title: 'Stock Opname Q3 - Task 4',
-        createdByName: 'Jane Doe',
-        createdAt: '2026-08-01T00:00:00.000Z',
-      });
-      expect(result.needsAttention).toEqual({
-        count: 2,
-        canceledCount: 1,
-        stuckCountingCount: 1,
-      });
+        expect(result.totalCount).toBe(3);
+        expect(result.statusBreakdown).toEqual([
+            { status: "counting", count: 1, percentage: 33.3 },
+            { status: "closed", count: 2, percentage: 66.7 },
+        ]);
+        expect(result.varianceTaskCount).toBe(1);
+        expect(result.mostRecent).toEqual({
+            title: "Stock Opname Q3 - Task 4",
+            createdByName: "Jane Doe",
+            createdAt: "2026-08-01T00:00:00.000Z",
+        });
+        expect(result.needsAttention).toEqual({
+            count: 2,
+            canceledCount: 1,
+            stuckCountingCount: 1,
+        });
     });
 
-    it('returns a null mostRecent and an empty breakdown when there are no matching task nodes', async () => {
-      mockPrismaService.opnameDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.opnameDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("returns a null mostRecent and an empty breakdown when there are no matching task nodes", async () => {
+        mockPrismaService.opnameDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.opnameDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      const result = await service.getSummary({ companyId: 'company-1', warehouseId: 'wh-1' });
+        const result = await service.getSummary({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+        });
 
-      expect(result.totalCount).toBe(0);
-      expect(result.statusBreakdown).toEqual([]);
-      expect(result.varianceTaskCount).toBe(0);
-      expect(result.mostRecent).toBeNull();
-      expect(result.needsAttention).toEqual({
-        count: 0,
-        canceledCount: 0,
-        stuckCountingCount: 0,
-      });
+        expect(result.totalCount).toBe(0);
+        expect(result.statusBreakdown).toEqual([]);
+        expect(result.varianceTaskCount).toBe(0);
+        expect(result.mostRecent).toBeNull();
+        expect(result.needsAttention).toEqual({
+            count: 0,
+            canceledCount: 0,
+            stuckCountingCount: 0,
+        });
     });
 
-    it('scopes every query to task nodes and excludes null-createdAt rows from the most-recent lookup', async () => {
-      mockPrismaService.opnameDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.opnameDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("scopes every query to task nodes and excludes null-createdAt rows from the most-recent lookup", async () => {
+        mockPrismaService.opnameDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.opnameDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      await service.getSummary({ companyId: 'company-1', warehouseId: 'wh-1' });
+        await service.getSummary({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+        });
 
-      const totalCountCall = mockPrismaService.opnameDoc.count.mock.calls[0][0];
-      expect(totalCountCall.where).toEqual(
-        expect.objectContaining({
-          nodeType: 'task',
-          companyId: 'company-1',
-          warehouse_id: 'wh-1',
-        }),
-      );
+        const totalCountCall =
+            mockPrismaService.opnameDoc.count.mock.calls[0][0];
+        expect(totalCountCall.where).toEqual(
+            expect.objectContaining({
+                nodeType: "task",
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+            }),
+        );
 
-      const varianceCall = mockPrismaService.opnameDoc.count.mock.calls[1][0];
-      expect(varianceCall.where).toEqual(
-        expect.objectContaining({
-          nodeType: 'task',
-          lines: { some: { variance_qty: { not: 0 } } },
-        }),
-      );
+        const varianceCall = mockPrismaService.opnameDoc.count.mock.calls[1][0];
+        expect(varianceCall.where).toEqual(
+            expect.objectContaining({
+                nodeType: "task",
+                lines: { some: { variance_qty: { not: 0 } } },
+            }),
+        );
 
-      const findFirstCall = mockPrismaService.opnameDoc.findFirst.mock.calls[0][0];
-      expect(findFirstCall.where.AND).toEqual([
-        expect.objectContaining({ nodeType: 'task' }),
-        { createdAt: { not: null } },
-      ]);
+        const findFirstCall =
+            mockPrismaService.opnameDoc.findFirst.mock.calls[0][0];
+        expect(findFirstCall.where.AND).toEqual([
+            expect.objectContaining({ nodeType: "task" }),
+            { createdAt: { not: null } },
+        ]);
     });
 
-    it('combines the 3-day stuck-counting cutoff via AND, not override', async () => {
-      mockPrismaService.opnameDoc.count = jest
-        .fn()
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
-      mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([]);
-      mockPrismaService.opnameDoc.findFirst = jest.fn().mockResolvedValue(null);
+    it("combines the 3-day stuck-counting cutoff via AND, not override", async () => {
+        mockPrismaService.opnameDoc.count = jest
+            .fn()
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0)
+            .mockResolvedValueOnce(0);
+        mockPrismaService.opnameDoc.groupBy = jest.fn().mockResolvedValue([]);
+        mockPrismaService.opnameDoc.findFirst = jest
+            .fn()
+            .mockResolvedValue(null);
 
-      await service.getSummary({ companyId: 'company-1', warehouseId: 'wh-1' });
+        await service.getSummary({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+        });
 
-      const stuckCountingCall = mockPrismaService.opnameDoc.count.mock.calls[3][0];
-      expect(stuckCountingCall.where.AND).toEqual([
-        expect.objectContaining({ nodeType: 'task' }),
-        expect.objectContaining({ status: 'counting' }),
-      ]);
+        const stuckCountingCall =
+            mockPrismaService.opnameDoc.count.mock.calls[3][0];
+        expect(stuckCountingCall.where.AND).toEqual([
+            expect.objectContaining({ nodeType: "task" }),
+            expect.objectContaining({ status: "counting" }),
+        ]);
     });
-  });
+});
 ```
 
 - [ ] **Step 2: Run the tests to verify they fail**
@@ -424,57 +442,57 @@ Then add `getSummaryMock.mockReset(); getSummaryMock.mockResolvedValue({ totalCo
 Then add these tests inside the existing `describe("useOpnameTree", ...)` block:
 
 ```ts
-    it("fetches the summary alongside the tree once company and warehouse are available", async () => {
-        const composable = useOpnameTree();
-        await nextTick();
+it("fetches the summary alongside the tree once company and warehouse are available", async () => {
+    const composable = useOpnameTree();
+    await nextTick();
 
-        authStoreState.setProfile({ currentCompanyId: "company-1" });
-        await nextTick();
-        await Promise.resolve();
+    authStoreState.setProfile({ currentCompanyId: "company-1" });
+    await nextTick();
+    await Promise.resolve();
 
-        expect(getSummaryMock).toHaveBeenCalledTimes(1);
-        expect(getSummaryMock).toHaveBeenCalledWith({
+    expect(getSummaryMock).toHaveBeenCalledTimes(1);
+    expect(getSummaryMock).toHaveBeenCalledWith({
+        companyId: "company-1",
+        warehouseId: "wh-1",
+    });
+    expect(composable.summary.value).toEqual({
+        totalCount: 0,
+        statusBreakdown: [],
+        varianceTaskCount: 0,
+        needsAttention: { count: 0, canceledCount: 0, stuckCountingCount: 0 },
+        mostRecent: null,
+    });
+});
+
+it("isolates a summary fetch failure from the tree's own rows/error state", async () => {
+    getSummaryMock.mockRejectedValueOnce(new Error("Summary down"));
+    getTreeMock.mockResolvedValueOnce([
+        {
+            id: "task-1",
+            parentId: null,
             companyId: "company-1",
-            warehouseId: "wh-1",
-        });
-        expect(composable.summary.value).toEqual({
-            totalCount: 0,
-            statusBreakdown: [],
-            varianceTaskCount: 0,
-            needsAttention: { count: 0, canceledCount: 0, stuckCountingCount: 0 },
-            mostRecent: null,
-        });
-    });
+            warehouse_id: "wh-1",
+            profile_id: "OP-1",
+            title: "Task 1",
+            description: null,
+            task_group: null,
+            task_period: null,
+            status: "draft",
+            nodeType: "task",
+        },
+    ]);
 
-    it("isolates a summary fetch failure from the tree's own rows/error state", async () => {
-        getSummaryMock.mockRejectedValueOnce(new Error("Summary down"));
-        getTreeMock.mockResolvedValueOnce([
-            {
-                id: "task-1",
-                parentId: null,
-                companyId: "company-1",
-                warehouse_id: "wh-1",
-                profile_id: "OP-1",
-                title: "Task 1",
-                description: null,
-                task_group: null,
-                task_period: null,
-                status: "draft",
-                nodeType: "task",
-            },
-        ]);
+    const composable = useOpnameTree();
+    await nextTick();
 
-        const composable = useOpnameTree();
-        await nextTick();
+    authStoreState.setProfile({ currentCompanyId: "company-1" });
+    await nextTick();
+    await Promise.resolve();
 
-        authStoreState.setProfile({ currentCompanyId: "company-1" });
-        await nextTick();
-        await Promise.resolve();
-
-        expect(composable.summaryError.value).toBe("Summary down");
-        expect(composable.error.value).toBeNull();
-        expect(composable.rows.value).toHaveLength(1);
-    });
+    expect(composable.summaryError.value).toBe("Summary down");
+    expect(composable.error.value).toBeNull();
+    expect(composable.rows.value).toHaveLength(1);
+});
 ```
 
 - [ ] **Step 2: Run the tests to verify they fail**
@@ -489,65 +507,65 @@ In `src/views/opname/composables/useOpnameTree.ts`, add `OpnameSummaryResponse` 
 Add these three refs directly after the existing `const selectedNode = ref<OpnameTreeNode | null>(null);` (line 32):
 
 ```ts
-    const summary = ref<OpnameSummaryResponse | null>(null);
-    const summaryLoading = ref(false);
-    const summaryError = ref<string | null>(null);
+const summary = ref<OpnameSummaryResponse | null>(null);
+const summaryLoading = ref(false);
+const summaryError = ref<string | null>(null);
 ```
 
 Add a `loadSummary` function directly after the existing `loadTree` function:
 
 ```ts
-    const loadSummary = async () => {
-        if (!companyId.value || !selectedWarehouseId.value) {
-            summary.value = null;
-            return;
-        }
+const loadSummary = async () => {
+    if (!companyId.value || !selectedWarehouseId.value) {
+        summary.value = null;
+        return;
+    }
 
-        summaryLoading.value = true;
-        summaryError.value = null;
-        try {
-            summary.value = await opnameService.summary({
-                companyId: companyId.value,
-                warehouseId: selectedWarehouseId.value,
-            });
-        } catch (err) {
-            summary.value = null;
-            summaryError.value =
-                err instanceof Error
-                    ? err.message
-                    : "Failed to load opname summary.";
-        } finally {
-            summaryLoading.value = false;
-        }
-    };
+    summaryLoading.value = true;
+    summaryError.value = null;
+    try {
+        summary.value = await opnameService.summary({
+            companyId: companyId.value,
+            warehouseId: selectedWarehouseId.value,
+        });
+    } catch (err) {
+        summary.value = null;
+        summaryError.value =
+            err instanceof Error
+                ? err.message
+                : "Failed to load opname summary.";
+    } finally {
+        summaryLoading.value = false;
+    }
+};
 ```
 
 Update `refresh()` to also call `loadSummary()`:
 
 ```ts
-    const refresh = async () => {
-        await loadTree();
-        await loadSummary();
-    };
+const refresh = async () => {
+    await loadTree();
+    await loadSummary();
+};
 ```
 
 Update the `watch([companyId, selectedWarehouseId], ...)` callback to also clear/call `loadSummary()`:
 
 ```ts
-    watch(
-        [companyId, selectedWarehouseId],
-        ([nextCompanyId, nextWarehouseId]) => {
-            if (!nextCompanyId || !nextWarehouseId) {
-                tree.value = [];
-                expandedIds.value = new Set();
-                summary.value = null;
-                return;
-            }
-            void loadTree();
-            void loadSummary();
-        },
-        { immediate: true },
-    );
+watch(
+    [companyId, selectedWarehouseId],
+    ([nextCompanyId, nextWarehouseId]) => {
+        if (!nextCompanyId || !nextWarehouseId) {
+            tree.value = [];
+            expandedIds.value = new Set();
+            summary.value = null;
+            return;
+        }
+        void loadTree();
+        void loadSummary();
+    },
+    { immediate: true },
+);
 ```
 
 Add `summary`, `summaryLoading`, `summaryError` to the return object, directly after `error`:
@@ -655,7 +673,11 @@ describe("OpnameSummaryWidget", () => {
                     { status: "closed", count: 4, percentage: 66.7 },
                 ],
                 varianceTaskCount: 2,
-                needsAttention: { count: 0, canceledCount: 0, stuckCountingCount: 0 },
+                needsAttention: {
+                    count: 0,
+                    canceledCount: 0,
+                    stuckCountingCount: 0,
+                },
                 mostRecent: {
                     title: "Stock Opname Q3 - Task 4",
                     createdByName: "Jane Doe",
@@ -682,9 +704,15 @@ describe("OpnameSummaryWidget", () => {
             error: null,
             summary: {
                 totalCount: 4,
-                statusBreakdown: [{ status: "canceled", count: 1, percentage: 25 }],
+                statusBreakdown: [
+                    { status: "canceled", count: 1, percentage: 25 },
+                ],
                 varianceTaskCount: 0,
-                needsAttention: { count: 3, canceledCount: 1, stuckCountingCount: 2 },
+                needsAttention: {
+                    count: 3,
+                    canceledCount: 1,
+                    stuckCountingCount: 2,
+                },
                 mostRecent: null,
             },
         });

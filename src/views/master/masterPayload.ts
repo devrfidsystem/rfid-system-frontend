@@ -8,6 +8,8 @@ const numericKeys = new Set([
     "conversionFactor",
 ]);
 
+const booleanKeys = new Set(["isActive"]);
+
 const buildCodeFromName = (prefix: string, name?: string) => {
     const slug = (name ?? "")
         .toUpperCase()
@@ -34,7 +36,14 @@ const parseAttributeItems = (raw?: string) => {
 const isFileValue = (value: unknown) =>
     typeof File !== "undefined" && value instanceof File;
 
-export const buildMasterCreatePayload = (
+/**
+ * Shared field extraction for both create and update payloads. `code` is
+ * deliberately excluded here — it is either generated once at creation time
+ * (see buildMasterCreatePayload) or assigned by the backend, and the form
+ * always disables the `code` input while editing, so it must never be
+ * re-derived or forwarded on update.
+ */
+const extractMasterFields = (
     entity: MasterEntityKey,
     submittedData: Record<string, string | File | null>,
 ): Record<string, any> => {
@@ -48,6 +57,7 @@ export const buildMasterCreatePayload = (
 
         if (key.startsWith("attribute:")) return;
         if (key === "imageFile") return;
+        if (key === "code") return;
 
         if (
             entity === "attributes" &&
@@ -61,6 +71,11 @@ export const buildMasterCreatePayload = (
             return;
         }
 
+        if (booleanKeys.has(key)) {
+            payload[key] = trimmed === "true";
+            return;
+        }
+
         if (numericKeys.has(key)) {
             payload[key] = Number(trimmed);
             return;
@@ -69,23 +84,35 @@ export const buildMasterCreatePayload = (
         payload[key] = trimmed;
     });
 
-    if (entity === "warehouses" && !payload.code && payload.name) {
+    return payload;
+};
+
+export const buildMasterCreatePayload = (
+    entity: MasterEntityKey,
+    submittedData: Record<string, string | File | null>,
+): Record<string, any> => {
+    const payload = extractMasterFields(entity, submittedData);
+
+    if (entity === "warehouses" && payload.name) {
         payload.code = buildCodeFromName("WH", payload.name);
     }
 
-    if (entity === "locations" && !payload.code && payload.name) {
+    if (entity === "locations" && payload.name) {
         payload.code = buildCodeFromName("LOC", payload.name);
     }
 
-    if (entity === "customers" && !payload.code && payload.name) {
+    if (entity === "customers" && payload.name) {
         payload.code = buildCodeFromName("CUST", payload.name);
     }
 
-    if (entity === "suppliers" && !payload.code && payload.name) {
+    if (entity === "suppliers" && payload.name) {
         payload.code = buildCodeFromName("SUP", payload.name);
     }
 
     return payload;
 };
 
-export const buildMasterUpdatePayload = buildMasterCreatePayload;
+export const buildMasterUpdatePayload = (
+    entity: MasterEntityKey,
+    submittedData: Record<string, string | File | null>,
+): Record<string, any> => extractMasterFields(entity, submittedData);

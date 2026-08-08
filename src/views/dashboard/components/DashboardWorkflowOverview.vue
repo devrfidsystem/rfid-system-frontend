@@ -19,6 +19,13 @@
             </div>
 
             <div
+                v-else-if="error"
+                class="rounded-lg border border-red-100 bg-red-50/50 p-8 text-center text-sm text-danger-600"
+            >
+                Failed to load workflow overview: {{ error }}
+            </div>
+
+            <div
                 v-else-if="!data || data.panels.length === 0"
                 class="rounded-lg border border-gray-100 bg-gray-50/50 p-8 text-center text-sm text-gray-500"
             >
@@ -67,6 +74,20 @@
                         </div>
                     </div>
 
+                    <div
+                        v-if="panel.stages.length > 0"
+                        class="mt-4 rounded-md border border-border bg-surface-secondary/40 p-3"
+                    >
+                        <StageDonutChart
+                            :stages="
+                                panel.stages.map((stage) => ({
+                                    name: stage.name,
+                                    count: stage.count,
+                                }))
+                            "
+                        />
+                    </div>
+
                     <div class="mt-4 space-y-2">
                         <div
                             v-for="stage in panel.stages"
@@ -113,10 +134,12 @@
 
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
+import StageDonutChart from "./StageDonutChart.vue";
 import type { DashboardWorkflowOverviewResponse } from "@/model/dashboard";
 
 defineProps<{
     loading: boolean;
     data: DashboardWorkflowOverviewResponse | null;
+    error?: string | null;
 }>();
 </script>

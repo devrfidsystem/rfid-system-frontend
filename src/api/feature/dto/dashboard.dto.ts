@@ -1,9 +1,36 @@
-import type {
-    DashboardLowStockAlert,
-    DashboardSummaryResponse,
-} from "@/model/dashboard";
+export interface DashboardStockSummaryResponse {
+    totalStock: number;
+    epcActive: number;
+    latestInboundDate: string | null;
+    inboundToday: number;
+    latestOutboundDate: string | null;
+    outboundToday: number;
+    opnamePending: number;
+}
 
-export type DashboardStockSummaryResponse = DashboardSummaryResponse;
+export type DashboardLowStockSeverity = "warning" | "critical";
+
+export interface DashboardLowStockAlert {
+    itemId: string;
+    itemCode: string;
+    itemName: string;
+    warehouseId: string;
+    warehouseName: string;
+    currentStock: number;
+    minimumQty: number;
+    shortageQty: number;
+    severity: DashboardLowStockSeverity;
+
+    // Optional fields mapped from the backend response
+    productId?: string;
+    productCode?: string;
+    productName?: string;
+    warehouseCode?: string;
+    locationId?: string;
+    locationCode?: string;
+    minStock?: number;
+    currentQty?: number;
+}
 
 export interface DashboardLowStockResponse {
     totalLowStock: number;
@@ -229,6 +256,8 @@ export type MonitoringHealth = "nominal" | "warning" | "critical";
 
 export type MonitoringPriority = "low" | "med" | "high";
 
+export type LiveTransactionStatus = "ok" | "exception";
+
 export interface MonitoringQueueTask {
     docCode: string;
     locationLabel: string | null;
@@ -252,6 +281,7 @@ export interface LiveTransactionRow {
     durationMinutes: number;
     priority: MonitoringPriority;
     slaPct: number | null;
+    status: LiveTransactionStatus;
 }
 
 export interface MonitoringResponse {

@@ -25,9 +25,60 @@
                     >
                         New Task
                     </Button>
+                    <Button
+                        v-if="canCancelDoc"
+                        variant="outline"
+                        class="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                        :disabled="docActionLoading"
+                        object-id="btn_OpnameDetailCancelDoc"
+                        @click="handleCancelDoc"
+                    >
+                        Cancel Opname
+                    </Button>
+                    <Button
+                        v-if="canStartCounting"
+                        variant="primary"
+                        :disabled="docActionLoading"
+                        object-id="btn_OpnameDetailStartCounting"
+                        @click="handleStartCounting"
+                    >
+                        Start Counting
+                    </Button>
+                    <Button
+                        v-if="canReconcile"
+                        variant="primary"
+                        :disabled="docActionLoading"
+                        object-id="btn_OpnameDetailReconcile"
+                        @click="handleReconcile"
+                    >
+                        Reconcile
+                    </Button>
+                    <Button
+                        v-if="canClose"
+                        variant="primary"
+                        :disabled="docActionLoading"
+                        object-id="btn_OpnameDetailCloseDoc"
+                        @click="handleClose"
+                    >
+                        Close Opname
+                    </Button>
                 </div>
             </template>
         </PageHeader>
+
+        <ConfirmDialog
+            v-model="docConfirmationOpen"
+            :title="docConfirmation?.title || 'Confirm Action'"
+            :description="docConfirmation?.description || ''"
+            :confirm-text="docConfirmation?.confirmText || 'Confirm'"
+            cancel-text="Back"
+            :variant="docConfirmation?.variant || 'primary'"
+            :loading="docActionLoading"
+            persistent
+            object-id="dlg_OpnameDetailConfirm"
+            @confirm="handleConfirmDocAction"
+            @cancel="clearDocConfirmation"
+        />
 
         <div v-if="loading" class="px-6">
             <LoadingState :lines="5" />
@@ -504,7 +555,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
@@ -512,6 +563,7 @@ import Input from "@/components/atoms/Input.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
+import ConfirmDialog from "@/components/organisms/ConfirmDialog.vue";
 import { useOpnameDetail } from "./composables/useOpnameDetail";
 
 const {
@@ -543,7 +595,26 @@ const {
     selectItemAction,
     submitItemAction,
     refresh,
+    docActionLoading,
+    docConfirmation,
+    canStartCounting,
+    canReconcile,
+    canClose,
+    canCancelDoc,
+    handleStartCounting,
+    handleReconcile,
+    handleClose,
+    handleCancelDoc,
+    clearDocConfirmation,
+    handleConfirmDocAction,
 } = useOpnameDetail();
+
+const docConfirmationOpen = computed({
+    get: () => Boolean(docConfirmation.value),
+    set: (value: boolean) => {
+        if (!value) clearDocConfirmation();
+    },
+});
 
 onMounted(() => {
     void refresh();
