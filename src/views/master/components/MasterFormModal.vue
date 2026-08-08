@@ -32,9 +32,10 @@
                         :label="field.label"
                         :placeholder="field.placeholder ?? field.label"
                         :disabled="isFieldDisabled(field)"
+                        :error="errors[field.key]"
                         :object-id="`txt_MasterForm_Field${field.key}`"
                         @update:model-value="
-                            (value) => (localFormState[field.key] = value)
+                            (value) => setFieldValue(field.key, value)
                         "
                     />
                     <Input
@@ -44,9 +45,10 @@
                         :placeholder="field.placeholder ?? field.label"
                         type="number"
                         :disabled="isFieldDisabled(field)"
+                        :error="errors[field.key]"
                         :object-id="`num_MasterForm_Field${field.key}`"
                         @update:model-value="
-                            (value) => (localFormState[field.key] = value)
+                            (value) => setFieldValue(field.key, value)
                         "
                     />
                     <Input
@@ -56,9 +58,10 @@
                         :placeholder="field.placeholder ?? field.label"
                         type="date"
                         :disabled="isFieldDisabled(field)"
+                        :error="errors[field.key]"
                         :object-id="`dat_MasterForm_Field${field.key}`"
                         @update:model-value="
-                            (value) => (localFormState[field.key] = value)
+                            (value) => setFieldValue(field.key, value)
                         "
                     />
                     <div
@@ -79,11 +82,19 @@
                             :object-id="`txa_MasterForm_Field${field.key}`"
                             @input="
                                 (event) =>
-                                    (localFormState[field.key] = (
-                                        event.target as HTMLTextAreaElement
-                                    ).value)
+                                    setFieldValue(
+                                        field.key,
+                                        (event.target as HTMLTextAreaElement)
+                                            .value,
+                                    )
                             "
                         />
+                        <p
+                            v-if="errors[field.key]"
+                            class="text-xs text-signal-red"
+                        >
+                            {{ errors[field.key] }}
+                        </p>
                     </div>
                     <Select
                         v-else-if="field.type === 'select'"
@@ -92,9 +103,10 @@
                         :options="getOptions(field)"
                         :placeholder="field.placeholder ?? field.label"
                         :disabled="isFieldDisabled(field)"
+                        :error="errors[field.key]"
                         :object-id="`cmb_MasterForm_Field${field.key}`"
                         @update:model-value="
-                            (value) => (localFormState[field.key] = value)
+                            (value) => setFieldValue(field.key, value)
                         "
                     />
                     <div
@@ -121,6 +133,12 @@
                             class="text-xs text-text-secondary"
                         >
                             Selected: {{ fileNames[field.key] }}
+                        </p>
+                        <p
+                            v-if="errors[field.key]"
+                            class="text-xs text-signal-red"
+                        >
+                            {{ errors[field.key] }}
                         </p>
                     </div>
                 </div>
@@ -162,6 +180,7 @@ import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import { X, Save } from "lucide-vue-next";
 import type { MasterFormField } from "../entityConfig";
+import { validateMasterForm } from "../masterFormValidation";
 
 const props = defineProps<{
     isOpen: boolean;
@@ -185,6 +204,7 @@ const emit = defineEmits<{
 
 const localFormState = ref<Record<string, string | File | null>>({});
 const fileNames = ref<Record<string, string>>({});
+const errors = ref<Record<string, string>>({});
 
 const isProductForm = computed(() =>
     props.formFields.some(
@@ -205,6 +225,7 @@ watch(
         if (newVal) {
             localFormState.value = { ...props.initialState };
             fileNames.value = {};
+            errors.value = {};
         }
     },
 );
@@ -233,11 +254,31 @@ const handleFileChange = (key: string, event: Event) => {
     fileNames.value[key] = file?.name ?? "";
 };
 
+const setFieldValue = (key: string, value: string) => {
+    localFormState.value[key] = value;
+    if (errors.value[key]) {
+        const nextErrors = { ...errors.value };
+        delete nextErrors[key];
+        errors.value = nextErrors;
+    }
+};
+
+const validate = (): boolean => {
+    const nextErrors = validateMasterForm(
+        props.formFields,
+        localFormState.value,
+        isFieldDisabled,
+    );
+    errors.value = nextErrors;
+    return Object.keys(nextErrors).length === 0;
+};
+
 const closeModal = () => {
     emit("close");
 };
 
 const submitForm = () => {
+    if (!validate()) return;
     emit("submit", localFormState.value);
 };
 </script>

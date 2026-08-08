@@ -1,5 +1,13 @@
 <template>
     <section class="space-y-6">
+        <DashboardToolbar
+            :warehouse-id="selectedWarehouseId"
+            :warehouse-options="warehouseOptions"
+            :loading="loading"
+            @update:warehouse-id="setSelectedWarehouse"
+            @refresh="refresh"
+        />
+
         <div class="flex items-start justify-between gap-4">
             <div>
                 <h1 class="text-xl font-bold text-gray-900">
@@ -74,6 +82,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
+import DashboardToolbar from "./components/DashboardToolbar.vue";
 import ProcessActivityPicker from "./components/ProcessActivityPicker.vue";
 import ProcessMetricCards from "./components/ProcessMetricCards.vue";
 import ProcessTrendChart from "./components/ProcessTrendChart.vue";
@@ -93,6 +102,9 @@ const {
     loading,
     error,
     refresh,
+    warehouseOptions,
+    selectedWarehouseId,
+    setSelectedWarehouse,
 } = useProcessPerformance();
 
 const supportingMetricsList = computed<

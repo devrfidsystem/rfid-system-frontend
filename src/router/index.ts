@@ -38,26 +38,20 @@ const createMasterRoutes = (): RouteRecordRaw[] =>
         return route;
     });
 
-const dashboardSections = [
-    "overview",
-    "low-stock",
-    "recent-activity",
-    "epc-status",
-] as const;
-const dashboardRoutes = dashboardSections.map((section) => ({
-    path: `dashboard/${section}`,
-    component: () => import("@/views/dashboard/DashboardPage.vue"),
-    meta: {
-        section,
-    },
-}));
-
 // All four original dashboard placeholder routes (kpi, process, monitoring, and one
 // earlier) have now been replaced by real pages — this stays as an empty array (rather
 // than deleting the const and its spread below) so a future placeholder page can be
 // added here without touching the route-assembly wiring.
 const dashboardPlaceholderRoutes: RouteRecordRaw[] = [];
 
+// Deliberately excludes "opname": TransactionKey/transactionPaths (in
+// transactions.service.ts) still carry an "opname" entry, but the real
+// Opname feature has its own tree/lifecycle API (opname.api.ts) with a
+// completely different response shape than the generic transaction
+// list/get/create/post/cancel endpoints. Do NOT add "opname" here — doing so
+// would route /transactions/opname through TransactionListPage/DetailPage,
+// which would break against the real /opname response shape. The dedicated
+// opname routes are registered separately below.
 const genericTransactionKeys = [
     "register",
     "inbound",
@@ -114,7 +108,10 @@ const routes: RouteRecordRaw[] = [
                 path: "todo",
                 component: () => import("@/views/todo/TodoListPage.vue"),
             },
-            ...dashboardRoutes,
+            {
+                path: "dashboard/overview",
+                component: () => import("@/views/dashboard/DashboardPage.vue"),
+            },
             {
                 path: "dashboard/kpi",
                 component: () =>

@@ -30,21 +30,35 @@ const findNode = (
 
 const getStatusLabel = (value: string) => {
     if (value === "counting") return "On Going";
+    if (value === "reconciled") return "Reconciled";
     if (value === "closed") return "Closed";
+    if (value === "canceled") return "Canceled";
     return "Draft";
 };
 
 const getStatusTone = (value: string) => {
     if (value === "counting") return "warning";
+    if (value === "reconciled") return "info";
     if (value === "closed") return "success";
+    if (value === "canceled") return "error";
     return "neutral";
+};
+
+type OpnameDocAction = "start-counting" | "reconcile" | "close" | "cancel";
+
+type OpnameDocConfirmationState = {
+    action: OpnameDocAction;
+    title: string;
+    description: string;
+    confirmText: string;
+    variant: "primary" | "danger";
 };
 
 export function useOpnameDetail() {
     const route = useRoute();
     const router = useRouter();
     const authStore = useAuthStore();
-    const { notifySuccess } = useNotifier();
+    const { notifySuccess, notifyError } = useNotifier();
     const warehouseState = useWarehouseOptions();
 
     const loading = ref(false);
@@ -56,6 +70,8 @@ export function useOpnameDetail() {
     const selectedLineItem = ref<OpnameLineDetail | null>(null);
     const selectedItemAction = ref<OpnameItemAction>("match");
     const submittingItemAction = ref(false);
+    const docActionLoading = ref(false);
+    const docConfirmation = ref<OpnameDocConfirmationState | null>(null);
     const actionForm = ref<Record<OpnameItemAction, OpnameActionForm>>({
         match: {
             expectedQty: "",
@@ -90,6 +106,26 @@ export function useOpnameDetail() {
 
     const selectedNode = computed(() => findNode(tree.value, opnameId.value));
     const selectedDetailLines = computed(() => detail.value?.lines ?? []);
+
+    // Only "task" nodes are real OpnameDoc records with a start-counting ->
+    // counting -> reconciled -> closed lifecycle; group/profile nodes are
+    // purely organizational and never transition through these statuses.
+    const isTaskNode = computed(() => selectedNode.value?.nodeType === "task");
+    const canStartCounting = computed(
+        () => isTaskNode.value && selectedNode.value?.status === "draft",
+    );
+    const canReconcile = computed(
+        () => isTaskNode.value && selectedNode.value?.status === "counting",
+    );
+    const canClose = computed(
+        () => isTaskNode.value && selectedNode.value?.status === "reconciled",
+    );
+    const canCancelDoc = computed(
+        () =>
+            isTaskNode.value &&
+            (selectedNode.value?.status === "draft" ||
+                selectedNode.value?.status === "counting"),
+    );
 
     const drawerActions: Array<{
         key: OpnameItemAction;
@@ -322,6 +358,93 @@ export function useOpnameDetail() {
         () => actionForm.value[selectedItemAction.value],
     );
 
+    const docActionCopy: Record<
+        OpnameDocAction,
+        { title: string; description: string; confirmText: string }
+    > = {
+        "start-counting": {
+            title: "Start Counting",
+            description:
+                "This snapshots current stock balances for this warehouse into opname lines. The document moves from draft to counting.",
+            confirmText: "Start Counting",
+        },
+        reconcile: {
+            title: "Reconcile Opname",
+            description:
+                "This computes variances (counted vs expected) and locks the document for review. No stock is changed yet.",
+            confirmText: "Reconcile",
+        },
+        close: {
+            title: "Close Opname",
+            description:
+                "This creates stock adjustment movements for any variance and permanently closes the document. This cannot be undone.",
+            confirmText: "Close",
+        },
+        cancel: {
+            title: "Cancel Opname",
+            description:
+                "This cancels the opname document. Only draft or counting documents can be canceled.",
+            confirmText: "Cancel Opname",
+        },
+    };
+
+    const openDocConfirmation = (action: OpnameDocAction) => {
+        const copy = docActionCopy[action];
+        docConfirmation.value = {
+            action,
+            title: copy.title,
+            description: copy.description,
+            confirmText: copy.confirmText,
+            variant: action === "cancel" ? "danger" : "primary",
+        };
+    };
+
+    const clearDocConfirmation = () => {
+        docConfirmation.value = null;
+    };
+
+    const handleStartCounting = () => openDocConfirmation("start-counting");
+    const handleReconcile = () => openDocConfirmation("reconcile");
+    const handleClose = () => openDocConfirmation("close");
+    const handleCancelDoc = () => openDocConfirmation("cancel");
+
+    const handleConfirmDocAction = async () => {
+        if (!docConfirmation.value || !selectedNode.value) return;
+        const action = docConfirmation.value.action;
+        const docId = selectedNode.value.id;
+        clearDocConfirmation();
+        docActionLoading.value = true;
+        try {
+            if (action === "start-counting") {
+                if (!selectedWarehouseId.value) {
+                    throw new Error(
+                        "Select a warehouse before starting counting.",
+                    );
+                }
+                await opnameService.startCounting(
+                    docId,
+                    selectedWarehouseId.value,
+                );
+            } else if (action === "reconcile") {
+                await opnameService.reconcile(docId);
+            } else if (action === "close") {
+                await opnameService.close(docId);
+            } else {
+                await opnameService.cancel(docId);
+            }
+            notifySuccess(`${docActionCopy[action].title} succeeded.`);
+            await Promise.all([loadTree(), loadDetail()]);
+        } catch (err) {
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : `Failed to run ${docActionCopy[action].title.toLowerCase()}.`,
+            );
+        } finally {
+            docActionLoading.value = false;
+        }
+    };
+
     const refresh = async () => {
         await loadTree();
     };
@@ -358,5 +481,17 @@ export function useOpnameDetail() {
         selectItemAction,
         submitItemAction,
         refresh,
+        docActionLoading,
+        docConfirmation,
+        canStartCounting,
+        canReconcile,
+        canClose,
+        canCancelDoc,
+        handleStartCounting,
+        handleReconcile,
+        handleClose,
+        handleCancelDoc,
+        clearDocConfirmation,
+        handleConfirmDocAction,
     };
 }

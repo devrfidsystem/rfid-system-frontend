@@ -34,6 +34,10 @@ describe("KpiDomainHero", () => {
         expect(html).toContain("Stock In Performance");
         expect(html).toContain("Derived from Receiving and Putaway");
         expect(html).toContain("83");
-        expect(html).toContain("polyline");
+        // Timeline is rendered via the shared TrendMiniChart (smoothed <path> +
+        // gradient fill), replacing the old plain <polyline>.
+        expect(html).toContain("Performance Timeline");
+        expect(html).toContain("<path");
+        expect(html).toContain("stroke-primary-600");
     });
 });

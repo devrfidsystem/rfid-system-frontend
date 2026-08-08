@@ -1,68 +1,36 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed, watch, onMounted } from "vue";
-import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
-import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
+import { useRoute, useRouter } from "vue-router";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
-import { useAuthStore } from "@/store/auth.store";
 import { useWarehouseStore } from "@/store/warehouse.store";
 import { dashboardService } from "@/services/dashboard.service";
+import { useDashboardWarehouseFilter } from "./useDashboardWarehouseFilter";
+import { dashboardRequestCache } from "./dashboardRequestCache";
 import type {
     DashboardAlertsResponse,
     DashboardWorkflowOverviewResponse,
     DashboardKpiSnapshotResponse,
+    DashboardFilterState,
 } from "@/model/dashboard";
-import {
-    Box,
-    Zap,
-    ArrowDownRight,
-    ArrowUpRight,
-    ClipboardCheck,
-} from "lucide-vue-next";
 
-const dashboardSections = [
-    { key: "alerts", heading: "Operations Alert Center" },
-    { key: "workflow", heading: "Business Workflow Overview" },
-    { key: "kpi", heading: "Executive KPI Snapshot" },
-] as const;
+const normalizeErrorMessage = (error: unknown): string =>
+    error instanceof Error ? error.message : "Failed to load dashboard data.";
+
+type RefreshDashboardOptions = {
+    force?: boolean;
+};
 
 export function useDashboard() {
     const route = useRoute();
     const router = useRouter();
-    const authStore = useAuthStore();
     const warehouseStore = useWarehouseStore();
 
     const {
-        options: warehouseOptionsRaw,
-        loading: warehousesLoading,
-        error: warehouseError,
-    } = useWarehouseOptions();
-
-    const selectableWarehouses = computed(() => {
-        const userWarehouses = authStore.profile?.warehouses ?? [];
-        const allowed = new Set(
-            userWarehouses.map((warehouse) => warehouse.id),
-        );
-        if (!allowed.size) {
-            return warehouseOptionsRaw.value;
-        }
-        return warehouseOptionsRaw.value.filter((option) =>
-            allowed.has(option.id),
-        );
-    });
-
-    const warehouseOptions = computed(() => {
-        return selectableWarehouses.value.map((wh) => ({
-            label: wh.name,
-            value: wh.id,
-        }));
-    });
-
-    const selectedWarehouse = computed(
-        () =>
-            selectableWarehouses.value.find(
-                (option) => option.id === warehouseStore.selectedWarehouseId,
-            ) ?? null,
-    );
+        warehouseOptions,
+        warehousesLoading,
+        warehouseError,
+        selectedWarehouseId,
+        setSelectedWarehouse,
+    } = useDashboardWarehouseFilter();
 
     const normalizedQueryWarehouseId = computed(() => {
         const raw = route.query.warehouse_id;
@@ -101,170 +69,110 @@ export function useDashboard() {
         },
     );
 
-    watch(
-        selectableWarehouses,
-        (options) => {
-            warehouseStore.syncWarehouseSelection(
-                options.map((warehouse) => warehouse.id),
-            );
-        },
-        { immediate: true },
-    );
-
-    const section = computed(
-        () => (route.meta.section as string) || "overview",
-    );
-
-    // Data Refs
-    const summaryData = ref<any>(null);
-    const heatmapData = ref<any>(null);
-    const chartData = ref<any[]>([]);
-    const lowStockData = ref<any>(null);
-    const epcStatusData = ref<any[]>([]);
-    const recentActivityData = ref<any[]>([]);
+    // Data + per-widget error state — each Overview widget gets its own error
+    // ref so a failed fetch is distinguishable from a genuinely empty result
+    // (a shared error ref would make e.g. a failed alerts fetch look
+    // identical to "zero alerts" once a later-resolving fetch overwrites it).
     const alertsData = ref<DashboardAlertsResponse | null>(null);
     const workflowData = ref<DashboardWorkflowOverviewResponse | null>(null);
     const kpiSnapshotData = ref<DashboardKpiSnapshotResponse | null>(null);
 
-    // Loading Refs
-    const summaryLoading = ref(false);
-    const heatmapLoading = ref(false);
-    const chartLoading = ref(false);
-    const lowStockLoading = ref(false);
-    const epcStatusLoading = ref(false);
-    const recentActivityLoading = ref(false);
     const alertsLoading = ref(false);
     const workflowLoading = ref(false);
     const kpiSnapshotLoading = ref(false);
 
-    const dashboardError = ref<string | null>(null);
+    const alertsError = ref<string | null>(null);
+    const workflowError = ref<string | null>(null);
+    const kpiSnapshotError = ref<string | null>(null);
 
     const dashboardLoading = computed(
         () =>
-            summaryLoading.value ||
-            heatmapLoading.value ||
-            chartLoading.value ||
-            lowStockLoading.value ||
-            epcStatusLoading.value ||
-            recentActivityLoading.value ||
             alertsLoading.value ||
             workflowLoading.value ||
             kpiSnapshotLoading.value,
     );
 
-    const refreshDashboard = async () => {
-        dashboardError.value = null;
-        const filter = {
-            warehouseId: warehouseStore.selectedWarehouseId ?? null,
-        };
+    const createFilter = (): DashboardFilterState => ({
+        warehouseId: warehouseStore.selectedWarehouseId ?? null,
+    });
 
-        summaryLoading.value = true;
-        dashboardService
-            .fetchSummary(filter)
-            .then((res) => (summaryData.value = res))
-            .catch((err) => (dashboardError.value = err.message))
-            .finally(() => (summaryLoading.value = false));
+    const createWidgetKey = (widget: string, filter: DashboardFilterState) =>
+        [
+            "overview",
+            widget,
+            filter.companyId ?? "current-company",
+            filter.warehouseId ?? "all-warehouses",
+        ].join(":");
 
-        if (section.value === "overview") {
-            heatmapLoading.value = true;
-            dashboardService
-                .fetchHeatmap(filter)
-                .then((res) => (heatmapData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (heatmapLoading.value = false));
-
-            chartLoading.value = true;
-            dashboardService
-                .fetchChart(filter)
-                .then((res) => (chartData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (chartLoading.value = false));
-
-            lowStockLoading.value = true;
-            dashboardService
-                .fetchLowStock(filter)
-                .then((res) => (lowStockData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (lowStockLoading.value = false));
-
-            alertsLoading.value = true;
-            dashboardService
-                .fetchAlerts(filter)
-                .then((res) => (alertsData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (alertsLoading.value = false));
-
-            workflowLoading.value = true;
-            dashboardService
-                .fetchWorkflowOverview(filter)
-                .then((res) => (workflowData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (workflowLoading.value = false));
-
-            kpiSnapshotLoading.value = true;
-            dashboardService
-                .fetchKpiSnapshot(filter)
-                .then((res) => (kpiSnapshotData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (kpiSnapshotLoading.value = false));
-        } else if (section.value === "low-stock") {
-            lowStockLoading.value = true;
-            dashboardService
-                .fetchLowStock(filter)
-                .then((res) => (lowStockData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (lowStockLoading.value = false));
-        } else if (section.value === "recent-activity") {
-            recentActivityLoading.value = true;
-            dashboardService
-                .fetchRecentActivity(filter)
-                .then((res) => (recentActivityData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (recentActivityLoading.value = false));
-        } else if (section.value === "epc-status") {
-            epcStatusLoading.value = true;
-            dashboardService
-                .fetchEpcStatus(filter)
-                .then((res) => (epcStatusData.value = res))
-                .catch((err) => (dashboardError.value = err.message))
-                .finally(() => (epcStatusLoading.value = false));
+    const loadWidget = async <T>(
+        widget: string,
+        filter: DashboardFilterState,
+        fetcher: () => Promise<T>,
+        setData: (data: T) => void,
+        setLoading: (loading: boolean) => void,
+        setError: (message: string | null) => void,
+        options: RefreshDashboardOptions,
+    ) => {
+        const sequenceScope = `overview:${widget}`;
+        const sequence = dashboardRequestCache.nextSequence(sequenceScope);
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await dashboardRequestCache.load(
+                createWidgetKey(widget, filter),
+                fetcher,
+                options,
+            );
+            if (dashboardRequestCache.isLatest(sequenceScope, sequence)) {
+                setData(result.data);
+            }
+        } catch (err) {
+            if (dashboardRequestCache.isLatest(sequenceScope, sequence)) {
+                setError(normalizeErrorMessage(err));
+            }
+        } finally {
+            if (dashboardRequestCache.isLatest(sequenceScope, sequence)) {
+                setLoading(false);
+            }
         }
     };
 
-    const fetchForSection = (newSection: string) => {
-        if (
-            newSection === "overview" &&
-            !heatmapData.value &&
-            !heatmapLoading.value
-        ) {
-            void refreshDashboard();
-        } else if (
-            newSection === "low-stock" &&
-            !lowStockData.value &&
-            !lowStockLoading.value
-        ) {
-            void refreshDashboard();
-        } else if (
-            newSection === "recent-activity" &&
-            recentActivityData.value.length === 0 &&
-            !recentActivityLoading.value
-        ) {
-            void refreshDashboard();
-        } else if (
-            newSection === "epc-status" &&
-            epcStatusData.value.length === 0 &&
-            !epcStatusLoading.value
-        ) {
-            void refreshDashboard();
-        }
+    const refreshDashboard = async (options: RefreshDashboardOptions = {}) => {
+        const filter = createFilter();
+
+        await Promise.allSettled([
+            loadWidget(
+                "alerts",
+                filter,
+                () => dashboardService.fetchAlerts(filter),
+                (res) => (alertsData.value = res),
+                (loading) => (alertsLoading.value = loading),
+                (message) => (alertsError.value = message),
+                options,
+            ),
+            loadWidget(
+                "workflow",
+                filter,
+                () => dashboardService.fetchWorkflowOverview(filter),
+                (res) => (workflowData.value = res),
+                (loading) => (workflowLoading.value = loading),
+                (message) => (workflowError.value = message),
+                options,
+            ),
+            loadWidget(
+                "kpi-snapshot",
+                filter,
+                () => dashboardService.fetchKpiSnapshot(filter),
+                (res) => (kpiSnapshotData.value = res),
+                (loading) => (kpiSnapshotLoading.value = loading),
+                (message) => (kpiSnapshotError.value = message),
+                options,
+            ),
+        ]);
     };
 
     onMounted(() => {
         void refreshDashboard();
-    });
-
-    onBeforeRouteUpdate((to) => {
-        fetchForSection((to.meta.section as string) || "overview");
     });
 
     useDebouncedWatch(
@@ -274,161 +182,22 @@ export function useDashboard() {
         },
     );
 
-    const heatmapRows = computed(() => heatmapData.value?.rows ?? []);
-    const heatmapMax = computed(() => heatmapData.value?.maxQuantity ?? 1);
-    const chartBars = computed(() => chartData.value ?? []);
-    const lowStockItems = computed(() => lowStockData.value?.items ?? []);
-    const totalLowStock = computed(
-        () => lowStockData.value?.totalLowStock ?? 0,
-    );
-
-    const recentActivity = computed(() => recentActivityData.value ?? []);
-
-    const epcStatusTotal = computed(
-        () =>
-            (epcStatusData.value ?? []).reduce(
-                (acc: number, s: any) => acc + s.count,
-                0,
-            ) || 0,
-    );
-
-    const epcStatusBreakdown = computed(() => {
-        if (!epcStatusData.value) return [];
-        const statusItems = epcStatusData.value ?? [];
-        const total = epcStatusTotal.value || 1;
-
-        const metaMap: Record<
-            string,
-            {
-                title: string;
-                desc: string;
-                text: string;
-                bg: string;
-                color: string;
-            }
-        > = {
-            draft: {
-                title: "Draft Tags",
-                desc: "RFID Tags registered but not assigned to any physical products.",
-                text: "text-slate-700",
-                bg: "!bg-slate-50/20 !border-slate-200/50 hover:!bg-slate-50/40",
-                color: "bg-slate-500",
-            },
-            available: {
-                title: "Available Stock",
-                desc: "RFID Tags assigned to products currently in stock and available.",
-                text: "text-emerald-700",
-                bg: "!bg-emerald-50/20 !border-emerald-200/50 hover:!bg-emerald-50/40",
-                color: "bg-emerald-600",
-            },
-            assigned: {
-                title: "Assigned & Dispatched",
-                desc: "RFID Tags dispatched or shipped in outbound transits.",
-                text: "text-indigo-700",
-                bg: "!bg-indigo-50/20 !border-indigo-200/50 hover:!bg-indigo-50/40",
-                color: "bg-indigo-600",
-            },
-        };
-
-        return statusItems.map((item: any) => {
-            const key = item.status.toLowerCase();
-            const meta = metaMap[key] ?? {
-                title: `${item.status.toUpperCase()} Tags`,
-                desc: `RFID Tags with ${item.status} status.`,
-                text: "text-gray-700",
-                bg: "!bg-gray-50/20 !border-gray-200/50 hover:!bg-gray-50/40",
-                color: "bg-gray-600",
-            };
-            const pct = Math.round((item.count / total) * 100);
-            return {
-                name: item.status.toUpperCase(),
-                count: item.count,
-                pct,
-                ...meta,
-            };
-        });
-    });
-
-    const summaryCards = computed(() => {
-        if (!summaryData.value) {
-            return [];
-        }
-        const summary = summaryData.value;
-        const warehouseCaption =
-            selectedWarehouse.value?.name ?? "Seluruh Gudang";
-        const inboundLabel = summary.latestInboundDate ?? "Belum ada data";
-        const outboundLabel = summary.latestOutboundDate ?? "Belum ada data";
-        return [
-            {
-                label: "Total Stock",
-                value: summary.totalStock,
-                caption: warehouseCaption,
-                icon: Box,
-                theme: "blue",
-            },
-            {
-                label: "EPC Active",
-                value: summary.epcActive,
-                caption: "Tags monitored",
-                icon: Zap,
-                theme: "teal",
-            },
-            {
-                label: "Inbound Today",
-                value: summary.inboundToday,
-                caption: inboundLabel,
-                icon: ArrowDownRight,
-                theme: "purple",
-            },
-            {
-                label: "Outbound Today",
-                value: summary.outboundToday,
-                caption: outboundLabel,
-                icon: ArrowUpRight,
-                theme: "amber",
-            },
-            {
-                label: "Opname Pending",
-                value: summary.opnamePending,
-                caption: "Scheduled audits",
-                icon: ClipboardCheck,
-                theme: "red",
-            },
-        ];
-    });
-
     return {
-        dashboardSections,
         warehouseOptions,
         warehousesLoading,
         warehouseError,
         dashboardLoading,
-        summaryLoading,
-        heatmapLoading,
-        chartLoading,
-        lowStockLoading,
-        epcStatusLoading,
-        recentActivityLoading,
+        refreshDashboard,
         alertsData,
         alertsLoading,
+        alertsError,
         workflowData,
         workflowLoading,
+        workflowError,
         kpiSnapshotData,
         kpiSnapshotLoading,
-        dashboardError,
-        refreshDashboard,
-        heatmapRows,
-        heatmapMax,
-        chartBars,
-        lowStockItems,
-        totalLowStock,
-        section,
-        recentActivity,
-        epcStatusTotal,
-        epcStatusBreakdown,
-        summaryCards,
-        selectedWarehouseId: computed(() => warehouseStore.selectedWarehouseId),
-        setSelectedWarehouse: (warehouseId: string | null) =>
-            warehouseStore.setWarehouse(warehouseId),
+        kpiSnapshotError,
+        selectedWarehouseId,
+        setSelectedWarehouse,
     };
 }

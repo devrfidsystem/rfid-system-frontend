@@ -238,6 +238,7 @@
                     v-if="!isOpname"
                     :lines="form.lines"
                     :product-options="productOptions"
+                    :product-attribute-summaries="productAttributeSummaries"
                     :location-options="locationOptions"
                     :from-location-options="fromLocationOptions"
                     :to-location-options="toLocationOptions"
@@ -330,6 +331,7 @@ const {
     warehouseOptions,
     partnerOptions,
     productOptions,
+    productAttributeSummaries,
     userOptions,
     locationOptions,
     fromLocationOptions,

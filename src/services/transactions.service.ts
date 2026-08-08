@@ -1,9 +1,19 @@
 import { normalizePaginationItems } from "@/lib/api/normalizers";
 import type { ApiPaginatedResult, ApiResponse } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
-import type { TransactionRecord } from "@/views/transactions/types";
+import type {
+    TransactionRecord,
+    TransactionSummaryResponse,
+} from "@/views/transactions/types";
 import { transactionsApi } from "@/api/feature/transactions.api";
 
+// "opname" is intentionally part of this union/the maps below for
+// title/report-key lookups elsewhere, but it must NEVER be routed through the
+// generic list/get/create/post/cancel flow in this file — the real Opname
+// feature uses its own tree/lifecycle API (opname.api.ts, opname.service.ts)
+// with an incompatible response shape. See router/index.ts's
+// `genericTransactionKeys`, which deliberately excludes "opname" for this
+// reason — keep that exclusion in sync with this comment.
 export type TransactionKey =
     | "register"
     | "inbound"
@@ -148,6 +158,13 @@ export const transactionService = {
             meta: response.meta,
         };
     },
+    async summary(
+        key: TransactionKey,
+        params: ReportParams = {},
+    ): Promise<TransactionSummaryResponse> {
+        const response = await transactionsApi.summary(key, params);
+        return response.data as TransactionSummaryResponse;
+    },
     async get(key: TransactionKey, id: string): Promise<TransactionRecord> {
         const response = await transactionsApi.get(key, id);
         return normalizeTransactionRecord(response.data);
@@ -168,5 +185,8 @@ export const transactionService = {
     },
     async cancel(key: TransactionKey, id: string): Promise<void> {
         await transactionsApi.cancel(key, id);
+    },
+    async complete(key: TransactionKey, id: string): Promise<void> {
+        await transactionsApi.complete(key, id);
     },
 };

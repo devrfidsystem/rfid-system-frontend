@@ -1,20 +1,39 @@
 import { describe, expect, it } from "vitest";
 import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
+import { createMemoryHistory, createRouter } from "vue-router";
 import DashboardKpiSnapshot from "./DashboardKpiSnapshot.vue";
+
+// RouterLink requires an injected router, so tests install a minimal
+// memory-history router rather than mounting the component standalone.
+const createTestRouter = () =>
+    createRouter({
+        history: createMemoryHistory(),
+        routes: [
+            { path: "/", component: { template: "<div />" } },
+            { path: "/dashboard/kpi", component: { template: "<div />" } },
+        ],
+    });
+
+const renderWithRouter = async (props: Record<string, unknown>) => {
+    const app = createSSRApp(DashboardKpiSnapshot, props);
+    const router = createTestRouter();
+    app.use(router);
+    // Memory history never auto-navigates, so isReady() would hang forever
+    // without an explicit initial push.
+    await router.push("/");
+    await router.isReady();
+    return renderToString(app);
+};
 
 describe("DashboardKpiSnapshot", () => {
     it("renders a skeleton while loading", async () => {
-        const app = createSSRApp(DashboardKpiSnapshot, {
-            loading: true,
-            data: null,
-        });
-        const html = await renderToString(app);
+        const html = await renderWithRouter({ loading: true, data: null });
         expect(html).toContain("animate-pulse");
     });
 
-    it("renders score cards with sub-metrics and a disabled view-performance link", async () => {
-        const app = createSSRApp(DashboardKpiSnapshot, {
+    it("renders score cards with sub-metrics and a view-performance link to the KPI page", async () => {
+        const html = await renderWithRouter({
             loading: false,
             data: {
                 cards: [
@@ -35,11 +54,10 @@ describe("DashboardKpiSnapshot", () => {
                 ],
             },
         });
-        const html = await renderToString(app);
         expect(html).toContain("Stock In Performance");
         expect(html).toContain("83");
         expect(html).toContain("Productivity Improvement");
         expect(html).toContain("View Performance");
-        expect(html).toContain("disabled");
+        expect(html).toContain('href="/dashboard/kpi?domain=stockIn"');
     });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const getSpy = vi.hoisted(() => vi.fn());
 const postSpy = vi.hoisted(() => vi.fn());
+const summarySpy = vi.hoisted(() => vi.fn());
 
 vi.mock("@/api/feature/transactions.api", () => ({
     transactionsApi: {
@@ -10,6 +11,7 @@ vi.mock("@/api/feature/transactions.api", () => ({
         create: vi.fn(),
         post: postSpy,
         cancel: vi.fn(),
+        summary: summarySpy,
     },
 }));
 
@@ -76,5 +78,35 @@ describe("transactions.service", () => {
         await transactionService.post("outbound", "doc-1", payload);
 
         expect(postSpy).toHaveBeenCalledWith("outbound", "doc-1", payload);
+    });
+
+    it("returns the summary response data unwrapped", async () => {
+        const mockSummary = {
+            totalCount: 5,
+            statusBreakdown: [{ status: "posted", count: 5, percentage: 100 }],
+            mostRecent: {
+                docNo: "IN-001",
+                createdByName: "Jane Doe",
+                createdAt: "2026-08-01T00:00:00.000Z",
+            },
+            needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
+        };
+        summarySpy.mockResolvedValue({
+            success: true,
+            message: "Inbound summary",
+            data: mockSummary,
+        });
+
+        const { transactionService } = await import("./transactions.service");
+        const result = await transactionService.summary("inbound", {
+            page: 1,
+            limit: 20,
+        });
+
+        expect(result).toEqual(mockSummary);
+        expect(summarySpy).toHaveBeenCalledWith("inbound", {
+            page: 1,
+            limit: 20,
+        });
     });
 });

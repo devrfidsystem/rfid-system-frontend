@@ -204,4 +204,58 @@ describe("useTransactionCreate", () => {
         expect(pageSource).toContain("if (isInbound) {");
         expect(pageSource).toContain("handleBack();");
     });
+
+    it("wires product attribute summaries into the line items component", () => {
+        expect(pageSource).toContain(
+            ':product-attribute-summaries="productAttributeSummaries"',
+        );
+    });
+
+    it("builds a product-id-keyed attribute summary map after loading options", async () => {
+        const { masterService } = await import("@/services/master.service");
+        vi.mocked(masterService.fetchList).mockImplementation(
+            (entity: string) => {
+                if (entity === "products") {
+                    return Promise.resolve({
+                        items: [
+                            {
+                                id: "prod-1",
+                                code: "P1",
+                                name: "Widget",
+                                createdAt: "2026-01-01",
+                                attributeValues: [
+                                    {
+                                        attributeId: "attr-1",
+                                        valueText: "Red",
+                                        attribute: {
+                                            id: "attr-1",
+                                            name: "Color",
+                                            type: "text",
+                                        },
+                                    },
+                                ],
+                            },
+                            {
+                                id: "prod-2",
+                                code: "P2",
+                                name: "Gadget",
+                                createdAt: "2026-01-01",
+                                attributeValues: [],
+                            },
+                        ],
+                        meta: null,
+                    });
+                }
+                return Promise.resolve({ items: [], meta: null });
+            },
+        );
+
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("inbound");
+        await create.loadOptions();
+
+        expect(create.productAttributeSummaries.value).toEqual({
+            "prod-1": "Color: Red",
+        });
+    });
 });

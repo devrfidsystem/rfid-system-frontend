@@ -45,9 +45,14 @@ describe("ProcessPerformancePage", () => {
             setActivity: vi.fn(),
             setPeriod: vi.fn(),
             data: { value: null },
-            loading: { value: false },
+            loading: false,
             error: { value: null },
             refresh: vi.fn(),
+            // DashboardToolbar is a real (unstubbed) component in this test —
+            // these must be plain values so its prop validation doesn't warn.
+            warehouseOptions: [],
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
         });
     });
 
@@ -62,6 +67,26 @@ describe("ProcessPerformancePage", () => {
         const html = await renderToString(app);
         expect(html).toContain("Week");
         expect(html).toContain("Month");
+    });
+
+    it("renders the error banner when the composable reports an error", async () => {
+        useProcessPerformanceMock.mockReturnValue({
+            activity: { value: "receiving" },
+            period: { value: "week" },
+            setActivity: vi.fn(),
+            setPeriod: vi.fn(),
+            data: { value: null },
+            loading: false,
+            error: { value: "network down" },
+            refresh: vi.fn(),
+            warehouseOptions: [],
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
+        });
+
+        const app = createSSRApp(ProcessPerformancePage);
+        const html = await renderToString(app);
+        expect(html).toContain("network down");
     });
 
     it("maps supportingMetrics into a label/value list for KpiSupportingMetrics", async () => {
@@ -96,9 +121,14 @@ describe("ProcessPerformancePage", () => {
                     operatorRanking: [],
                 },
             },
-            loading: { value: false },
+            loading: false,
             error: { value: null },
             refresh: vi.fn(),
+            // DashboardToolbar is a real (unstubbed) component in this test —
+            // these must be plain values so its prop validation doesn't warn.
+            warehouseOptions: [],
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
         });
 
         const app = createSSRApp(ProcessPerformancePage);

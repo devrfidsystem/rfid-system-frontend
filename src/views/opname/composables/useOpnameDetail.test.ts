@@ -5,8 +5,13 @@ import { useOpnameDetail } from "./useOpnameDetail";
 const getTreeMock = vi.hoisted(() => vi.fn());
 const getDetailMock = vi.hoisted(() => vi.fn());
 const updateLineCountMock = vi.hoisted(() => vi.fn());
+const startCountingMock = vi.hoisted(() => vi.fn());
+const reconcileMock = vi.hoisted(() => vi.fn());
+const closeMock = vi.hoisted(() => vi.fn());
+const cancelDocMock = vi.hoisted(() => vi.fn());
 const routerPushMock = vi.hoisted(() => vi.fn());
 const notifySuccessMock = vi.hoisted(() => vi.fn());
+const notifyErrorMock = vi.hoisted(() => vi.fn());
 
 var authStoreState: {
     currentCompanyId: string | null;
@@ -34,12 +39,17 @@ vi.mock("@/services/opname.service", () => ({
         getTree: getTreeMock,
         getDetail: getDetailMock,
         updateLineCount: updateLineCountMock,
+        startCounting: startCountingMock,
+        reconcile: reconcileMock,
+        close: closeMock,
+        cancel: cancelDocMock,
     },
 }));
 
 vi.mock("@/composable/useNotifier", () => ({
     useNotifier: () => ({
         notifySuccess: notifySuccessMock,
+        notifyError: notifyErrorMock,
     }),
 }));
 
@@ -78,8 +88,13 @@ describe("useOpnameDetail", () => {
         getTreeMock.mockReset();
         getDetailMock.mockReset();
         updateLineCountMock.mockReset();
+        startCountingMock.mockReset();
+        reconcileMock.mockReset();
+        closeMock.mockReset();
+        cancelDocMock.mockReset();
         routerPushMock.mockReset();
         notifySuccessMock.mockReset();
+        notifyErrorMock.mockReset();
 
         getTreeMock.mockResolvedValue([
             {
@@ -178,5 +193,116 @@ describe("useOpnameDetail", () => {
             "Match saved for Sample Item.",
         );
         expect(detail.isItemDrawerOpen.value).toBe(false);
+    });
+
+    it("gates start-counting/reconcile/close/cancel by node type and status", async () => {
+        getTreeMock.mockResolvedValue([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "Root Opname",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "draft",
+                nodeType: "task",
+                children: [],
+            },
+        ]);
+
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+
+        expect(detail.canStartCounting.value).toBe(true);
+        expect(detail.canReconcile.value).toBe(false);
+        expect(detail.canClose.value).toBe(false);
+        expect(detail.canCancelDoc.value).toBe(true);
+    });
+
+    it("does not offer document lifecycle actions on group/profile nodes", async () => {
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+
+        // Default mock resolves a "group" node — none of the doc-level
+        // lifecycle actions apply to organizational tree nodes.
+        expect(detail.canStartCounting.value).toBe(false);
+        expect(detail.canReconcile.value).toBe(false);
+        expect(detail.canClose.value).toBe(false);
+        expect(detail.canCancelDoc.value).toBe(false);
+    });
+
+    it("calls opnameService.startCounting with the selected warehouse and refreshes", async () => {
+        getTreeMock.mockResolvedValue([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "Root Opname",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "draft",
+                nodeType: "task",
+                children: [],
+            },
+        ]);
+        startCountingMock.mockResolvedValue(undefined);
+
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+
+        detail.handleStartCounting();
+        expect(detail.docConfirmation.value).toMatchObject({
+            action: "start-counting",
+            title: "Start Counting",
+        });
+
+        await detail.handleConfirmDocAction();
+
+        expect(startCountingMock).toHaveBeenCalledWith("root-1", "wh-1");
+        expect(notifySuccessMock).toHaveBeenCalledWith(
+            "Start Counting succeeded.",
+        );
+        expect(detail.docConfirmation.value).toBeNull();
+        expect(getTreeMock).toHaveBeenCalledTimes(2); // initial load + refresh
+    });
+
+    it("surfaces an error notification when a lifecycle action fails", async () => {
+        getTreeMock.mockResolvedValue([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "Root Opname",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "counting",
+                nodeType: "task",
+                children: [],
+            },
+        ]);
+        reconcileMock.mockRejectedValue(new Error("Cannot reconcile yet"));
+
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+
+        expect(detail.canReconcile.value).toBe(true);
+        detail.handleReconcile();
+        await detail.handleConfirmDocAction();
+
+        expect(reconcileMock).toHaveBeenCalledWith("root-1");
+        expect(notifyErrorMock).toHaveBeenCalledWith("Cannot reconcile yet");
     });
 });

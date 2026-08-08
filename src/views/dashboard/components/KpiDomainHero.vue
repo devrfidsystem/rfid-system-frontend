@@ -63,58 +63,32 @@
                 </div>
             </div>
             <div>
-                <p class="text-xs font-semibold text-text-secondary mb-2">
-                    {{ data.label }} — Performance Timeline
-                </p>
-                <svg
-                    class="h-32 w-full"
-                    viewBox="0 0 100 40"
-                    preserveAspectRatio="none"
-                >
-                    <polyline
-                        :points="timelinePoints"
-                        fill="none"
-                        class="stroke-primary-600"
-                        stroke-width="2"
-                    />
-                </svg>
-                <div
-                    class="flex justify-between text-[10px] text-text-muted mt-1"
-                >
-                    <span>{{ data.timeline[0]?.period }}</span>
-                    <span>{{
-                        data.timeline[data.timeline.length - 1]?.period
-                    }}</span>
-                </div>
+                <TrendMiniChart
+                    label="Performance Timeline"
+                    unit="pts"
+                    :points="
+                        data.timeline.map((point) => ({
+                            period: point.period,
+                            value: point.score,
+                        }))
+                    "
+                    stroke-class="stroke-primary-600"
+                    dot-class="fill-primary-600"
+                    color="#2563EB"
+                    :higher-is-better="true"
+                />
             </div>
         </div>
     </Card>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
+import TrendMiniChart from "./TrendMiniChart.vue";
 import type { DashboardKpiDetailResponse } from "@/model/dashboard";
 
-const props = defineProps<{
+defineProps<{
     loading: boolean;
     data: DashboardKpiDetailResponse | null;
 }>();
-
-const timelinePoints = computed(() => {
-    const values = props.data?.timeline.map((point) => point.score) ?? [];
-    if (values.length === 0) return "";
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
-    const step = values.length > 1 ? 100 / (values.length - 1) : 0;
-
-    return values
-        .map((value, index) => {
-            const x = index * step;
-            const y = 40 - ((value - min) / range) * 40;
-            return `${x},${y}`;
-        })
-        .join(" ");
-});
 </script>

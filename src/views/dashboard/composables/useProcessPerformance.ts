@@ -1,14 +1,26 @@
 import { ref } from "vue";
-import { useWarehouseStore } from "@/store/warehouse.store";
+import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
+import { useDashboardWarehouseFilter } from "./useDashboardWarehouseFilter";
 import { dashboardService } from "@/services/dashboard.service";
+import { dashboardRequestCache } from "./dashboardRequestCache";
 import type {
     ProcessActivity,
     ProcessDetailResponse,
     ProcessPeriod,
 } from "@/model/dashboard";
 
+type RefreshOptions = {
+    force?: boolean;
+};
+
 export function useProcessPerformance() {
-    const warehouseStore = useWarehouseStore();
+    const {
+        warehouseOptions,
+        warehousesLoading,
+        warehouseError,
+        selectedWarehouseId,
+        setSelectedWarehouse,
+    } = useDashboardWarehouseFilter();
 
     const activity = ref<ProcessActivity>("receiving");
     const period = ref<ProcessPeriod>("week");
@@ -16,19 +28,40 @@ export function useProcessPerformance() {
     const loading = ref(false);
     const error = ref<string | null>(null);
 
-    const refresh = async () => {
+    const createCacheKey = () =>
+        [
+            "process-detail",
+            activity.value,
+            period.value,
+            selectedWarehouseId.value ?? "all-warehouses",
+        ].join(":");
+
+    const refresh = async (options: RefreshOptions = {}) => {
+        const sequence = dashboardRequestCache.nextSequence("process-detail");
         loading.value = true;
         error.value = null;
         try {
-            data.value = await dashboardService.fetchProcessDetail(
-                activity.value,
-                period.value,
-                { warehouseId: warehouseStore.selectedWarehouseId },
+            const result = await dashboardRequestCache.load(
+                createCacheKey(),
+                () =>
+                    dashboardService.fetchProcessDetail(
+                        activity.value,
+                        period.value,
+                        { warehouseId: selectedWarehouseId.value },
+                    ),
+                options,
             );
+            if (dashboardRequestCache.isLatest("process-detail", sequence)) {
+                data.value = result.data;
+            }
         } catch (err) {
-            error.value = err instanceof Error ? err.message : String(err);
+            if (dashboardRequestCache.isLatest("process-detail", sequence)) {
+                error.value = err instanceof Error ? err.message : String(err);
+            }
         } finally {
-            loading.value = false;
+            if (dashboardRequestCache.isLatest("process-detail", sequence)) {
+                loading.value = false;
+            }
         }
     };
 
@@ -42,6 +75,10 @@ export function useProcessPerformance() {
         await refresh();
     };
 
+    useDebouncedWatch(selectedWarehouseId, () => {
+        void refresh();
+    });
+
     return {
         activity,
         period,
@@ -51,5 +88,10 @@ export function useProcessPerformance() {
         loading,
         error,
         refresh,
+        warehouseOptions,
+        warehousesLoading,
+        warehouseError,
+        selectedWarehouseId,
+        setSelectedWarehouse,
     };
 }

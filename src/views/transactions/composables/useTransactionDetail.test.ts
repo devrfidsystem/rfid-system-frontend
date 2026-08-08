@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     getSpy: vi.fn(),
     postSpy: vi.fn(),
     cancelSpy: vi.fn(),
+    completeSpy: vi.fn(),
     pushSpy: vi.fn(),
     notifyErrorSpy: vi.fn(),
     notifySuccessSpy: vi.fn(),
@@ -29,6 +30,7 @@ vi.mock("@/services/transactions.service", () => ({
         get: mocks.getSpy,
         post: mocks.postSpy,
         cancel: mocks.cancelSpy,
+        complete: mocks.completeSpy,
     },
 }));
 
@@ -67,6 +69,17 @@ vi.mock("@/views/report/reportConfig", () => ({
                 { key: "registeredBy.fullName", label: "User" },
                 { key: "status", label: "Status" },
             ],
+        },
+        putaway: {
+            entity: "putaway",
+            title: "Putaway Report",
+            description: "Storage placement tasks after receiving goods.",
+            columns: [
+                { key: "docNumber", label: "Doc No" },
+                { key: "docDate", label: "Date" },
+                { key: "status", label: "Status" },
+            ],
+            warehouseKey: "warehouseId",
         },
     },
 }));
@@ -194,6 +207,72 @@ describe("useTransactionDetail", () => {
 
         expect(mocks.postSpy).toHaveBeenCalledWith("register", "reg-1");
         expect(detail.confirmation.value).toBeNull();
+    });
+
+    it("shows Post+Cancel for a draft putaway task, and Complete+Cancel once posted", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "draft",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("putaway", "put-1");
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(true);
+        expect(detail.canCancel.value).toBe(true);
+        expect(detail.canComplete.value).toBe(false);
+
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "posted",
+        });
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(false);
+        expect(detail.canCancel.value).toBe(true);
+        expect(detail.canComplete.value).toBe(true);
+    });
+
+    it("calls transactionService.complete when a posted putaway task is completed", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "posted",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("putaway", "put-1");
+        await detail.loadTransaction();
+
+        detail.handleComplete();
+        expect(detail.confirmation.value).toMatchObject({
+            action: "complete",
+            title: "Complete Task",
+            confirmText: "Complete",
+            variant: "primary",
+        });
+
+        await detail.handleConfirmAction();
+
+        expect(mocks.completeSpy).toHaveBeenCalledWith("putaway", "put-1");
+        expect(detail.confirmation.value).toBeNull();
+    });
+
+    it("hides all actions once a putaway task is done", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "done",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("putaway", "put-1");
+        await detail.loadTransaction();
+
+        expect(detail.canShowActions.value).toBe(false);
     });
 
     it("keeps register task line items visible in the detail template", () => {

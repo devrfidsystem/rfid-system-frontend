@@ -32,6 +32,13 @@
                         required
                         :object-id="`cmb_TransactionLineItemsProduct_Row${idx}`"
                     />
+                    <p
+                        v-if="productAttributeSummaries[line.productId]"
+                        class="mt-1 text-xs text-text-secondary"
+                        :object-id="`txt_TransactionLineItemsAttributes_Row${idx}`"
+                    >
+                        {{ productAttributeSummaries[line.productId] }}
+                    </p>
                 </div>
 
                 <div
@@ -178,6 +185,7 @@ defineProps<{
         toLocationId: string;
     }>;
     productOptions: Array<{ label: string; value: string }>;
+    productAttributeSummaries: Record<string, string>;
     locationOptions: Array<{ label: string; value: string }>;
     fromLocationOptions: Array<{ label: string; value: string }>;
     toLocationOptions: Array<{ label: string; value: string }>;

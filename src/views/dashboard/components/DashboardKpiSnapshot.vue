@@ -19,6 +19,13 @@
             </div>
 
             <div
+                v-else-if="error"
+                class="rounded-lg border border-red-100 bg-red-50/50 p-8 text-center text-sm text-danger-600"
+            >
+                Failed to load KPI snapshot: {{ error }}
+            </div>
+
+            <div
                 v-else-if="!data || data.cards.length === 0"
                 class="rounded-lg border border-gray-100 bg-gray-50/50 p-8 text-center text-sm text-gray-500"
             >
@@ -80,13 +87,15 @@
                             stroke-width="2"
                         />
                     </svg>
-                    <button
-                        type="button"
-                        disabled
-                        class="mt-4 text-xs font-semibold text-text-muted cursor-not-allowed"
+                    <RouterLink
+                        :to="{
+                            path: '/dashboard/kpi',
+                            query: { domain: card.key },
+                        }"
+                        class="mt-4 inline-block text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline"
                     >
                         View Performance →
-                    </button>
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -94,12 +103,14 @@
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from "vue-router";
 import Card from "@/components/molecules/Card.vue";
 import type { DashboardKpiSnapshotResponse } from "@/model/dashboard";
 
 defineProps<{
     loading: boolean;
     data: DashboardKpiSnapshotResponse | null;
+    error?: string | null;
 }>();
 
 function sparklinePoints(values: number[]): string {
