@@ -20,10 +20,12 @@
 ### Task 1: Monitoring Page Command Layout
 
 **Files:**
+
 - Modify: `src/views/dashboard/MonitoringPage.test.ts`
 - Modify: `src/views/dashboard/MonitoringPage.vue`
 
 **Interfaces:**
+
 - Consumes: existing `useMonitoring()` return shape.
 - Produces: same page API with lower widgets wrapped in `lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]`.
 
@@ -35,10 +37,12 @@
 ### Task 2: Domain Card Scanability
 
 **Files:**
+
 - Modify: `src/views/dashboard/components/MonitoringDomainCard.test.ts`
 - Modify: `src/views/dashboard/components/MonitoringDomainCard.vue`
 
 **Interfaces:**
+
 - Consumes: existing `DomainHealth` prop shape.
 - Produces: same component API with accent border, capped queue preview, and `+N more` overflow copy.
 
@@ -50,10 +54,12 @@
 ### Task 3: Live Feed Scanability
 
 **Files:**
+
 - Modify: `src/views/dashboard/components/MonitoringLiveFeed.test.ts`
 - Modify: `src/views/dashboard/components/MonitoringLiveFeed.vue`
 
 **Interfaces:**
+
 - Consumes: existing `LiveTransactionRow[]` prop shape.
 - Produces: same component API with status dot, exception row background, and SLA threshold colors.
 
@@ -65,10 +71,12 @@
 ### Task 4: Exception Feed Compact State
 
 **Files:**
+
 - Modify: `src/views/dashboard/components/MonitoringExceptionFeed.test.ts`
 - Modify: `src/views/dashboard/components/MonitoringExceptionFeed.vue`
 
 **Interfaces:**
+
 - Consumes: existing `LiveTransactionRow[]` prop shape.
 - Produces: same component API with compact empty state.
 
@@ -80,5 +88,5 @@
 ### Task 5: Verification
 
 - [ ] Run focused monitoring tests:
-  `npx vitest run src/views/dashboard/MonitoringPage.test.ts src/views/dashboard/components/MonitoringDomainCard.test.ts src/views/dashboard/components/MonitoringLiveFeed.test.ts src/views/dashboard/components/MonitoringExceptionFeed.test.ts`
+      `npx vitest run src/views/dashboard/MonitoringPage.test.ts src/views/dashboard/components/MonitoringDomainCard.test.ts src/views/dashboard/components/MonitoringLiveFeed.test.ts src/views/dashboard/components/MonitoringExceptionFeed.test.ts`
 - [ ] Run `npm run type-check`.

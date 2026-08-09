@@ -1,7 +1,7 @@
 <template>
     <Card object-id="wdg_ProcessHourlyHeatmap">
-        <h3 class="text-sm font-semibold text-gray-900 mb-3">
-            Hourly Transaction Distribution
+        <h3 class="text-sm font-semibold text-text mb-3">
+            Hourly Workload Distribution
         </h3>
         <div v-if="loading" class="grid grid-cols-12 gap-1">
             <div
@@ -14,7 +14,7 @@
             v-else-if="!data || data.every((bucket) => bucket.count === 0)"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No hourly activity in this window.
+            No hourly workload in this window.
         </div>
         <div v-else class="grid grid-cols-12 gap-1">
             <div
@@ -44,11 +44,11 @@ const formatHour = (hour: number): string =>
 
 const intensityClass = (count: number): string => {
     const maxCount = Math.max(1, ...(props.data ?? []).map((b) => b.count));
-    if (count === 0) return "bg-gray-100 text-text-muted";
+    if (count === 0) return "bg-surface-secondary text-text-muted";
     const ratio = count / maxCount;
     if (ratio >= 0.75) return "bg-primary-700 text-white";
     if (ratio >= 0.5) return "bg-primary-500 text-white";
-    if (ratio >= 0.25) return "bg-primary-300 text-gray-900";
-    return "bg-primary-100 text-gray-900";
+    if (ratio >= 0.25) return "bg-primary-300 text-text";
+    return "bg-primary-100 text-text";
 };
 </script>

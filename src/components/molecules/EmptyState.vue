@@ -14,7 +14,9 @@
             <h3 class="text-base font-semibold text-text sm:text-lg">
                 {{ resolvedTitle }}
             </h3>
-            <p class="text-sm text-text-secondary">{{ resolvedDescription }}</p>
+            <p class="text-sm text-text-secondary">
+                {{ resolvedDescription }}
+            </p>
         </div>
 
         <slot name="action">

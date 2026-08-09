@@ -1,8 +1,6 @@
 <template>
     <Card object-id="wdg_KpiContributors">
-        <h3 class="text-sm font-semibold text-gray-900 mb-3">
-            Main Contributors
-        </h3>
+        <h3 class="text-sm font-semibold text-text mb-3">Score Drivers</h3>
         <div v-if="loading" class="space-y-3">
             <div class="h-4 rounded bg-surface-secondary animate-pulse"></div>
             <div class="h-4 rounded bg-surface-secondary animate-pulse"></div>
@@ -11,7 +9,7 @@
             v-else-if="!data || data.length === 0"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No contributor data available.
+            No score driver data for this domain.
         </div>
         <div v-else class="space-y-3">
             <div

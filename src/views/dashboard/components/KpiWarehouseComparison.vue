@@ -1,7 +1,7 @@
 <template>
     <Card object-id="wdg_KpiWarehouseComparison">
-        <h3 class="text-sm font-semibold text-gray-900 mb-3">
-            Warehouse Comparison
+        <h3 class="text-sm font-semibold text-text mb-3">
+            Warehouse Benchmark
         </h3>
         <div v-if="loading" class="grid gap-4 sm:grid-cols-2">
             <div
@@ -17,12 +17,12 @@
             "
             class="text-sm text-text-secondary text-center py-6"
         >
-            No warehouse activity in this window.
+            No warehouse benchmark data in this window.
         </div>
         <div v-else class="grid gap-6 sm:grid-cols-2">
             <div>
                 <p class="text-xs font-semibold text-text-secondary mb-2">
-                    Top Performing
+                    Leading Sites
                 </p>
                 <ul class="space-y-2">
                     <li
@@ -43,7 +43,7 @@
             </div>
             <div>
                 <p class="text-xs font-semibold text-text-secondary mb-2">
-                    Needs Attention
+                    Under Target
                 </p>
                 <ul class="space-y-2">
                     <li

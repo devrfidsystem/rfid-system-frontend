@@ -12,7 +12,7 @@
                 v-for="item in items"
                 :key="item.id"
                 type="button"
-                class="relative mb-1 flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition-colors outline-none ring-offset-2 ring-offset-primary-900 hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-primary-400"
+                class="relative mb-1 flex h-11 w-11 items-center justify-center rounded-md text-white/60 transition-colors outline-none ring-offset-2 ring-offset-primary-900 hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-primary-400"
                 :class="isActive(item.id) ? 'bg-white/15 text-white' : ''"
                 :title="item.label"
                 :aria-label="item.label"
@@ -52,7 +52,7 @@
                 />
                 <span
                     v-else
-                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-semibold text-gray-900"
+                    class="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-xs font-semibold text-text"
                 >
                     {{ avatarInitials }}
                 </span>

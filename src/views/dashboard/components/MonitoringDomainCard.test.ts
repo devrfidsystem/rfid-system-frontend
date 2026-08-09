@@ -19,7 +19,7 @@ describe("MonitoringDomainCard", () => {
             data: null,
         });
         const html = await renderToString(app);
-        expect(html).toContain("No domain data available");
+        expect(html).toContain("No activity recorded for this operation lane");
     });
 
     it("renders the health chip, stat grid, and queue task list for a nominal domain", async () => {
@@ -104,7 +104,7 @@ describe("MonitoringDomainCard", () => {
         expect(html).toContain("border-l-4");
         expect(html).toContain("border-danger-500");
         expect(html).toContain("text-2xl font-extrabold text-danger-600");
-        expect(html).toContain("+1 more in queue");
+        expect(html).toContain("+1 more waiting");
         expect(html).not.toContain("OP-004");
     });
 });

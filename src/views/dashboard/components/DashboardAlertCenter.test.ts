@@ -9,6 +9,14 @@ import DashboardAlertCenter from "./DashboardAlertCenter.vue";
 vi.mock("@/components/organisms/Drawer.vue", () => ({
     default: defineComponent({
         name: "DrawerStub",
+        inheritAttrs: false,
+        props: {
+            modelValue: Boolean,
+            title: String,
+            side: String,
+            width: String,
+            objectId: String,
+        },
         setup:
             (_props, { slots }) =>
             () =>
@@ -32,7 +40,10 @@ describe("DashboardAlertCenter", () => {
             data: null,
         });
         const html = await renderToString(app);
-        expect(html).toContain("No alerts");
+        expect(html).toContain("No open exceptions");
+        expect(html).toContain(
+            "Selected warehouse has no active operational risk",
+        );
     });
 
     it("renders alert cards with severity, business impact, and recommended action", async () => {
@@ -59,6 +70,7 @@ describe("DashboardAlertCenter", () => {
             },
         });
         const html = await renderToString(app);
+        expect(html).toContain("Operational Exceptions");
         expect(html).toContain("Sales Orders waiting Picking exceed threshold");
         expect(html).toContain(
             "Potential shipment delay for 14 outbound Sales Orders",
@@ -87,6 +99,9 @@ describe("DashboardAlertCenter", () => {
             },
         });
         const html = await renderToString(app);
+        expect(html).toContain("bg-danger-50");
+        expect(html).toContain("bg-warning-50");
+        expect(html).toContain("bg-info-50");
         expect(html).toContain("btn_DashboardAlertSeverity_all");
         expect(html).toContain("btn_DashboardAlertSeverity_critical");
         expect(html).toContain("btn_DashboardAlertSeverity_warning");

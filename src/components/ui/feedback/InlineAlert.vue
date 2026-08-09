@@ -1,7 +1,7 @@
 <template>
     <div
         :class="[
-            'w-full rounded-md border px-4 py-3 text-gray-900',
+            'w-full rounded-md border px-4 py-3 text-text',
             variantClasses,
         ]"
         :role="variantRole"
@@ -9,17 +9,21 @@
     >
         <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-3">
-                <span v-if="$slots.icon" class="text-lg text-current">
+                <span v-if="$slots.icon" class="mt-0.5 text-current">
                     <slot name="icon" />
                 </span>
-                <span v-else class="text-lg text-current" aria-hidden="true">{{
-                    icon
-                }}</span>
+                <Icon
+                    v-else
+                    :icon="icon"
+                    :size="16"
+                    class-name="mt-0.5 text-current"
+                    aria-hidden="true"
+                />
                 <div class="space-y-1">
-                    <p v-if="title" class="text-sm font-semibold text-gray-900">
+                    <p v-if="title" class="text-sm font-semibold text-text">
                         {{ title }}
                     </p>
-                    <p v-if="description" class="text-sm text-gray-600">
+                    <p v-if="description" class="text-sm text-text-secondary">
                         {{ description }}
                     </p>
                     <slot />
@@ -47,12 +51,20 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Button from "@/components/atoms/Button.vue";
+import Icon from "@/components/atoms/Icon.vue";
+import {
+    AlertCircle,
+    AlertTriangle,
+    CheckCircle2,
+    Info,
+} from "lucide-vue-next";
+import type { Component } from "vue";
 
-const iconMap: Record<"info" | "success" | "warning" | "error", string> = {
-    info: "ℹ️",
-    success: "✓",
-    warning: "⚠️",
-    error: "✕",
+const iconMap: Record<"info" | "success" | "warning" | "error", Component> = {
+    info: Info,
+    success: CheckCircle2,
+    warning: AlertTriangle,
+    error: AlertCircle,
 };
 
 const props = defineProps<{
@@ -71,10 +83,10 @@ const variantClassMap: Record<
     "info" | "success" | "warning" | "error",
     string
 > = {
-    info: "bg-blue-50 border-blue-200",
-    success: "bg-green-50 border-green-200",
-    warning: "bg-yellow-50 border-yellow-200",
-    error: "bg-error-50 border-error-200",
+    info: "bg-info-50 border-info-500/20 text-info-600",
+    success: "bg-success-50 border-success-500/20 text-success-600",
+    warning: "bg-warning-50 border-warning-500/20 text-warning-600",
+    error: "bg-danger-50 border-danger-500/20 text-danger-600",
 };
 const variantClasses = computed(() => variantClassMap[computedVariant.value]);
 const variantRole = computed(() =>

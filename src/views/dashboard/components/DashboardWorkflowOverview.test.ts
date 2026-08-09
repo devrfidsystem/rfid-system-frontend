@@ -39,6 +39,10 @@ describe("DashboardWorkflowOverview", () => {
             },
         });
         const html = await renderToString(app);
+        expect(html).toContain("Workflow Position");
+        expect(html).toContain(
+            "Document stages and bottlenecks across active warehouse flows",
+        );
         expect(html).toContain("Inbound &amp; Putaway Workflow");
         expect(html).toContain("Waiting Putaway");
         expect(html).toContain("Insufficient data yet");
@@ -112,6 +116,7 @@ describe("DashboardWorkflowOverview", () => {
             },
         });
         const html = await renderToString(app);
+        expect(html).toContain("text-success-600");
         expect(html).toContain("+12.5%");
     });
 });

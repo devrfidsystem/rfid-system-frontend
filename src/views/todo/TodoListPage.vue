@@ -69,7 +69,7 @@
                     <article
                         v-for="todo in visibleTodos"
                         :key="todo.id"
-                        class="group flex items-start gap-3 rounded-md border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
+                        class="group flex items-start gap-3 rounded-md border border-border bg-surface p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
                     >
                         <button
                             type="button"
@@ -77,7 +77,7 @@
                             :class="
                                 todo.completed
                                     ? 'border-primary-600 bg-primary-600 text-white'
-                                    : 'border-gray-300 bg-white text-transparent hover:border-primary-400'
+                                    : 'border-border bg-surface text-transparent hover:border-primary-400'
                             "
                             :aria-label="
                                 todo.completed
@@ -92,10 +92,10 @@
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
                                 <h3
-                                    class="text-sm font-semibold text-gray-900"
+                                    class="text-sm font-semibold text-text"
                                     :class="
                                         todo.completed
-                                            ? 'line-through text-gray-400'
+                                            ? 'line-through text-text-muted'
                                             : ''
                                     "
                                 >
@@ -109,7 +109,7 @@
                                     {{ todo.completed ? "Completed" : "Open" }}
                                 </Badge>
                             </div>
-                            <p class="mt-1 text-xs text-gray-500">
+                            <p class="mt-1 text-xs text-text-secondary">
                                 Added {{ formatRelativeDate(todo.createdAt) }}
                             </p>
                         </div>
@@ -142,10 +142,10 @@
                 <Card>
                     <div class="space-y-4">
                         <div>
-                            <p class="text-sm font-semibold text-gray-900">
+                            <p class="text-sm font-semibold text-text">
                                 Progress
                             </p>
-                            <p class="mt-1 text-sm text-gray-500">
+                            <p class="mt-1 text-sm text-text-secondary">
                                 Completion is stored locally in your browser.
                             </p>
                         </div>
@@ -154,13 +154,15 @@
                             <div
                                 class="flex items-center justify-between text-sm"
                             >
-                                <span class="text-gray-600">Completed</span>
-                                <span class="font-semibold text-gray-900">
+                                <span class="text-text-secondary"
+                                    >Completed</span
+                                >
+                                <span class="font-semibold text-text">
                                     {{ completionRate }}%
                                 </span>
                             </div>
                             <div
-                                class="h-3 overflow-hidden rounded-full bg-gray-100"
+                                class="h-3 overflow-hidden rounded-full bg-surface-secondary"
                             >
                                 <div
                                     class="h-full rounded-full bg-primary-600 transition-all duration-300"
@@ -174,10 +176,10 @@
                 <Card>
                     <div class="space-y-4">
                         <div>
-                            <p class="text-sm font-semibold text-gray-900">
+                            <p class="text-sm font-semibold text-text">
                                 Quick actions
                             </p>
-                            <p class="mt-1 text-sm text-gray-500">
+                            <p class="mt-1 text-sm text-text-secondary">
                                 Manage finished work without leaving the page.
                             </p>
                         </div>

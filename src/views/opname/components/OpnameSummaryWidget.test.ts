@@ -40,7 +40,7 @@ describe("OpnameSummaryWidget", () => {
             summary: emptySummary,
         });
         const html = await renderToString(app);
-        expect(html).toContain("No opname tasks match this warehouse.");
+        expect(html).toContain("No stock count tasks match this warehouse.");
     });
 
     it("renders total, status breakdown, variance, most recent, and a clear needs-attention state", async () => {
@@ -77,7 +77,7 @@ describe("OpnameSummaryWidget", () => {
         expect(html).toContain("Stock Opname Q3 - Task 4");
         expect(html).toContain("Jane Doe");
         expect(html).toContain(formatDate("2026-08-01T12:00:00.000Z"));
-        expect(html).toContain("All clear");
+        expect(html).toContain("No open count exceptions");
         expect(html).toContain("wdg_OpnameSummary");
     });
 
@@ -101,9 +101,9 @@ describe("OpnameSummaryWidget", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("No tasks yet.");
+        expect(html).toContain("No count task has been created yet.");
         expect(html).toContain("1 cancelled");
-        expect(html).toContain("2 stuck counting &gt;3 days");
+        expect(html).toContain("2 counts over 3 days");
         expect(html).toContain("text-danger-600");
     });
 });

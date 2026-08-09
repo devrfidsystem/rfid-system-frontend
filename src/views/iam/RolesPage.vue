@@ -2,9 +2,9 @@
     <div class="space-y-4">
         <div class="flex justify-between items-center px-2">
             <div>
-                <h3 class="text-lg font-medium text-gray-900">Roles</h3>
-                <p class="text-sm text-gray-500">
-                    Manage application roles and access levels.
+                <h3 class="text-lg font-medium text-text">Roles</h3>
+                <p class="text-sm text-text-secondary">
+                    Define role labels used by approval and access assignment.
                 </p>
             </div>
             <Button
@@ -66,9 +66,7 @@
                     object-id="txt_RolesFormDescription"
                 />
 
-                <div
-                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
-                >
+                <div class="flex justify-end gap-3 pt-4 border-t border-border">
                     <Button
                         type="button"
                         variant="outline"

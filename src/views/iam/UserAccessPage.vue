@@ -4,10 +4,10 @@
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center px-2 gap-4"
         >
             <div>
-                <h3 class="text-lg font-medium text-gray-900">
+                <h3 class="text-lg font-medium text-text">
                     User Access Management
                 </h3>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-text-secondary">
                     Configure roles, companies, and warehouses for users.
                 </p>
             </div>
@@ -36,12 +36,12 @@
             @cancel="clearConfirmation"
         />
 
-        <div v-if="loadingUsers" class="p-6 text-center text-gray-500">
+        <div v-if="loadingUsers" class="p-6 text-center text-text-secondary">
             <LoadingState :lines="1" />
         </div>
         <div
             v-else-if="!selectedUserId"
-            class="p-12 text-center text-gray-500 border rounded-lg bg-gray-50 border-dashed"
+            class="p-12 text-center text-text-secondary border rounded-md bg-surface-secondary/50 border-dashed border-border"
         >
             Please select a user from the dropdown above to manage their access.
         </div>
@@ -52,7 +52,7 @@
             <!-- Roles Card -->
             <Card class="md:col-span-1" object-id="wdg_UserAccessRoles">
                 <h4
-                    class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
+                    class="text-base font-semibold text-text mb-4 border-b border-border pb-3"
                 >
                     Assigned Roles
                 </h4>
@@ -79,14 +79,14 @@
                         <li
                             v-for="role in userRoles"
                             :key="role.id"
-                            class="flex justify-between items-center p-3 bg-gray-50 rounded-md border border-gray-100"
+                            class="flex justify-between items-center p-3 bg-surface-secondary rounded-md border border-border"
                         >
-                            <span class="text-sm font-medium text-gray-700">{{
+                            <span class="text-sm font-medium text-text">{{
                                 role.name
                             }}</span>
                             <button
                                 :id="`btn_UserAccessRemoveRole_Item${role.id}`"
-                                class="text-rose-500 hover:text-rose-700 text-xs font-medium"
+                                class="text-danger-600 hover:text-danger-600/80 text-xs font-medium"
                                 :disabled="submitting"
                                 :object-id="`btn_UserAccessRemoveRole_Item${role.id}`"
                                 @click="
@@ -98,7 +98,7 @@
                         </li>
                         <li
                             v-if="userRoles.length === 0"
-                            class="text-sm text-gray-500 italic text-center py-2"
+                            class="text-sm text-text-secondary italic text-center py-2"
                         >
                             No roles assigned.
                         </li>
@@ -109,7 +109,7 @@
             <!-- Warehouses Card -->
             <Card class="md:col-span-1" object-id="wdg_UserAccessWarehouses">
                 <h4
-                    class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
+                    class="text-base font-semibold text-text mb-4 border-b border-border pb-3"
                 >
                     Warehouse Access
                 </h4>
@@ -136,14 +136,14 @@
                         <li
                             v-for="wh in userWarehouses"
                             :key="wh.id"
-                            class="flex justify-between items-center p-3 bg-gray-50 rounded-md border border-gray-100"
+                            class="flex justify-between items-center p-3 bg-surface-secondary rounded-md border border-border"
                         >
-                            <span class="text-sm font-medium text-gray-700">{{
+                            <span class="text-sm font-medium text-text">{{
                                 wh.name || wh.warehouseId || wh.id
                             }}</span>
                             <button
                                 :id="`btn_UserAccessRemoveWarehouse_Item${wh.id}`"
-                                class="text-rose-500 hover:text-rose-700 text-xs font-medium"
+                                class="text-danger-600 hover:text-danger-600/80 text-xs font-medium"
                                 :disabled="submitting"
                                 :object-id="`btn_UserAccessRemoveWarehouse_Item${wh.id}`"
                                 @click="
@@ -158,7 +158,7 @@
                         </li>
                         <li
                             v-if="userWarehouses.length === 0"
-                            class="text-sm text-gray-500 italic text-center py-2"
+                            class="text-sm text-text-secondary italic text-center py-2"
                         >
                             No warehouses assigned.
                         </li>
@@ -169,7 +169,7 @@
             <!-- Companies Card -->
             <Card class="md:col-span-1" object-id="wdg_UserAccessCompanies">
                 <h4
-                    class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
+                    class="text-base font-semibold text-text mb-4 border-b border-border pb-3"
                 >
                     Company Affiliation
                 </h4>
@@ -196,16 +196,16 @@
                         <li
                             v-for="comp in userCompanies"
                             :key="comp.id"
-                            class="flex justify-between items-center p-3 bg-gray-50 rounded-md border border-gray-100"
+                            class="flex justify-between items-center p-3 bg-surface-secondary rounded-md border border-border"
                         >
-                            <span class="text-sm font-medium text-gray-700">{{
+                            <span class="text-sm font-medium text-text">{{
                                 comp.name || comp.companyId || comp.id
                             }}</span>
                             <!-- Company removal might not be supported via API, hiding remove button for safety -->
                         </li>
                         <li
                             v-if="userCompanies.length === 0"
-                            class="text-sm text-gray-500 italic text-center py-2"
+                            class="text-sm text-text-secondary italic text-center py-2"
                         >
                             No companies assigned.
                         </li>

@@ -5,9 +5,9 @@
         object-id="wdg_TransactionLineItems"
     >
         <div
-            class="px-6 py-5 border-b border-gray-100 flex justify-between items-center"
+            class="px-6 py-5 border-b border-border flex justify-between items-center"
         >
-            <h3 class="text-base font-semibold text-gray-900">Line Items</h3>
+            <h3 class="text-base font-semibold text-text">Line Items</h3>
             <Button
                 type="button"
                 size="sm"
@@ -21,7 +21,7 @@
             <div
                 v-for="(line, idx) in lines"
                 :key="idx"
-                class="flex flex-col xl:flex-row xl:flex-wrap gap-4 xl:items-end border-b border-gray-100 xl:border-none pb-6 xl:pb-0 last:border-0"
+                class="flex flex-col xl:flex-row xl:flex-wrap gap-4 xl:items-end border-b border-border xl:border-none pb-6 xl:pb-0 last:border-0"
             >
                 <div class="flex-1">
                     <Select
@@ -130,7 +130,7 @@
                     <Button
                         type="button"
                         variant="outline"
-                        class="w-full xl:w-auto text-rose-600 border-rose-200 hover:bg-rose-50 px-3"
+                        class="w-full xl:w-auto text-danger-600 border-danger-200 hover:bg-danger-50 px-3"
                         :object-id="`btn_TransactionLineItemsRemove_Row${idx}`"
                         @click="$emit('remove-line', idx)"
                     >
@@ -140,13 +140,13 @@
             </div>
             <p
                 v-if="lines.length === 0"
-                class="text-sm text-gray-500 text-center py-4"
+                class="text-sm text-text-secondary text-center py-4"
             >
                 No line items added yet. Click "Add Line" to begin.
             </p>
         </div>
         <div
-            class="mt-auto px-6 py-3 border-t border-gray-100 flex justify-end gap-3"
+            class="mt-auto px-6 py-3 border-t border-border flex justify-end gap-3"
         >
             <Button
                 type="button"

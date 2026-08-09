@@ -31,7 +31,9 @@ describe("MonitoringExceptionFeed", () => {
             ],
         });
         const html = await renderToString(app);
+        expect(html).toContain("Operation rows requiring manual intervention");
         expect(html).toContain("No exceptions currently open");
+        expect(html).toContain("bg-surface-secondary/50");
         expect(html).toContain("px-4 py-5");
     });
 

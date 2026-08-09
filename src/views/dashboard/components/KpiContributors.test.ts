@@ -14,6 +14,7 @@ describe("KpiContributors", () => {
         });
         const html = await renderToString(app);
 
+        expect(html).toContain("Score Drivers");
         expect(html).toContain("Receiving");
         expect(html).toContain("66%");
         expect(html).toContain("Putaway");

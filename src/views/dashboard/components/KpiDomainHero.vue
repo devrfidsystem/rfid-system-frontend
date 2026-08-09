@@ -13,7 +13,7 @@
             v-else-if="!data"
             class="p-6 text-center text-sm text-text-secondary"
         >
-            No KPI data available.
+            No KPI scorecard data for this domain.
         </div>
 
         <div v-else class="grid gap-6 sm:grid-cols-2">
@@ -21,7 +21,7 @@
                 <p class="text-xs font-semibold uppercase text-text-muted">
                     {{ data.label }}
                 </p>
-                <p class="text-4xl font-extrabold text-gray-900 mt-1">
+                <p class="text-4xl font-extrabold text-text mt-1">
                     {{ data.score
                     }}<span class="text-base font-semibold text-text-muted">
                         / 100</span
@@ -39,7 +39,7 @@
                     }}{{ data.trendVsPrevious.toFixed(1) }}pt vs previous period
                 </p>
                 <p class="text-xs text-text-secondary mt-2">
-                    Derived from {{ data.derivedFrom }}
+                    Source workflow: {{ data.derivedFrom }}
                 </p>
                 <div class="flex gap-6 mt-3">
                     <div>
@@ -64,7 +64,7 @@
             </div>
             <div>
                 <TrendMiniChart
-                    label="Performance Timeline"
+                    label="Score Timeline"
                     unit="pts"
                     :points="
                         data.timeline.map((point) => ({
@@ -74,7 +74,7 @@
                     "
                     stroke-class="stroke-primary-600"
                     dot-class="fill-primary-600"
-                    color="#2563EB"
+                    :color="CHART_COLORS.primary"
                     :higher-is-better="true"
                 />
             </div>
@@ -86,6 +86,10 @@
 import Card from "@/components/molecules/Card.vue";
 import TrendMiniChart from "./TrendMiniChart.vue";
 import type { DashboardKpiDetailResponse } from "@/model/dashboard";
+
+const CHART_COLORS = {
+    primary: "rgb(var(--primary-600))",
+} as const;
 
 defineProps<{
     loading: boolean;

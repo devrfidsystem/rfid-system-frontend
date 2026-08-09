@@ -1,9 +1,7 @@
 <template>
     <Card object-id="wdg_MonitoringLiveFeed">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-sm font-semibold text-gray-900">
-                Live Transactions
-            </h3>
+            <h3 class="text-sm font-semibold text-text">Live Operation Feed</h3>
             <div
                 v-if="data && data.length > 0"
                 class="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5"
@@ -16,7 +14,7 @@
                     id="txt_MonitoringLiveFeedSearch"
                     v-model="searchTerm"
                     type="text"
-                    placeholder="Search operator, zone, event…"
+                    placeholder="Search operator, zone, event..."
                     class="w-48 border-none bg-transparent text-xs text-text outline-none placeholder:text-text-muted"
                     object-id="txt_MonitoringLiveFeedSearch"
                 />
@@ -35,14 +33,14 @@
             v-else-if="!data || data.length === 0"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No live transactions in the current window.
+            No movement recorded in the current window.
         </div>
 
         <div
             v-else-if="filteredRows.length === 0"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No transactions match "{{ searchTerm }}".
+            No operation rows match "{{ searchTerm }}".
         </div>
 
         <div v-else class="overflow-x-auto">
@@ -108,7 +106,7 @@
                                     <div
                                         role="progressbar"
                                         :aria-valuenow="row.slaPct"
-                                        class="h-1.5 w-16 overflow-hidden rounded-full bg-gray-100"
+                                        class="h-1.5 w-16 overflow-hidden rounded-full bg-surface-secondary"
                                     >
                                         <div
                                             class="h-full rounded-full"

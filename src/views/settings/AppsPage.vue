@@ -2,9 +2,9 @@
     <div class="space-y-4">
         <div class="flex justify-between items-center px-2">
             <div>
-                <h3 class="text-lg font-medium text-gray-900">Applications</h3>
-                <p class="text-sm text-gray-500">
-                    Manage registered applications.
+                <h3 class="text-lg font-medium text-text">Applications</h3>
+                <p class="text-sm text-text-secondary">
+                    Control app entries used for menu routing and access scope.
                 </p>
             </div>
             <Button
@@ -95,16 +95,14 @@
                         v-model="form.isActive"
                         data-testid="chk_AppsFormIsActive"
                         type="checkbox"
-                        class="rounded border-gray-300 text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
+                        class="rounded border-border text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
                     />
-                    <label for="isActive" class="text-sm text-gray-700"
+                    <label for="chk_AppsFormIsActive" class="text-sm text-text"
                         >Active</label
                     >
                 </div>
 
-                <div
-                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
-                >
+                <div class="flex justify-end gap-3 pt-4 border-t border-border">
                     <Button
                         type="button"
                         variant="outline"

@@ -2,9 +2,9 @@
     <div class="space-y-4">
         <div class="flex justify-between items-center px-2">
             <div>
-                <h3 class="text-lg font-medium text-gray-900">Companies</h3>
-                <p class="text-sm text-gray-500">
-                    Manage registered companies.
+                <h3 class="text-lg font-medium text-text">Companies</h3>
+                <p class="text-sm text-text-secondary">
+                    Maintain company records used for user and warehouse access.
                 </p>
             </div>
             <Button
@@ -81,16 +81,16 @@
                         v-model="form.isActive"
                         data-testid="chk_CompaniesFormIsActive"
                         type="checkbox"
-                        class="rounded border-gray-300 text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
+                        class="rounded border-border text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
                     />
-                    <label for="isActive" class="text-sm text-gray-700"
+                    <label
+                        for="chk_CompaniesFormIsActive"
+                        class="text-sm text-text"
                         >Active</label
                     >
                 </div>
 
-                <div
-                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
-                >
+                <div class="flex justify-end gap-3 pt-4 border-t border-border">
                     <Button
                         type="button"
                         variant="outline"

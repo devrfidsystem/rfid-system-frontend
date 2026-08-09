@@ -20,7 +20,7 @@
             class="sm:col-span-2 lg:col-span-4"
         >
             <p class="text-sm text-text-secondary">
-                No transactions match the current filters.
+                No documents match the selected transaction filters.
             </p>
         </Card>
 
@@ -38,7 +38,7 @@
                         >
                             Total
                         </p>
-                        <p class="text-3xl font-extrabold text-gray-900">
+                        <p class="text-3xl font-extrabold text-text">
                             {{ summary.totalCount.toLocaleString() }}
                         </p>
                     </div>
@@ -48,12 +48,12 @@
             <Card>
                 <div class="flex items-center gap-3">
                     <div
-                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-50 text-gray-600 ring-1 ring-gray-200"
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-text-secondary ring-1 ring-border"
                     >
                         <Icon :icon="Tags" :size="18" />
                     </div>
                     <p class="text-xs font-semibold uppercase text-text-muted">
-                        Status Breakdown
+                        Workflow Status
                     </p>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2">
@@ -77,11 +77,11 @@
                         <Icon :icon="Clock" :size="18" />
                     </div>
                     <p class="text-xs font-semibold uppercase text-text-muted">
-                        Most Recent
+                        Latest Document
                     </p>
                 </div>
                 <template v-if="summary.mostRecent">
-                    <p class="text-sm font-medium text-gray-900 mt-3">
+                    <p class="text-sm font-medium text-text mt-3">
                         {{ summary.mostRecent.docNo }}
                     </p>
                     <p class="text-xs text-text-secondary mt-1">
@@ -90,7 +90,7 @@
                     </p>
                 </template>
                 <p v-else class="text-sm text-text-secondary mt-3">
-                    No transactions yet.
+                    No document has been created yet.
                 </p>
             </Card>
 
@@ -114,7 +114,7 @@
                         />
                     </div>
                     <p class="text-xs font-semibold uppercase text-text-muted">
-                        Needs Attention
+                        Exception Queue
                     </p>
                 </div>
                 <template v-if="summary.needsAttention.count > 0">
@@ -123,12 +123,12 @@
                     </p>
                     <p class="text-xs text-text-secondary mt-1">
                         {{ summary.needsAttention.canceledCount }} cancelled,
-                        {{ summary.needsAttention.staleDraftCount }} pending
-                        &gt;3 days
+                        {{ summary.needsAttention.staleDraftCount }} drafts over
+                        3 days
                     </p>
                 </template>
                 <p v-else class="text-sm font-medium text-success-600 mt-3">
-                    All clear
+                    No open exceptions
                 </p>
             </Card>
         </template>

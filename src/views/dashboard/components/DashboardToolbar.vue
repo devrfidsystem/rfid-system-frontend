@@ -36,8 +36,8 @@
                             :size="14"
                             :class-name="
                                 loading
-                                    ? 'animate-spin text-gray-400'
-                                    : 'text-gray-500'
+                                    ? 'animate-spin text-text-muted'
+                                    : 'text-text-secondary'
                             "
                         />
                     </template>

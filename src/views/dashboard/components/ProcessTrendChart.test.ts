@@ -10,7 +10,7 @@ describe("ProcessTrendChart", () => {
             data: [],
         });
         const html = await renderToString(app);
-        expect(html).toContain("No trend data available");
+        expect(html).toContain("No process trend data");
     });
 
     it("renders two small-multiple charts (cycle time and productivity) for an 8-point trend", async () => {
@@ -26,6 +26,7 @@ describe("ProcessTrendChart", () => {
 
         expect(html).toContain("Cycle Time");
         expect(html).toContain("Productivity");
+        expect(html).toContain("Process Trend");
         // Each mini chart gets its own gradient-filled smoothed line (<path>
         // + <linearGradient>) rather than the old flat <polyline>.
         const gradientCount = html.split("<linearGradient").length - 1;

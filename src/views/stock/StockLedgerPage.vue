@@ -10,7 +10,7 @@
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-base font-semibold text-gray-900">
+                        <h3 class="text-base font-semibold text-text">
                             Stock Ledger List
                         </h3>
                     </div>
@@ -40,10 +40,10 @@
                                 </Button>
                                 <div
                                     v-if="isFilterOpen"
-                                    class="absolute right-0 z-10 mt-2 w-[320px] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4 space-y-4"
+                                    class="absolute right-0 z-10 mt-2 w-[320px] origin-top-right rounded-md bg-surface shadow-lg ring-1 ring-border focus:outline-none p-4 space-y-4"
                                 >
                                     <h4
-                                        class="font-medium text-sm text-gray-900 mb-2"
+                                        class="font-medium text-sm text-text mb-2"
                                     >
                                         Filters
                                     </h4>

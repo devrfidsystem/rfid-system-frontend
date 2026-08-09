@@ -10,7 +10,7 @@
 
         <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="text-xl font-bold text-gray-900">Executive KPI</h1>
+                <h1 class="text-xl font-bold text-text">Executive KPI</h1>
                 <p class="text-sm text-text-secondary mt-0.5">
                     Explaining why operations improved or declined compared with
                     the previous period
@@ -26,7 +26,7 @@
 
         <p
             v-if="error"
-            class="rounded-md border border-red-100 bg-red-50 px-4 py-3 text-sm text-danger-600"
+            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ error }}
         </p>

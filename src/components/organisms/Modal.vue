@@ -41,7 +41,11 @@
                             "
                             @click="close"
                         >
-                            ✕
+                            <Icon
+                                :icon="X"
+                                :size="14"
+                                class-name="text-current"
+                            />
                         </button>
                     </header>
 
@@ -57,6 +61,8 @@
 <script setup lang="ts">
 import { nextTick, onUnmounted, ref, watch } from "vue";
 import { bindObjectId } from "@/utils/objectId";
+import Icon from "@/components/atoms/Icon.vue";
+import { X } from "lucide-vue-next";
 
 const props = defineProps<{
     isOpen: boolean;

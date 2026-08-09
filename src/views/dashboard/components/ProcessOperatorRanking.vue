@@ -1,7 +1,7 @@
 <template>
     <Card object-id="wdg_ProcessOperatorRanking">
-        <h3 class="text-sm font-semibold text-gray-900 mb-3">
-            Operator Ranking
+        <h3 class="text-sm font-semibold text-text mb-3">
+            Operator Throughput
         </h3>
         <div v-if="loading" class="space-y-2">
             <div
@@ -14,7 +14,7 @@
             v-else-if="!data || data.length === 0"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No operator activity in this window.
+            No operator throughput data in this window.
         </div>
         <ul v-else class="space-y-2">
             <li

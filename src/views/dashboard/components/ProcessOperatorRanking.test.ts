@@ -14,7 +14,7 @@ describe("ProcessOperatorRanking", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("Operator Ranking");
+        expect(html).toContain("Operator Throughput");
         expect(html).toContain("Fast Operator");
         expect(html).toContain("96");
         expect(html).toContain("Slow Operator");
@@ -27,6 +27,6 @@ describe("ProcessOperatorRanking", () => {
             data: [],
         });
         const html = await renderToString(app);
-        expect(html).toContain("No operator activity");
+        expect(html).toContain("No operator throughput data");
     });
 });
