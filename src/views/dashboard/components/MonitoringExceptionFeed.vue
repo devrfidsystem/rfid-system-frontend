@@ -15,10 +15,10 @@
 
         <div
             v-else-if="exceptions.length === 0"
-            class="rounded-lg border border-gray-100 bg-gray-50/50 p-8 flex flex-col items-center text-center"
+            class="rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-5 flex flex-col items-center text-center"
         >
             <div
-                class="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-gray-200 mb-3 text-emerald-500"
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-gray-200 mb-2 text-emerald-500"
             >
                 <Icon :icon="CheckCircle2" :size="20" />
             </div>

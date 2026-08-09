@@ -12,6 +12,18 @@ const emptySummary = {
 };
 
 describe("TransactionSummaryWidget", () => {
+    it("uses a single-row four-column layout on large screens", async () => {
+        const app = createSSRApp(TransactionSummaryWidget, {
+            loading: false,
+            error: "Failed to load transaction summary.",
+            summary: null,
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("sm:grid-cols-2 lg:grid-cols-4");
+        expect(html).toContain("sm:col-span-2 lg:col-span-4");
+    });
+
     it("renders 4 skeleton blocks while loading", async () => {
         const app = createSSRApp(TransactionSummaryWidget, {
             loading: true,
@@ -99,5 +111,33 @@ describe("TransactionSummaryWidget", () => {
         expect(html).toContain("3 cancelled");
         expect(html).toContain("2 pending &gt;3 days");
         expect(html).toContain("text-danger-600");
+    });
+
+    it("uses the shared transaction status colors for status breakdown labels", async () => {
+        const app = createSSRApp(TransactionSummaryWidget, {
+            loading: false,
+            error: null,
+            summary: {
+                totalCount: 3,
+                statusBreakdown: [
+                    { status: "posted", count: 1, percentage: 33.3 },
+                    { status: "done", count: 1, percentage: 33.3 },
+                    { status: "partial", count: 1, percentage: 33.3 },
+                ],
+                mostRecent: null,
+                needsAttention: {
+                    count: 0,
+                    canceledCount: 0,
+                    staleDraftCount: 0,
+                },
+            },
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("posted 1 (33.3%)");
+        expect(html).toContain("done 1 (33.3%)");
+        expect(html).toContain("partial 1 (33.3%)");
+        expect(html).toContain("text-info-600");
+        expect(html).toContain("text-success-600");
     });
 });

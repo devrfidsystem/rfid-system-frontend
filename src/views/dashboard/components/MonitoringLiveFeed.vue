@@ -66,22 +66,24 @@
                     <tr
                         v-for="(row, index) in filteredRows"
                         :key="index"
-                        class="border-t border-border"
+                        :class="rowClass(row)"
                     >
                         <td class="py-2 pr-3">
-                            <span
-                                class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                                :class="
-                                    row.status === 'exception'
-                                        ? 'bg-danger-50 text-danger-600'
-                                        : 'bg-success-50 text-success-600'
-                                "
-                            >
+                            <span class="inline-flex items-center gap-1.5">
+                                <span
+                                    class="h-2 w-2 rounded-full"
+                                    :class="statusDotClass(row.status)"
+                                ></span>
+                                <span
+                                    class="text-[11px] font-semibold"
+                                    :class="statusTextClass(row.status)"
+                                >
                                 {{
                                     row.status === "exception"
                                         ? "Exception"
                                         : "OK"
                                 }}
+                                </span>
                             </span>
                         </td>
                         <td class="py-2 pr-3">{{ row.warehouseName }}</td>
@@ -109,7 +111,8 @@
                                         class="h-1.5 w-16 overflow-hidden rounded-full bg-gray-100"
                                     >
                                         <div
-                                            class="h-full rounded-full bg-primary-600"
+                                            class="h-full rounded-full"
+                                            :class="slaBarClass(row.slaPct)"
                                             :style="{ width: `${row.slaPct}%` }"
                                         ></div>
                                     </div>
@@ -173,5 +176,25 @@ const priorityClass = (priority: LiveTransactionRow["priority"]): string => {
         default:
             return "bg-success-50 text-success-600";
     }
+};
+
+const rowClass = (row: LiveTransactionRow): string =>
+    [
+        "border-t border-border",
+        row.status === "exception" ? "bg-danger-50/40" : "",
+    ]
+        .join(" ")
+        .trim();
+
+const statusDotClass = (status: LiveTransactionRow["status"]): string =>
+    status === "exception" ? "bg-danger-500" : "bg-success-500";
+
+const statusTextClass = (status: LiveTransactionRow["status"]): string =>
+    status === "exception" ? "text-danger-600" : "text-success-600";
+
+const slaBarClass = (slaPct: number): string => {
+    if (slaPct >= 90) return "bg-danger-600";
+    if (slaPct >= 75) return "bg-warning-500";
+    return "bg-success-600";
 };
 </script>

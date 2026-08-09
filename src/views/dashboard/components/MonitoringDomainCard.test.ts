@@ -81,4 +81,30 @@ describe("MonitoringDomainCard", () => {
         expect(criticalHtml).toContain("bg-danger-50");
         expect(criticalHtml).toContain("text-danger-600");
     });
+
+    it("renders command-center visual emphasis and caps long queue previews", async () => {
+        const app = createSSRApp(MonitoringDomainCard, {
+            loading: false,
+            data: {
+                label: "Inventory",
+                health: "critical",
+                queueCount: 8,
+                completedTodayCount: 2,
+                exceptionsCount: 7,
+                queueTasks: [
+                    { docCode: "OP-001", locationLabel: "Zone A" },
+                    { docCode: "OP-002", locationLabel: "Zone B" },
+                    { docCode: "OP-003", locationLabel: "Zone C" },
+                    { docCode: "OP-004", locationLabel: "Zone D" },
+                ],
+            },
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("border-l-4");
+        expect(html).toContain("border-danger-500");
+        expect(html).toContain("text-2xl font-extrabold text-danger-600");
+        expect(html).toContain("+1 more in queue");
+        expect(html).not.toContain("OP-004");
+    });
 });

@@ -7,32 +7,10 @@ import {
 import { reportConfigs } from "@/views/report/reportConfig";
 import type { TransactionRecord } from "../types";
 import { useNotifier } from "@/composable/useNotifier";
-
-const formatStatusLabel = (value?: string | null) => {
-    if (!value) return "-";
-    return value
-        .replace(/[_-]+/g, " ")
-        .trim()
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-const getStatusTone = (value?: string | null) => {
-    switch ((value ?? "").toLowerCase()) {
-        case "draft":
-            return "warning";
-        case "posted":
-        case "dispatched":
-            return "info";
-        case "partial":
-            return "teal";
-        case "done":
-            return "success";
-        case "canceled":
-            return "error";
-        default:
-            return "neutral";
-    }
-};
+import {
+    formatTransactionStatus,
+    getTransactionStatusTone,
+} from "../utils/transactionStatus";
 
 type TransactionConfirmationAction = "post" | "cancel" | "complete";
 
@@ -162,17 +140,19 @@ export function useTransactionDetail(
     );
 
     const statusLabel = computed(() =>
-        formatStatusLabel(record.value?.status ?? null),
+        formatTransactionStatus(record.value?.status ?? null),
     );
 
-    const statusTone = computed(() => getStatusTone(record.value?.status));
+    const statusTone = computed(() =>
+        getTransactionStatusTone(record.value?.status),
+    );
 
     const outboundReviewNote = computed(() => {
         if (!isOutbound.value) return "";
         if ((record.value?.status ?? "") === "draft") {
             return "Draft outbound documents can still be posted or canceled from web admin.";
         }
-        return `Read-only review. Outbound execution status is ${formatStatusLabel(record.value?.status).toLowerCase()}.`;
+        return `Read-only review. Outbound execution status is ${formatTransactionStatus(record.value?.status).toLowerCase()}.`;
     });
 
     const lines = computed(() => {
