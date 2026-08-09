@@ -78,11 +78,11 @@
                                     class="text-[11px] font-semibold"
                                     :class="statusTextClass(row.status)"
                                 >
-                                {{
-                                    row.status === "exception"
-                                        ? "Exception"
-                                        : "OK"
-                                }}
+                                    {{
+                                        row.status === "exception"
+                                            ? "Exception"
+                                            : "OK"
+                                    }}
                                 </span>
                             </span>
                         </td>
