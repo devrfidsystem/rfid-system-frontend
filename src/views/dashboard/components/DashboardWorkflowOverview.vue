@@ -1,9 +1,7 @@
 <template>
     <Card object-id="wdg_DashboardWorkflowOverview">
         <div>
-            <h2 class="text-lg font-semibold text-text">
-                Workflow Position
-            </h2>
+            <h2 class="text-lg font-semibold text-text">Workflow Position</h2>
             <p class="text-sm text-text-secondary mt-0.5">
                 Document stages and bottlenecks across active warehouse flows
             </p>

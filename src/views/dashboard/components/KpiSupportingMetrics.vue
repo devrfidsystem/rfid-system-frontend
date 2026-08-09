@@ -1,8 +1,6 @@
 <template>
     <Card object-id="wdg_KpiSupportingMetrics">
-        <h3 class="text-sm font-semibold text-text mb-1">
-            Supporting Signals
-        </h3>
+        <h3 class="text-sm font-semibold text-text mb-1">Supporting Signals</h3>
         <div v-if="loading" class="grid gap-3 sm:grid-cols-4">
             <div
                 v-for="n in 4"

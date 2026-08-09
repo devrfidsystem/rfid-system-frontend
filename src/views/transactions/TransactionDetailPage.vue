@@ -239,7 +239,9 @@
                                                 "-"
                                             }}
                                         </div>
-                                        <div class="text-xs text-text-secondary">
+                                        <div
+                                            class="text-xs text-text-secondary"
+                                        >
                                             {{
                                                 line.product?.code ||
                                                 line.productCode ||
@@ -284,10 +286,7 @@
                             </tbody>
                         </table>
 
-                        <table
-                            v-else
-                            class="min-w-full divide-y divide-border"
-                        >
+                        <table v-else class="min-w-full divide-y divide-border">
                             <thead class="bg-surface-secondary">
                                 <tr>
                                     <th
@@ -323,7 +322,9 @@
                                                 "-"
                                             }}
                                         </div>
-                                        <div class="text-xs text-text-secondary">
+                                        <div
+                                            class="text-xs text-text-secondary"
+                                        >
                                             {{
                                                 line.product?.code ||
                                                 line.productCode ||

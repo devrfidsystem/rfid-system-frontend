@@ -252,7 +252,9 @@
                                                 line.productId
                                             }}
                                         </div>
-                                        <div class="text-xs text-text-secondary">
+                                        <div
+                                            class="text-xs text-text-secondary"
+                                        >
                                             {{
                                                 line.product?.code ??
                                                 line.productId
@@ -280,7 +282,9 @@
                                                 0
                                             }}
                                         </div>
-                                        <div class="text-xs text-text-secondary">
+                                        <div
+                                            class="text-xs text-text-secondary"
+                                        >
                                             Raw system quantity
                                         </div>
                                     </td>
@@ -296,7 +300,9 @@
                                                 0
                                             }}
                                         </div>
-                                        <div class="text-xs text-text-secondary">
+                                        <div
+                                            class="text-xs text-text-secondary"
+                                        >
                                             Physical count
                                         </div>
                                     </td>
@@ -312,7 +318,9 @@
                                                 0
                                             }}
                                         </div>
-                                        <div class="text-xs text-text-secondary">
+                                        <div
+                                            class="text-xs text-text-secondary"
+                                        >
                                             Variance
                                         </div>
                                     </td>
@@ -390,9 +398,7 @@
 
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <h4 class="text-sm font-semibold text-text">
-                            Action
-                        </h4>
+                        <h4 class="text-sm font-semibold text-text">Action</h4>
                         <div class="flex items-center gap-2 text-xs">
                             <span class="text-text-secondary">
                                 Current: {{ selectedItemActionLabel }}

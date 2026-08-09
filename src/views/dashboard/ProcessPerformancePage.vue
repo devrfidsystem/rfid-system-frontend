@@ -10,9 +10,7 @@
 
         <div class="flex items-start justify-between gap-4">
             <div>
-                <h1 class="text-xl font-bold text-text">
-                    Process Performance
-                </h1>
+                <h1 class="text-xl font-bold text-text">Process Performance</h1>
                 <p class="text-sm text-text-secondary mt-0.5">
                     Cycle time and throughput analytics across warehouse
                     processes

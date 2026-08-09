@@ -1,8 +1,6 @@
 <template>
     <label class="flex flex-col gap-1.5 text-sm">
-        <span v-if="label" class="font-semibold text-text">{{
-            label
-        }}</span>
+        <span v-if="label" class="font-semibold text-text">{{ label }}</span>
 
         <textarea
             :value="modelValue ?? ''"

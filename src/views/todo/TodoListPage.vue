@@ -154,7 +154,9 @@
                             <div
                                 class="flex items-center justify-between text-sm"
                             >
-                                <span class="text-text-secondary">Completed</span>
+                                <span class="text-text-secondary"
+                                    >Completed</span
+                                >
                                 <span class="font-semibold text-text">
                                     {{ completionRate }}%
                                 </span>

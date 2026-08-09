@@ -19,9 +19,7 @@ describe("MonitoringDomainCard", () => {
             data: null,
         });
         const html = await renderToString(app);
-        expect(html).toContain(
-            "No activity recorded for this operation lane",
-        );
+        expect(html).toContain("No activity recorded for this operation lane");
     });
 
     it("renders the health chip, stat grid, and queue task list for a nominal domain", async () => {

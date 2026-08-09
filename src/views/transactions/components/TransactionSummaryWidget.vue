@@ -123,8 +123,8 @@
                     </p>
                     <p class="text-xs text-text-secondary mt-1">
                         {{ summary.needsAttention.canceledCount }} cancelled,
-                        {{ summary.needsAttention.staleDraftCount }} drafts
-                        over 3 days
+                        {{ summary.needsAttention.staleDraftCount }} drafts over
+                        3 days
                     </p>
                 </template>
                 <p v-else class="text-sm font-medium text-success-600 mt-3">

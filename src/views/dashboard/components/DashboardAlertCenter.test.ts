@@ -41,7 +41,9 @@ describe("DashboardAlertCenter", () => {
         });
         const html = await renderToString(app);
         expect(html).toContain("No open exceptions");
-        expect(html).toContain("Selected warehouse has no active operational risk");
+        expect(html).toContain(
+            "Selected warehouse has no active operational risk",
+        );
     });
 
     it("renders alert cards with severity, business impact, and recommended action", async () => {

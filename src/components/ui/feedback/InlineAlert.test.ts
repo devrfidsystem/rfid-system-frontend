@@ -21,8 +21,12 @@ const renderAlert = async (
 describe("InlineAlert", () => {
     it("uses the semantic status palette for every variant", async () => {
         await expect(renderAlert("info")).resolves.toContain("bg-info-50");
-        await expect(renderAlert("success")).resolves.toContain("bg-success-50");
-        await expect(renderAlert("warning")).resolves.toContain("bg-warning-50");
+        await expect(renderAlert("success")).resolves.toContain(
+            "bg-success-50",
+        );
+        await expect(renderAlert("warning")).resolves.toContain(
+            "bg-warning-50",
+        );
 
         const error = await renderAlert("error");
         expect(error).toContain("bg-danger-50");

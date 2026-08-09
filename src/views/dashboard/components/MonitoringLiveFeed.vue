@@ -1,9 +1,7 @@
 <template>
     <Card object-id="wdg_MonitoringLiveFeed">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-sm font-semibold text-text">
-                Live Operation Feed
-            </h3>
+            <h3 class="text-sm font-semibold text-text">Live Operation Feed</h3>
             <div
                 v-if="data && data.length > 0"
                 class="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5"

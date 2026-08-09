@@ -16,7 +16,11 @@
                 :has-error="hasError"
             />
 
-            <p v-if="hint" :id="hintId" class="text-xs text-text-secondary mt-1">
+            <p
+                v-if="hint"
+                :id="hintId"
+                class="text-xs text-text-secondary mt-1"
+            >
                 {{ hint }}
             </p>
             <p

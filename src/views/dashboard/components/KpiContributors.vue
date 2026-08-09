@@ -1,8 +1,6 @@
 <template>
     <Card object-id="wdg_KpiContributors">
-        <h3 class="text-sm font-semibold text-text mb-3">
-            Score Drivers
-        </h3>
+        <h3 class="text-sm font-semibold text-text mb-3">Score Drivers</h3>
         <div v-if="loading" class="space-y-3">
             <div class="h-4 rounded bg-surface-secondary animate-pulse"></div>
             <div class="h-4 rounded bg-surface-secondary animate-pulse"></div>

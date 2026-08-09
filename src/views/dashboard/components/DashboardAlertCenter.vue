@@ -82,9 +82,7 @@
                 >
                     <Icon :icon="CheckCircle2" :size="20" />
                 </div>
-                <p class="text-sm font-medium text-text">
-                    No open exceptions
-                </p>
+                <p class="text-sm font-medium text-text">No open exceptions</p>
                 <p class="text-xs text-text-secondary mt-1">
                     Selected warehouse has no active operational risk.
                 </p>

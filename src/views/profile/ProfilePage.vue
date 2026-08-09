@@ -48,9 +48,7 @@
                             <dt class="text-xs font-medium text-text-muted">
                                 Nama lengkap
                             </dt>
-                            <dd
-                                class="mt-1 text-sm font-semibold text-text"
-                            >
+                            <dd class="mt-1 text-sm font-semibold text-text">
                                 {{ profile.user.fullName }}
                             </dd>
                         </div>
@@ -58,9 +56,7 @@
                             <dt class="text-xs font-medium text-text-muted">
                                 Email
                             </dt>
-                            <dd
-                                class="mt-1 text-sm font-semibold text-text"
-                            >
+                            <dd class="mt-1 text-sm font-semibold text-text">
                                 {{ profile.user.email }}
                             </dd>
                         </div>
@@ -68,9 +64,7 @@
                             <dt class="text-xs font-medium text-text-muted">
                                 Telepon
                             </dt>
-                            <dd
-                                class="mt-1 text-sm font-semibold text-text"
-                            >
+                            <dd class="mt-1 text-sm font-semibold text-text">
                                 {{ profile.user.phone ?? "Belum tersedia" }}
                             </dd>
                         </div>
@@ -78,9 +72,7 @@
                             <dt class="text-xs font-medium text-text-muted">
                                 Perusahaan
                             </dt>
-                            <dd
-                                class="mt-1 text-sm font-semibold text-text"
-                            >
+                            <dd class="mt-1 text-sm font-semibold text-text">
                                 {{
                                     currentCompany?.companyName ??
                                     "Tidak terhubung"
@@ -103,9 +95,7 @@
                     </div>
                     <div class="space-y-3">
                         <div>
-                            <p class="text-sm font-semibold text-text">
-                                Role
-                            </p>
+                            <p class="text-sm font-semibold text-text">Role</p>
                             <div class="mt-2 flex flex-wrap gap-2">
                                 <span
                                     v-for="role in profile.roles"
@@ -121,7 +111,9 @@
                             <p class="text-sm font-semibold text-text">
                                 Perusahaan
                             </p>
-                            <ul class="mt-2 space-y-2 text-sm text-text-secondary">
+                            <ul
+                                class="mt-2 space-y-2 text-sm text-text-secondary"
+                            >
                                 <li
                                     v-for="company in profile.companies"
                                     :key="company.companyId"
