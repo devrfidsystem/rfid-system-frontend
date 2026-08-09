@@ -85,12 +85,31 @@ describe("MonitoringLiveFeed", () => {
         const html = await renderToString(app);
 
         expect(html).toContain("Exception");
-        // The status badge specifically (not the unrelated priority badge,
-        // which also uses success/danger classes) carries the exception
-        // color — checked by pairing the class with the rendered label.
-        expect(html).toContain(
-            '<span class="bg-danger-50 text-danger-600 rounded-full px-2 py-0.5 text-[11px] font-semibold">Exception</span>',
-        );
+        expect(html).toContain("bg-danger-50/40");
+        expect(html).toContain("bg-danger-500");
+    });
+
+    it("colors SLA bars by threshold so at-risk rows scan quickly", async () => {
+        const app = createSSRApp(MonitoringLiveFeed, {
+            loading: false,
+            data: [
+                {
+                    warehouseName: "Jakarta DC",
+                    zoneLabel: "Zone A",
+                    operatorName: "Budi Santoso",
+                    eventLabel: "Picking",
+                    timestamp: "2026-07-18T09:00:00.000Z",
+                    durationMinutes: 2,
+                    priority: "high",
+                    slaPct: 92,
+                    status: "exception",
+                },
+            ],
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("bg-danger-600");
+        expect(html).toContain("92%");
     });
 
     it("filters rows by the search term across operator, zone, event, and warehouse", async () => {

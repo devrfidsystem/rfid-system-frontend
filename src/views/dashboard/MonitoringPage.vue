@@ -53,15 +53,17 @@
             />
         </div>
 
-        <MonitoringLiveFeed
-            :loading="loading"
-            :data="data?.liveTransactions ?? null"
-        />
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+            <MonitoringLiveFeed
+                :loading="loading"
+                :data="data?.liveTransactions ?? null"
+            />
 
-        <MonitoringExceptionFeed
-            :loading="loading"
-            :data="data?.liveTransactions ?? null"
-        />
+            <MonitoringExceptionFeed
+                :loading="loading"
+                :data="data?.liveTransactions ?? null"
+            />
+        </div>
     </section>
 </template>
 

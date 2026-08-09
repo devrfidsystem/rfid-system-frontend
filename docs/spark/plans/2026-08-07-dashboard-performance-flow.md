@@ -20,10 +20,12 @@
 ### Task 1: Dashboard Request Cache
 
 **Files:**
+
 - Create: `src/views/dashboard/composables/dashboardRequestCache.ts`
 - Create: `src/views/dashboard/composables/dashboardRequestCache.test.ts`
 
 **Interfaces:**
+
 - Produces: `createDashboardRequestCache(options?: { ttlMs?: number; now?: () => number })`
 - Produces method: `load<T>(key: string, fetcher: () => Promise<T>, options?: { force?: boolean }): Promise<{ data: T; fromCache: boolean }>`
 - Produces method: `clear(): void`
@@ -55,7 +57,10 @@ describe("createDashboardRequestCache", () => {
 
     it("returns fresh cached data inside the ttl and bypasses cache when forced", async () => {
         let now = 1000;
-        const cache = createDashboardRequestCache({ ttlMs: 500, now: () => now });
+        const cache = createDashboardRequestCache({
+            ttlMs: 500,
+            now: () => now,
+        });
         const fetcher = vi
             .fn()
             .mockResolvedValueOnce({ value: 1 })
@@ -101,10 +106,12 @@ Expected: PASS.
 ### Task 2: Integrate Overview Loading
 
 **Files:**
+
 - Modify: `src/views/dashboard/composables/useDashboard.ts`
 - Modify: `src/views/dashboard/composables/useDashboard.test.ts`
 
 **Interfaces:**
+
 - Consumes: `dashboardRequestCache.load`
 - Preserves: `refreshDashboard(): Promise<void>`
 
@@ -129,12 +136,14 @@ Expected: PASS.
 ### Task 3: Extend To KPI And Process Detail
 
 **Files:**
+
 - Modify: `src/views/dashboard/composables/useExecutiveKpi.ts`
 - Modify: `src/views/dashboard/composables/useExecutiveKpi.test.ts`
 - Modify: `src/views/dashboard/composables/useProcessPerformance.ts`
 - Modify: `src/views/dashboard/composables/useProcessPerformance.test.ts`
 
 **Interfaces:**
+
 - Consumes: `dashboardRequestCache.load`
 - Preserves: `refresh()`, `setDomain()`, `setActivity()`, `setPeriod()`
 
@@ -159,6 +168,7 @@ Expected: PASS.
 ### Task 4: Verification
 
 **Files:**
+
 - No production file changes beyond Tasks 1-3.
 
 - [ ] **Step 1: Run focused service/composable verification**

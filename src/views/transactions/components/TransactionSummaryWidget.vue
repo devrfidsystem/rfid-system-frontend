@@ -1,5 +1,8 @@
 <template>
-    <div class="grid gap-4 sm:grid-cols-2" object-id="wdg_TransactionSummary">
+    <div
+        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        object-id="wdg_TransactionSummary"
+    >
         <template v-if="loading">
             <div
                 v-for="n in 4"
@@ -8,11 +11,14 @@
             ></div>
         </template>
 
-        <Card v-else-if="error" class="sm:col-span-2">
+        <Card v-else-if="error" class="sm:col-span-2 lg:col-span-4">
             <p class="text-sm text-danger-600">{{ error }}</p>
         </Card>
 
-        <Card v-else-if="summary?.totalCount === 0" class="sm:col-span-2">
+        <Card
+            v-else-if="summary?.totalCount === 0"
+            class="sm:col-span-2 lg:col-span-4"
+        >
             <p class="text-sm text-text-secondary">
                 No transactions match the current filters.
             </p>
@@ -142,6 +148,7 @@ import {
 } from "lucide-vue-next";
 import { formatDate } from "@/utils/date";
 import type { TransactionSummaryResponse } from "../types";
+import { getTransactionStatusTone } from "../utils/transactionStatus";
 
 defineProps<{
     loading: boolean;
@@ -149,42 +156,5 @@ defineProps<{
     summary: TransactionSummaryResponse | null;
 }>();
 
-// Purely presentational grouping of raw status values into the Badge
-// atom's existing tone vocabulary — not a business-meaning mapping, since
-// the backend deliberately keeps status generic/unmapped per-transactionKey.
-const SUCCESS_STATUSES = new Set([
-    "posted",
-    "done",
-    "completed",
-    "closed",
-    "reconciled",
-    "approved",
-]);
-const WARNING_STATUSES = new Set([
-    "draft",
-    "pending",
-    "counting",
-    "queued",
-    "assigned",
-    "in_progress",
-    "processing",
-]);
-const ERROR_STATUSES = new Set([
-    "cancelled",
-    "canceled",
-    "rejected",
-    "failed",
-    "void",
-    "voided",
-]);
-
-const statusTone = (
-    label: string,
-): "success" | "warning" | "error" | "neutral" => {
-    const normalized = label.toLowerCase();
-    if (SUCCESS_STATUSES.has(normalized)) return "success";
-    if (WARNING_STATUSES.has(normalized)) return "warning";
-    if (ERROR_STATUSES.has(normalized)) return "error";
-    return "neutral";
-};
+const statusTone = getTransactionStatusTone;
 </script>

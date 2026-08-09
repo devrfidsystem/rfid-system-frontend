@@ -54,6 +54,15 @@ describe("MonitoringPage", () => {
         expect(html).toContain("Monitoring");
     });
 
+    it("uses a command-layout grid for live transactions and exception feed", async () => {
+        const app = createSSRApp(MonitoringPage);
+        const html = await renderToString(app);
+
+        expect(html).toContain(
+            "lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]",
+        );
+    });
+
     it("renders the error banner when the composable reports an error", async () => {
         useMonitoringMock.mockReturnValue({
             data: { value: null },

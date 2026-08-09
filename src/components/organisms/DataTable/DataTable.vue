@@ -38,7 +38,7 @@
             {{ unsupportedFeatureMessage }}
         </p>
         <template v-else>
-            <div v-if="loading || displayRows.length">
+            <div v-if="loading || displayRows.length" class="overflow-x-auto">
                 <table class="min-w-full density-table">
                     <thead
                         class="border-b border-border bg-surface-secondary text-left text-xs font-semibold uppercase tracking-wide text-text-secondary"
@@ -130,7 +130,7 @@
                             </th>
                             <th
                                 v-if="$slots.rowActions"
-                                class="px-4 py-3 text-right"
+                                class="sticky right-0 z-10 min-w-[96px] bg-surface-secondary px-4 py-3 text-right shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.35)]"
                             >
                                 Actions
                             </th>
@@ -161,7 +161,7 @@
                                 </td>
                                 <td
                                     v-if="$slots.rowActions"
-                                    class="px-4 py-3 text-right"
+                                    class="sticky right-0 z-10 min-w-[96px] bg-surface px-4 py-3 text-right shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.35)]"
                                 >
                                     <div
                                         class="ml-auto h-4 w-16 animate-pulse rounded bg-surface-secondary"
@@ -270,7 +270,7 @@
                                 </td>
                                 <td
                                     v-if="$slots.rowActions"
-                                    class="px-4 py-3 text-right text-sm text-text-secondary"
+                                    class="sticky right-0 z-10 min-w-[96px] bg-inherit px-4 py-3 text-right text-sm text-text-secondary shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.35)]"
                                 >
                                     <slot name="rowActions" :row="row" />
                                 </td>

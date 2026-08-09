@@ -32,6 +32,7 @@ describe("MonitoringExceptionFeed", () => {
         });
         const html = await renderToString(app);
         expect(html).toContain("No exceptions currently open");
+        expect(html).toContain("px-4 py-5");
     });
 
     it("renders only rows with status 'exception', filtering out 'ok' rows", async () => {

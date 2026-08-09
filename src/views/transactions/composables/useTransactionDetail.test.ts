@@ -181,6 +181,22 @@ describe("useTransactionDetail", () => {
         expect(detail.lines.value).toHaveLength(1);
     });
 
+    it("formats status labels and tones through the shared transaction status mapping", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "out-2",
+            docNo: "OUT-002",
+            status: "in_progress",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("outbound", "out-2");
+
+        await detail.loadTransaction();
+
+        expect(detail.statusLabel.value).toBe("In Progress");
+        expect(detail.statusTone.value).toBe("warning");
+    });
+
     it("opens a confirmation dialog before posting register tasks", async () => {
         mocks.getSpy.mockResolvedValue({
             id: "reg-1",
