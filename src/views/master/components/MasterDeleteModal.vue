@@ -1,7 +1,7 @@
 <template>
     <Modal :is-open="isOpen" title="Confirm Delete" @close="closeModal">
         <div class="space-y-4">
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-text-secondary">
                 Are you sure you want to delete this record?
             </p>
             <div class="flex justify-end gap-3">

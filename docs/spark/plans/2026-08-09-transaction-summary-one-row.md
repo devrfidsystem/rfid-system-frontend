@@ -20,10 +20,12 @@
 ### Task 1: Transaction Summary Layout
 
 **Files:**
+
 - Modify: `src/views/transactions/components/TransactionSummaryWidget.test.ts`
 - Modify: `src/views/transactions/components/TransactionSummaryWidget.vue`
 
 **Interfaces:**
+
 - Consumes: existing `TransactionSummaryWidget` props `loading`, `error`, and `summary`.
 - Produces: same component API with updated responsive layout classes.
 
@@ -48,6 +50,7 @@ Expected: PASS.
 ### Task 2: Verification
 
 **Files:**
+
 - No additional files.
 
 - [ ] **Step 1: Run focused transaction widget test**

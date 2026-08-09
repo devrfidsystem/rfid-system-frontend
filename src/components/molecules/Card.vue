@@ -23,7 +23,7 @@ const props = withDefaults(
 
 const cardClasses = computed(() =>
     [
-        "rounded-md border border-gray-200 bg-white shadow-sm",
+        "rounded-md border border-border bg-surface shadow-sm",
         props.noPadding ? "" : "px-6 py-5",
         props.class ?? "",
     ]

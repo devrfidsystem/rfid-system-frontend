@@ -16,7 +16,8 @@ describe("ProcessHourlyHeatmap", () => {
         const html = await renderToString(app);
 
         expect(html).toContain("bg-primary-700");
-        expect(html).toContain("bg-gray-100");
+        expect(html).toContain("bg-surface-secondary");
+        expect(html).toContain("Hourly Workload Distribution");
         expect(html).toContain("10:00");
     });
 
@@ -26,6 +27,6 @@ describe("ProcessHourlyHeatmap", () => {
             data: [],
         });
         const html = await renderToString(app);
-        expect(html).toContain("No hourly activity");
+        expect(html).toContain("No hourly workload");
     });
 });

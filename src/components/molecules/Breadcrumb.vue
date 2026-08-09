@@ -13,14 +13,14 @@
                 <span
                     :class="
                         item.active
-                            ? 'text-gray-900 font-semibold'
-                            : 'hover:text-gray-700 transition-colors'
+                            ? 'text-text font-semibold'
+                            : 'hover:text-text transition-colors'
                     "
                     >{{ item.label }}</span
                 >
                 <svg
                     v-if="index < items.length - 1"
-                    class="h-3.5 w-3.5 text-gray-300"
+                    class="h-3.5 w-3.5 text-text-muted"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

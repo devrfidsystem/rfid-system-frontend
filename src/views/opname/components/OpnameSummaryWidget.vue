@@ -14,7 +14,7 @@
 
         <Card v-else-if="summary?.totalCount === 0" class="sm:col-span-3">
             <p class="text-sm text-text-secondary">
-                No opname tasks match this warehouse.
+                No stock count tasks match this warehouse.
             </p>
         </Card>
 
@@ -32,7 +32,7 @@
                         >
                             Total Tasks
                         </p>
-                        <p class="text-3xl font-extrabold text-gray-900">
+                        <p class="text-3xl font-extrabold text-text">
                             {{ summary.totalCount.toLocaleString() }}
                         </p>
                     </div>
@@ -42,12 +42,12 @@
             <Card>
                 <div class="flex items-center gap-3">
                     <div
-                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-50 text-gray-600 ring-1 ring-gray-200"
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-secondary text-text-secondary ring-1 ring-border"
                     >
                         <Icon :icon="Tags" :size="18" />
                     </div>
                     <p class="text-xs font-semibold uppercase text-text-muted">
-                        Status Breakdown
+                        Count Status
                     </p>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2">
@@ -74,7 +74,7 @@
                         Variance
                     </p>
                 </div>
-                <p class="text-3xl font-extrabold text-gray-900 mt-3">
+                <p class="text-3xl font-extrabold text-text mt-3">
                     {{ summary.varianceTaskCount.toLocaleString() }}
                 </p>
                 <p class="text-xs text-text-secondary mt-1">
@@ -102,7 +102,7 @@
                         />
                     </div>
                     <p class="text-xs font-semibold uppercase text-text-muted">
-                        Needs Attention
+                        Exception Queue
                     </p>
                 </div>
                 <template v-if="summary.needsAttention.count > 0">
@@ -111,12 +111,12 @@
                     </p>
                     <p class="text-xs text-text-secondary mt-1">
                         {{ summary.needsAttention.canceledCount }} cancelled,
-                        {{ summary.needsAttention.stuckCountingCount }} stuck
-                        counting &gt;3 days
+                        {{ summary.needsAttention.stuckCountingCount }} counts
+                        over 3 days
                     </p>
                 </template>
                 <p v-else class="text-sm font-medium text-success-600 mt-3">
-                    All clear
+                    No open count exceptions
                 </p>
             </Card>
 
@@ -128,11 +128,11 @@
                         <Icon :icon="Clock" :size="18" />
                     </div>
                     <p class="text-xs font-semibold uppercase text-text-muted">
-                        Most Recent
+                        Latest Count Task
                     </p>
                 </div>
                 <template v-if="summary.mostRecent">
-                    <p class="text-sm font-medium text-gray-900 mt-3">
+                    <p class="text-sm font-medium text-text mt-3">
                         {{ summary.mostRecent.title }}
                     </p>
                     <p class="text-xs text-text-secondary mt-1">
@@ -141,7 +141,7 @@
                     </p>
                 </template>
                 <p v-else class="text-sm text-text-secondary mt-3">
-                    No tasks yet.
+                    No count task has been created yet.
                 </p>
             </Card>
         </template>

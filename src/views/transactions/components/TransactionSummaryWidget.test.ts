@@ -51,7 +51,9 @@ describe("TransactionSummaryWidget", () => {
             summary: emptySummary,
         });
         const html = await renderToString(app);
-        expect(html).toContain("No transactions match the current filters.");
+        expect(html).toContain(
+            "No documents match the selected transaction filters.",
+        );
     });
 
     it("renders total, percentage-annotated status breakdown, most recent, and a clear needs-attention state", async () => {
@@ -84,7 +86,7 @@ describe("TransactionSummaryWidget", () => {
         expect(html).toContain("IN-057");
         expect(html).toContain("Jane Doe");
         expect(html).toContain(formatDate("2026-08-01T12:00:00.000Z"));
-        expect(html).toContain("All clear");
+        expect(html).toContain("No open exceptions");
         expect(html).toContain("wdg_TransactionSummary");
     });
 
@@ -107,9 +109,9 @@ describe("TransactionSummaryWidget", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("No transactions yet.");
+        expect(html).toContain("No document has been created yet.");
         expect(html).toContain("3 cancelled");
-        expect(html).toContain("2 pending &gt;3 days");
+        expect(html).toContain("2 drafts over 3 days");
         expect(html).toContain("text-danger-600");
     });
 
@@ -139,5 +141,6 @@ describe("TransactionSummaryWidget", () => {
         expect(html).toContain("partial 1 (33.3%)");
         expect(html).toContain("text-info-600");
         expect(html).toContain("text-success-600");
+        expect(html).toContain("text-teal-700");
     });
 });

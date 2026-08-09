@@ -10,7 +10,7 @@
 
         <p
             v-if="warehouseError && !warehousesLoading"
-            class="rounded-md border border-red-100 bg-red-50 px-4 py-3 text-sm text-signal-red"
+            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ warehouseError }}
         </p>

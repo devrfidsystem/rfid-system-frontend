@@ -1,9 +1,7 @@
 <template>
     <Card object-id="wdg_ProcessTrendChart">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-gray-900">
-                Performance Trend
-            </h3>
+            <h3 class="text-sm font-semibold text-text">Process Trend</h3>
             <button
                 v-if="data && data.length > 0"
                 type="button"
@@ -26,7 +24,7 @@
             v-else-if="!data || data.length === 0"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No trend data available.
+            No process trend data for this activity.
         </div>
 
         <table v-else-if="showTable" class="w-full text-left text-xs">
@@ -48,7 +46,7 @@
                 <tr
                     v-for="point in data"
                     :key="point.period"
-                    class="border-t border-gray-100 text-gray-700"
+                    class="border-t border-border text-text"
                 >
                     <td class="py-1.5 pr-3">{{ point.period }}</td>
                     <td class="py-1.5 pr-3 tabular-nums">
@@ -63,7 +61,7 @@
 
         <div
             v-else
-            class="grid gap-6 sm:grid-cols-2 sm:divide-x sm:divide-gray-100"
+            class="grid gap-6 sm:grid-cols-2 sm:divide-x sm:divide-border"
         >
             <TrendMiniChart
                 label="Cycle Time"
@@ -71,7 +69,7 @@
                 :points="cycleTimeSeries"
                 stroke-class="stroke-primary-600"
                 dot-class="fill-primary-600"
-                color="#2563EB"
+                :color="CHART_COLORS.primary"
                 :higher-is-better="false"
             />
             <TrendMiniChart
@@ -80,7 +78,7 @@
                 :points="productivitySeries"
                 stroke-class="stroke-success-600"
                 dot-class="fill-success-600"
-                color="#0D9488"
+                :color="CHART_COLORS.success"
                 class="sm:pl-6"
                 :higher-is-better="true"
             />
@@ -98,6 +96,11 @@ const props = defineProps<{
     loading: boolean;
     data: ProcessTrendPoint[] | null;
 }>();
+
+const CHART_COLORS = {
+    primary: "rgb(var(--primary-600))",
+    success: "rgb(var(--primary-teal))",
+} as const;
 
 const showTable = ref(false);
 

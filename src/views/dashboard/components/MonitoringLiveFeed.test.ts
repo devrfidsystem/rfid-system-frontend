@@ -19,7 +19,7 @@ describe("MonitoringLiveFeed", () => {
             data: [],
         });
         const html = await renderToString(app);
-        expect(html).toContain("No live transactions");
+        expect(html).toContain("No movement recorded in the current window");
     });
 
     it("renders rows with an OK status badge, priority color, and an SLA bar only when slaPct is present", async () => {

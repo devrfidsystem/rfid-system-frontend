@@ -28,7 +28,7 @@
 
             <div v-if="error" class="px-6 pt-4">
                 <p
-                    class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
                 >
                     {{ error }}
                 </p>

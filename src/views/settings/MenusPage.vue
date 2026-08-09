@@ -4,9 +4,9 @@
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center px-2 gap-4"
         >
             <div>
-                <h3 class="text-lg font-medium text-gray-900">Menus</h3>
-                <p class="text-sm text-gray-500">
-                    Manage application menus and navigation.
+                <h3 class="text-lg font-medium text-text">Menus</h3>
+                <p class="text-sm text-text-secondary">
+                    Maintain menu visibility, route paths, and navigation order.
                 </p>
             </div>
 
@@ -36,7 +36,7 @@
             </div>
             <div
                 v-else-if="!selectedAppId"
-                class="p-12 text-center text-gray-500"
+                class="p-12 text-center text-text-secondary"
             >
                 Please select an application to view its menus.
             </div>
@@ -113,9 +113,7 @@
                     object-id="nmf_MenusFormSequence"
                 />
 
-                <div
-                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
-                >
+                <div class="flex justify-end gap-3 pt-4 border-t border-border">
                     <Button
                         type="button"
                         variant="outline"

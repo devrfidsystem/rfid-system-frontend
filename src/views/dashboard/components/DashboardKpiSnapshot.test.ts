@@ -54,10 +54,11 @@ describe("DashboardKpiSnapshot", () => {
                 ],
             },
         });
+        expect(html).toContain("KPI Control Snapshot");
         expect(html).toContain("Stock In Performance");
         expect(html).toContain("83");
         expect(html).toContain("Productivity Improvement");
-        expect(html).toContain("View Performance");
+        expect(html).toContain("Open KPI Detail");
         expect(html).toContain('href="/dashboard/kpi?domain=stockIn"');
     });
 });

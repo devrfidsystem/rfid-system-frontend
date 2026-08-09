@@ -2,7 +2,7 @@
     <section class="space-y-6">
         <PageHeader
             title="Users"
-            description="List of application users and their roles."
+            description="Review application users, assigned roles, and account access."
             tagline="IAM"
         />
 
@@ -11,7 +11,7 @@
                 class="flex flex-wrap items-center justify-between gap-4 px-6 py-5"
             >
                 <div>
-                    <h3 class="text-base font-semibold text-gray-900">
+                    <h3 class="text-base font-semibold text-text">
                         Users List
                     </h3>
                 </div>

@@ -2,14 +2,14 @@
     <section :class="sectionClass">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-xs uppercase tracking-wider text-gray-400">
+                <p class="text-xs uppercase tracking-wider text-text-muted">
                     {{ subtitle }}
                 </p>
-                <h2 class="text-lg font-semibold text-gray-900">{{ title }}</h2>
+                <h2 class="text-lg font-semibold text-text">{{ title }}</h2>
             </div>
             <slot name="actions" />
         </div>
-        <p v-if="description" class="text-sm text-gray-500">
+        <p v-if="description" class="text-sm text-text-secondary">
             {{ description }}
         </p>
         <div>

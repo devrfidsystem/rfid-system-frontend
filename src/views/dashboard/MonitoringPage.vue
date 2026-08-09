@@ -10,7 +10,7 @@
 
         <div>
             <div class="flex items-center gap-3">
-                <h1 class="text-xl font-bold text-gray-900">Monitoring</h1>
+                <h1 class="text-xl font-bold text-text">Monitoring</h1>
                 <span
                     class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-danger-600"
                     object-id="ind_MonitoringLive"
@@ -33,7 +33,7 @@
 
         <p
             v-if="error"
-            class="rounded-md border border-red-100 bg-red-50 px-4 py-3 text-sm text-danger-600"
+            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ error }}
         </p>

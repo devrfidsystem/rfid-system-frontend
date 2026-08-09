@@ -3,10 +3,10 @@
         <label
             v-if="label"
             :for="id"
-            class="text-sm font-semibold text-gray-700 flex items-center gap-1"
+            class="text-sm font-semibold text-text flex items-center gap-1"
         >
             <span>{{ label }}</span>
-            <span v-if="required" class="text-error-600">*</span>
+            <span v-if="required" class="text-danger-600">*</span>
         </label>
 
         <div :class="contentColumnClass">
@@ -16,13 +16,13 @@
                 :has-error="hasError"
             />
 
-            <p v-if="hint" :id="hintId" class="text-xs text-gray-500 mt-1">
+            <p v-if="hint" :id="hintId" class="text-xs text-text-secondary mt-1">
                 {{ hint }}
             </p>
             <p
                 v-if="displayError"
                 :id="errorId"
-                class="text-xs text-error-600 mt-1"
+                class="text-xs text-danger-600 mt-1"
                 aria-live="polite"
             >
                 {{ displayError }}

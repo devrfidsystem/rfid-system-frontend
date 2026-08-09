@@ -13,7 +13,7 @@
                 :cy="size / 2"
                 :r="radius"
                 fill="none"
-                class="stroke-gray-100"
+                class="stroke-border"
                 :stroke-width="strokeWidth"
             />
             <circle
@@ -38,7 +38,7 @@
                 :x="size / 2"
                 :y="size / 2 - 6"
                 text-anchor="middle"
-                class="fill-gray-900 text-[15px] font-bold"
+                class="fill-text text-[15px] font-bold"
             >
                 {{ total }}
             </text>
@@ -46,7 +46,7 @@
                 :x="size / 2"
                 :y="size / 2 + 12"
                 text-anchor="middle"
-                class="fill-gray-500 text-[9px] font-semibold uppercase"
+                class="fill-text-secondary text-[9px] font-semibold uppercase"
             >
                 Open
             </text>
@@ -62,10 +62,9 @@
                     class="h-2 w-2 shrink-0 rounded-full"
                     :style="{ backgroundColor: segment.color }"
                 ></span>
-                <span
-                    class="min-w-0 flex-1 truncate font-medium text-gray-700"
-                    >{{ segment.name }}</span
-                >
+                <span class="min-w-0 flex-1 truncate font-medium text-text">{{
+                    segment.name
+                }}</span>
                 <span class="shrink-0 text-text-secondary"
                     >{{ segment.count }} · {{ segment.pct }}%</span
                 >
@@ -85,10 +84,14 @@ const props = withDefaults(
     { size: 96 },
 );
 
-// Fixed categorical order, validated with scripts/validate_palette.js
-// (dataviz skill): all 5 pairs pass CVD + normal-vision separation on the
-// light surface. Never cycled — a 6th stage folds into "Other".
-const PALETTE = ["#2563EB", "#0D9488", "#D97706", "#7C3AED", "#DC2626"];
+// Fixed categorical order: a 6th stage folds into "Other" instead of cycling.
+const PALETTE = [
+    "rgb(var(--primary-600))",
+    "rgb(var(--primary-teal))",
+    "rgb(var(--action-orange))",
+    "rgb(var(--insight-purple))",
+    "rgb(var(--signal-red))",
+];
 const MAX_SEGMENTS = PALETTE.length;
 
 const size = computed(() => props.size);

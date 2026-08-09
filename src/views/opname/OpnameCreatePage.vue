@@ -10,7 +10,7 @@
 
         <div
             v-if="error"
-            class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+            class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ error }}
         </div>
@@ -19,16 +19,16 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card class="md:col-span-1" object-id="wdg_OpnameCreateDetails">
                     <h3
-                        class="mb-4 border-b border-gray-100 pb-3 text-base font-semibold text-gray-900"
+                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
                     >
                         {{ sectionHeading }}
                     </h3>
 
                     <div class="space-y-4">
                         <div
-                            class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700"
+                            class="rounded-md border border-border bg-surface-secondary px-4 py-3 text-sm text-text"
                         >
-                            <div class="font-medium text-gray-900">
+                            <div class="font-medium text-text">
                                 {{
                                     selectedParent
                                         ? `Parent: ${selectedParent.title}`
@@ -77,11 +77,11 @@
                     no-padding
                     object-id="wdg_OpnameCreateSummary"
                 >
-                    <div class="border-b border-gray-100 px-6 py-5">
-                        <h3 class="text-base font-semibold text-gray-900">
+                    <div class="border-b border-border px-6 py-5">
+                        <h3 class="text-base font-semibold text-text">
                             {{ summaryHeading }}
                         </h3>
-                        <p class="mt-2 text-sm text-gray-500">
+                        <p class="mt-2 text-sm text-text-secondary">
                             Review the node details before saving it to the
                             opname branch.
                         </p>
@@ -89,9 +89,9 @@
 
                     <div class="flex-1 px-6 py-5 space-y-4">
                         <div
-                            class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700"
+                            class="rounded-md border border-border bg-surface-secondary px-4 py-3 text-sm text-text"
                         >
-                            <div class="font-medium text-gray-900">
+                            <div class="font-medium text-text">
                                 Document Number:
                                 <span class="font-semibold">
                                     {{ formState.docNumber || "-" }}
@@ -99,19 +99,19 @@
                             </div>
                             <div class="mt-1">
                                 Title:
-                                <span class="font-semibold text-gray-900">
+                                <span class="font-semibold text-text">
                                     {{ formState.title || "-" }}
                                 </span>
                             </div>
                             <div class="mt-1">
                                 Type:
-                                <span class="font-semibold text-gray-900">
+                                <span class="font-semibold text-text">
                                     {{ mode }}
                                 </span>
                             </div>
                             <div class="mt-1">
                                 Parent:
-                                <span class="font-semibold text-gray-900">
+                                <span class="font-semibold text-text">
                                     {{ parentLabel }}
                                 </span>
                             </div>
@@ -119,7 +119,7 @@
                     </div>
 
                     <div
-                        class="mt-auto flex justify-end gap-3 border-t border-gray-100 px-6 py-3"
+                        class="mt-auto flex justify-end gap-3 border-t border-border px-6 py-3"
                     >
                         <Button
                             type="button"

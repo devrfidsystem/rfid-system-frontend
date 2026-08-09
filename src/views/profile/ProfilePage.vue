@@ -21,7 +21,7 @@
 
         <div
             v-if="!profile"
-            class="rounded-lg border border-gray-100 bg-gray-50/50 px-5 py-6 text-sm text-gray-500"
+            class="rounded-md border border-border bg-surface-secondary/50 px-5 py-6 text-sm text-text-secondary"
         >
             Profil belum tersedia. Silakan tunggu hingga data dimuat ulang.
         </div>
@@ -31,13 +31,13 @@
                 <div class="space-y-5">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold text-gray-400">
+                            <p class="text-xs font-semibold text-text-muted">
                                 Informasi Akun
                             </p>
-                            <p class="text-lg font-semibold text-gray-900">
+                            <p class="text-lg font-semibold text-text">
                                 {{ profile.user.fullName }}
                             </p>
-                            <p class="text-sm text-gray-500">
+                            <p class="text-sm text-text-secondary">
                                 {{ profile.user.email }}
                             </p>
                         </div>
@@ -45,41 +45,41 @@
 
                     <dl class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <dt class="text-xs font-medium text-gray-400">
+                            <dt class="text-xs font-medium text-text-muted">
                                 Nama lengkap
                             </dt>
                             <dd
-                                class="mt-1 text-sm font-semibold text-gray-900"
+                                class="mt-1 text-sm font-semibold text-text"
                             >
                                 {{ profile.user.fullName }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-gray-400">
+                            <dt class="text-xs font-medium text-text-muted">
                                 Email
                             </dt>
                             <dd
-                                class="mt-1 text-sm font-semibold text-gray-900"
+                                class="mt-1 text-sm font-semibold text-text"
                             >
                                 {{ profile.user.email }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-gray-400">
+                            <dt class="text-xs font-medium text-text-muted">
                                 Telepon
                             </dt>
                             <dd
-                                class="mt-1 text-sm font-semibold text-gray-900"
+                                class="mt-1 text-sm font-semibold text-text"
                             >
                                 {{ profile.user.phone ?? "Belum tersedia" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-gray-400">
+                            <dt class="text-xs font-medium text-text-muted">
                                 Perusahaan
                             </dt>
                             <dd
-                                class="mt-1 text-sm font-semibold text-gray-900"
+                                class="mt-1 text-sm font-semibold text-text"
                             >
                                 {{
                                     currentCompany?.companyName ??
@@ -94,23 +94,23 @@
             <Card object-id="wdg_ProfileAccess">
                 <div class="space-y-5">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-gray-400">
+                        <p class="text-xs font-semibold text-text-muted">
                             Hak Akses
                         </p>
-                        <span class="text-xs font-semibold text-gray-500"
+                        <span class="text-xs font-semibold text-text-secondary"
                             >{{ permissions.length }} permission</span
                         >
                     </div>
                     <div class="space-y-3">
                         <div>
-                            <p class="text-sm font-semibold text-gray-900">
+                            <p class="text-sm font-semibold text-text">
                                 Role
                             </p>
                             <div class="mt-2 flex flex-wrap gap-2">
                                 <span
                                     v-for="role in profile.roles"
                                     :key="role.id"
-                                    class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600"
+                                    class="inline-flex items-center rounded-full border border-border bg-surface-secondary px-3 py-1 text-xs font-medium text-text-secondary"
                                 >
                                     {{ role.name }}
                                 </span>
@@ -118,36 +118,36 @@
                         </div>
 
                         <div>
-                            <p class="text-sm font-semibold text-gray-900">
+                            <p class="text-sm font-semibold text-text">
                                 Perusahaan
                             </p>
-                            <ul class="mt-2 space-y-2 text-sm text-gray-600">
+                            <ul class="mt-2 space-y-2 text-sm text-text-secondary">
                                 <li
                                     v-for="company in profile.companies"
                                     :key="company.companyId"
-                                    class="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 px-3 py-2"
+                                    class="flex items-center justify-between rounded-md border border-border bg-surface-secondary/50 px-3 py-2"
                                 >
                                     <span>{{ company.companyName }}</span>
                                     <span
                                         v-if="company.isPrimary"
-                                        class="text-xs font-medium text-gray-500"
+                                        class="text-xs font-medium text-text-secondary"
                                         >Current Setup</span
                                     >
                                 </li>
                             </ul>
                             <p
                                 v-if="!profile.companies.length"
-                                class="text-xs text-gray-500"
+                                class="text-xs text-text-secondary"
                             >
                                 Belum terhubung ke perusahaan manapun.
                             </p>
                         </div>
 
                         <div>
-                            <p class="text-sm font-semibold text-gray-900">
+                            <p class="text-sm font-semibold text-text">
                                 Menu tersimpan
                             </p>
-                            <p class="text-xs text-gray-500">
+                            <p class="text-xs text-text-secondary">
                                 {{ menuTreeCount }} node menu
                             </p>
                         </div>
@@ -158,7 +158,7 @@
 
         <p
             v-if="status"
-            class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600"
+            class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ status }}
         </p>

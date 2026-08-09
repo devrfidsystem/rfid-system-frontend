@@ -1,14 +1,14 @@
 <template>
     <Card no-padding object-id="wdg_OutboundDetailLines">
-        <div class="px-6 py-5 border-b border-gray-100">
+        <div class="px-6 py-5 border-b border-border">
             <div
                 class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
             >
                 <div>
-                    <h3 class="text-base font-semibold text-gray-900">
+                    <h3 class="text-base font-semibold text-text">
                         Line Execution
                     </h3>
-                    <p class="mt-2 text-sm text-gray-500">
+                    <p class="mt-2 text-sm text-text-secondary">
                         {{ note }}
                     </p>
                 </div>
@@ -19,34 +19,34 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-border">
+                <thead class="bg-surface-secondary">
                     <tr>
                         <th
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                         >
                             Product
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                         >
                             Origin Location
                         </th>
                         <th
-                            class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
                         >
                             Qty
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                         >
                             Status
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody class="divide-y divide-border bg-surface">
                     <tr v-for="(line, idx) in lines" :key="line.id ?? idx">
-                        <td class="px-6 py-4 text-sm text-gray-900">
+                        <td class="px-6 py-4 text-sm text-text">
                             <div class="font-medium">
                                 {{
                                     line.product?.name ??
@@ -55,7 +55,7 @@
                                     "-"
                                 }}
                             </div>
-                            <div class="text-xs text-gray-500">
+                            <div class="text-xs text-text-secondary">
                                 {{
                                     line.product?.code ??
                                     line.productCode ??
@@ -63,7 +63,7 @@
                                 }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
+                        <td class="px-6 py-4 text-sm text-text-secondary">
                             <div>
                                 {{
                                     line.sourceLocation?.name ??
@@ -79,7 +79,7 @@
                                 }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-right text-sm text-gray-900">
+                        <td class="px-6 py-4 text-right text-sm text-text">
                             <div class="font-medium">
                                 {{
                                     line.expectedQty ??
@@ -88,11 +88,11 @@
                                     "-"
                                 }}
                             </div>
-                            <div class="text-xs text-gray-500">
+                            <div class="text-xs text-text-secondary">
                                 {{ line.uom?.code ?? line.uomId ?? "" }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
+                        <td class="px-6 py-4 text-sm text-text-secondary">
                             <Badge :tone="readOnly ? 'neutral' : 'warning'">
                                 {{ readOnly ? "Review Only" : "Draft" }}
                             </Badge>
@@ -101,7 +101,7 @@
                     <tr v-if="!lines.length">
                         <td
                             colspan="4"
-                            class="px-6 py-8 text-center text-sm text-gray-500"
+                            class="px-6 py-8 text-center text-sm text-text-secondary"
                         >
                             No line items found.
                         </td>

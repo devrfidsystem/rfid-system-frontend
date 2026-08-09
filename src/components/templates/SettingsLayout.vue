@@ -2,7 +2,7 @@
     <section class="space-y-6">
         <PageHeader
             title="Settings"
-            description="Manage application structural data."
+            description="Maintain company, app, and menu configuration for warehouse operations."
         />
 
         <div class="border-b border-border">
@@ -16,7 +16,7 @@
                     :to="tab.href"
                     :class="[
                         $route.path.startsWith(tab.href)
-                            ? 'border-indigo-500 text-indigo-600'
+                            ? 'border-primary-500 text-primary-600'
                             : 'border-transparent text-text-secondary hover:border-border hover:text-text',
                         'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors',
                     ]"

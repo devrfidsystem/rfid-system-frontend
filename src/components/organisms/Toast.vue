@@ -37,7 +37,7 @@
                     :data-testid="`icn_ToastClose_${toast.id}`"
                     @click="$emit('close', toast.id)"
                 >
-                    ✕
+                    <Icon :icon="X" :size="14" class-name="text-current" />
                 </button>
             </div>
         </div>
@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import Icon from "@/components/atoms/Icon.vue";
 import type { ToastVariant } from "@/store/notification.store";
-import { CheckCircle2, XCircle, AlertTriangle, Info } from "lucide-vue-next";
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from "lucide-vue-next";
 
 type ToastItem = {
     id: string;

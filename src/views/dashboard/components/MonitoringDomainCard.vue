@@ -16,12 +16,12 @@
             v-else-if="!data"
             class="text-sm text-text-secondary text-center py-6"
         >
-            No domain data available.
+            No activity recorded for this operation lane.
         </div>
 
         <div v-else class="flex min-h-[236px] flex-col gap-4">
             <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-900">
+                <h3 class="text-sm font-semibold text-text">
                     {{ data.label }}
                 </h3>
                 <span
@@ -34,23 +34,23 @@
 
             <div class="grid grid-cols-3 gap-2 text-center">
                 <div class="rounded-md bg-surface-secondary py-2">
-                    <p class="text-lg font-bold text-gray-900">
+                    <p class="text-lg font-bold text-text">
                         {{ data.queueCount }}
                     </p>
                     <p
                         class="text-[10px] font-semibold uppercase text-text-muted"
                     >
-                        Queue
+                        Open
                     </p>
                 </div>
                 <div class="rounded-md bg-surface-secondary py-2">
-                    <p class="text-lg font-bold text-gray-900">
+                    <p class="text-lg font-bold text-text">
                         {{ data.completedTodayCount }}
                     </p>
                     <p
                         class="text-[10px] font-semibold uppercase text-text-muted"
                     >
-                        Completed Today
+                        Closed Today
                     </p>
                 </div>
                 <div class="rounded-md bg-surface-secondary py-2">
@@ -67,7 +67,7 @@
 
             <div class="mt-auto">
                 <p class="text-xs font-semibold text-text-secondary mb-2">
-                    Queue
+                    Queue Preview
                 </p>
                 <ul v-if="data.queueTasks.length > 0" class="space-y-1.5">
                     <li
@@ -75,7 +75,7 @@
                         :key="task.docCode"
                         class="flex items-center justify-between text-sm"
                     >
-                        <span class="font-medium text-gray-900">{{
+                        <span class="font-medium text-text">{{
                             task.docCode
                         }}</span>
                         <span class="text-text-muted">{{
@@ -87,13 +87,13 @@
                     v-if="hiddenQueueTaskCount > 0"
                     class="mt-2 text-xs font-medium text-text-muted"
                 >
-                    +{{ hiddenQueueTaskCount }} more in queue
+                    +{{ hiddenQueueTaskCount }} more waiting
                 </p>
                 <p
                     v-if="data.queueTasks.length === 0"
                     class="text-sm text-text-secondary"
                 >
-                    Queue is empty.
+                    No open documents in this lane.
                 </p>
             </div>
         </div>
@@ -139,7 +139,7 @@ const cardClass = computed(() => {
 const exceptionsCountClass = computed(() =>
     props.data && props.data.exceptionsCount > 0
         ? "text-2xl font-extrabold text-danger-600"
-        : "text-lg font-bold text-gray-900",
+        : "text-lg font-bold text-text",
 );
 
 const visibleQueueTasks = computed(

@@ -20,10 +20,12 @@
 ### Task 1: Status Utility
 
 **Files:**
+
 - Create: `src/views/transactions/utils/transactionStatus.ts`
 - Create: `src/views/transactions/utils/transactionStatus.test.ts`
 
 **Interfaces:**
+
 - `formatTransactionStatus(value?: string | null): string`
 - `getTransactionStatusTone(value?: string | null): BadgeTone`
 
@@ -35,6 +37,7 @@
 ### Task 2: Integrate Transaction Status Labels
 
 **Files:**
+
 - Modify: `src/views/transactions/components/TransactionTable.vue`
 - Modify: `src/views/transactions/composables/useTransactionDetail.ts`
 - Modify: `src/views/transactions/components/TransactionSummaryWidget.vue`

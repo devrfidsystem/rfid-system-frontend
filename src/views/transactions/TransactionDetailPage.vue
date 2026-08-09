@@ -12,7 +12,7 @@
                     <Button
                         v-if="canCancel"
                         variant="outline"
-                        class="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                        class="border-danger-500/30 text-danger-600 hover:bg-danger-50 hover:text-danger-600"
                         object-id="btn_TransactionDetailCancel"
                         :disabled="actionLoading"
                         @click="handleCancel"
@@ -73,7 +73,7 @@
 
         <div v-else-if="error" class="p-6">
             <div
-                class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
             >
                 {{ error }}
             </div>
@@ -86,14 +86,14 @@
                     object-id="wdg_TransactionDetailInfo"
                 >
                     <h3
-                        class="mb-4 border-b border-gray-100 pb-3 text-base font-semibold text-gray-900"
+                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
                     >
                         Document Info
                     </h3>
                     <div class="space-y-4">
                         <div v-for="col in headerColumns" :key="col.key">
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-gray-500"
+                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
                             >
                                 {{ col.label }}
                             </span>
@@ -104,7 +104,7 @@
                             </template>
                             <span
                                 v-else
-                                class="mt-1 block text-sm font-medium text-gray-900"
+                                class="mt-1 block text-sm font-medium text-text"
                             >
                                 {{
                                     String(
@@ -119,7 +119,7 @@
                             class="pt-2"
                         >
                             <div
-                                class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600"
+                                class="rounded-md border border-border bg-surface-secondary px-4 py-3 text-sm text-text-secondary"
                             >
                                 {{ outboundReviewNote }}
                             </div>
@@ -133,19 +133,19 @@
                     object-id="wdg_TransactionDetailRegisterMeta"
                 >
                     <h3
-                        class="mb-4 border-b border-gray-100 pb-3 text-base font-semibold text-gray-900"
+                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
                     >
                         Task Meta
                     </h3>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-gray-500"
+                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
                             >
                                 Registered By
                             </span>
                             <span
-                                class="mt-1 block text-sm font-medium text-gray-900"
+                                class="mt-1 block text-sm font-medium text-text"
                             >
                                 {{
                                     getNestedValue(
@@ -157,12 +157,12 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-gray-500"
+                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
                             >
                                 Created By
                             </span>
                             <span
-                                class="mt-1 block text-sm font-medium text-gray-900"
+                                class="mt-1 block text-sm font-medium text-text"
                             >
                                 {{
                                     getNestedValue(
@@ -189,47 +189,47 @@
                     no-padding
                     object-id="wdg_TransactionDetailLines"
                 >
-                    <div class="border-b border-gray-100 px-6 py-5">
-                        <h3 class="text-base font-semibold text-gray-900">
+                    <div class="border-b border-border px-6 py-5">
+                        <h3 class="text-base font-semibold text-text">
                             Line Items
                         </h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table
                             v-if="isRelocation"
-                            class="min-w-full divide-y divide-gray-200"
+                            class="min-w-full divide-y divide-border"
                         >
-                            <thead class="bg-gray-50">
+                            <thead class="bg-surface-secondary">
                                 <tr>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         Product
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         From Location
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         To Location
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         Qty
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
+                            <tbody class="divide-y divide-border bg-surface">
                                 <tr
                                     v-for="(line, idx) in lines"
                                     :key="line.id || idx"
                                 >
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-text"
                                     >
                                         <div class="font-medium">
                                             {{
@@ -239,7 +239,7 @@
                                                 "-"
                                             }}
                                         </div>
-                                        <div class="text-xs text-gray-500">
+                                        <div class="text-xs text-text-secondary">
                                             {{
                                                 line.product?.code ||
                                                 line.productCode ||
@@ -248,7 +248,7 @@
                                         </div>
                                     </td>
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary"
                                     >
                                         {{
                                             line.fromLocation?.name ||
@@ -258,7 +258,7 @@
                                         }}
                                     </td>
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary"
                                     >
                                         {{
                                             line.toLocation?.name ||
@@ -268,7 +268,7 @@
                                         }}
                                     </td>
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500"
+                                        class="px-6 py-4 whitespace-nowrap text-right text-sm text-text-secondary"
                                     >
                                         {{ line.qty ?? "-" }}
                                     </td>
@@ -276,7 +276,7 @@
                                 <tr v-if="!lines || lines.length === 0">
                                     <td
                                         colspan="4"
-                                        class="px-6 py-8 text-center text-sm text-gray-500"
+                                        class="px-6 py-8 text-center text-sm text-text-secondary"
                                     >
                                         No line items found.
                                     </td>
@@ -286,34 +286,34 @@
 
                         <table
                             v-else
-                            class="min-w-full divide-y divide-gray-200"
+                            class="min-w-full divide-y divide-border"
                         >
-                            <thead class="bg-gray-50">
+                            <thead class="bg-surface-secondary">
                                 <tr>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         Product
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         Expected
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500"
+                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
                                     >
                                         Actual
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
+                            <tbody class="divide-y divide-border bg-surface">
                                 <tr
                                     v-for="(line, idx) in lines"
                                     :key="line.id || idx"
                                 >
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                                        class="px-6 py-4 whitespace-nowrap text-sm text-text"
                                     >
                                         <div class="font-medium">
                                             {{
@@ -323,7 +323,7 @@
                                                 "-"
                                             }}
                                         </div>
-                                        <div class="text-xs text-gray-500">
+                                        <div class="text-xs text-text-secondary">
                                             {{
                                                 line.product?.code ||
                                                 line.productCode ||
@@ -337,7 +337,7 @@
                                                 line.sourceLocationId ||
                                                 line.targetLocationId
                                             "
-                                            class="mt-1 text-xs text-gray-500"
+                                            class="mt-1 text-xs text-text-secondary"
                                         >
                                             {{
                                                 line.sourceLocation?.name ||
@@ -355,7 +355,7 @@
                                         </div>
                                     </td>
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500"
+                                        class="px-6 py-4 whitespace-nowrap text-right text-sm text-text-secondary"
                                     >
                                         {{
                                             line.expectedQty ?? line.qty ?? "-"
@@ -363,7 +363,7 @@
                                         {{ line.uom?.code || line.uomId || "" }}
                                     </td>
                                     <td
-                                        class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900"
+                                        class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-text"
                                     >
                                         {{ line.actualQty ?? line.qty ?? "-" }}
                                     </td>
@@ -371,7 +371,7 @@
                                 <tr v-if="!lines || lines.length === 0">
                                     <td
                                         colspan="3"
-                                        class="px-6 py-8 text-center text-sm text-gray-500"
+                                        class="px-6 py-8 text-center text-sm text-text-secondary"
                                     >
                                         No line items found.
                                     </td>

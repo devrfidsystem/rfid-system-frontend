@@ -7,7 +7,7 @@
                 }}</span>
                 <div class="mt-0.5 flex items-baseline gap-1.5">
                     <span
-                        class="text-2xl font-semibold text-gray-900 tabular-nums"
+                        class="text-2xl font-semibold text-text tabular-nums"
                         >{{ lastValue }}</span
                     >
                     <span class="text-xs font-normal text-text-muted">{{
@@ -68,7 +68,7 @@
                     :x2="width - padding"
                     :y1="gridY"
                     :y2="gridY"
-                    class="stroke-gray-100"
+                    class="stroke-border"
                     stroke-width="1"
                 />
 
@@ -91,7 +91,7 @@
                     :cx="lastPoint.x"
                     :cy="lastPoint.y"
                     r="4"
-                    class="fill-white"
+                    class="fill-surface"
                 />
                 <circle
                     v-if="lastPoint"
@@ -108,7 +108,7 @@
                     :x2="hoverPoint.x"
                     :y1="padding"
                     :y2="height - padding"
-                    class="stroke-gray-300"
+                    class="stroke-border"
                     stroke-width="1"
                 />
                 <circle
@@ -116,7 +116,7 @@
                     :cx="hoverPoint.x"
                     :cy="hoverPoint.y"
                     r="3"
-                    class="fill-white"
+                    class="fill-surface"
                 />
                 <circle
                     v-if="hoverPoint"
@@ -129,10 +129,10 @@
 
             <div
                 v-if="hoverIndex !== null && points[hoverIndex]"
-                class="pointer-events-none absolute top-0 -translate-y-full rounded-md border border-gray-200 bg-white px-2 py-1 text-xs shadow-sm"
+                class="pointer-events-none absolute top-0 -translate-y-full rounded-md border border-border bg-surface px-2 py-1 text-xs shadow-sm"
                 :style="{ left: `${hoverPercent}%` }"
             >
-                <div class="font-medium text-gray-900 tabular-nums">
+                <div class="font-medium text-text tabular-nums">
                     {{ points[hoverIndex].value }} {{ unit }}
                 </div>
                 <div class="text-text-muted">
@@ -159,7 +159,7 @@ const props = defineProps<{
     points: Array<{ period: string; value: number }>;
     strokeClass: string;
     dotClass: string;
-    /** Hex color used for the gradient fill (stop-color isn't a Tailwind utility). */
+    /** CSS color used for the gradient fill (stop-color isn't a Tailwind utility). */
     color: string;
     /** Whether an increasing value is the desirable direction (controls delta badge color). */
     higherIsBetter: boolean;

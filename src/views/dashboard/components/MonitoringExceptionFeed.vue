@@ -1,8 +1,8 @@
 <template>
     <Card object-id="wdg_MonitoringExceptionFeed">
-        <h3 class="text-sm font-semibold text-gray-900 mb-3">Exception Feed</h3>
+        <h3 class="text-sm font-semibold text-text mb-3">Exception Feed</h3>
         <p class="text-xs text-text-secondary mb-4 -mt-2">
-            Transactions requiring manual intervention
+            Operation rows requiring manual intervention
         </p>
 
         <div v-if="loading" class="space-y-2">
@@ -15,14 +15,14 @@
 
         <div
             v-else-if="exceptions.length === 0"
-            class="rounded-lg border border-gray-100 bg-gray-50/50 px-4 py-5 flex flex-col items-center text-center"
+            class="rounded-md border border-border bg-surface-secondary/50 px-4 py-5 flex flex-col items-center text-center"
         >
             <div
-                class="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-gray-200 mb-2 text-emerald-500"
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-success-500/20 mb-2 text-success-600"
             >
                 <Icon :icon="CheckCircle2" :size="20" />
             </div>
-            <p class="text-sm font-medium text-gray-900">
+            <p class="text-sm font-medium text-text">
                 No exceptions currently open
             </p>
         </div>
@@ -31,16 +31,16 @@
             <li
                 v-for="(row, index) in exceptions"
                 :key="index"
-                class="flex gap-3 rounded-md border border-border bg-white p-4 shadow-xs"
+                class="flex gap-3 rounded-md border border-border bg-surface p-4 shadow-xs"
             >
                 <div
-                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-danger-600"
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-danger-50 text-danger-600"
                 >
                     <Icon :icon="AlertTriangle" :size="16" />
                 </div>
                 <div class="flex-1">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-sm font-semibold text-gray-900">
+                        <span class="text-sm font-semibold text-text">
                             {{ row.eventLabel }} exception
                         </span>
                         <span

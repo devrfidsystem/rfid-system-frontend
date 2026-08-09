@@ -50,6 +50,7 @@ describe("ProcessMetricCards", () => {
         expect(html).toContain("36");
         expect(html).toContain("Productivity");
         expect(html).toContain("120");
+        expect(html).toContain("text-text");
         expect(html).toContain("text-danger-600");
         expect(html).toContain("text-success-600");
     });

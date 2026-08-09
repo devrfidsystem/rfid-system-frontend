@@ -34,12 +34,12 @@
             />
 
             <div class="px-6">
-                <p v-if="partnerError" class="text-xs text-rose-600 mb-4">
+                <p v-if="partnerError" class="text-xs text-danger-600 mb-4">
                     {{ partnerError }}
                 </p>
                 <p
                     v-if="error && !loading"
-                    class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 mb-4"
+                    class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-700 mb-4"
                 >
                     {{ error }}
                 </p>
