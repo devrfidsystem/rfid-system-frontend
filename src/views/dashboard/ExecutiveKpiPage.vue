@@ -8,28 +8,27 @@
             @refresh="refresh"
         />
 
-        <div class="flex items-start justify-between gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-text">Executive KPI</h1>
-                <p class="text-sm text-text-secondary mt-0.5">
-                    Explaining why operations improved or declined compared with
-                    the previous period
-                </p>
-            </div>
-            <RouterLink
-                to="/dashboard/process"
-                class="shrink-0 text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline"
-            >
-                View Process Performance →
-            </RouterLink>
-        </div>
-
-        <p
-            v-if="error"
-            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
+        <PageHeader
+            title="Executive KPI"
+            description="Explaining why operations improved or declined compared with the previous period"
+            tagline="Dashboard"
         >
-            {{ error }}
-        </p>
+            <template #actions>
+                <RouterLink
+                    to="/dashboard/process"
+                    class="shrink-0 text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline"
+                >
+                    View Process Performance →
+                </RouterLink>
+            </template>
+        </PageHeader>
+
+        <InlineAlert
+            v-if="errorMessage"
+            variant="error"
+            title="Executive KPI unavailable"
+            :description="errorMessage"
+        />
 
         <KpiDomainTabs :model-value="domain" @update:model-value="setDomain" />
         <KpiDomainHero :loading="loading" :data="data" />
@@ -51,8 +50,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted, unref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
+import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
 import KpiDomainTabs from "./components/KpiDomainTabs.vue";
 import KpiDomainHero from "./components/KpiDomainHero.vue";
@@ -80,6 +81,16 @@ const {
     selectedWarehouseId,
     setSelectedWarehouse,
 } = useExecutiveKpi();
+
+const errorMessage = computed(() => {
+    const value = unref(error);
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object" && "value" in value) {
+        const nestedValue = (value as { value?: unknown }).value;
+        return typeof nestedValue === "string" ? nestedValue : "";
+    }
+    return "";
+});
 
 onMounted(() => {
     const requestedDomain = route.query.domain;

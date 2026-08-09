@@ -148,12 +148,12 @@
             </Card>
         </div>
 
-        <p
+        <InlineAlert
             v-if="status"
-            class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ status }}
-        </p>
+            variant="error"
+            title="Profile action failed"
+            :description="status"
+        />
     </section>
 </template>
 
@@ -161,6 +161,7 @@
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import { useProfile } from "./composables/useProfile";
 
 const {

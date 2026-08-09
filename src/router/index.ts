@@ -5,7 +5,7 @@ import {
 } from "vue-router";
 import { useAccess } from "@/composable/useAccess";
 import { useAuthStore } from "@/store/auth.store";
-import { masterEntities } from "@/views/master/entityConfig";
+import { masterEntities } from "@/domain/master/entityConfig";
 import type { EntityKey } from "@/model/entities";
 import type { TransactionKey } from "@/services/transactions.service";
 
@@ -103,10 +103,6 @@ const routes: RouteRecordRaw[] = [
             {
                 path: "dashboard",
                 redirect: "/dashboard/overview",
-            },
-            {
-                path: "todo",
-                component: () => import("@/views/todo/TodoListPage.vue"),
             },
             {
                 path: "dashboard/overview",

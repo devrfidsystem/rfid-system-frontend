@@ -1,21 +1,9 @@
-export type OpnameNodeType = "group" | "profile" | "task";
+import type { OpnameTreeNode } from "@/api/feature/dto/opname.dto";
 
-export interface OpnameTreeNode {
-    id: string;
-    parentId: string | null;
-    companyId: string;
-    warehouse_id: string;
-    profile_id: string;
-    title: string;
-    description: string | null;
-    task_group: string | null;
-    task_period: string | null;
-    status: string;
-    nodeType: OpnameNodeType;
-    createdAt?: string | null;
-    updatedAt?: string | null;
-    children?: OpnameTreeNode[];
-}
+export type {
+    OpnameNodeType,
+    OpnameTreeNode,
+} from "@/api/feature/dto/opname.dto";
 
 export interface OpnameTreeRow extends OpnameTreeNode {
     depth: number;

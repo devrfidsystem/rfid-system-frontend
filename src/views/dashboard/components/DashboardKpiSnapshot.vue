@@ -1,29 +1,25 @@
 <template>
     <Card object-id="wdg_DashboardKpiSnapshot">
-        <div>
-            <h2 class="text-lg font-semibold text-text">
-                KPI Control Snapshot
-            </h2>
-            <p class="text-sm text-text-secondary mt-0.5">
-                Score movement for throughput, cycle time, and accuracy
-            </p>
-        </div>
+        <PanelHeader
+            title="KPI Control Snapshot"
+            description="Score movement for throughput, cycle time, and accuracy"
+        />
 
         <div class="mt-6">
             <div v-if="loading" class="grid gap-4 sm:grid-cols-3">
-                <div
+                <SkeletonBlock
                     v-for="n in 3"
                     :key="`kpi-skel-${n}`"
-                    class="h-40 rounded-md bg-surface-secondary animate-pulse"
-                ></div>
+                    height="h-40"
+                />
             </div>
 
-            <div
+            <InlineAlert
                 v-else-if="error"
-                class="rounded-md border border-danger-500/20 bg-danger-50 p-8 text-center text-sm text-danger-600"
-            >
-                KPI snapshot unavailable: {{ error }}
-            </div>
+                variant="error"
+                title="KPI snapshot unavailable"
+                :description="error"
+            />
 
             <div
                 v-else-if="!data || data.cards.length === 0"
@@ -55,7 +51,7 @@
                             }}{{ card.trendVsPrevious }}pt
                         </span>
                     </div>
-                    <p class="text-3xl font-extrabold text-text mt-2">
+                    <p class="text-2xl font-semibold text-text mt-2">
                         {{ card.score
                         }}<span class="text-xs font-semibold text-text-muted">
                             / 100</span
@@ -105,6 +101,9 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import type { DashboardKpiSnapshotResponse } from "@/model/dashboard";
 
 defineProps<{

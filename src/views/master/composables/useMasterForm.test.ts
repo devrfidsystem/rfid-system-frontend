@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { masterEntities } from "../entityConfig";
+import { masterEntities } from "@/domain/master/entityConfig";
 import { useMasterForm } from "./useMasterForm";
 
 const mocks = vi.hoisted(() => ({

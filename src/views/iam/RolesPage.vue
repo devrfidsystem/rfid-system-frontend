@@ -1,20 +1,19 @@
 <template>
     <div class="space-y-4">
-        <div class="flex justify-between items-center px-2">
-            <div>
-                <h3 class="text-lg font-medium text-text">Roles</h3>
-                <p class="text-sm text-text-secondary">
-                    Define role labels used by approval and access assignment.
-                </p>
-            </div>
+        <SectionHeader
+            title="Roles"
+            description="Define role labels used by approval and access assignment."
+            object-id="hdr_Roles"
+        >
             <Button
                 variant="primary"
+                class="w-full justify-center sm:w-auto"
                 object-id="btn_RolesNewRole"
                 @click="openCreateModal"
             >
-                New Role
+                Add Role
             </Button>
-        </div>
+        </SectionHeader>
 
         <Card no-padding object-id="wdg_RolesList">
             <DataTable
@@ -33,7 +32,8 @@
                             {
                                 key: 'edit',
                                 label: 'Edit',
-                                onClick: () => openEditModal(row),
+                                onClick: () =>
+                                    openEditModal(row as RoleTableRow),
                             },
                         ]"
                     />
@@ -45,7 +45,9 @@
             :model-value="isModalOpen"
             :title="isEditing ? 'Edit Role' : 'New Role'"
             :description="
-                isEditing ? 'Update role details.' : 'Create a new role.'
+                isEditing
+                    ? 'Adjust the role label used in access assignment.'
+                    : 'Create a role label for permission assignment.'
             "
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
@@ -66,7 +68,7 @@
                     object-id="txt_RolesFormDescription"
                 />
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-border">
+                <FormActions sticky>
                     <Button
                         type="button"
                         variant="outline"
@@ -82,23 +84,45 @@
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </Drawer>
     </div>
 </template>
 
 <script setup lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, onMounted, computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
+import SectionHeader from "@/components/molecules/SectionHeader.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
 import DataTable from "@/components/organisms/DataTable/DataTable.vue";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
+import FormActions from "@/components/ui/form/FormActions.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
 import { iamService } from "@/services/iam.service";
+import { useNotifier } from "@/composable/useNotifier";
+
+interface RoleRecord extends Record<string, unknown> {
+    id: string;
+    name: string;
+    description?: string | null;
+}
+
+interface RoleTableRow extends Record<string, unknown> {
+    id: string;
+    name: string;
+    description: string;
+    original: RoleRecord;
+}
+
+interface RoleForm {
+    name: string;
+    description: string;
+}
+
+const { withToast } = useNotifier();
 
 const columns = [
     { key: "name", label: "Role Name" },
@@ -106,7 +130,7 @@ const columns = [
     { key: "actions", label: "" },
 ];
 
-const rows = ref<any[]>([]);
+const rows = ref<RoleRecord[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -115,12 +139,12 @@ const isEditing = ref(false);
 const submitting = ref(false);
 const currentId = ref("");
 
-const form = ref({
+const form = ref<RoleForm>({
     name: "",
     description: "",
 });
 
-const tableRows = computed(() => {
+const tableRows = computed<RoleTableRow[]>(() => {
     return rows.value.map((r) => ({
         id: r.id,
         name: r.name,
@@ -134,9 +158,10 @@ const loadData = async () => {
     error.value = null;
     try {
         const response = await iamService.getRoles();
-        rows.value = response || [];
-    } catch (err: any) {
-        error.value = err.message || "Failed to load roles";
+        rows.value = response as RoleRecord[];
+    } catch (err: unknown) {
+        error.value =
+            err instanceof Error ? err.message : "Failed to load roles";
     } finally {
         loading.value = false;
     }
@@ -149,7 +174,7 @@ const openCreateModal = () => {
     isModalOpen.value = true;
 };
 
-const openEditModal = (row: any) => {
+const openEditModal = (row: RoleTableRow) => {
     const original = row.original;
     form.value = {
         name: original.name,
@@ -163,15 +188,23 @@ const openEditModal = (row: any) => {
 const handleSubmit = async () => {
     submitting.value = true;
     try {
-        if (isEditing.value) {
-            await iamService.updateRole(currentId.value, form.value);
-        } else {
-            await iamService.createRole(form.value);
-        }
+        await withToast(
+            async () => {
+                if (isEditing.value) {
+                    await iamService.updateRole(currentId.value, form.value);
+                } else {
+                    await iamService.createRole(form.value);
+                }
+            },
+            {
+                successMessage: isEditing.value
+                    ? "Role updated successfully"
+                    : "Role created successfully",
+                errorMessage: "Failed to save role",
+            },
+        );
         isModalOpen.value = false;
-        loadData();
-    } catch (err: any) {
-        alert(err.message || "Failed to save role");
+        await loadData();
     } finally {
         submitting.value = false;
     }

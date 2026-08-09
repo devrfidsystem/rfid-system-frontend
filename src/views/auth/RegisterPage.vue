@@ -65,29 +65,14 @@
                     />
                 </div>
 
-                <div>
-                    <label class="flex items-start gap-3 text-text-secondary">
-                        <input
-                            id="chk_RegisterTerms"
-                            v-model="form.terms"
-                            data-testid="chk_RegisterTerms"
-                            type="checkbox"
-                            class="mt-1 h-4 w-4 rounded border border-border text-brand-600 focus:ring-brand-500"
-                            @blur="touched.terms = true"
-                        />
-                        <span class="text-sm leading-relaxed">
-                            Saya sudah membaca kebijakan keamanan dan siap
-                            mengikuti role-based approval sebelum akses
-                            diberikan.
-                        </span>
-                    </label>
-                    <p
-                        v-if="fieldErrors.terms"
-                        class="mt-1 text-xs text-danger-600"
-                    >
-                        {{ fieldErrors.terms }}
-                    </p>
-                </div>
+                <CheckboxField
+                    v-model="form.terms"
+                    label="Saya sudah membaca kebijakan keamanan dan siap mengikuti role-based approval sebelum akses diberikan."
+                    object-id="chk_RegisterTerms"
+                    :error="fieldErrors.terms"
+                    align="start"
+                    @blur="touched.terms = true"
+                />
 
                 <Button
                     type="submit"
@@ -106,17 +91,18 @@
                         id="lkl_RegisterLogin"
                         to="/login"
                         data-testid="lkl_RegisterLogin"
-                        class="font-semibold text-text hover:text-brand-600"
+                        class="font-semibold text-primary-600 hover:text-primary-700"
                         >Masuk di sini</RouterLink
                     >
                 </div>
 
-                <p
+                <InlineAlert
                     v-if="status"
-                    class="rounded-md border border-border bg-surface-secondary p-3 text-xs text-text-secondary text-center"
-                >
-                    {{ status }}
-                </p>
+                    variant="info"
+                    :description="status"
+                    compact
+                    class="text-xs"
+                />
             </form>
         </template>
     </AuthShell>
@@ -127,6 +113,8 @@ import { RouterLink } from "vue-router";
 import AuthShell from "./AuthShell.vue";
 import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
 import { useRegister } from "./composables/useRegister";
 
 const {

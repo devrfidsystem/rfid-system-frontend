@@ -19,20 +19,22 @@
         </div>
 
         <div class="px-4 py-3">
-            <label class="sr-only" for="sidebar-search">Search menu</label>
-            <div class="relative">
-                <Search
-                    class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-muted"
-                    :stroke-width="1.75"
-                />
-                <input
-                    id="sidebar-search"
-                    v-model="searchQuery"
-                    type="search"
-                    placeholder="Search menu..."
-                    class="h-[var(--control-h-sm)] w-full rounded-md border border-border bg-surface-secondary pl-8 pr-3 text-sm text-text placeholder:text-text-muted outline-none transition-colors focus:border-primary-500"
-                />
-            </div>
+            <Input
+                id="sidebar-search"
+                v-model="searchQuery"
+                type="search"
+                label="Search menu"
+                label-class="sr-only"
+                placeholder="Search menu..."
+                object-id="txt_SidebarSearch"
+            >
+                <template #icon>
+                    <Search
+                        class="h-3.5 w-3.5 text-text-muted"
+                        :stroke-width="1.75"
+                    />
+                </template>
+            </Input>
         </div>
 
         <nav class="min-h-0 flex-1 overflow-y-auto px-2 py-2">
@@ -78,6 +80,7 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAccess } from "@/composable/useAccess";
+import Input from "@/components/atoms/Input.vue";
 import {
     buildSidebarNavItems,
     flattenSidebarNavItems,

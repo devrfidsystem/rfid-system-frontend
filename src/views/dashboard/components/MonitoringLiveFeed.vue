@@ -1,47 +1,53 @@
 <template>
     <Card object-id="wdg_MonitoringLiveFeed">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-sm font-semibold text-text">Live Operation Feed</h3>
-            <div
-                v-if="data && data.length > 0"
-                class="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5"
-            >
-                <Icon :icon="Search" :size="13" class="text-text-muted" />
-                <label for="txt_MonitoringLiveFeedSearch" class="sr-only"
-                    >Search live transactions</label
-                >
-                <input
+            <PanelHeader title="Live Operation Feed" />
+            <div v-if="data && data.length > 0" class="w-full sm:w-64">
+                <Input
                     id="txt_MonitoringLiveFeedSearch"
                     v-model="searchTerm"
+                    label="Search live transactions"
+                    label-class="sr-only"
                     type="text"
                     placeholder="Search operator, zone, event..."
-                    class="w-48 border-none bg-transparent text-xs text-text outline-none placeholder:text-text-muted"
                     object-id="txt_MonitoringLiveFeedSearch"
-                />
+                >
+                    <template #icon>
+                        <Icon
+                            :icon="Search"
+                            :size="13"
+                            class="text-text-muted"
+                        />
+                    </template>
+                </Input>
             </div>
         </div>
 
         <div v-if="loading" class="space-y-2">
-            <div
+            <SkeletonBlock
                 v-for="n in 6"
                 :key="n"
-                class="h-8 rounded bg-surface-secondary animate-pulse"
-            ></div>
+                height="h-8"
+            />
         </div>
 
-        <div
+        <StatusPanel
             v-else-if="!data || data.length === 0"
-            class="text-sm text-text-secondary text-center py-6"
-        >
-            No movement recorded in the current window.
-        </div>
+            title="No movement recorded"
+            description="No movement recorded in the current window."
+            :icon="Search"
+            tone="neutral"
+            class="border-0 bg-transparent py-6"
+        />
 
-        <div
+        <StatusPanel
             v-else-if="filteredRows.length === 0"
-            class="text-sm text-text-secondary text-center py-6"
-        >
-            No operation rows match "{{ searchTerm }}".
-        </div>
+            title="No matching operation rows"
+            :description="`No operation rows match &quot;${searchTerm}&quot;.`"
+            :icon="Search"
+            tone="neutral"
+            class="border-0 bg-transparent py-6"
+        />
 
         <div v-else class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -67,22 +73,13 @@
                         :class="rowClass(row)"
                     >
                         <td class="py-2 pr-3">
-                            <span class="inline-flex items-center gap-1.5">
-                                <span
-                                    class="h-2 w-2 rounded-full"
-                                    :class="statusDotClass(row.status)"
-                                ></span>
-                                <span
-                                    class="text-[11px] font-semibold"
-                                    :class="statusTextClass(row.status)"
-                                >
-                                    {{
-                                        row.status === "exception"
-                                            ? "Exception"
-                                            : "OK"
-                                    }}
-                                </span>
-                            </span>
+                            <Badge :tone="statusTone(row.status)">
+                                {{
+                                    row.status === "exception"
+                                        ? "Exception"
+                                        : "OK"
+                                }}
+                            </Badge>
                         </td>
                         <td class="py-2 pr-3">{{ row.warehouseName }}</td>
                         <td class="py-2 pr-3">{{ row.zoneLabel ?? "—" }}</td>
@@ -93,31 +90,16 @@
                         </td>
                         <td class="py-2 pr-3">{{ row.durationMinutes }} min</td>
                         <td class="py-2 pr-3">
-                            <span
-                                class="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase"
-                                :class="priorityClass(row.priority)"
-                            >
+                            <Badge :tone="priorityTone(row.priority)">
                                 {{ row.priority }}
-                            </span>
+                            </Badge>
                         </td>
                         <td class="py-2">
                             <template v-if="row.slaPct !== null">
-                                <div class="flex items-center gap-1.5">
-                                    <div
-                                        role="progressbar"
-                                        :aria-valuenow="row.slaPct"
-                                        class="h-1.5 w-16 overflow-hidden rounded-full bg-surface-secondary"
-                                    >
-                                        <div
-                                            class="h-full rounded-full"
-                                            :class="slaBarClass(row.slaPct)"
-                                            :style="{ width: `${row.slaPct}%` }"
-                                        ></div>
-                                    </div>
-                                    <span class="text-xs text-text-muted"
-                                        >{{ row.slaPct }}%</span
-                                    >
-                                </div>
+                                <ProgressBar
+                                    :value="row.slaPct"
+                                    :tone="slaTone(row.slaPct)"
+                                />
                             </template>
                             <span v-else class="text-xs text-text-muted"
                                 >—</span
@@ -133,7 +115,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import ProgressBar from "@/components/molecules/ProgressBar.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Input from "@/components/atoms/Input.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import { Search } from "lucide-vue-next";
 import type { LiveTransactionRow } from "@/model/dashboard";
 
@@ -165,14 +153,16 @@ const formatTimestamp = (iso: string): string => {
     });
 };
 
-const priorityClass = (priority: LiveTransactionRow["priority"]): string => {
+type BadgeTone = "success" | "warning" | "error";
+
+const priorityTone = (priority: LiveTransactionRow["priority"]): BadgeTone => {
     switch (priority) {
         case "high":
-            return "bg-danger-50 text-danger-600";
+            return "error";
         case "med":
-            return "bg-warning-50 text-warning-600";
+            return "warning";
         default:
-            return "bg-success-50 text-success-600";
+            return "success";
     }
 };
 
@@ -184,15 +174,12 @@ const rowClass = (row: LiveTransactionRow): string =>
         .join(" ")
         .trim();
 
-const statusDotClass = (status: LiveTransactionRow["status"]): string =>
-    status === "exception" ? "bg-danger-500" : "bg-success-500";
+const statusTone = (status: LiveTransactionRow["status"]): BadgeTone =>
+    status === "exception" ? "error" : "success";
 
-const statusTextClass = (status: LiveTransactionRow["status"]): string =>
-    status === "exception" ? "text-danger-600" : "text-success-600";
-
-const slaBarClass = (slaPct: number): string => {
-    if (slaPct >= 90) return "bg-danger-600";
-    if (slaPct >= 75) return "bg-warning-500";
-    return "bg-success-600";
+const slaTone = (slaPct: number): BadgeTone => {
+    if (slaPct >= 90) return "error";
+    if (slaPct >= 75) return "warning";
+    return "success";
 };
 </script>

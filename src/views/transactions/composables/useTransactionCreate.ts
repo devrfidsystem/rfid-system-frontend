@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
@@ -261,8 +260,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                 label: `${p.code} - ${p.name}`,
                 value: String(p.id),
             }));
-        } catch (err) {
-            console.error("Failed to load options", err);
+        } catch {
             notifyError("Gagal memuat opsi form");
         }
     };

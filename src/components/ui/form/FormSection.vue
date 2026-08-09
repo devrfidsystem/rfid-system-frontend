@@ -2,7 +2,7 @@
     <section :class="sectionClass">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-xs uppercase tracking-wider text-text-muted">
+                <p class="text-xs text-text-muted">
                     {{ subtitle }}
                 </p>
                 <h2 class="text-lg font-semibold text-text">{{ title }}</h2>

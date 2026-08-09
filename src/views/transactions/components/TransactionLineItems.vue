@@ -7,7 +7,7 @@
         <div
             class="px-6 py-5 border-b border-border flex justify-between items-center"
         >
-            <h3 class="text-base font-semibold text-text">Line Items</h3>
+            <ToolbarTitle title="Line Items" />
             <Button
                 type="button"
                 size="sm"
@@ -175,6 +175,7 @@ import Card from "@/components/molecules/Card.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 
 defineProps<{
     lines: Array<{

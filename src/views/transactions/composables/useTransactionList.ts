@@ -3,15 +3,15 @@ import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { masterService } from "@/services/master.service";
 import {
     transactionService,
-    transactionPaths,
     type TransactionKey,
 } from "@/services/transactions.service";
+import { transactionPaths } from "@/api/feature/dto/transactions.dto";
 import { reportService } from "@/services/report.service";
 import {
     reportConfigs,
     hasPartnerDatasetSupport,
     type ReportKey,
-} from "@/views/report/reportConfig";
+} from "@/domain/report/reportConfig";
 import type { ApiMeta } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
 import type { TransactionRecord, TransactionSummaryResponse } from "../types";

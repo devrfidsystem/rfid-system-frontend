@@ -4,7 +4,7 @@ import {
     transactionService,
     type TransactionKey,
 } from "@/services/transactions.service";
-import { reportConfigs } from "@/views/report/reportConfig";
+import { reportConfigs } from "@/domain/report/reportConfig";
 import type { TransactionRecord } from "../types";
 import { useNotifier } from "@/composable/useNotifier";
 import {

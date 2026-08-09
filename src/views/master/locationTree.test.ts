@@ -6,7 +6,7 @@ import {
     resolveLocationParentLabel,
     resolveLocationWarehouseLabel,
 } from "./locationTree";
-import type { MasterRecord } from "./types";
+import type { MasterRecord } from "@/domain/master/types";
 
 describe("locationTree", () => {
     const warehouseOptions = new Map<string, string>([

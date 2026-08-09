@@ -1,4 +1,4 @@
-import type { MasterRecord } from "./types";
+import type { MasterRecord } from "@/domain/master/types";
 
 type LabelMap = Map<string, string>;
 type TreeIdSet = ReadonlySet<string> | Set<string>;

@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-// @ts-expect-error Vite raw imports are resolved at test runtime.
 import pageSource from "../TransactionDetailPage.vue?raw";
 
 const mocks = vi.hoisted(() => ({
@@ -34,7 +33,7 @@ vi.mock("@/services/transactions.service", () => ({
     },
 }));
 
-vi.mock("@/views/report/reportConfig", () => ({
+vi.mock("@/domain/report/reportConfig", () => ({
     reportConfigs: {
         relocation: {
             entity: "relocation",

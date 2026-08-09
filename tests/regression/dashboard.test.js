@@ -28,24 +28,30 @@ async function runDashboardTests() {
         await dashboardPage.navigate();
         console.log("  -> Dashboard loaded. PASS.");
 
-        // 2. Verify Heatmap Widget Exists
-        console.log("[Test] Verify Heatmap Widget renders");
-        const heatmap = await dashboardPage.getHeatmapWidget();
-        if (heatmap) {
-            console.log("  -> Heatmap widget found. PASS.");
+        // 2. Verify current dashboard widgets exist
+        console.log("[Test] Verify Alert Center widget renders");
+        const alertCenter = await dashboardPage.getAlertCenterWidget();
+        if (alertCenter) {
+            console.log("  -> Alert Center widget found. PASS.");
         } else {
-            throw new Error("Heatmap widget is missing.");
+            throw new Error("Alert Center widget is missing.");
         }
 
-        // 3. Verify Low Stock Widget
-        console.log("[Test] Verify Low Stock Widget and Redirection");
-        const lowStockWidget = await dashboardPage.getLowStockWidget();
-        if (lowStockWidget) {
-            console.log("  -> Low Stock Widget found. PASS.");
-            await dashboardPage.clickLowStockViewInventory();
-            console.log("  -> Successfully redirected to Product List. PASS.");
+        console.log("[Test] Verify Workflow Overview widget renders");
+        const workflowOverview =
+            await dashboardPage.getWorkflowOverviewWidget();
+        if (workflowOverview) {
+            console.log("  -> Workflow Overview widget found. PASS.");
         } else {
-            throw new Error("Low Stock widget is missing.");
+            throw new Error("Workflow Overview widget is missing.");
+        }
+
+        console.log("[Test] Verify KPI Snapshot widget renders");
+        const kpiSnapshot = await dashboardPage.getKpiSnapshotWidget();
+        if (kpiSnapshot) {
+            console.log("  -> KPI Snapshot widget found. PASS.");
+        } else {
+            throw new Error("KPI Snapshot widget is missing.");
         }
 
         console.log("All Dashboard scenarios covered.");

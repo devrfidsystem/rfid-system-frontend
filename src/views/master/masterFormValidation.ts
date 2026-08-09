@@ -1,4 +1,4 @@
-import type { MasterFormField } from "./entityConfig";
+import type { MasterFormField } from "@/domain/master/entityConfig";
 
 type FormValue = string | File | null;
 

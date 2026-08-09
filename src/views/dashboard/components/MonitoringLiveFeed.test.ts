@@ -2,8 +2,22 @@ import { describe, expect, it } from "vitest";
 import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
 import MonitoringLiveFeed from "./MonitoringLiveFeed.vue";
+import monitoringLiveFeedSource from "./MonitoringLiveFeed.vue?raw";
 
 describe("MonitoringLiveFeed", () => {
+    it("uses the Input atom for the live feed search control", () => {
+        expect(monitoringLiveFeedSource).toContain("<Input");
+        expect(monitoringLiveFeedSource).toContain(
+            'import Input from "@/components/atoms/Input.vue";',
+        );
+        expect(monitoringLiveFeedSource).not.toContain(
+            "border-none bg-transparent text-xs",
+        );
+        expect(monitoringLiveFeedSource).not.toContain(
+            "<input\n                    id=\"txt_MonitoringLiveFeedSearch\"",
+        );
+    });
+
     it("renders a skeleton while loading", async () => {
         const app = createSSRApp(MonitoringLiveFeed, {
             loading: true,
@@ -86,7 +100,7 @@ describe("MonitoringLiveFeed", () => {
 
         expect(html).toContain("Exception");
         expect(html).toContain("bg-danger-50/40");
-        expect(html).toContain("bg-danger-500");
+        expect(html).toContain("ring-danger-500/20");
     });
 
     it("colors SLA bars by threshold so at-risk rows scan quickly", async () => {

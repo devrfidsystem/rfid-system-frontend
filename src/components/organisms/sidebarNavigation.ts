@@ -23,7 +23,7 @@ import {
     Workflow,
 } from "lucide-vue-next";
 import type { MenuTreeNode } from "@/services/auth.service";
-import { isSupportedMasterPath } from "@/views/master/entityConfig";
+import { isSupportedMasterPath } from "@/domain/master/entityConfig";
 
 export type SidebarScope =
     | "all"

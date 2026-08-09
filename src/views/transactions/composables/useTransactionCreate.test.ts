@@ -1,5 +1,4 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
-// @ts-expect-error Vite raw imports are resolved at test runtime.
 import pageSource from "../TransactionCreatePage.vue?raw";
 
 const mocks = vi.hoisted(() => ({

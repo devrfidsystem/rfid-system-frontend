@@ -1,17 +1,12 @@
 <template>
     <div class="space-y-4">
-        <div
-            class="flex flex-col sm:flex-row justify-between items-start sm:items-center px-2 gap-4"
+        <SectionHeader
+            title="Menus"
+            description="Maintain menu visibility, route paths, and navigation order."
+            object-id="hdr_SettingsMenus"
         >
-            <div>
-                <h3 class="text-lg font-medium text-text">Menus</h3>
-                <p class="text-sm text-text-secondary">
-                    Maintain menu visibility, route paths, and navigation order.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <div class="w-64">
+            <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+                <div class="w-full sm:w-64">
                     <Select
                         v-model="selectedAppId"
                         :options="appOptions"
@@ -21,25 +16,29 @@
                 </div>
                 <Button
                     variant="primary"
+                    class="w-full justify-center sm:w-auto"
                     :disabled="!selectedAppId"
                     object-id="btn_MenusNewMenu"
                     @click="openCreateModal"
                 >
-                    New Menu
+                    Add Menu
                 </Button>
             </div>
-        </div>
+        </SectionHeader>
 
         <Card no-padding object-id="wdg_MenusList">
             <div v-if="loadingApps" class="p-6">
                 <LoadingState :lines="1" />
             </div>
-            <div
+            <StatusPanel
                 v-else-if="!selectedAppId"
-                class="p-12 text-center text-text-secondary"
-            >
-                Please select an application to view its menus.
-            </div>
+                title="Select an application"
+                description="Please select an application to view its menus."
+                :icon="LayoutList"
+                tone="neutral"
+                class="border-0 bg-transparent"
+                object-id="stp_MenusSelectApplication"
+            />
             <DataTable
                 v-else
                 object-id="MenusList"
@@ -57,7 +56,8 @@
                             {
                                 key: 'edit',
                                 label: 'Edit',
-                                onClick: () => openEditModal(row as any),
+                                onClick: () =>
+                                    openEditModal(row as MenuTableRow),
                             },
                         ]"
                     />
@@ -69,7 +69,9 @@
             :model-value="isModalOpen"
             :title="isEditing ? 'Edit Menu' : 'New Menu'"
             :description="
-                isEditing ? 'Update menu details.' : 'Create a new menu item.'
+                isEditing
+                    ? 'Adjust route, icon, and navigation order.'
+                    : 'Create a menu entry for the selected application.'
             "
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
@@ -113,7 +115,7 @@
                     object-id="nmf_MenusFormSequence"
                 />
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-border">
+                <FormActions sticky>
                     <Button
                         type="button"
                         variant="outline"
@@ -129,7 +131,7 @@
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </Drawer>
     </div>
@@ -144,9 +146,13 @@ import Select from "@/components/atoms/Select.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
 import DataTable from "@/components/organisms/DataTable/DataTable.vue";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
+import FormActions from "@/components/ui/form/FormActions.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
-import { useMenus } from "./composables/useMenus";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import SectionHeader from "@/components/molecules/SectionHeader.vue";
+import { LayoutList } from "lucide-vue-next";
+import { useMenus, type MenuTableRow } from "./composables/useMenus";
 
 const {
     columns,

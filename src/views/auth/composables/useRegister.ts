@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { reactive, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useNotifier } from "@/composable/useNotifier";
@@ -111,8 +110,9 @@ export function useRegister() {
                 },
             );
             await router.replace("/login");
-        } catch (error: any) {
-            status.value = error.message || "Gagal mendaftar.";
+        } catch (error: unknown) {
+            status.value =
+                error instanceof Error ? error.message : "Gagal mendaftar.";
         }
     };
 

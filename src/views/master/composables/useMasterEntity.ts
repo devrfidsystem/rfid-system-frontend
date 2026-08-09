@@ -2,7 +2,7 @@ import { computed, ref } from "vue";
 import { useMasterContext } from "./useMasterContext";
 import { useMasterTable } from "./useMasterTable";
 import { useMasterForm } from "./useMasterForm";
-import type { MasterRecord } from "../types";
+import type { MasterRecord } from "@/domain/master/types";
 import { masterService } from "@/services/master.service";
 import {
     exportMasterRowsToExcel,
@@ -15,7 +15,7 @@ import {
     resolveLocationWarehouseLabel,
     resolveLocationTreeLabel,
 } from "../locationTree";
-import { attributeTypeOptions } from "../entityConfig";
+import { attributeTypeOptions } from "@/domain/master/entityConfig";
 
 /**
  * Facade composable that orchestrates Context, Table, and Form composables.

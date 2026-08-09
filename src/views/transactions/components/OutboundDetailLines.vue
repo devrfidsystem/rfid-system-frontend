@@ -4,14 +4,7 @@
             <div
                 class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
             >
-                <div>
-                    <h3 class="text-base font-semibold text-text">
-                        Line Execution
-                    </h3>
-                    <p class="mt-2 text-sm text-text-secondary">
-                        {{ note }}
-                    </p>
-                </div>
+                <ToolbarTitle title="Line Execution" :description="note" />
                 <Badge :tone="readOnly ? 'neutral' : 'warning'">
                     {{ readOnly ? "Review Only" : "Draft" }}
                 </Badge>
@@ -23,22 +16,22 @@
                 <thead class="bg-surface-secondary">
                     <tr>
                         <th
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                            class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                         >
                             Product
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                            class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                         >
                             Origin Location
                         </th>
                         <th
-                            class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                            class="px-6 py-3 text-right text-xs font-semibold text-text-secondary"
                         >
                             Qty
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                            class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                         >
                             Status
                         </th>
@@ -101,9 +94,15 @@
                     <tr v-if="!lines.length">
                         <td
                             colspan="4"
-                            class="px-6 py-8 text-center text-sm text-text-secondary"
+                            class="px-6 py-6"
                         >
-                            No line items found.
+                            <StatusPanel
+                                title="No line items"
+                                description="No outbound line execution rows are available."
+                                :icon="FileText"
+                                tone="neutral"
+                                class="border-0 bg-transparent py-2"
+                            />
                         </td>
                     </tr>
                 </tbody>
@@ -116,6 +115,9 @@
 import { computed } from "vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Card from "@/components/molecules/Card.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import { FileText } from "lucide-vue-next";
 
 type OutboundDetailLine = {
     id?: string;

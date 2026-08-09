@@ -21,7 +21,6 @@
                     variant="ghost"
                     size="sm"
                     type="button"
-                    class="uppercase tracking-wider"
                     data-testid="button-handleclear"
                     @click="handleClear"
                 >

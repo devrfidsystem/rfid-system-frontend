@@ -23,9 +23,9 @@
                 class="md:col-span-3"
                 object-id="wdg_TransactionCreateInboundBlocked"
             >
-                <h3 class="text-base font-semibold text-text mb-3">
-                    Inbound is read-only
-                </h3>
+                <div class="mb-3">
+                    <ToolbarTitle title="Inbound is read-only" />
+                </div>
                 <p class="text-sm text-text-secondary leading-6">
                     Inbound documents are only displayed from data that has
                     already been registered. Web admin only reviews inbound data
@@ -41,11 +41,9 @@
                     class="md:col-span-1"
                     object-id="wdg_TransactionCreateDetails"
                 >
-                    <h3
-                        class="text-base font-semibold text-text mb-4 border-b border-border pb-3"
-                    >
-                        Document Details
-                    </h3>
+                    <div class="mb-4 border-b border-border pb-3">
+                        <ToolbarTitle title="Document Details" />
+                    </div>
                     <div class="space-y-4">
                         <Input
                             id="docNumber"
@@ -260,15 +258,10 @@
                     object-id="wdg_TransactionCreateOpname"
                 >
                     <div class="px-6 py-5 border-b border-border">
-                        <h3 class="text-base font-semibold text-text">
-                            Opname Creation
-                        </h3>
-                        <p class="text-sm text-text-secondary mt-2">
-                            Creating a Stock Opname does not require line items
-                            initially. Once created, you can start the counting
-                            process and the system will automatically snapshot
-                            the warehouse balances.
-                        </p>
+                        <ToolbarTitle
+                            title="Opname Creation"
+                            description="Creating a Stock Opname does not require line items initially. Once created, you can start the counting process and the system will automatically snapshot the warehouse balances."
+                        />
                     </div>
                     <div
                         class="px-6 py-3 border-t border-border flex justify-end gap-3"
@@ -303,6 +296,7 @@
 import { onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";

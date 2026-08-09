@@ -1,14 +1,12 @@
 <template>
     <Card object-id="wdg_ProcessHourlyHeatmap">
-        <h3 class="text-sm font-semibold text-text mb-3">
-            Hourly Workload Distribution
-        </h3>
+        <PanelHeader title="Hourly Workload Distribution" class="mb-3" />
         <div v-if="loading" class="grid grid-cols-12 gap-1">
-            <div
+            <SkeletonBlock
                 v-for="n in 24"
                 :key="n"
-                class="h-8 rounded bg-surface-secondary animate-pulse"
-            ></div>
+                height="h-8"
+            />
         </div>
         <div
             v-else-if="!data || data.every((bucket) => bucket.count === 0)"
@@ -32,6 +30,8 @@
 
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import type { ProcessHourlyBucket } from "@/model/dashboard";
 
 const props = defineProps<{

@@ -1,5 +1,21 @@
 import type { ApiPaginatedResult } from "@/lib/api/response";
-import type { ReportKey } from "@/views/report/reportConfig";
+
+export type ReportKey =
+    | "inbound"
+    | "putaway"
+    | "outbound"
+    | "stock-opname"
+    | "relocation"
+    | "transfer"
+    | "return"
+    | "register"
+    | "current-stock"
+    | "stock-period";
+
+export interface ReportColumnDef {
+    key: string;
+    label: string;
+}
 
 export interface ReportRow {
     id?: string;

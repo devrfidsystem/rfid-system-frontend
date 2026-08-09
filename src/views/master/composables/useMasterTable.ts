@@ -1,6 +1,6 @@
 import { ref, reactive, watch, computed } from "vue";
 import { masterService } from "@/services/master.service";
-import type { MasterRecord } from "../types";
+import type { MasterRecord } from "@/domain/master/types";
 import type { ApiMeta } from "@/lib/api/response";
 import type {
     MasterEntityKey,

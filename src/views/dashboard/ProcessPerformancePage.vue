@@ -8,48 +8,47 @@
             @refresh="refresh"
         />
 
-        <div class="flex items-start justify-between gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-text">Process Performance</h1>
-                <p class="text-sm text-text-secondary mt-0.5">
-                    Cycle time and throughput analytics across warehouse
-                    processes
-                </p>
-            </div>
-            <div class="flex gap-1 rounded-md border border-border p-0.5">
-                <button
-                    type="button"
-                    class="px-3 py-1 rounded text-sm font-semibold transition-colors"
-                    :class="
-                        period === 'week'
-                            ? 'bg-primary-600 text-white'
-                            : 'text-text-secondary hover:text-text'
-                    "
-                    @click="setPeriod('week')"
-                >
-                    Week
-                </button>
-                <button
-                    type="button"
-                    class="px-3 py-1 rounded text-sm font-semibold transition-colors"
-                    :class="
-                        period === 'month'
-                            ? 'bg-primary-600 text-white'
-                            : 'text-text-secondary hover:text-text'
-                    "
-                    @click="setPeriod('month')"
-                >
-                    Month
-                </button>
-            </div>
-        </div>
-
-        <p
-            v-if="error"
-            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
+        <PageHeader
+            title="Process Performance"
+            description="Cycle time and throughput analytics across warehouse processes"
+            tagline="Dashboard"
         >
-            {{ error }}
-        </p>
+            <template #actions>
+                <div class="flex gap-1 rounded-md border border-border p-0.5">
+                    <button
+                        type="button"
+                        class="px-3 py-1 rounded text-sm font-semibold transition-colors"
+                        :class="
+                            period === 'week'
+                                ? 'bg-primary-600 text-white'
+                                : 'text-text-secondary hover:text-text'
+                        "
+                        @click="setPeriod('week')"
+                    >
+                        Week
+                    </button>
+                    <button
+                        type="button"
+                        class="px-3 py-1 rounded text-sm font-semibold transition-colors"
+                        :class="
+                            period === 'month'
+                                ? 'bg-primary-600 text-white'
+                                : 'text-text-secondary hover:text-text'
+                        "
+                        @click="setPeriod('month')"
+                    >
+                        Month
+                    </button>
+                </div>
+            </template>
+        </PageHeader>
+
+        <InlineAlert
+            v-if="errorMessage"
+            variant="error"
+            title="Process performance unavailable"
+            :description="errorMessage"
+        />
 
         <ProcessActivityPicker
             :model-value="activity"
@@ -79,7 +78,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, unref } from "vue";
+import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
 import ProcessActivityPicker from "./components/ProcessActivityPicker.vue";
 import ProcessMetricCards from "./components/ProcessMetricCards.vue";
@@ -104,6 +105,16 @@ const {
     selectedWarehouseId,
     setSelectedWarehouse,
 } = useProcessPerformance();
+
+const errorMessage = computed(() => {
+    const value = unref(error);
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object" && "value" in value) {
+        const nestedValue = (value as { value?: unknown }).value;
+        return typeof nestedValue === "string" ? nestedValue : "";
+    }
+    return "";
+});
 
 const supportingMetricsList = computed<
     DashboardKpiDetailSupportingMetric[] | null

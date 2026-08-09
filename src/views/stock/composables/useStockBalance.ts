@@ -1,11 +1,11 @@
-import { computed, reactive, ref, watch, onMounted, onUnmounted } from "vue";
+import { computed, reactive, ref, watch, onMounted } from "vue";
 import { stockService } from "@/services/stock.service";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import type { StockBalanceRecord } from "@/model/entities";
 import type { ApiMeta } from "@/lib/api/response";
 import { reportService } from "@/services/report.service";
-import { reportConfigs } from "@/views/report/reportConfig";
+import { reportConfigs } from "@/domain/report/reportConfig";
 import { useWarehouseStore } from "@/store/warehouse.store";
 
 const columns = [
@@ -27,29 +27,8 @@ export function useStockBalance() {
     const error = ref<string | null>(null);
     const warehouseStore = useWarehouseStore();
 
-    const isFilterOpen = ref(false);
-    const filterPopoverRef = ref<HTMLElement | null>(null);
-
-    const toggleFilter = () => {
-        isFilterOpen.value = !isFilterOpen.value;
-    };
-
-    const closeFilter = (e: Event) => {
-        if (
-            filterPopoverRef.value &&
-            !filterPopoverRef.value.contains(e.target as Node)
-        ) {
-            isFilterOpen.value = false;
-        }
-    };
-
     onMounted(() => {
-        document.addEventListener("click", closeFilter);
         void loadRows();
-    });
-
-    onUnmounted(() => {
-        document.removeEventListener("click", closeFilter);
     });
 
     const pagination = reactive({
@@ -209,9 +188,6 @@ export function useStockBalance() {
         keyword,
         selectedWarehouse,
         warehouseSelectOptions,
-        isFilterOpen,
-        filterPopoverRef,
-        toggleFilter,
         loading,
         error,
         displayRows,

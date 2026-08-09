@@ -2,9 +2,7 @@
     <div
         class="flex flex-col justify-between gap-4 px-4 py-3 sm:flex-row sm:items-center"
     >
-        <div>
-            <h3 class="text-lg font-semibold text-text">{{ title }} List</h3>
-        </div>
+        <ToolbarTitle :title="`${title} List`" />
         <div
             class="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center"
         >
@@ -19,27 +17,23 @@
                 </template>
             </Input>
             <div class="grid grid-cols-3 items-center gap-2 sm:flex">
-                <div
+                <FilterPopover
                     v-if="hasFilterableFields"
-                    ref="filterPopoverRef"
-                    class="relative flex"
+                    v-model:open="isFilterOpen"
+                    object-id="pop_MasterHeaderFilters"
                 >
-                    <Button
-                        variant="outline"
-                        class="px-3 w-full sm:w-auto justify-center"
-                        object-id="btn_MasterHeaderFilter"
-                        @click="toggleFilter"
-                    >
-                        <Icon :icon="Filter" :size="14" />
-                        Filter
-                    </Button>
-                    <div
-                        v-if="isFilterOpen"
-                        class="absolute right-0 sm:right-auto z-10 mt-12 sm:mt-2 w-[320px] origin-top-right rounded-md bg-surface shadow-lg ring-1 ring-border focus:outline-none p-4 space-y-4"
-                    >
-                        <h4 class="font-medium text-sm text-text mb-2">
-                            Filters
-                        </h4>
+                    <template #trigger="{ toggle }">
+                        <Button
+                            variant="outline"
+                            class="px-3 w-full sm:w-auto justify-center"
+                            object-id="btn_MasterHeaderFilter"
+                            @click="toggle"
+                        >
+                            <Icon :icon="Filter" :size="14" />
+                            Filter
+                        </Button>
+                    </template>
+                    <template #default>
                         <Select
                             v-if="entityKey === 'products'"
                             v-model="localFilterCategoryId"
@@ -76,17 +70,17 @@
                             class="w-full"
                             object-id="cmb_MasterHeaderWarehouse"
                         />
-                        <div class="pt-2 flex justify-end">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                object-id="btn_MasterHeaderCloseFilter"
-                                @click="toggleFilter"
-                                >Close</Button
-                            >
-                        </div>
-                    </div>
-                </div>
+                    </template>
+                    <template #actions="{ close }">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            object-id="btn_MasterHeaderCloseFilter"
+                            @click="close"
+                            >Close</Button
+                        >
+                    </template>
+                </FilterPopover>
                 <Button
                     variant="outline"
                     class="px-2 w-full sm:w-auto justify-center"
@@ -140,11 +134,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import FilterPopover from "@/components/molecules/FilterPopover.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 import MasterImportDialog from "./MasterImportDialog.vue";
 import {
     Search,
@@ -219,12 +215,7 @@ const hasFilterableFields = computed(() =>
 );
 
 const isFilterOpen = ref(false);
-const filterPopoverRef = ref<HTMLElement | null>(null);
 const isImportDialogOpen = ref(false);
-
-const toggleFilter = () => {
-    isFilterOpen.value = !isFilterOpen.value;
-};
 
 const openImportDialog = () => {
     isImportDialogOpen.value = true;
@@ -233,21 +224,4 @@ const openImportDialog = () => {
 const closeImportDialog = () => {
     isImportDialogOpen.value = false;
 };
-
-const closeFilter = (e: Event) => {
-    if (
-        filterPopoverRef.value &&
-        !filterPopoverRef.value.contains(e.target as Node)
-    ) {
-        isFilterOpen.value = false;
-    }
-};
-
-onMounted(() => {
-    document.addEventListener("click", closeFilter);
-});
-
-onBeforeUnmount(() => {
-    document.removeEventListener("click", closeFilter);
-});
 </script>

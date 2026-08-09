@@ -1,5 +1,10 @@
 import type { MasterEntityKey } from "@/api/feature/dto/master.dto";
 
+type MasterPayloadInputValue = string | File | null;
+type AttributeListItem = { value: string; label: string };
+export type MasterPayloadValue = string | number | boolean | AttributeListItem[];
+export type MasterPayload = Record<string, MasterPayloadValue>;
+
 const numericKeys = new Set([
     "rowNo",
     "colNo",
@@ -20,7 +25,7 @@ const buildCodeFromName = (prefix: string, name?: string) => {
     return `${prefix}-${suffix}`;
 };
 
-const parseAttributeItems = (raw?: string) => {
+const parseAttributeItems = (raw?: string): AttributeListItem[] | undefined => {
     if (!raw) return undefined;
 
     const items = raw
@@ -45,9 +50,9 @@ const isFileValue = (value: unknown) =>
  */
 const extractMasterFields = (
     entity: MasterEntityKey,
-    submittedData: Record<string, string | File | null>,
-): Record<string, any> => {
-    const payload: Record<string, any> = {};
+    submittedData: Record<string, MasterPayloadInputValue>,
+): MasterPayload => {
+    const payload: MasterPayload = {};
 
     Object.entries(submittedData).forEach(([key, value]) => {
         if (isFileValue(value) || value === null || typeof value !== "string")
@@ -89,23 +94,23 @@ const extractMasterFields = (
 
 export const buildMasterCreatePayload = (
     entity: MasterEntityKey,
-    submittedData: Record<string, string | File | null>,
-): Record<string, any> => {
+    submittedData: Record<string, MasterPayloadInputValue>,
+): MasterPayload => {
     const payload = extractMasterFields(entity, submittedData);
 
-    if (entity === "warehouses" && payload.name) {
+    if (entity === "warehouses" && typeof payload.name === "string") {
         payload.code = buildCodeFromName("WH", payload.name);
     }
 
-    if (entity === "locations" && payload.name) {
+    if (entity === "locations" && typeof payload.name === "string") {
         payload.code = buildCodeFromName("LOC", payload.name);
     }
 
-    if (entity === "customers" && payload.name) {
+    if (entity === "customers" && typeof payload.name === "string") {
         payload.code = buildCodeFromName("CUST", payload.name);
     }
 
-    if (entity === "suppliers" && payload.name) {
+    if (entity === "suppliers" && typeof payload.name === "string") {
         payload.code = buildCodeFromName("SUP", payload.name);
     }
 
@@ -114,5 +119,5 @@ export const buildMasterCreatePayload = (
 
 export const buildMasterUpdatePayload = (
     entity: MasterEntityKey,
-    submittedData: Record<string, string | File | null>,
-): Record<string, any> => extractMasterFields(entity, submittedData);
+    submittedData: Record<string, MasterPayloadInputValue>,
+): MasterPayload => extractMasterFields(entity, submittedData);

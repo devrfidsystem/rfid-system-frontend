@@ -1,21 +1,21 @@
 <template>
     <Card object-id="wdg_ProcessOperatorRanking">
-        <h3 class="text-sm font-semibold text-text mb-3">
-            Operator Throughput
-        </h3>
+        <PanelHeader title="Operator Throughput" class="mb-3" />
         <div v-if="loading" class="space-y-2">
-            <div
+            <SkeletonBlock
                 v-for="n in 5"
                 :key="n"
-                class="h-6 rounded bg-surface-secondary animate-pulse"
-            ></div>
+                height="h-6"
+            />
         </div>
-        <div
+        <StatusPanel
             v-else-if="!data || data.length === 0"
-            class="text-sm text-text-secondary text-center py-6"
-        >
-            No operator throughput data in this window.
-        </div>
+            title="No operator throughput data"
+            description="No operator throughput data in this window."
+            :icon="Users"
+            tone="neutral"
+            class="border-0 bg-transparent py-6"
+        />
         <ul v-else class="space-y-2">
             <li
                 v-for="(operator, index) in data"
@@ -23,10 +23,7 @@
                 class="flex items-center justify-between text-sm"
             >
                 <span class="flex items-center gap-2">
-                    <span
-                        class="flex h-5 w-5 items-center justify-center rounded-full bg-primary-50 text-primary-600 text-xs font-bold"
-                        >{{ index + 1 }}</span
-                    >
+                    <RankBadge :label="index + 1" />
                     {{ operator.userName }}
                 </span>
                 <span class="font-semibold">{{ operator.score }}</span>
@@ -37,6 +34,11 @@
 
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import RankBadge from "@/components/molecules/RankBadge.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
+import { Users } from "lucide-vue-next";
 import type { ProcessOperatorRankEntry } from "@/model/dashboard";
 
 defineProps<{

@@ -1,4 +1,4 @@
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { useWarehouseStore } from "@/store/warehouse.store";
@@ -171,9 +171,11 @@ export function useDashboard() {
         ]);
     };
 
-    onMounted(() => {
-        void refreshDashboard();
-    });
+    if (getCurrentInstance()) {
+        onMounted(() => {
+            void refreshDashboard();
+        });
+    }
 
     useDebouncedWatch(
         () => warehouseStore.selectedWarehouseId,

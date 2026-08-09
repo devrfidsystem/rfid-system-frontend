@@ -76,7 +76,7 @@ vi.mock("@/services/report.service", () => ({
     },
 }));
 
-vi.mock("@/views/report/reportConfig", () => ({
+vi.mock("@/domain/report/reportConfig", () => ({
     reportConfigs: {
         inbound: {
             title: "Inbound Documents",
@@ -123,7 +123,7 @@ describe("useTransactionList", () => {
 
     it("renders outbound list metadata and wireframe columns", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "outbound" });
@@ -171,7 +171,7 @@ describe("useTransactionList", () => {
 
     it("only allows export for inbound/outbound — the only two backend-supported export routes", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { useTransactionList } = await import("./useTransactionList");
 
@@ -201,7 +201,7 @@ describe("useTransactionList", () => {
 
     it("configures register list with warehouse filter and register-specific columns", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "register" });
@@ -251,7 +251,7 @@ describe("useTransactionList", () => {
 
     it("exposes the raw loaded rows for downstream summary derivation", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { transactionService } =
             await import("@/services/transactions.service");

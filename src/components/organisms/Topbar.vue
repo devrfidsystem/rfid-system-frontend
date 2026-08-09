@@ -54,9 +54,7 @@
                         @click="toggleWarehouseMenu"
                     >
                         <div class="min-w-0">
-                            <div
-                                class="text-xs font-semibold uppercase tracking-wide text-text-muted"
-                            >
+                            <div class="text-xs font-semibold text-text-muted">
                                 Warehouse
                             </div>
                             <div class="truncate text-sm font-medium text-text">

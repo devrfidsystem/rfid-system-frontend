@@ -1,20 +1,19 @@
 <template>
     <div class="space-y-4">
-        <div class="flex justify-between items-center px-2">
-            <div>
-                <h3 class="text-lg font-medium text-text">Companies</h3>
-                <p class="text-sm text-text-secondary">
-                    Maintain company records used for user and warehouse access.
-                </p>
-            </div>
+        <SectionHeader
+            title="Companies"
+            description="Maintain company records used for user and warehouse access."
+            object-id="hdr_SettingsCompanies"
+        >
             <Button
                 variant="primary"
+                class="w-full justify-center sm:w-auto"
                 object-id="btn_CompaniesNewCompany"
                 @click="openCreateModal"
             >
-                New Company
+                Add Company
             </Button>
-        </div>
+        </SectionHeader>
 
         <Card no-padding object-id="wdg_CompaniesList">
             <DataTable
@@ -33,7 +32,8 @@
                             {
                                 key: 'edit',
                                 label: 'Edit',
-                                onClick: () => openEditModal(row as any),
+                                onClick: () =>
+                                    openEditModal(row as CompanyTableRow),
                             },
                         ]"
                     />
@@ -46,8 +46,8 @@
             :title="isEditing ? 'Edit Company' : 'New Company'"
             :description="
                 isEditing
-                    ? 'Update company details.'
-                    : 'Register a new company.'
+                    ? 'Adjust company identity used by access policies.'
+                    : 'Create a company record for warehouse access mapping.'
             "
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
@@ -75,22 +75,14 @@
                     label="Description"
                     object-id="txt_CompaniesFormDescription"
                 />
-                <div class="flex items-center gap-2 mt-4">
-                    <input
-                        id="chk_CompaniesFormIsActive"
-                        v-model="form.isActive"
-                        data-testid="chk_CompaniesFormIsActive"
-                        type="checkbox"
-                        class="rounded border-border text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
-                    />
-                    <label
-                        for="chk_CompaniesFormIsActive"
-                        class="text-sm text-text"
-                        >Active</label
-                    >
-                </div>
+                <CheckboxField
+                    v-model="form.isActive"
+                    label="Active"
+                    object-id="chk_CompaniesFormIsActive"
+                    class="mt-4"
+                />
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-border">
+                <FormActions sticky>
                     <Button
                         type="button"
                         variant="outline"
@@ -106,7 +98,7 @@
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </Drawer>
     </div>
@@ -120,8 +112,11 @@ import Input from "@/components/atoms/Input.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
 import DataTable from "@/components/organisms/DataTable/DataTable.vue";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
+import FormActions from "@/components/ui/form/FormActions.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
-import { useCompanies } from "./composables/useCompanies";
+import SectionHeader from "@/components/molecules/SectionHeader.vue";
+import { useCompanies, type CompanyTableRow } from "./composables/useCompanies";
 
 const {
     columns,

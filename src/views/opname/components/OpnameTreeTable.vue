@@ -1,11 +1,11 @@
 <template>
     <div>
         <div v-if="loading" class="space-y-3 px-6 py-4">
-            <div
+            <SkeletonBlock
                 v-for="n in 5"
                 :key="`opname-skeleton-${n}`"
-                class="h-4 animate-pulse rounded bg-surface-secondary"
-                :class="n % 2 === 0 ? 'w-5/6' : 'w-full'"
+                height="h-4"
+                :width="n % 2 === 0 ? 'w-5/6' : 'w-full'"
             />
         </div>
 
@@ -22,7 +22,7 @@
             <table class="min-w-full divide-y divide-border">
                 <thead>
                     <tr
-                        class="bg-surface-secondary text-left text-xs font-semibold uppercase tracking-wide text-text-secondary"
+                        class="bg-surface-secondary text-left text-xs font-semibold text-text-secondary"
                     >
                         <th class="px-6 py-3 text-left">Groups</th>
                         <th class="px-6 py-3 text-left">Date</th>
@@ -159,6 +159,7 @@ import Button from "@/components/atoms/Button.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import EmptyState from "@/components/molecules/EmptyState.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import { ChevronDown, ChevronRight } from "lucide-vue-next";
 import type { OpnameTreeRow } from "../opnameTree";
 

@@ -57,18 +57,11 @@
                     </template>
                 </Input>
 
-                <label
-                    class="inline-flex items-center gap-2 text-sm text-text-secondary cursor-pointer"
-                >
-                    <input
-                        id="chk_LoginRememberMe"
-                        v-model="form.remember"
-                        data-testid="chk_LoginRememberMe"
-                        type="checkbox"
-                        class="h-4 w-4 rounded border border-border text-brand-600 focus:ring-brand-500"
-                    />
-                    Ingat saya
-                </label>
+                <CheckboxField
+                    v-model="form.remember"
+                    label="Ingat saya"
+                    object-id="chk_LoginRememberMe"
+                />
 
                 <Button
                     type="submit"
@@ -81,12 +74,13 @@
                     {{ submitting ? "Memproses..." : "Masuk" }}
                 </Button>
 
-                <p
+                <InlineAlert
                     v-if="status"
-                    class="rounded-md border border-danger-100 bg-danger-50 p-3 text-xs text-danger-600 text-center"
-                >
-                    {{ status }}
-                </p>
+                    variant="error"
+                    :description="status"
+                    compact
+                    class="text-xs"
+                />
             </form>
         </template>
     </AuthShell>
@@ -100,6 +94,8 @@ import AuthShell from "./AuthShell.vue";
 import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
 import { useLogin } from "./composables/useLogin";
 
 const {
