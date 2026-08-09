@@ -2,11 +2,7 @@
     <Card object-id="wdg_KpiSupportingMetrics">
         <PanelHeader title="Supporting Signals" class="mb-1" />
         <div v-if="loading" class="grid gap-3 sm:grid-cols-4">
-            <SkeletonBlock
-                v-for="n in 4"
-                :key="n"
-                height="h-16"
-            />
+            <SkeletonBlock v-for="n in 4" :key="n" height="h-16" />
         </div>
         <div
             v-else-if="!data || data.length === 0"

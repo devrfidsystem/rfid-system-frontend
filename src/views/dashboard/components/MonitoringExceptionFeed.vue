@@ -7,11 +7,7 @@
         />
 
         <div v-if="loading" class="space-y-2">
-            <SkeletonBlock
-                v-for="n in 3"
-                :key="n"
-                height="h-16"
-            />
+            <SkeletonBlock v-for="n in 3" :key="n" height="h-16" />
         </div>
 
         <StatusPanel

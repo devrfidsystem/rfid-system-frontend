@@ -141,10 +141,7 @@
                                 :key="`skeleton-${n}`"
                             >
                                 <td v-if="selectable" class="px-4 py-3 w-10">
-                                    <SkeletonBlock
-                                        height="h-4"
-                                        width="w-4"
-                                    />
+                                    <SkeletonBlock height="h-4" width="w-4" />
                                 </td>
                                 <td
                                     v-for="column in columns"

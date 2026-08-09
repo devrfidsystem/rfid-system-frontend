@@ -17,7 +17,9 @@ describe("StatusPanel", () => {
         const html = await renderToString(app);
 
         expect(html).toContain("No open exceptions");
-        expect(html).toContain("Selected warehouse has no active operational risk.");
+        expect(html).toContain(
+            "Selected warehouse has no active operational risk.",
+        );
         expect(html).toContain('object-id="pnl_Status"');
         expect(html).toContain("text-success-600");
     });

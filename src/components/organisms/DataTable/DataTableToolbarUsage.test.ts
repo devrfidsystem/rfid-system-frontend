@@ -29,6 +29,8 @@ describe("DataTableToolbar design-system usage", () => {
         expect(dataTableSource).not.toContain(
             "h-4 w-4 rounded border border-border text-primary-600",
         );
-        expect(dataTableSource).not.toContain("animate-pulse rounded bg-surface-secondary");
+        expect(dataTableSource).not.toContain(
+            "animate-pulse rounded bg-surface-secondary",
+        );
     });
 });

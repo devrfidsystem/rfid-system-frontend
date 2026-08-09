@@ -74,7 +74,8 @@ const icon = computed<Component>(() =>
 );
 
 const iconClasses = computed(() => {
-    const base = "flex h-8 w-8 shrink-0 items-center justify-center rounded-full";
+    const base =
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full";
     if (props.alert.severity === "critical") {
         return `${base} bg-danger-50 text-danger-600`;
     }

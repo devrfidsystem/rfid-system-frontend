@@ -2,11 +2,7 @@
     <Card object-id="wdg_ProcessOperatorRanking">
         <PanelHeader title="Operator Throughput" class="mb-3" />
         <div v-if="loading" class="space-y-2">
-            <SkeletonBlock
-                v-for="n in 5"
-                :key="n"
-                height="h-6"
-            />
+            <SkeletonBlock v-for="n in 5" :key="n" height="h-6" />
         </div>
         <StatusPanel
             v-else-if="!data || data.length === 0"

@@ -5,7 +5,9 @@
             description="Maintain menu visibility, route paths, and navigation order."
             object-id="hdr_SettingsMenus"
         >
-            <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <div
+                class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center"
+            >
                 <div class="w-full sm:w-64">
                     <Select
                         v-model="selectedAppId"

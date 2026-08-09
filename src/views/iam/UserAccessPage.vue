@@ -57,7 +57,10 @@
                 @add="addRole"
                 @remove="
                     (item) =>
-                        openRemoveRoleConfirm(item.subjectId ?? item.id, item.label)
+                        openRemoveRoleConfirm(
+                            item.subjectId ?? item.id,
+                            item.label,
+                        )
                 "
             />
 

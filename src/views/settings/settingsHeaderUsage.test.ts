@@ -3,11 +3,7 @@ import appsPageSource from "./AppsPage.vue?raw";
 import companiesPageSource from "./CompaniesPage.vue?raw";
 import menusPageSource from "./MenusPage.vue?raw";
 
-const settingsPages = [
-    appsPageSource,
-    companiesPageSource,
-    menusPageSource,
-];
+const settingsPages = [appsPageSource, companiesPageSource, menusPageSource];
 
 describe("settings section headers", () => {
     it("uses the shared SectionHeader molecule as the single source of truth", () => {

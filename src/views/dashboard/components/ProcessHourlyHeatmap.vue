@@ -2,11 +2,7 @@
     <Card object-id="wdg_ProcessHourlyHeatmap">
         <PanelHeader title="Hourly Workload Distribution" class="mb-3" />
         <div v-if="loading" class="grid grid-cols-12 gap-1">
-            <SkeletonBlock
-                v-for="n in 24"
-                :key="n"
-                height="h-8"
-            />
+            <SkeletonBlock v-for="n in 24" :key="n" height="h-8" />
         </div>
         <div
             v-else-if="!data || data.every((bucket) => bucket.count === 0)"

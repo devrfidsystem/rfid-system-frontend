@@ -11,7 +11,10 @@
                 {{ description }}
             </p>
         </div>
-        <div v-if="$slots.default" class="flex w-full items-center gap-3 sm:w-auto">
+        <div
+            v-if="$slots.default"
+            class="flex w-full items-center gap-3 sm:w-auto"
+        >
             <slot />
         </div>
     </div>

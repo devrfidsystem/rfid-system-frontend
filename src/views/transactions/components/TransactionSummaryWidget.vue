@@ -4,11 +4,7 @@
         object-id="wdg_TransactionSummary"
     >
         <template v-if="loading">
-            <SkeletonBlock
-                v-for="n in 4"
-                :key="n"
-                height="h-28"
-            />
+            <SkeletonBlock v-for="n in 4" :key="n" height="h-28" />
         </template>
 
         <Card v-else-if="error" class="sm:col-span-2 lg:col-span-4">
@@ -46,7 +42,11 @@
                 </div>
             </MetricSummaryCard>
 
-            <MetricSummaryCard label="Latest Document" :icon="Clock" tone="info">
+            <MetricSummaryCard
+                label="Latest Document"
+                :icon="Clock"
+                tone="info"
+            >
                 <template v-if="summary.mostRecent">
                     <p class="text-sm font-medium text-text">
                         {{ summary.mostRecent.docNo }}

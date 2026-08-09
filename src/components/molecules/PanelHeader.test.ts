@@ -20,7 +20,9 @@ describe("PanelHeader", () => {
         const html = await renderToString(app);
 
         expect(html).toContain("Operational Exceptions");
-        expect(html).toContain("Open warehouse risks that need operator action");
+        expect(html).toContain(
+            "Open warehouse risks that need operator action",
+        );
         expect(html).toContain("Action");
         expect(html).toContain("data-panel-header");
     });

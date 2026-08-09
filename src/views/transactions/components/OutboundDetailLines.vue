@@ -92,10 +92,7 @@
                         </td>
                     </tr>
                     <tr v-if="!lines.length">
-                        <td
-                            colspan="4"
-                            class="px-6 py-6"
-                        >
+                        <td colspan="4" class="px-6 py-6">
                             <StatusPanel
                                 title="No line items"
                                 description="No outbound line execution rows are available."

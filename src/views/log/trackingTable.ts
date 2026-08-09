@@ -33,7 +33,9 @@ export const toTrackingRows = (
     warehouseName: (id?: string) => string,
 ): TrackingTableRow[] =>
     events.map((event, index) => ({
-        id: String(event.id ?? `${event.epc ?? event.productId ?? "event"}-${index}`),
+        id: String(
+            event.id ?? `${event.epc ?? event.productId ?? "event"}-${index}`,
+        ),
         epc: formatFallback(event.epc ?? event.productId),
         timestamp: event.timestamp ? formatDate(event.timestamp) : "-",
         warehouse: formatFallback(warehouseName(event.warehouseId)),

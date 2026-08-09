@@ -1,11 +1,7 @@
 <template>
     <div class="grid gap-4 sm:grid-cols-3" object-id="wdg_OpnameSummary">
         <template v-if="loading">
-            <SkeletonBlock
-                v-for="n in 5"
-                :key="n"
-                height="h-28"
-            />
+            <SkeletonBlock v-for="n in 5" :key="n" height="h-28" />
         </template>
 
         <Card v-else-if="error" class="sm:col-span-3">
@@ -72,7 +68,11 @@
                 </p>
             </MetricSummaryCard>
 
-            <MetricSummaryCard label="Latest Count Task" :icon="Clock" tone="info">
+            <MetricSummaryCard
+                label="Latest Count Task"
+                :icon="Clock"
+                tone="info"
+            >
                 <template v-if="summary.mostRecent">
                     <p class="text-sm font-medium text-text">
                         {{ summary.mostRecent.title }}

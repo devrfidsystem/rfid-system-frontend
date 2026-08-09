@@ -24,11 +24,7 @@
         </div>
 
         <div v-if="loading" class="space-y-2">
-            <SkeletonBlock
-                v-for="n in 6"
-                :key="n"
-                height="h-8"
-            />
+            <SkeletonBlock v-for="n in 6" :key="n" height="h-8" />
         </div>
 
         <StatusPanel

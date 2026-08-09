@@ -97,9 +97,7 @@
                         :selected-file="getSelectedFile(field.key)"
                         :error="errors[field.key]"
                         :object-id="`file_MasterForm_Field${field.key}`"
-                        @change="
-                            (file) => handleFileChange(field.key, file)
-                        "
+                        @change="(file) => handleFileChange(field.key, file)"
                     />
                 </div>
             </div>

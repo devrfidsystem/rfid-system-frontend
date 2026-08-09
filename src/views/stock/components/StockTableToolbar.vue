@@ -52,7 +52,10 @@
                             :object-id="`cmb_${objectIdPrefix}Warehouse`"
                             @update:model-value="
                                 (value) =>
-                                    emit('update:selectedWarehouse', String(value))
+                                    emit(
+                                        'update:selectedWarehouse',
+                                        String(value),
+                                    )
                             "
                         />
                     </template>

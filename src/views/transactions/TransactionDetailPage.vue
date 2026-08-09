@@ -270,10 +270,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="!lines || lines.length === 0">
-                                    <td
-                                        colspan="4"
-                                        class="px-6 py-6"
-                                    >
+                                    <td colspan="4" class="px-6 py-6">
                                         <StatusPanel
                                             title="No line items"
                                             description="No line item rows are available for this transaction."
@@ -370,10 +367,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="!lines || lines.length === 0">
-                                    <td
-                                        colspan="3"
-                                        class="px-6 py-6"
-                                    >
+                                    <td colspan="3" class="px-6 py-6">
                                         <StatusPanel
                                             title="No line items"
                                             description="No line item rows are available for this transaction."

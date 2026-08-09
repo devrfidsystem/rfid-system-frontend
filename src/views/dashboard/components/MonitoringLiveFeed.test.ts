@@ -14,7 +14,7 @@ describe("MonitoringLiveFeed", () => {
             "border-none bg-transparent text-xs",
         );
         expect(monitoringLiveFeedSource).not.toContain(
-            "<input\n                    id=\"txt_MonitoringLiveFeedSearch\"",
+            '<input\n                    id="txt_MonitoringLiveFeedSearch"',
         );
     });
 

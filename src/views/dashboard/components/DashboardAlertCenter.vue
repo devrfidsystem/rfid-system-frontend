@@ -14,9 +14,7 @@
                 <Badge tone="warning">
                     Warning {{ data.counts.warning }}
                 </Badge>
-                <Badge tone="info">
-                    Info {{ data.counts.info }}
-                </Badge>
+                <Badge tone="info"> Info {{ data.counts.info }} </Badge>
             </div>
         </PanelHeader>
 
@@ -122,5 +120,4 @@ const filteredAlerts = computed(() => {
     if (severityFilter.value === "all") return alerts;
     return alerts.filter((alert) => alert.severity === severityFilter.value);
 });
-
 </script>

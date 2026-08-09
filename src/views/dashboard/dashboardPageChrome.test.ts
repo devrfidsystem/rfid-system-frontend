@@ -4,7 +4,11 @@ import processSource from "./ProcessPerformancePage.vue?raw";
 import monitoringSource from "./MonitoringPage.vue?raw";
 import overviewSource from "./DashboardPage.vue?raw";
 
-const dashboardSubPageSources = [executiveSource, processSource, monitoringSource];
+const dashboardSubPageSources = [
+    executiveSource,
+    processSource,
+    monitoringSource,
+];
 
 describe("dashboard page chrome", () => {
     it("uses shared PageHeader and InlineAlert for dashboard sub-pages", () => {

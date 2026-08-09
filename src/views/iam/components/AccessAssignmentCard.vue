@@ -1,6 +1,8 @@
 <template>
     <Card :class="cardClass" :object-id="`wdg_${objectIdPrefix}`">
-        <h4 class="mb-4 border-b border-border pb-3 text-base font-semibold text-text">
+        <h4
+            class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
+        >
             {{ title }}
         </h4>
         <div class="space-y-4">
@@ -34,7 +36,9 @@
                     :key="item.id"
                     class="flex items-center justify-between gap-3 rounded-md border border-border bg-surface-secondary p-3"
                 >
-                    <span class="min-w-0 truncate text-sm font-medium text-text">
+                    <span
+                        class="min-w-0 truncate text-sm font-medium text-text"
+                    >
                         {{ item.label }}
                     </span>
                     <Button

@@ -28,8 +28,12 @@
                 {{ alert.summary }}
             </p>
 
-            <div class="rounded-md border border-border bg-surface-secondary p-4">
-                <p class="text-[10px] font-semibold uppercase text-text-secondary">
+            <div
+                class="rounded-md border border-border bg-surface-secondary p-4"
+            >
+                <p
+                    class="text-[10px] font-semibold uppercase text-text-secondary"
+                >
                     Business Impact
                 </p>
                 <p class="mt-1 text-sm text-text">
@@ -37,8 +41,12 @@
                 </p>
             </div>
 
-            <div class="rounded-md border border-border bg-surface-secondary p-4">
-                <p class="text-[10px] font-semibold uppercase text-text-secondary">
+            <div
+                class="rounded-md border border-border bg-surface-secondary p-4"
+            >
+                <p
+                    class="text-[10px] font-semibold uppercase text-text-secondary"
+                >
                     Recommended Action
                 </p>
                 <p class="mt-1 text-sm text-text">
@@ -46,7 +54,9 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 border-t border-border pt-4 text-xs">
+            <div
+                class="grid grid-cols-2 gap-4 border-t border-border pt-4 text-xs"
+            >
                 <div>
                     <p class="font-semibold uppercase text-text-secondary">
                         Occurred
