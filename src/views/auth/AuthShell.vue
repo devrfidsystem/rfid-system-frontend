@@ -46,17 +46,22 @@ defineProps<{
     background:
         linear-gradient(
             to bottom,
-            #ffffff 0%,
-            #ffffff 78%,
-            rgba(255, 255, 255, 0.97) 84%,
-            rgba(255, 255, 255, 0.92) 88%,
-            rgba(255, 255, 255, 0.85) 92%,
-            rgba(255, 255, 255, 0.72) 95%,
-            rgba(255, 255, 255, 0.58) 97%,
-            rgba(255, 255, 255, 0.45) 99%,
-            rgba(255, 255, 255, 0.35) 100%
+            rgb(var(--surface)) 0%,
+            rgb(var(--surface)) 78%,
+            rgb(var(--surface) / 0.97) 84%,
+            rgb(var(--surface) / 0.92) 88%,
+            rgb(var(--surface) / 0.85) 92%,
+            rgb(var(--surface) / 0.72) 95%,
+            rgb(var(--surface) / 0.58) 97%,
+            rgb(var(--surface) / 0.45) 99%,
+            rgb(var(--surface) / 0.35) 100%
         ),
-        linear-gradient(90deg, #1d4ed8 0%, #2563eb 45%, #22d3ee 100%);
+        linear-gradient(
+            90deg,
+            var(--brand-gradient-from) 0%,
+            var(--brand-gradient-via) 45%,
+            var(--brand-gradient-to) 100%
+        );
 }
 
 .auth-page__main {
@@ -88,15 +93,15 @@ defineProps<{
     font-size: 1.75rem;
     font-weight: 700;
     line-height: 1.3;
-    color: #0f172a;
-    letter-spacing: -0.02em;
+    color: rgb(var(--text));
+    letter-spacing: 0;
 }
 
 .auth-card__subtitle {
     margin-top: 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5;
-    color: #64748b;
+    color: rgb(var(--text-secondary));
 }
 
 .auth-card__body {
@@ -110,6 +115,6 @@ defineProps<{
     text-align: center;
     font-size: 0.6875rem;
     color: rgba(255, 255, 255, 0.9);
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
 }
 </style>

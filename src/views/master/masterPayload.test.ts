@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildMasterCreatePayload } from "./masterPayload";
+import {
+    buildMasterCreatePayload,
+    buildMasterUpdatePayload,
+} from "./masterPayload";
 
 describe("buildMasterCreatePayload", () => {
     it("parses attribute list items into backend payload objects", () => {
@@ -67,5 +70,71 @@ describe("buildMasterCreatePayload", () => {
             parentId: "loc-1",
             code: "LOC-RACK-A",
         });
+    });
+
+    it("converts isActive to a boolean", () => {
+        expect(
+            buildMasterCreatePayload("warehouses", {
+                name: "Main Warehouse",
+                isActive: "false",
+            }),
+        ).toEqual({
+            name: "Main Warehouse",
+            isActive: false,
+            code: "WH-MAIN-WAREHOUSE",
+        });
+    });
+});
+
+describe("buildMasterUpdatePayload", () => {
+    it("never regenerates or forwards a code for customers on update", () => {
+        // Regression test: update used to alias buildMasterCreatePayload,
+        // which invents a fresh `code` from `name` whenever `code` is empty —
+        // and customers/suppliers never have a `code` form field, so every
+        // edit silently overwrote the customer's real business code.
+        const payload = buildMasterUpdatePayload("customers", {
+            name: "Retail Partner Renamed",
+            phone: "08123456789",
+        });
+
+        expect(payload).toEqual({
+            name: "Retail Partner Renamed",
+            phone: "08123456789",
+        });
+        expect(payload.code).toBeUndefined();
+    });
+
+    it("never regenerates or forwards a code for suppliers on update", () => {
+        const payload = buildMasterUpdatePayload("suppliers", {
+            name: "Source Partner Renamed",
+        });
+
+        expect(payload).toEqual({ name: "Source Partner Renamed" });
+        expect(payload.code).toBeUndefined();
+    });
+
+    it("never forwards code for warehouses/locations on update either", () => {
+        expect(
+            buildMasterUpdatePayload("warehouses", {
+                name: "Main Warehouse Renamed",
+                code: "WH-SHOULD-NOT-BE-SENT",
+            }),
+        ).toEqual({ name: "Main Warehouse Renamed" });
+
+        expect(
+            buildMasterUpdatePayload("locations", {
+                name: "Rack A Renamed",
+                code: "LOC-SHOULD-NOT-BE-SENT",
+            }),
+        ).toEqual({ name: "Rack A Renamed" });
+    });
+
+    it("converts isActive to a boolean on update", () => {
+        expect(
+            buildMasterUpdatePayload("customers", {
+                name: "Retail Partner",
+                isActive: "false",
+            }),
+        ).toEqual({ name: "Retail Partner", isActive: false });
     });
 });

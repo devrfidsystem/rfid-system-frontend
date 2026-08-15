@@ -49,21 +49,21 @@
         </Card>
 
         <Card no-padding object-id="wdg_TagRegistrationList">
-            <div class="border-b border-gray-100 px-6 py-4">
-                <h3 class="text-base font-semibold text-gray-900">
+            <div class="border-b border-border px-6 py-4">
+                <h3 class="text-base font-semibold text-text">
                     Registered EPC List
                 </h3>
             </div>
-            <div v-if="loading" class="p-6 text-sm text-gray-500">
+            <div v-if="loading" class="p-6 text-sm text-text-secondary">
                 Loading EPC tags...
             </div>
-            <div v-else-if="error" class="p-6 text-sm text-red-600">
+            <div v-else-if="error" class="p-6 text-sm text-danger-600">
                 {{ error }}
             </div>
             <div v-else class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-100 text-sm">
+                <table class="min-w-full divide-y divide-border text-sm">
                     <thead
-                        class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500"
+                        class="bg-surface-secondary text-left text-xs font-semibold uppercase text-text-secondary"
                     >
                         <tr>
                             <th class="px-6 py-3">EPC</th>
@@ -73,25 +73,25 @@
                             <th class="px-6 py-3 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-border">
                         <tr v-for="tag in items" :key="tag.id">
-                            <td class="px-6 py-4 font-medium text-gray-900">
+                            <td class="px-6 py-4 font-medium text-text">
                                 {{ tag.epcCode }}
                             </td>
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="px-6 py-4 text-text">
                                 {{ formatProduct(tag) }}
                             </td>
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="px-6 py-4 text-text">
                                 {{ tag.status }}
                             </td>
-                            <td class="px-6 py-4 text-gray-700">
+                            <td class="px-6 py-4 text-text">
                                 {{ tag.userName || "-" }}
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    class="border-rose-200 text-rose-600 hover:bg-rose-50"
+                                    class="border-danger-500/30 text-danger-600 hover:bg-danger-50"
                                     :disabled="deleting"
                                     :object-id="`btn_TagRegistrationDelete_${tag.id}`"
                                     @click="handleDelete(tag.id)"
@@ -103,7 +103,7 @@
                         <tr v-if="items.length === 0">
                             <td
                                 colspan="5"
-                                class="px-6 py-8 text-center text-gray-500"
+                                class="px-6 py-8 text-center text-text-secondary"
                             >
                                 No registered EPC tags found.
                             </td>

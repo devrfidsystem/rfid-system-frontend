@@ -11,6 +11,8 @@ import { locationService } from "@/services/location.service";
 import { useNotifier } from "@/composable/useNotifier";
 import { useAuthStore } from "@/store/auth.store";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
+import { formatProductAttributeSummary } from "@/utils/productAttributes";
+import type { ProductRecord } from "@/model/entities";
 
 export function useTransactionCreate(transactionKey: TransactionKey) {
     const router = useRouter();
@@ -94,6 +96,17 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
     const warehouseOptions = ref<{ label: string; value: string }[]>([]);
     const partnerOptions = ref<{ label: string; value: string }[]>([]);
     const productOptions = ref<{ label: string; value: string }[]>([]);
+    const productRecords = ref<ProductRecord[]>([]);
+    const productAttributeSummaries = computed<Record<string, string>>(() => {
+        const map: Record<string, string> = {};
+        productRecords.value.forEach((product) => {
+            const summary = formatProductAttributeSummary(
+                product.attributeValues,
+            );
+            if (summary) map[String(product.id)] = summary;
+        });
+        return map;
+    });
     const userOptions = ref<{ label: string; value: string }[]>([]);
 
     const locationOptions = ref<{ label: string; value: string }[]>([]);
@@ -243,6 +256,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             const prodResponse = await masterService.fetchList("products", {
                 limit: 200,
             });
+            productRecords.value = prodResponse.items;
             productOptions.value = prodResponse.items.map((p) => ({
                 label: `${p.code} - ${p.name}`,
                 value: String(p.id),
@@ -482,6 +496,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         warehouseOptions,
         partnerOptions,
         productOptions,
+        productAttributeSummaries,
         userOptions,
         locationOptions,
         fromLocationOptions,

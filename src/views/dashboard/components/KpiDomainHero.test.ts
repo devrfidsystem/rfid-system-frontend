@@ -32,8 +32,12 @@ describe("KpiDomainHero", () => {
         const html = await renderToString(app);
 
         expect(html).toContain("Stock In Performance");
-        expect(html).toContain("Derived from Receiving and Putaway");
+        expect(html).toContain("Source workflow: Receiving and Putaway");
         expect(html).toContain("83");
-        expect(html).toContain("polyline");
+        // Timeline is rendered via the shared TrendMiniChart (smoothed <path> +
+        // gradient fill), replacing the old plain <polyline>.
+        expect(html).toContain("Score Timeline");
+        expect(html).toContain("<path");
+        expect(html).toContain("stroke-primary-600");
     });
 });

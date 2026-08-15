@@ -44,6 +44,10 @@ import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import type { ReportColumnDef } from "@/views/report/reportConfig";
 import { Eye } from "lucide-vue-next";
+import {
+    formatTransactionStatus,
+    getTransactionStatusTone,
+} from "../utils/transactionStatus";
 
 const props = defineProps<{
     loading: boolean;
@@ -56,22 +60,8 @@ const props = defineProps<{
     pageSizeOptions: number[];
 }>();
 
-const getStatusTone = (status?: string) => {
-    if (!status) return "neutral";
-    const s = status.toLowerCase();
-    if (["completed", "closed", "reconciled", "success"].includes(s))
-        return "success";
-    if (["draft", "pending", "counting", "processing"].includes(s))
-        return "warning";
-    if (["canceled", "cancelled", "failed", "error"].includes(s))
-        return "error";
-    return "info";
-};
-
-const formatStatus = (status?: string) => {
-    if (!status) return "-";
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-};
+const getStatusTone = getTransactionStatusTone;
+const formatStatus = formatTransactionStatus;
 
 const emit = defineEmits<{
     (e: "update:page", value: number): void;

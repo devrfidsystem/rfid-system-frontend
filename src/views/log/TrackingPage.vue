@@ -23,7 +23,7 @@
             <div class="mt-6">
                 <p
                     v-if="error && !loading"
-                    class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
                 >
                     {{ error }}
                 </p>
@@ -31,7 +31,7 @@
                     <div
                         v-for="n in 4"
                         :key="n"
-                        class="h-16 rounded-md bg-gray-200/70 animate-pulse"
+                        class="h-16 rounded-md bg-surface-secondary animate-pulse"
                     ></div>
                 </div>
                 <div v-else>
@@ -41,14 +41,14 @@
                     />
                     <div v-else>
                         <div
-                            class="overflow-x-auto rounded-md border border-gray-200"
+                            class="overflow-x-auto rounded-md border border-border"
                         >
                             <table
-                                class="min-w-full divide-y divide-gray-200 text-sm text-gray-700"
+                                class="min-w-full divide-y divide-border text-sm text-text"
                                 object-id="tbl_TrackingResults"
                             >
                                 <thead
-                                    class="bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500"
+                                    class="bg-surface-secondary text-xs font-medium uppercase tracking-wider text-text-secondary"
                                 >
                                     <tr>
                                         <th class="px-4 py-3 text-left">EPC</th>
@@ -70,14 +70,15 @@
                                     </tr>
                                 </thead>
                                 <tbody
-                                    class="bg-white divide-y divide-gray-200"
+                                    class="bg-surface divide-y divide-border"
                                 >
                                     <tr
                                         v-for="(event, idx) in sortedEvents"
                                         :key="event.id"
-                                        class="transition-colors duration-150 hover:bg-gray-100/70"
+                                        class="transition-colors duration-150 hover:bg-surface-secondary/70"
                                         :class="{
-                                            'bg-gray-50/50': idx % 2 === 1,
+                                            'bg-surface-secondary/50':
+                                                idx % 2 === 1,
                                         }"
                                     >
                                         <td class="px-4 py-3">
@@ -111,7 +112,7 @@
                             </table>
                         </div>
                         <div
-                            class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500"
+                            class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-text-secondary"
                         >
                             <div>
                                 Showing
@@ -128,7 +129,7 @@
                             <div class="flex items-center gap-2">
                                 <button
                                     type="button"
-                                    class="rounded-md border border-gray-200 px-3 py-1 transition disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
+                                    class="rounded-md border border-border px-3 py-1 transition disabled:cursor-not-allowed disabled:bg-surface-secondary"
                                     :disabled="pagination.page <= 1"
                                     object-id="btn_TrackingPrevPage"
                                     @click="setPage(pagination.page - 1)"
@@ -137,7 +138,7 @@
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-md border border-gray-200 px-3 py-1 transition disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
+                                    class="rounded-md border border-border px-3 py-1 transition disabled:cursor-not-allowed disabled:bg-surface-secondary"
                                     :disabled="pagination.page >= totalPages"
                                     object-id="btn_TrackingNextPage"
                                     @click="setPage(pagination.page + 1)"
@@ -146,12 +147,12 @@
                                 </button>
                                 <label
                                     for="tracking-page-size"
-                                    class="text-xs font-medium uppercase tracking-wider text-gray-500"
+                                    class="text-xs font-medium uppercase tracking-wider text-text-secondary"
                                     >Per page</label
                                 >
                                 <select
                                     id="tracking-page-size"
-                                    class="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700"
+                                    class="rounded-md border border-border bg-surface px-3 py-1 text-xs text-text"
                                     :value="pagination.limit"
                                     object-id="cmb_TrackingPageSize"
                                     @change="

@@ -1,8 +1,6 @@
 <template>
     <label class="flex flex-col gap-1.5 text-sm">
-        <span v-if="label" class="font-semibold text-gray-700">{{
-            label
-        }}</span>
+        <span v-if="label" class="font-semibold text-text">{{ label }}</span>
 
         <textarea
             :value="modelValue ?? ''"
@@ -20,7 +18,7 @@
         >
             {{ hint }}
         </p>
-        <p v-if="error && !hideMessage" class="text-xs text-signal-red">
+        <p v-if="error && !hideMessage" class="text-xs text-danger-600">
             {{ error }}
         </p>
     </label>
@@ -76,7 +74,7 @@ const baseClasses =
     "disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary";
 
 const errorClasses =
-    "border-signal-red bg-red-50 focus:ring-red-500 focus:border-signal-red";
+    "border-danger-500 bg-danger-50 focus:ring-danger-500 focus:border-danger-500";
 
 const hasVisualError = computed(() => props.invalid || Boolean(props.error));
 const textareaClasses = computed(() =>

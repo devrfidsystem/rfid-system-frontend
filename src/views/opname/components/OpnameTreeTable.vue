@@ -19,10 +19,10 @@
         </div>
 
         <div v-else class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-border">
                 <thead>
                     <tr
-                        class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                        class="bg-surface-secondary text-left text-xs font-semibold uppercase tracking-wide text-text-secondary"
                     >
                         <th class="px-6 py-3 text-left">Groups</th>
                         <th class="px-6 py-3 text-left">Date</th>
@@ -32,11 +32,11 @@
                         <th class="px-6 py-3 text-left">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody class="divide-y divide-border bg-surface">
                     <tr
                         v-for="row in rows"
                         :key="row.id"
-                        class="hover:bg-gray-50 text-sm text-gray-900 transition-colors duration-150"
+                        class="hover:bg-surface-secondary text-sm text-text transition-colors duration-150"
                     >
                         <td class="px-6 py-3 align-top">
                             <div
@@ -46,7 +46,7 @@
                                 <button
                                     v-if="row.hasChildren"
                                     type="button"
-                                    class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-gray-500 transition-colors duration-150 hover:text-gray-900"
+                                    class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-text-secondary transition-colors duration-150 hover:text-text"
                                     @click="$emit('toggle-expand', row.id)"
                                 >
                                     <Icon
@@ -60,22 +60,22 @@
                                 </button>
                                 <div
                                     v-else
-                                    class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center text-gray-500"
+                                    class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center text-text-secondary"
                                 >
                                     <span class="text-xs">•</span>
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="font-medium text-gray-900">
+                                    <div class="font-medium text-text">
                                         {{ row.title }}
                                     </div>
-                                    <div class="text-xs text-gray-500">
+                                    <div class="text-xs text-text-secondary">
                                         {{ row.profile_id }} ·
                                         {{ row.nodeType }}
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-3 align-top text-gray-500">
+                        <td class="px-6 py-3 align-top text-text-secondary">
                             {{ formatDate(row.createdAt) }}
                         </td>
                         <td class="px-6 py-3 align-top">
@@ -83,13 +83,13 @@
                                 {{ statusLabel(row.status) }}
                             </Badge>
                         </td>
-                        <td class="px-6 py-3 align-top text-gray-500">
+                        <td class="px-6 py-3 align-top text-text-secondary">
                             {{ locationLabel(row) }}
                         </td>
                         <td class="px-6 py-3 align-top">
                             <button
                                 type="button"
-                                class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-700"
+                                class="inline-flex items-center gap-1 font-medium text-primary-600 hover:text-primary-700"
                                 @click="$emit('view-node', row)"
                             >
                                 <span>Open</span>
@@ -141,13 +141,13 @@
 
         <div
             v-if="!loading && rows.length"
-            class="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 px-6 py-3 text-sm text-gray-500"
+            class="flex flex-wrap items-center justify-between gap-4 border-t border-border px-6 py-3 text-sm text-text-secondary"
         >
             <p>
-                Showing <span class="font-medium text-gray-900">1</span> -
-                <span class="font-medium text-gray-900">{{ rows.length }}</span>
+                Showing <span class="font-medium text-text">1</span> -
+                <span class="font-medium text-text">{{ rows.length }}</span>
                 of
-                <span class="font-medium text-gray-900">{{ rows.length }}</span>
+                <span class="font-medium text-text">{{ rows.length }}</span>
                 records
             </p>
         </div>

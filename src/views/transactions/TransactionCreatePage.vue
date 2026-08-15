@@ -23,10 +23,10 @@
                 class="md:col-span-3"
                 object-id="wdg_TransactionCreateInboundBlocked"
             >
-                <h3 class="text-base font-semibold text-gray-900 mb-3">
+                <h3 class="text-base font-semibold text-text mb-3">
                     Inbound is read-only
                 </h3>
-                <p class="text-sm text-gray-600 leading-6">
+                <p class="text-sm text-text-secondary leading-6">
                     Inbound documents are only displayed from data that has
                     already been registered. Web admin only reviews inbound data
                     and does not create it directly.
@@ -42,7 +42,7 @@
                     object-id="wdg_TransactionCreateDetails"
                 >
                     <h3
-                        class="text-base font-semibold text-gray-900 mb-4 border-b pb-3"
+                        class="text-base font-semibold text-text mb-4 border-b border-border pb-3"
                     >
                         Document Details
                     </h3>
@@ -238,6 +238,7 @@
                     v-if="!isOpname"
                     :lines="form.lines"
                     :product-options="productOptions"
+                    :product-attribute-summaries="productAttributeSummaries"
                     :location-options="locationOptions"
                     :from-location-options="fromLocationOptions"
                     :to-location-options="toLocationOptions"
@@ -258,11 +259,11 @@
                     no-padding
                     object-id="wdg_TransactionCreateOpname"
                 >
-                    <div class="px-6 py-5 border-b border-gray-100">
-                        <h3 class="text-base font-semibold text-gray-900">
+                    <div class="px-6 py-5 border-b border-border">
+                        <h3 class="text-base font-semibold text-text">
                             Opname Creation
                         </h3>
-                        <p class="text-sm text-gray-500 mt-2">
+                        <p class="text-sm text-text-secondary mt-2">
                             Creating a Stock Opname does not require line items
                             initially. Once created, you can start the counting
                             process and the system will automatically snapshot
@@ -270,7 +271,7 @@
                         </p>
                     </div>
                     <div
-                        class="px-6 py-3 border-t border-gray-100 flex justify-end gap-3"
+                        class="px-6 py-3 border-t border-border flex justify-end gap-3"
                     >
                         <Button
                             type="button"
@@ -330,6 +331,7 @@ const {
     warehouseOptions,
     partnerOptions,
     productOptions,
+    productAttributeSummaries,
     userOptions,
     locationOptions,
     fromLocationOptions,

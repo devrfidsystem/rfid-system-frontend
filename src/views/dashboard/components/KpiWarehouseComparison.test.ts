@@ -26,10 +26,11 @@ describe("KpiWarehouseComparison", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("Top Performing");
+        expect(html).toContain("Warehouse Benchmark");
+        expect(html).toContain("Leading Sites");
         expect(html).toContain("Batam Gateway");
         expect(html).toContain("93");
-        expect(html).toContain("Needs Attention");
+        expect(html).toContain("Under Target");
         expect(html).toContain("Jakarta Hub");
         expect(html).toContain("58");
     });
@@ -40,6 +41,6 @@ describe("KpiWarehouseComparison", () => {
             data: { top: [], bottom: [] },
         });
         const html = await renderToString(app);
-        expect(html).toContain("No warehouse activity");
+        expect(html).toContain("No warehouse benchmark data");
     });
 });

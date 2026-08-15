@@ -42,25 +42,22 @@ describe("DashboardPage", () => {
     beforeEach(() => {
         useDashboardMock.mockReset();
         useDashboardMock.mockReturnValue({
-            dashboardSections: [
-                { key: "alerts", heading: "Operations Alert Center" },
-                { key: "workflow", heading: "Business Workflow Overview" },
-                { key: "kpi", heading: "Executive KPI Snapshot" },
-            ],
             warehouseOptions: [],
             warehousesLoading: false,
             warehouseError: null,
             dashboardLoading: false,
-            dashboardError: null,
             refreshDashboard: vi.fn(),
             selectedWarehouseId: null,
             setSelectedWarehouse: vi.fn(),
             alertsData: null,
             alertsLoading: false,
+            alertsError: null,
             workflowData: null,
             workflowLoading: false,
+            workflowError: null,
             kpiSnapshotData: null,
             kpiSnapshotLoading: false,
+            kpiSnapshotError: null,
         });
     });
 
@@ -84,5 +81,36 @@ describe("DashboardPage", () => {
         // for these sections, since each component is the single source of
         // its own heading text now.
         expect(html).not.toContain("<h2");
+    });
+
+    it("does not render a page-level error banner — each widget owns its own error state", async () => {
+        useDashboardMock.mockReturnValue({
+            warehouseOptions: [],
+            warehousesLoading: false,
+            warehouseError: null,
+            dashboardLoading: false,
+            refreshDashboard: vi.fn(),
+            selectedWarehouseId: null,
+            setSelectedWarehouse: vi.fn(),
+            alertsData: null,
+            alertsLoading: false,
+            alertsError: "Alerts failed to load",
+            workflowData: null,
+            workflowLoading: false,
+            workflowError: null,
+            kpiSnapshotData: null,
+            kpiSnapshotLoading: false,
+            kpiSnapshotError: null,
+        });
+
+        const app = createSSRApp(DashboardPage);
+        const html = await renderToString(app);
+
+        // The stub echoes `error` as a plain HTML attribute
+        // (`error="Alerts failed to load"`), which is expected — it proves
+        // the prop reaches the widget. What must NOT happen is the page
+        // rendering that same text as its own visible content (a page-level
+        // banner), which would show up as `>Alerts failed to load<`.
+        expect(html).not.toContain(">Alerts failed to load<");
     });
 });

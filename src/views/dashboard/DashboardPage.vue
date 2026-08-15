@@ -9,29 +9,29 @@
         />
 
         <p
-            v-if="dashboardError && !dashboardLoading"
-            class="rounded-md border border-red-100 bg-red-50 px-4 py-3 text-sm text-signal-red"
-        >
-            {{ dashboardError }}
-        </p>
-        <p
             v-if="warehouseError && !warehousesLoading"
-            class="rounded-md border border-red-100 bg-red-50 px-4 py-3 text-sm text-signal-red"
+            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
         >
             {{ warehouseError }}
         </p>
 
         <div class="space-y-6">
-            <DashboardAlertCenter :loading="alertsLoading" :data="alertsData" />
+            <DashboardAlertCenter
+                :loading="alertsLoading"
+                :data="alertsData"
+                :error="alertsError"
+            />
 
             <DashboardWorkflowOverview
                 :loading="workflowLoading"
                 :data="workflowData"
+                :error="workflowError"
             />
 
             <DashboardKpiSnapshot
                 :loading="kpiSnapshotLoading"
                 :data="kpiSnapshotData"
+                :error="kpiSnapshotError"
             />
         </div>
     </section>
@@ -49,15 +49,17 @@ const {
     warehousesLoading,
     warehouseError,
     dashboardLoading,
-    dashboardError,
     refreshDashboard,
     selectedWarehouseId,
     setSelectedWarehouse,
     alertsData,
     alertsLoading,
+    alertsError,
     workflowData,
     workflowLoading,
+    workflowError,
     kpiSnapshotData,
     kpiSnapshotLoading,
+    kpiSnapshotError,
 } = useDashboard();
 </script>

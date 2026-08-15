@@ -1,11 +1,11 @@
 <template>
     <Card object-id="wdg_DashboardKpiSnapshot">
         <div>
-            <h2 class="text-lg font-semibold text-gray-900">
-                Executive KPI Snapshot
+            <h2 class="text-lg font-semibold text-text">
+                KPI Control Snapshot
             </h2>
-            <p class="text-sm text-gray-500 mt-0.5">
-                Operational improvement vs previous period
+            <p class="text-sm text-text-secondary mt-0.5">
+                Score movement for throughput, cycle time, and accuracy
             </p>
         </div>
 
@@ -19,10 +19,17 @@
             </div>
 
             <div
-                v-else-if="!data || data.cards.length === 0"
-                class="rounded-lg border border-gray-100 bg-gray-50/50 p-8 text-center text-sm text-gray-500"
+                v-else-if="error"
+                class="rounded-md border border-danger-500/20 bg-danger-50 p-8 text-center text-sm text-danger-600"
             >
-                No KPI data available.
+                KPI snapshot unavailable: {{ error }}
+            </div>
+
+            <div
+                v-else-if="!data || data.cards.length === 0"
+                class="rounded-md border border-border bg-surface-secondary/50 p-8 text-center text-sm text-text-secondary"
+            >
+                No KPI scorecard data for the selected warehouse.
             </div>
 
             <div v-else class="grid gap-4 sm:grid-cols-3">
@@ -48,7 +55,7 @@
                             }}{{ card.trendVsPrevious }}pt
                         </span>
                     </div>
-                    <p class="text-3xl font-extrabold text-gray-900 mt-2">
+                    <p class="text-3xl font-extrabold text-text mt-2">
                         {{ card.score
                         }}<span class="text-xs font-semibold text-text-muted">
                             / 100</span
@@ -80,13 +87,15 @@
                             stroke-width="2"
                         />
                     </svg>
-                    <button
-                        type="button"
-                        disabled
-                        class="mt-4 text-xs font-semibold text-text-muted cursor-not-allowed"
+                    <RouterLink
+                        :to="{
+                            path: '/dashboard/kpi',
+                            query: { domain: card.key },
+                        }"
+                        class="mt-4 inline-block text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline"
                     >
-                        View Performance →
-                    </button>
+                        Open KPI Detail
+                    </RouterLink>
                 </div>
             </div>
         </div>
@@ -94,12 +103,14 @@
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from "vue-router";
 import Card from "@/components/molecules/Card.vue";
 import type { DashboardKpiSnapshotResponse } from "@/model/dashboard";
 
 defineProps<{
     loading: boolean;
     data: DashboardKpiSnapshotResponse | null;
+    error?: string | null;
 }>();
 
 function sparklinePoints(values: number[]): string {

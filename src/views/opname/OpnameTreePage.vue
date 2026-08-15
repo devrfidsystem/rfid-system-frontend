@@ -6,6 +6,12 @@
             tagline="Transactions"
         />
 
+        <OpnameSummaryWidget
+            :loading="summaryLoading"
+            :error="summaryError"
+            :summary="summary"
+        />
+
         <Card no-padding object-id="wdg_OpnameTree">
             <OpnameTreeToolbar
                 :heading="sectionHeading"
@@ -22,7 +28,7 @@
 
             <div v-if="error" class="px-6 pt-4">
                 <p
-                    class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
                 >
                     {{ error }}
                 </p>
@@ -48,10 +54,14 @@ import Card from "@/components/molecules/Card.vue";
 import { useOpnameTree } from "./composables/useOpnameTree";
 import OpnameTreeToolbar from "./components/OpnameTreeToolbar.vue";
 import OpnameTreeTable from "./components/OpnameTreeTable.vue";
+import OpnameSummaryWidget from "./components/OpnameSummaryWidget.vue";
 
 const {
     loading,
     error,
+    summary,
+    summaryLoading,
+    summaryError,
     keyword,
     startDate,
     endDate,

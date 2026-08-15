@@ -58,14 +58,14 @@
                 </Input>
 
                 <label
-                    class="inline-flex items-center gap-2 text-sm text-slate-500 cursor-pointer"
+                    class="inline-flex items-center gap-2 text-sm text-text-secondary cursor-pointer"
                 >
                     <input
                         id="chk_LoginRememberMe"
                         v-model="form.remember"
                         data-testid="chk_LoginRememberMe"
                         type="checkbox"
-                        class="h-4 w-4 rounded border border-slate-300 text-brand-600 focus:ring-brand-500"
+                        class="h-4 w-4 rounded border border-border text-brand-600 focus:ring-brand-500"
                     />
                     Ingat saya
                 </label>
@@ -83,7 +83,7 @@
 
                 <p
                     v-if="status"
-                    class="rounded-md border border-red-100 bg-red-50 p-3 text-xs text-rose-500 text-center"
+                    class="rounded-md border border-danger-100 bg-danger-50 p-3 text-xs text-danger-600 text-center"
                 >
                     {{ status }}
                 </p>

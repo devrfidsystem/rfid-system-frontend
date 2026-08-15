@@ -1,11 +1,9 @@
 <template>
     <Card object-id="wdg_DashboardWorkflowOverview">
         <div>
-            <h2 class="text-lg font-semibold text-gray-900">
-                Business Workflow Overview
-            </h2>
-            <p class="text-sm text-gray-500 mt-0.5">
-                Where business objects stand right now — not warehouse activity
+            <h2 class="text-lg font-semibold text-text">Workflow Position</h2>
+            <p class="text-sm text-text-secondary mt-0.5">
+                Document stages and bottlenecks across active warehouse flows
             </p>
         </div>
 
@@ -19,10 +17,17 @@
             </div>
 
             <div
-                v-else-if="!data || data.panels.length === 0"
-                class="rounded-lg border border-gray-100 bg-gray-50/50 p-8 text-center text-sm text-gray-500"
+                v-else-if="error"
+                class="rounded-md border border-danger-500/20 bg-danger-50 p-8 text-center text-sm text-danger-600"
             >
-                No workflow data available.
+                Workflow position data unavailable: {{ error }}
+            </div>
+
+            <div
+                v-else-if="!data || data.panels.length === 0"
+                class="rounded-md border border-border bg-surface-secondary/50 p-8 text-center text-sm text-text-secondary"
+            >
+                No workflow position data for the selected warehouse.
             </div>
 
             <div v-else class="grid gap-4 lg:grid-cols-2">
@@ -31,7 +36,7 @@
                     :key="panel.key"
                     class="rounded-md border border-border p-4"
                 >
-                    <h3 class="text-sm font-semibold text-gray-900">
+                    <h3 class="text-sm font-semibold text-text">
                         {{ panel.title }}
                     </h3>
                     <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -41,7 +46,7 @@
                             >
                                 Open
                             </p>
-                            <p class="text-sm font-bold text-gray-900">
+                            <p class="text-sm font-bold text-text">
                                 {{ panel.openCount }}
                             </p>
                         </div>
@@ -51,7 +56,7 @@
                             >
                                 Completion Rate
                             </p>
-                            <p class="text-sm font-bold text-gray-900">
+                            <p class="text-sm font-bold text-text">
                                 {{ Math.round(panel.completionRate * 100) }}%
                             </p>
                         </div>
@@ -67,13 +72,27 @@
                         </div>
                     </div>
 
+                    <div
+                        v-if="panel.stages.length > 0"
+                        class="mt-4 rounded-md border border-border bg-surface-secondary/40 p-3"
+                    >
+                        <StageDonutChart
+                            :stages="
+                                panel.stages.map((stage) => ({
+                                    name: stage.name,
+                                    count: stage.count,
+                                }))
+                            "
+                        />
+                    </div>
+
                     <div class="mt-4 space-y-2">
                         <div
                             v-for="stage in panel.stages"
                             :key="stage.name"
                             class="flex items-center justify-between rounded-md bg-surface-secondary px-3 py-2 text-xs"
                         >
-                            <span class="font-medium text-gray-700">{{
+                            <span class="font-medium text-text">{{
                                 stage.name
                             }}</span>
                             <span class="text-text-secondary"
@@ -95,7 +114,7 @@
                                 v-else
                                 :class="
                                     stage.trendPct >= 0
-                                        ? 'text-emerald-600'
+                                        ? 'text-success-600'
                                         : 'text-danger-600'
                                 "
                                 class="font-semibold"
@@ -113,10 +132,12 @@
 
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
+import StageDonutChart from "./StageDonutChart.vue";
 import type { DashboardWorkflowOverviewResponse } from "@/model/dashboard";
 
 defineProps<{
     loading: boolean;
     data: DashboardWorkflowOverviewResponse | null;
+    error?: string | null;
 }>();
 </script>

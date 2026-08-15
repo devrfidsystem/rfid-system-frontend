@@ -7,34 +7,12 @@ import {
 import { reportConfigs } from "@/views/report/reportConfig";
 import type { TransactionRecord } from "../types";
 import { useNotifier } from "@/composable/useNotifier";
+import {
+    formatTransactionStatus,
+    getTransactionStatusTone,
+} from "../utils/transactionStatus";
 
-const formatStatusLabel = (value?: string | null) => {
-    if (!value) return "-";
-    return value
-        .replace(/[_-]+/g, " ")
-        .trim()
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-const getStatusTone = (value?: string | null) => {
-    switch ((value ?? "").toLowerCase()) {
-        case "draft":
-            return "warning";
-        case "posted":
-        case "dispatched":
-            return "info";
-        case "partial":
-            return "teal";
-        case "done":
-            return "success";
-        case "canceled":
-            return "error";
-        default:
-            return "neutral";
-    }
-};
-
-type TransactionConfirmationAction = "post" | "cancel";
+type TransactionConfirmationAction = "post" | "cancel" | "complete";
 
 type TransactionConfirmationState = {
     action: TransactionConfirmationAction;
@@ -131,10 +109,30 @@ export function useTransactionDetail(
         return "Transaction";
     });
 
-    const canShowActions = computed(() =>
-        Boolean(
-            record.value && record.value.status === "draft" && !isInbound.value,
-        ),
+    const status = computed(() => record.value?.status ?? "");
+
+    // Putaway is a three-stage lifecycle (draft -> posted -> done) with its
+    // own per-status action set; every other type is the standard two-stage
+    // draft -> posted/canceled shape where post/cancel only apply to drafts.
+    const canPost = computed(
+        () =>
+            Boolean(record.value) &&
+            !isInbound.value &&
+            status.value === "draft",
+    );
+    const canCancel = computed(() => {
+        if (!record.value || isInbound.value) return false;
+        if (isPutaway.value) {
+            return status.value === "draft" || status.value === "posted";
+        }
+        return status.value === "draft";
+    });
+    const canComplete = computed(
+        () => isPutaway.value && status.value === "posted",
+    );
+
+    const canShowActions = computed(
+        () => canPost.value || canCancel.value || canComplete.value,
     );
 
     const isOutboundReadOnly = computed(
@@ -142,17 +140,19 @@ export function useTransactionDetail(
     );
 
     const statusLabel = computed(() =>
-        formatStatusLabel(record.value?.status ?? null),
+        formatTransactionStatus(record.value?.status ?? null),
     );
 
-    const statusTone = computed(() => getStatusTone(record.value?.status));
+    const statusTone = computed(() =>
+        getTransactionStatusTone(record.value?.status),
+    );
 
     const outboundReviewNote = computed(() => {
         if (!isOutbound.value) return "";
         if ((record.value?.status ?? "") === "draft") {
             return "Draft outbound documents can still be posted or canceled from web admin.";
         }
-        return `Read-only review. Outbound execution status is ${formatStatusLabel(record.value?.status).toLowerCase()}.`;
+        return `Read-only review. Outbound execution status is ${formatTransactionStatus(record.value?.status).toLowerCase()}.`;
     });
 
     const lines = computed(() => {
@@ -207,19 +207,34 @@ export function useTransactionDetail(
         if (isInbound.value) return;
         if (isOutboundReadOnly.value) return;
         const label = actionLabel.value.toLowerCase();
+        const titleByAction: Record<TransactionConfirmationAction, string> = {
+            post: `Post ${actionLabel.value}`,
+            cancel: `Cancel ${actionLabel.value}`,
+            complete: `Complete ${actionLabel.value}`,
+        };
+        const descriptionByAction: Record<
+            TransactionConfirmationAction,
+            string
+        > = {
+            post: `Are you sure you want to post this ${label}?`,
+            cancel: `Are you sure you want to cancel this ${label}?`,
+            complete: `Are you sure you want to mark this ${label} as complete?`,
+        };
+        const confirmTextByAction: Record<
+            TransactionConfirmationAction,
+            string
+        > = {
+            post: "Post",
+            cancel: "Cancel Task",
+            complete: "Complete",
+        };
         confirmation.value = {
             action,
-            title:
-                action === "post"
-                    ? `Post ${actionLabel.value}`
-                    : `Cancel ${actionLabel.value}`,
-            description:
-                action === "post"
-                    ? `Are you sure you want to post this ${label}?`
-                    : `Are you sure you want to cancel this ${label}?`,
-            confirmText: action === "post" ? "Post" : "Cancel Task",
+            title: titleByAction[action],
+            description: descriptionByAction[action],
+            confirmText: confirmTextByAction[action],
             cancelText: "Back",
-            variant: action === "post" ? "primary" : "danger",
+            variant: action === "cancel" ? "danger" : "primary",
         };
     };
 
@@ -261,12 +276,34 @@ export function useTransactionDetail(
         }
     };
 
+    const executeComplete = async () => {
+        if (!isPutaway.value) return;
+        actionLoading.value = true;
+        try {
+            await transactionService.complete(transactionKey, id);
+            notifySuccess(`${actionLabel.value} completed successfully.`);
+            await loadTransaction();
+        } catch (err) {
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : `Failed to complete ${actionLabel.value.toLowerCase()}.`,
+            );
+        } finally {
+            actionLoading.value = false;
+        }
+    };
+
     const handleConfirmAction = async () => {
         if (!confirmation.value) return;
         const action = confirmation.value.action;
         clearConfirmation();
         if (action === "post") {
             await executePost();
+            return;
+        }
+        if (action === "complete") {
+            await executeComplete();
             return;
         }
         await executeCancel();
@@ -278,6 +315,10 @@ export function useTransactionDetail(
 
     const handleCancel = () => {
         openConfirmation("cancel");
+    };
+
+    const handleComplete = () => {
+        openConfirmation("complete");
     };
 
     return {
@@ -295,11 +336,15 @@ export function useTransactionDetail(
         loadTransaction,
         handlePost,
         handleCancel,
+        handleComplete,
         openConfirmation,
         clearConfirmation,
         handleConfirmAction,
         actionLabel,
         canShowActions,
+        canPost,
+        canCancel,
+        canComplete,
         isInbound,
         isPutaway,
         isRelocation,

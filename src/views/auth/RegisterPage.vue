@@ -66,13 +66,13 @@
                 </div>
 
                 <div>
-                    <label class="flex items-start gap-3 text-slate-500">
+                    <label class="flex items-start gap-3 text-text-secondary">
                         <input
                             id="chk_RegisterTerms"
                             v-model="form.terms"
                             data-testid="chk_RegisterTerms"
                             type="checkbox"
-                            class="mt-1 h-4 w-4 rounded border border-slate-300 text-brand-600 focus:ring-brand-500"
+                            class="mt-1 h-4 w-4 rounded border border-border text-brand-600 focus:ring-brand-500"
                             @blur="touched.terms = true"
                         />
                         <span class="text-sm leading-relaxed">
@@ -83,7 +83,7 @@
                     </label>
                     <p
                         v-if="fieldErrors.terms"
-                        class="mt-1 text-xs text-rose-500"
+                        class="mt-1 text-xs text-danger-600"
                     >
                         {{ fieldErrors.terms }}
                     </p>
@@ -100,20 +100,20 @@
                     {{ submitting ? "Mengecek..." : "Daftar" }}
                 </Button>
 
-                <div class="text-center text-xs text-slate-500">
+                <div class="text-center text-xs text-text-secondary">
                     <p>Sudah punya akun?</p>
                     <RouterLink
                         id="lkl_RegisterLogin"
                         to="/login"
                         data-testid="lkl_RegisterLogin"
-                        class="font-semibold text-slate-900 hover:text-brand-600"
+                        class="font-semibold text-text hover:text-brand-600"
                         >Masuk di sini</RouterLink
                     >
                 </div>
 
                 <p
                     v-if="status"
-                    class="rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 text-center"
+                    class="rounded-md border border-border bg-surface-secondary p-3 text-xs text-text-secondary text-center"
                 >
                     {{ status }}
                 </p>

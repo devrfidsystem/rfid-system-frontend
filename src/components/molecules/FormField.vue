@@ -2,7 +2,7 @@
     <div class="space-y-1.5">
         <div
             v-if="label || hint"
-            class="flex items-center justify-between gap-2 text-sm font-semibold text-gray-700"
+            class="flex items-center justify-between gap-2 text-sm font-semibold text-text"
         >
             <p v-if="label" class="flex items-center gap-2">
                 <span>{{ label }}</span>

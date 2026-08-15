@@ -146,6 +146,12 @@ export interface ProductRecord {
             name: string;
             type?: string;
         };
+        /** Resolved list-type option, present when attributeItemId is set. */
+        attribute_items?: {
+            id: string;
+            value: string;
+            label: string;
+        } | null;
     }>;
 }
 

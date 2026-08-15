@@ -6,6 +6,12 @@
             :tagline="pageTagline"
         />
 
+        <TransactionSummaryWidget
+            :loading="summaryLoading"
+            :error="summaryError"
+            :summary="summary"
+        />
+
         <Card no-padding object-id="wdg_TransactionList">
             <TransactionHeader
                 :heading="sectionHeading"
@@ -20,7 +26,7 @@
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="partnerLabel"
                 :has-rows="displayRows.length > 0"
-                :can-export="transactionKey !== 'register'"
+                :can-export="canExport"
                 :can-create="canCreate"
                 @refresh="refresh"
                 @export="exportRows"
@@ -28,12 +34,12 @@
             />
 
             <div class="px-6">
-                <p v-if="partnerError" class="text-xs text-rose-600 mb-4">
+                <p v-if="partnerError" class="text-xs text-danger-600 mb-4">
                     {{ partnerError }}
                 </p>
                 <p
                     v-if="error && !loading"
-                    class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 mb-4"
+                    class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-700 mb-4"
                 >
                     {{ error }}
                 </p>
@@ -59,6 +65,7 @@ import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import TransactionHeader from "./components/TransactionHeader.vue";
 import TransactionTable from "./components/TransactionTable.vue";
+import TransactionSummaryWidget from "./components/TransactionSummaryWidget.vue";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionList } from "./composables/useTransactionList";
 import { useRouter } from "vue-router";
@@ -79,6 +86,7 @@ const {
     pageTagline,
     sectionHeading,
     canCreate,
+    canExport,
     pageDescription,
     keyword,
     startDate,
@@ -95,6 +103,9 @@ const {
     loading,
     pagination,
     pageSizeOptions,
+    summary,
+    summaryLoading,
+    summaryError,
     displayRows,
     columns,
     emptyStateVariant,

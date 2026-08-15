@@ -3,7 +3,7 @@
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-3"
     >
         <div>
-            <h3 class="text-base font-semibold text-gray-900">
+            <h3 class="text-base font-semibold text-text">
                 {{ heading }} List
             </h3>
         </div>
@@ -37,9 +37,9 @@
                     </Button>
                     <div
                         v-if="isFilterOpen"
-                        class="absolute right-0 sm:right-auto z-10 mt-12 sm:mt-2 w-[320px] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4 space-y-4"
+                        class="absolute right-0 sm:right-auto z-10 mt-12 sm:mt-2 w-[320px] origin-top-right rounded-md bg-surface shadow-lg ring-1 ring-border focus:outline-none p-4 space-y-4"
                     >
-                        <h4 class="font-medium text-sm text-gray-900 mb-2">
+                        <h4 class="font-medium text-sm text-text mb-2">
                             Filters
                         </h4>
                         <div class="grid grid-cols-2 gap-3">

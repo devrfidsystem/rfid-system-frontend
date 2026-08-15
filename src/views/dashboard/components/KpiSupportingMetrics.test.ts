@@ -14,6 +14,7 @@ describe("KpiSupportingMetrics", () => {
         });
         const html = await renderToString(app);
 
+        expect(html).toContain("Supporting Signals");
         expect(html).toContain("Receiving — Avg Cycle Time");
         expect(html).toContain("0.6h");
         expect(html).toContain("Putaway — Avg Cycle Time");

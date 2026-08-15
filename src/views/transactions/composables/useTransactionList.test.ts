@@ -56,6 +56,16 @@ vi.mock("@/services/transactions.service", async (importOriginal) => {
             create: vi.fn(),
             post: vi.fn(),
             cancel: vi.fn(),
+            summary: vi.fn().mockResolvedValue({
+                totalCount: 0,
+                statusBreakdown: [],
+                mostRecent: null,
+                needsAttention: {
+                    count: 0,
+                    canceledCount: 0,
+                    staleDraftCount: 0,
+                },
+            }),
         },
     };
 });
@@ -159,6 +169,36 @@ describe("useTransactionList", () => {
         expect(normalized.type).toBe("Outbound");
     });
 
+    it("only allows export for inbound/outbound — the only two backend-supported export routes", async () => {
+        vi.resetModules();
+        vi.unmock("@/views/report/reportConfig");
+
+        const { useTransactionList } = await import("./useTransactionList");
+
+        expect(
+            useTransactionList({ transactionKey: "inbound" }).canExport.value,
+        ).toBe(true);
+        expect(
+            useTransactionList({ transactionKey: "outbound" }).canExport.value,
+        ).toBe(true);
+        expect(
+            useTransactionList({ transactionKey: "register" }).canExport.value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "putaway" }).canExport.value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "relocation" }).canExport
+                .value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "transfer" }).canExport.value,
+        ).toBe(false);
+        expect(
+            useTransactionList({ transactionKey: "returns" }).canExport.value,
+        ).toBe(false);
+    });
+
     it("configures register list with warehouse filter and register-specific columns", async () => {
         vi.resetModules();
         vi.unmock("@/views/report/reportConfig");
@@ -207,5 +247,100 @@ describe("useTransactionList", () => {
         expect(normalized.productSummary).toBe(
             "SKU-1 - Product One (2), Product Two (3)",
         );
+    });
+
+    it("exposes the raw loaded rows for downstream summary derivation", async () => {
+        vi.resetModules();
+        vi.unmock("@/views/report/reportConfig");
+
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        vi.mocked(transactionService.list).mockResolvedValueOnce({
+            items: [
+                { id: "1", status: "posted" },
+                { id: "2", status: "draft" },
+            ],
+            meta: { page: 1, limit: 20, total: 2 },
+        });
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(list.rows.value.map((row) => row.status)).toEqual([
+            "posted",
+            "draft",
+        ]);
+    });
+
+    it("fetches the summary alongside the table rows on mount", async () => {
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        const mockSummary = {
+            totalCount: 2,
+            statusBreakdown: [{ status: "posted", count: 2, percentage: 100 }],
+            mostRecent: null,
+            needsAttention: { count: 0, canceledCount: 0, staleDraftCount: 0 },
+        };
+        vi.mocked(transactionService.summary).mockResolvedValueOnce(
+            mockSummary,
+        );
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(list.summary.value).toEqual(mockSummary);
+        expect(transactionService.summary).toHaveBeenCalledWith(
+            "relocation",
+            expect.objectContaining({ page: 1, limit: 20 }),
+        );
+    });
+
+    it("isolates a summary fetch failure from the table's own rows/error state", async () => {
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        vi.mocked(transactionService.summary).mockRejectedValueOnce(
+            new Error("Summary down"),
+        );
+        vi.mocked(transactionService.list).mockResolvedValueOnce({
+            items: [{ id: "1", status: "posted" }],
+            meta: { page: 1, limit: 20, total: 1 },
+        });
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(list.summaryError.value).toBe("Summary down");
+        expect(list.error.value).toBeNull();
+        expect(list.rows.value).toHaveLength(1);
+    });
+
+    it("does not refetch the summary on a page-only change", async () => {
+        const { transactionService } =
+            await import("@/services/transactions.service");
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+        vi.mocked(transactionService.summary).mockClear();
+
+        list.pagination.page = 2;
+        await flushPromises();
+
+        expect(transactionService.summary).not.toHaveBeenCalled();
     });
 });

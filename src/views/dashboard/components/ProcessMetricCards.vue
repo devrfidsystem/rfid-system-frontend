@@ -11,7 +11,7 @@
 
         <template v-else-if="!data">
             <div class="col-span-2 p-6 text-center text-sm text-text-secondary">
-                No metric data available.
+                No process metric data for the selected activity.
             </div>
         </template>
 
@@ -20,7 +20,7 @@
                 <p class="text-xs font-semibold uppercase text-text-muted">
                     Cycle Time
                 </p>
-                <p class="text-3xl font-extrabold text-gray-900 mt-1">
+                <p class="text-3xl font-extrabold text-text mt-1">
                     {{ data.cycleTime.minutes
                     }}<span class="text-base font-semibold text-text-muted">
                         min</span
@@ -46,7 +46,7 @@
                 <p class="text-xs font-semibold uppercase text-text-muted">
                     Productivity
                 </p>
-                <p class="text-3xl font-extrabold text-gray-900 mt-1">
+                <p class="text-3xl font-extrabold text-text mt-1">
                     {{ data.productivity.unitsPerHour
                     }}<span class="text-base font-semibold text-text-muted">
                         u/hr</span
