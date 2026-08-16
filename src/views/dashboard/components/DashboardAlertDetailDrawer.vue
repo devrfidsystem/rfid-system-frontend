@@ -34,7 +34,7 @@
                 <p
                     class="text-[10px] font-semibold uppercase text-text-secondary"
                 >
-                    Business Impact
+                    {{ t("dashboard.overview.alertCenter.businessImpact") }}
                 </p>
                 <p class="mt-1 text-sm text-text">
                     {{ alert.businessImpact }}
@@ -47,7 +47,7 @@
                 <p
                     class="text-[10px] font-semibold uppercase text-text-secondary"
                 >
-                    Recommended Action
+                    {{ t("dashboard.overview.alertCenter.recommendedAction") }}
                 </p>
                 <p class="mt-1 text-sm text-text">
                     {{ alert.recommendedAction }}
@@ -59,7 +59,7 @@
             >
                 <div>
                     <p class="font-semibold uppercase text-text-secondary">
-                        Occurred
+                        {{ t("dashboard.overview.alertCenter.occurred") }}
                     </p>
                     <p class="mt-1 text-text">
                         {{ formatDate(alert.occurredAt) }}
@@ -67,7 +67,11 @@
                 </div>
                 <div v-if="alert.docRef">
                     <p class="font-semibold uppercase text-text-secondary">
-                        Document Reference
+                        {{
+                            t(
+                                "dashboard.overview.alertCenter.documentReference",
+                            )
+                        }}
                     </p>
                     <p class="mt-1 text-text">
                         {{ alert.docRef }}
@@ -79,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
@@ -93,6 +98,8 @@ defineProps<{
 const emit = defineEmits<{
     (event: "close"): void;
 }>();
+
+const { t } = useI18n();
 
 const severityIcon = (severity: DashboardAlert["severity"]) =>
     severity === "info" ? Info : AlertTriangle;

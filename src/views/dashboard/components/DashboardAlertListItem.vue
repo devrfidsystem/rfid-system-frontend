@@ -31,7 +31,11 @@
                         <p
                             class="text-[10px] font-semibold uppercase text-text-secondary"
                         >
-                            Business Impact
+                            {{
+                                t(
+                                    "dashboard.overview.alertCenter.businessImpact",
+                                )
+                            }}
                         </p>
                         <p class="text-xs text-text mt-0.5">
                             {{ alert.businessImpact }}
@@ -41,7 +45,11 @@
                         <p
                             class="text-[10px] font-semibold uppercase text-text-secondary"
                         >
-                            Recommended Action
+                            {{
+                                t(
+                                    "dashboard.overview.alertCenter.recommendedAction",
+                                )
+                            }}
                         </p>
                         <p class="text-xs text-text mt-0.5">
                             {{ alert.recommendedAction }}
@@ -55,6 +63,7 @@
 
 <script setup lang="ts">
 import { computed, type Component } from "vue";
+import { useI18n } from "vue-i18n";
 import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import { AlertTriangle, Info } from "lucide-vue-next";
@@ -68,6 +77,8 @@ const props = defineProps<{
 defineEmits<{
     (event: "open", alert: DashboardAlert): void;
 }>();
+
+const { t } = useI18n();
 
 const icon = computed<Component>(() =>
     props.alert.severity === "info" ? Info : AlertTriangle,

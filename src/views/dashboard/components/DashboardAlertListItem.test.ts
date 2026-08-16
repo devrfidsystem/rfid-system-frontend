@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
+import { i18n } from "@/locales";
 import DashboardAlertListItem from "./DashboardAlertListItem.vue";
 
 describe("DashboardAlertListItem", () => {
@@ -19,6 +20,7 @@ describe("DashboardAlertListItem", () => {
                 occurredAt: "2026-07-18T09:42:00.000Z",
             },
         });
+        app.use(i18n);
 
         const html = await renderToString(app);
 
