@@ -25,12 +25,13 @@
             >
                 <div class="flex-1">
                     <Select
-                        v-model="line.productId"
+                        :model-value="line.productId"
                         :options="productOptions"
                         label="Product"
                         placeholder="Select a product"
                         required
                         :object-id="`cmb_TransactionLineItemsProduct_Row${idx}`"
+                        @update:model-value="(val) => onProductChange(line, val)"
                     />
                     <p
                         v-if="productAttributeSummaries[line.productId]"
@@ -115,7 +116,7 @@
                     />
                 </div>
 
-                <div class="w-full xl:w-48">
+                <div :class="isRegister ? 'w-full xl:w-48' : 'w-full xl:w-32'">
                     <template v-if="isRegister">
                         <p class="mb-1 text-xs font-medium text-text-secondary">
                             Product Qty
@@ -291,6 +292,21 @@ const props = defineProps<{
 
 defineEmits(["add-line", "remove-line", "back"]);
 
+const onProductChange = (
+    line: {
+        productId: string;
+        enteredUomId?: string;
+        enteredQty?: string;
+    },
+    value: string,
+) => {
+    if (line.productId !== value) {
+        line.enteredUomId = "";
+        line.enteredQty = "";
+    }
+    line.productId = value;
+};
+
 const hasBreakdownUnit = (productId: string): boolean => {
     const info = props.productUomInfo[productId];
     return Boolean(info?.unitName && info?.conversionFactor);
@@ -390,7 +406,7 @@ const onEditBreakdownInput = (value: string) => {
     if (!factor) return;
     const n = Number(value);
     editQtyBaseInput.value = Number.isFinite(n)
-        ? formatQtyNumber(convertUomQty(n, "breakdown", factor))
+        ? formatQtyNumber(Math.round(convertUomQty(n, "breakdown", factor)))
         : "";
 };
 

@@ -473,8 +473,12 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
                             qtyExpected: Number(l.qty),
-                            enteredUomId: l.enteredUomId,
-                            enteredQty: Number(l.enteredQty),
+                            ...(l.enteredUomId
+                                ? {
+                                      enteredUomId: l.enteredUomId,
+                                      enteredQty: Number(l.enteredQty),
+                                  }
+                                : {}),
                         })),
                     };
                     break;

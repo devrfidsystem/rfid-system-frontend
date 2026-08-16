@@ -321,43 +321,87 @@ describe("useTransactionCreate", () => {
         expect(mocks.pushSpy).toHaveBeenCalledWith("/transactions/register");
     });
 
+    it("omits enteredUomId/enteredQty from an untouched register line's payload", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+
+        create.form.value.docNumber = "REG-002";
+        create.form.value.transactionDate = "2026-07-18";
+        create.form.value.registeredById = "user-7";
+        create.form.value.warehouseId = "warehouse-1";
+        create.form.value.locationId = "location-1";
+        create.form.value.lines.push({
+            productId: "prod-1",
+            qty: "1",
+            locationId: "",
+            fromLocationId: "",
+            toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
+        });
+
+        await create.handleSubmit();
+
+        expect(mocks.createSpy).toHaveBeenCalledWith("register", {
+            companyId: "company-1",
+            docNumber: "REG-002",
+            docDate: expect.any(String),
+            registeredById: "user-7",
+            warehouseId: "warehouse-1",
+            locationId: "location-1",
+            lines: [
+                {
+                    productId: "prod-1",
+                    qtyExpected: 1,
+                },
+            ],
+        });
+        const payload = mocks.createSpy.mock.calls[0][1] as {
+            lines: Record<string, unknown>[];
+        };
+        expect(payload.lines[0]).not.toHaveProperty("enteredUomId");
+        expect(payload.lines[0]).not.toHaveProperty("enteredQty");
+    });
+
     it("builds a product-id-keyed UOM info map after loading options", async () => {
         const { masterService } = await import("@/services/master.service");
-        vi.mocked(masterService.fetchList).mockImplementation((entity: string) => {
-            if (entity === "products") {
-                return Promise.resolve({
-                    items: [
-                        {
-                            id: "prod-1",
-                            code: "P1",
-                            name: "Widget",
-                            createdAt: "2026-01-01",
-                            uom: {
-                                id: "uom-pcs",
-                                name: "Pieces",
-                                symbol: "Pcs",
+        vi.mocked(masterService.fetchList).mockImplementation(
+            (entity: string) => {
+                if (entity === "products") {
+                    return Promise.resolve({
+                        items: [
+                            {
+                                id: "prod-1",
+                                code: "P1",
+                                name: "Widget",
+                                createdAt: "2026-01-01",
+                                uom: {
+                                    id: "uom-pcs",
+                                    name: "Pieces",
+                                    symbol: "Pcs",
+                                },
+                                unitType: "carton",
+                                unitName: "Box",
+                                conversionFactor: 12,
                             },
-                            unitType: "carton",
-                            unitName: "Box",
-                            conversionFactor: 12,
-                        },
-                        {
-                            id: "prod-2",
-                            code: "P2",
-                            name: "Gadget",
-                            createdAt: "2026-01-01",
-                            uom: {
-                                id: "uom-pcs",
-                                name: "Pieces",
-                                symbol: "Pcs",
+                            {
+                                id: "prod-2",
+                                code: "P2",
+                                name: "Gadget",
+                                createdAt: "2026-01-01",
+                                uom: {
+                                    id: "uom-pcs",
+                                    name: "Pieces",
+                                    symbol: "Pcs",
+                                },
                             },
-                        },
-                    ],
-                    meta: null,
-                });
-            }
-            return Promise.resolve({ items: [], meta: null });
-        });
+                        ],
+                        meta: null,
+                    });
+                }
+                return Promise.resolve({ items: [], meta: null });
+            },
+        );
 
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("register");

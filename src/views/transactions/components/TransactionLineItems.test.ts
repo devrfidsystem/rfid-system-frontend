@@ -197,6 +197,37 @@ describe("TransactionLineItems", () => {
         expect(html).not.toContain("nmf_TransactionLineItemsEditQtyBreakdown");
         expect(html).not.toContain("btn_TransactionLineItemsEditQtySubmit");
     });
+
+    it("keeps the original xl:w-32 qty column width for non-register lines", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            isRegister: false,
+        });
+        const html = await renderToString(app);
+        expect(html).toContain("xl:w-32");
+        expect(html).not.toContain("xl:w-48");
+    });
+
+    it("widens the qty column to xl:w-48 for register lines (to fit chips + Edit Qty button)", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            isRegister: true,
+            productUomInfo: {
+                "prod-1": {
+                    baseUomId: "uom-pcs",
+                    baseLabel: "Pcs",
+                    unitName: "Box",
+                    conversionFactor: 12,
+                    breakdownUomId: "carton",
+                },
+            },
+        });
+        const html = await renderToString(app);
+        expect(html).toContain("xl:w-48");
+        expect(html).not.toContain("xl:w-32");
+    });
 });
 
 describe("TransactionLineItems Edit Qty modal wiring (source)", () => {
@@ -237,5 +268,33 @@ describe("TransactionLineItems Edit Qty modal wiring (source)", () => {
         );
         expect(transactionLineItemsSource).toContain("line.enteredUomId");
         expect(transactionLineItemsSource).toContain("line.enteredQty");
+    });
+
+    it("resets enteredUomId/enteredQty when the line's product selection changes", () => {
+        // Product changes must clear any stale entered-tier data from a
+        // previous product on the same line (e.g. a breakdown UOM that no
+        // longer applies) — otherwise wrong audit-trail data ships silently.
+        expect(transactionLineItemsSource).toContain("const onProductChange");
+        expect(transactionLineItemsSource).toContain('line.enteredUomId = ""');
+        expect(transactionLineItemsSource).toContain('line.enteredQty = ""');
+        expect(transactionLineItemsSource).toContain(
+            '@update:model-value="(val) => onProductChange(line, val)"',
+        );
+    });
+
+    it("rounds the breakdown-to-base conversion to a whole number (base UOM is a whole-unit count)", () => {
+        // Editing the breakdown tier (e.g. "0.58" Box) must not write a
+        // fractional piece count like 6.96 back into the base qty field.
+        expect(transactionLineItemsSource).toContain(
+            'Math.round(convertUomQty(n, "breakdown", factor))',
+        );
+        // The base -> breakdown direction is unaffected (display-only,
+        // fractional breakdown values like "1.5 Box" are expected there).
+        expect(transactionLineItemsSource).toContain(
+            'convertUomQty(n, "base", factor)',
+        );
+        expect(transactionLineItemsSource).not.toContain(
+            'Math.round(convertUomQty(n, "base", factor))',
+        );
     });
 });
