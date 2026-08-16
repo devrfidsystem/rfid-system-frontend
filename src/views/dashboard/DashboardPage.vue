@@ -11,7 +11,7 @@
         <InlineAlert
             v-if="warehouseError && !warehousesLoading"
             variant="error"
-            title="Warehouse selector unavailable"
+            :title="t('dashboard.overview.warehouseAlert.title')"
             :description="warehouseError"
         />
 
@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
 import DashboardAlertCenter from "./components/DashboardAlertCenter.vue";
@@ -63,4 +64,6 @@ const {
     kpiSnapshotLoading,
     kpiSnapshotError,
 } = useDashboard();
+
+const { t } = useI18n();
 </script>
