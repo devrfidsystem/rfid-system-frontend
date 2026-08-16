@@ -1,6 +1,7 @@
 import { createSSRApp, defineComponent, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/locales";
 
 const useMonitoringMock = vi.hoisted(() => vi.fn());
 
@@ -50,6 +51,7 @@ describe("MonitoringPage", () => {
 
     it("renders the Monitoring page title", async () => {
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("Monitoring");
     });
@@ -59,6 +61,7 @@ describe("MonitoringPage", () => {
 
         try {
             const app = createSSRApp(MonitoringPage);
+            app.use(i18n);
             await renderToString(app);
 
             expect(warnSpy).not.toHaveBeenCalled();
@@ -69,6 +72,7 @@ describe("MonitoringPage", () => {
 
     it("uses a command-layout grid for live transactions and exception feed", async () => {
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         const html = await renderToString(app);
 
         expect(html).toContain(
@@ -90,6 +94,7 @@ describe("MonitoringPage", () => {
         });
 
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("network down");
     });
@@ -136,6 +141,7 @@ describe("MonitoringPage", () => {
         });
 
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         await expect(renderToString(app)).resolves.toContain("Monitoring");
     });
 });
