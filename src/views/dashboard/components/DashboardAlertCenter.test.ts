@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createSSRApp, defineComponent } from "vue";
 import { renderToString } from "vue/server-renderer";
+import { i18n } from "@/locales";
 import DashboardAlertCenter from "./DashboardAlertCenter.vue";
 
 // Drawer touches `document` directly (unguarded for SSR) and this repo's
@@ -30,6 +31,7 @@ describe("DashboardAlertCenter", () => {
             loading: true,
             data: null,
         });
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("animate-pulse");
     });
@@ -39,10 +41,11 @@ describe("DashboardAlertCenter", () => {
             loading: false,
             data: null,
         });
+        app.use(i18n);
         const html = await renderToString(app);
-        expect(html).toContain("No open exceptions");
+        expect(html).toContain("Tidak ada pengecualian terbuka");
         expect(html).toContain(
-            "Selected warehouse has no active operational risk",
+            "Gudang yang dipilih tidak memiliki risiko operasional aktif",
         );
     });
 
@@ -69,8 +72,9 @@ describe("DashboardAlertCenter", () => {
                 ],
             },
         });
+        app.use(i18n);
         const html = await renderToString(app);
-        expect(html).toContain("Operational Exceptions");
+        expect(html).toContain("Pengecualian Operasional");
         expect(html).toContain("Sales Orders waiting Picking exceed threshold");
         expect(html).toContain(
             "Potential shipment delay for 14 outbound Sales Orders",
@@ -98,6 +102,7 @@ describe("DashboardAlertCenter", () => {
                 ],
             },
         });
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("bg-danger-50");
         expect(html).toContain("bg-warning-50");
@@ -113,6 +118,7 @@ describe("DashboardAlertCenter", () => {
             loading: false,
             data: { counts: { critical: 0, warning: 0, info: 0 }, alerts: [] },
         });
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).not.toContain("btn_DashboardAlertSeverity_all");
     });

@@ -1,20 +1,34 @@
 <template>
     <Card object-id="wdg_DashboardAlertCenter">
         <PanelHeader
-            title="Operational Exceptions"
-            description="Open warehouse risks that need operator action"
+            :title="t('dashboard.overview.alertCenter.panelTitle')"
+            :description="t('dashboard.overview.alertCenter.panelDescription')"
         >
             <div
                 v-if="data"
                 class="flex items-center gap-2 text-xs font-semibold"
             >
                 <Badge tone="error">
-                    Critical {{ data.counts.critical }}
+                    {{
+                        t("dashboard.overview.alertCenter.badges.critical", {
+                            count: data.counts.critical,
+                        })
+                    }}
                 </Badge>
                 <Badge tone="warning">
-                    Warning {{ data.counts.warning }}
+                    {{
+                        t("dashboard.overview.alertCenter.badges.warning", {
+                            count: data.counts.warning,
+                        })
+                    }}
                 </Badge>
-                <Badge tone="info"> Info {{ data.counts.info }} </Badge>
+                <Badge tone="info">
+                    {{
+                        t("dashboard.overview.alertCenter.badges.info", {
+                            count: data.counts.info,
+                        })
+                    }}
+                </Badge>
             </div>
         </PanelHeader>
 
@@ -37,7 +51,7 @@
 
             <StatusPanel
                 v-else-if="error"
-                title="Exception feed unavailable"
+                :title="t('dashboard.overview.alertCenter.unavailable.title')"
                 :description="error"
                 :icon="AlertTriangle"
                 tone="error"
@@ -45,8 +59,10 @@
 
             <StatusPanel
                 v-else-if="!data || data.alerts.length === 0"
-                title="No open exceptions"
-                description="Selected warehouse has no active operational risk."
+                :title="t('dashboard.overview.alertCenter.empty.title')"
+                :description="
+                    t('dashboard.overview.alertCenter.empty.description')
+                "
                 :icon="CheckCircle2"
                 tone="success"
             />
@@ -55,7 +71,11 @@
                 v-else-if="filteredAlerts.length === 0"
                 class="rounded-md border border-border bg-surface-secondary/50 p-8 text-center text-sm text-text-secondary"
             >
-                No {{ severityFilter }} exceptions in the current view.
+                {{
+                    t("dashboard.overview.alertCenter.emptyFiltered", {
+                        severity: severityFilter,
+                    })
+                }}
             </div>
 
             <ul v-else class="space-y-3">
@@ -81,6 +101,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import Card from "@/components/molecules/Card.vue";
 import PanelHeader from "@/components/molecules/PanelHeader.vue";
 import SegmentedControl from "@/components/molecules/SegmentedControl.vue";
@@ -102,15 +123,28 @@ const props = defineProps<{
     error?: string | null;
 }>();
 
-const severityFilterOptions: Array<{
-    label: string;
-    value: string;
-}> = [
-    { label: "All", value: "all" },
-    { label: "Critical", value: "critical" },
-    { label: "Warning", value: "warning" },
-    { label: "Info", value: "info" },
-];
+const { t } = useI18n();
+
+const severityFilterOptions = computed<Array<{ label: string; value: string }>>(
+    () => [
+        {
+            label: t("dashboard.overview.alertCenter.filters.all"),
+            value: "all",
+        },
+        {
+            label: t("dashboard.overview.alertCenter.filters.critical"),
+            value: "critical",
+        },
+        {
+            label: t("dashboard.overview.alertCenter.filters.warning"),
+            value: "warning",
+        },
+        {
+            label: t("dashboard.overview.alertCenter.filters.info"),
+            value: "info",
+        },
+    ],
+);
 
 const severityFilter = ref<DashboardAlertSeverity | "all">("all");
 const selectedAlert = ref<DashboardAlert | null>(null);
