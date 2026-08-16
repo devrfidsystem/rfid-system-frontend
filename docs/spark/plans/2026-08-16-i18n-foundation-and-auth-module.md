@@ -22,9 +22,11 @@
 ### Task 1: Add the `vue-i18n` dependency
 
 **Files:**
+
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Produces: `vue-i18n` package available for import (`createI18n`, `useI18n`) in all later tasks.
 
 - [ ] **Step 1: Install the package**
@@ -51,11 +53,13 @@ git commit -m "chore: add vue-i18n dependency"
 ### Task 2: Create the `common` locale namespace (id/en)
 
 **Files:**
+
 - Create: `src/locales/id/common.json`
 - Create: `src/locales/en/common.json`
 - Test: `src/locales/common.test.ts`
 
 **Interfaces:**
+
 - Produces: `common.password.show`, `common.password.hide`, `common.language.label`, `common.language.indonesian`, `common.language.english` keys, consumed by Task 9 (Login password toggle) and Task 13 (Profile language switcher).
 
 - [ ] **Step 1: Write the failing test**
@@ -140,11 +144,13 @@ git commit -m "feat: add common locale namespace (id/en)"
 ### Task 3: Create the `auth` locale namespace (id/en)
 
 **Files:**
+
 - Create: `src/locales/id/auth.json`
 - Create: `src/locales/en/auth.json`
 - Test: `src/locales/auth.test.ts`
 
 **Interfaces:**
+
 - Produces: all `auth.shell.*`, `auth.login.*`, `auth.register.*`, `auth.forgotPassword.*`, `auth.resetPassword.*` keys consumed by Tasks 8–12.
 
 - [ ] **Step 1: Write the failing test**
@@ -393,10 +399,12 @@ git commit -m "feat: add auth locale namespace (id/en)"
 ### Task 4: Create the `vue-i18n` instance
 
 **Files:**
+
 - Create: `src/locales/index.ts`
 - Test: `src/locales/index.test.ts`
 
 **Interfaces:**
+
 - Consumes: `src/locales/id/common.json`, `src/locales/en/common.json`, `src/locales/id/auth.json`, `src/locales/en/auth.json` (Tasks 2–3).
 - Produces: `export const i18n` — a `createI18n()` instance with `i18n.global.locale` (`WritableComputedRef<string>`) and `i18n.global.t(key, params?)`, consumed by Task 5 (`main.ts`), Task 6 (`locale.store.ts`), and every migrated component.
 
@@ -479,9 +487,11 @@ git commit -m "feat: create vue-i18n instance"
 ### Task 5: Install the i18n plugin in `main.ts`
 
 **Files:**
+
 - Modify: `src/main.ts`
 
 **Interfaces:**
+
 - Consumes: `i18n` from `src/locales/index.ts` (Task 4).
 
 - [ ] **Step 1: Update `main.ts`**
@@ -537,11 +547,13 @@ git commit -m "feat: install vue-i18n plugin in app bootstrap"
 ### Task 6: Create the locale store
 
 **Files:**
+
 - Create: `src/store/locale.store.ts`
 - Test: `src/store/locale.store.test.ts`
 - Modify: `src/main.ts`
 
 **Interfaces:**
+
 - Consumes: `i18n` and the `AppLocale` type, both from `src/locales/index.ts` (Task 4).
 - Produces: `useLocaleStore()` with `state.locale: AppLocale`, `initialize(): void`, `setLocale(locale: AppLocale): void` — consumed by Task 13 (Profile language switcher) and `main.ts`.
 
@@ -634,8 +646,7 @@ const STORAGE_KEY = "rfid-locale";
 const SUPPORTED_LOCALES: AppLocale[] = ["id", "en"];
 
 const isAppLocale = (value: string | null): value is AppLocale =>
-    value !== null &&
-    (SUPPORTED_LOCALES as string[]).includes(value);
+    value !== null && (SUPPORTED_LOCALES as string[]).includes(value);
 
 const getStoredLocale = (): AppLocale => {
     if (typeof window === "undefined") return "id";
@@ -725,9 +736,11 @@ git commit -m "feat: add locale store and wire it into app bootstrap"
 ### Task 7: Add the i18n key-parity guard test
 
 **Files:**
+
 - Create: `src/config/i18nKeyParity.test.ts`
 
 **Interfaces:**
+
 - Consumes: every `src/locales/id/*.json` / `src/locales/en/*.json` file pair (Tasks 2–3, and every namespace added by future module plans).
 
 - [ ] **Step 1: Write the test (this test starts passing immediately — it's a guard against future regressions, not new production code)**
@@ -740,11 +753,7 @@ import { resolve } from "node:path";
 const localesRoot = resolve(process.cwd(), "src/locales");
 
 const flattenKeys = (value: unknown, prefix = ""): string[] => {
-    if (
-        value === null ||
-        typeof value !== "object" ||
-        Array.isArray(value)
-    ) {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
         return [prefix];
     }
     return Object.entries(value as Record<string, unknown>).flatMap(
@@ -797,10 +806,12 @@ git commit -m "test: guard id/en locale namespaces against key drift"
 ### Task 8: Migrate `AuthShell.vue`
 
 **Files:**
+
 - Modify: `src/views/auth/AuthShell.vue`
 - Test: `src/views/auth/authShellI18n.test.ts`
 
 **Interfaces:**
+
 - Consumes: `auth.shell.footer` key (Task 3).
 
 - [ ] **Step 1: Write the failing test**
@@ -811,9 +822,7 @@ import authShellSource from "./AuthShell.vue?raw";
 
 describe("AuthShell i18n usage", () => {
     it("resolves the footer copyright text through vue-i18n", () => {
-        expect(authShellSource).toContain(
-            'import { useI18n } from "vue-i18n"',
-        );
+        expect(authShellSource).toContain('import { useI18n } from "vue-i18n"');
         expect(authShellSource).toContain("auth.shell.footer");
         expect(authShellSource).not.toContain("All rights reserved");
     });
@@ -830,7 +839,7 @@ Expected: FAIL — `useI18n` import not found in source.
 Replace the `<footer>` block:
 
 ```vue
-        <footer class="auth-page__footer">
+<footer class="auth-page__footer">
             {{ t("auth.shell.footer", { year: new Date().getFullYear() }) }}
         </footer>
 ```
@@ -872,11 +881,13 @@ git commit -m "feat: translate AuthShell footer via vue-i18n"
 ### Task 9: Migrate `LoginPage.vue` + `useLogin.ts`
 
 **Files:**
+
 - Modify: `src/views/auth/LoginPage.vue`
 - Modify: `src/views/auth/composables/useLogin.ts`
 - Modify: `src/views/auth/loginFormUsage.test.ts` (extend, do not remove existing assertions)
 
 **Interfaces:**
+
 - Consumes: `auth.login.*`, `common.password.show`, `common.password.hide` keys (Tasks 2–3).
 
 - [ ] **Step 1: Write the failing test (append to existing file)**
@@ -1164,11 +1175,13 @@ git commit -m "feat: translate LoginPage and useLogin via vue-i18n"
 ### Task 10: Migrate `RegisterPage.vue` + `useRegister.ts`
 
 **Files:**
+
 - Modify: `src/views/auth/RegisterPage.vue`
 - Modify: `src/views/auth/composables/useRegister.ts`
 - Modify: `src/views/auth/loginFormUsage.test.ts` (extend)
 
 **Interfaces:**
+
 - Consumes: `auth.register.*` keys (Task 3).
 
 - [ ] **Step 1: Write the failing test (append to `loginFormUsage.test.ts`)**
@@ -1494,11 +1507,13 @@ git commit -m "feat: translate RegisterPage and useRegister via vue-i18n"
 ### Task 11: Migrate `ForgotPasswordPage.vue` + `useForgotPassword.ts`
 
 **Files:**
+
 - Modify: `src/views/auth/ForgotPasswordPage.vue`
 - Modify: `src/views/auth/composables/useForgotPassword.ts`
 - Test: `src/views/auth/forgotPasswordI18n.test.ts`
 
 **Interfaces:**
+
 - Consumes: `auth.forgotPassword.*` keys (Task 3).
 
 - [ ] **Step 1: Write the failing test**
@@ -1733,11 +1748,13 @@ git commit -m "feat: translate ForgotPasswordPage and useForgotPassword via vue-
 ### Task 12: Migrate `ResetPasswordPage.vue` + `useResetPassword.ts`
 
 **Files:**
+
 - Modify: `src/views/auth/ResetPasswordPage.vue`
 - Modify: `src/views/auth/composables/useResetPassword.ts`
 - Test: `src/views/auth/resetPasswordI18n.test.ts`
 
 **Interfaces:**
+
 - Consumes: `auth.resetPassword.*` keys (Task 3).
 
 - [ ] **Step 1: Write the failing test**
@@ -2006,11 +2023,13 @@ git commit -m "feat: translate ResetPasswordPage and useResetPassword via vue-i1
 ### Task 13: Add the language switcher to the Profile page
 
 **Files:**
+
 - Modify: `src/views/profile/ProfilePage.vue`
 - Modify: `src/views/profile/composables/useProfile.ts`
 - Test: `src/views/profile/profileLanguageSwitcher.test.ts`
 
 **Interfaces:**
+
 - Consumes: `useLocaleStore()` (Task 6), `common.language.*` keys (Task 2).
 - Scope note: only the language switcher itself is added here. The rest of `ProfilePage.vue`'s existing Indonesian copy (account details, access card, etc.) is migrated in the future Settings/Profile module plan, not in this task.
 
@@ -2127,7 +2146,7 @@ export function useProfile() {
 Add this new `<Card>` block right after the closing `</div>` of the two-column grid (`Informasi Akun` / `Hak Akses`), and before the `<InlineAlert v-if="status" ...>` block:
 
 ```vue
-        <Card object-id="wdg_ProfileLanguage">
+<Card object-id="wdg_ProfileLanguage">
             <div class="flex items-center justify-between gap-4">
                 <p class="text-sm font-semibold text-text">
                     {{ t("common.language.label") }}
