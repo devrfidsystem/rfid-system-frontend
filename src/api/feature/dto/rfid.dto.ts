@@ -1,10 +1,5 @@
 export type RfidTagStatus =
-    | "available"
-    | "in_use"
-    | "quarantined"
-    | "retired"
-    | "encoded"
-    | "assigned";
+    "available" | "in_use" | "quarantined" | "retired" | "encoded" | "assigned";
 
 export interface RfidTag {
     id: string;

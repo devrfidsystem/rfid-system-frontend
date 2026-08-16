@@ -1,10 +1,5 @@
 export type TransactionStatusTone =
-    | "neutral"
-    | "success"
-    | "warning"
-    | "error"
-    | "info"
-    | "teal";
+    "neutral" | "success" | "warning" | "error" | "info" | "teal";
 
 const WARNING_STATUSES = new Set([
     "draft",

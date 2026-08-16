@@ -23,8 +23,9 @@ export const iamService = {
     },
 
     async createRole(payload: {
+        companyId: string;
+        code: string;
         name: string;
-        description?: string;
     }): Promise<IamRecord> {
         const response = await iamApi.createRole(payload);
         const res = response as unknown as { data?: IamRecord };
@@ -33,15 +34,27 @@ export const iamService = {
 
     async updateRole(
         id: string,
-        payload: { name?: string; description?: string },
+        payload: { name?: string },
     ): Promise<IamRecord> {
         const response = await iamApi.updateRole(id, payload);
         const res = response as unknown as { data?: IamRecord };
         return res.data || (response as unknown as IamRecord);
     },
 
-    async assignMenuToRole(roleId: string, menuId: string): Promise<IamRecord> {
-        const response = await iamApi.assignMenuToRole(roleId, menuId);
+    async assignMenuToRole(
+        roleId: string,
+        menuId: string,
+        permissions?: {
+            canCreate?: boolean;
+            canUpdate?: boolean;
+            canDelete?: boolean;
+        },
+    ): Promise<IamRecord> {
+        const response = await iamApi.assignMenuToRole(
+            roleId,
+            menuId,
+            permissions,
+        );
         const res = response as unknown as { data?: IamRecord };
         return res.data || (response as unknown as IamRecord);
     },
@@ -53,6 +66,15 @@ export const iamService = {
         const response = await iamApi.removeMenuFromRole(roleId, menuId);
         const res = response as unknown as { data?: IamRecord };
         return res.data || (response as unknown as IamRecord);
+    },
+
+    async getRoleMenus(roleId: string): Promise<IamRecord[]> {
+        const response = await iamApi.getRoleMenus(roleId);
+        const res = response as unknown as PaginatedResponse;
+        if (res.items && Array.isArray(res.items)) return res.items;
+        if (res.data && Array.isArray(res.data)) return res.data;
+        if (Array.isArray(response)) return response;
+        return [];
     },
 
     // --- Users ---

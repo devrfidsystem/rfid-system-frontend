@@ -1,7 +1,7 @@
 <template>
     <section class="space-y-6">
         <PageHeader
-            :title="isInbound ? transactionTitle : `New ${transactionTitle}`"
+            :title="`New ${transactionTitle}`"
             :description="
                 isRegister
                     ? 'Create a new register task'
@@ -10,7 +10,7 @@
                       : isOutbound
                         ? 'Create a new outbound assignment with an assigned user and deadline'
                         : transactionKey === 'inbound'
-                          ? 'Inbound documents are read-only in web admin'
+                          ? 'Create a new inbound receipt document'
                           : `Create a new ${transactionKey} transaction`
             "
             tagline="Transactions"
@@ -18,23 +18,7 @@
             @back="handleBack"
         />
 
-        <div v-if="isInbound" class="grid grid-cols-1 gap-6">
-            <Card
-                class="md:col-span-3"
-                object-id="wdg_TransactionCreateInboundBlocked"
-            >
-                <div class="mb-3">
-                    <ToolbarTitle title="Inbound is read-only" />
-                </div>
-                <p class="text-sm text-text-secondary leading-6">
-                    Inbound documents are only displayed from data that has
-                    already been registered. Web admin only reviews inbound data
-                    and does not create it directly.
-                </p>
-            </Card>
-        </div>
-
-        <form v-else @submit.prevent="handleSubmit">
+        <form @submit.prevent="handleSubmit">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Header Form -->
                 <Card
@@ -343,16 +327,7 @@ const {
     handleSubmit,
 } = useTransactionCreate(props.transactionKey);
 
-const isInbound = props.transactionKey === "inbound";
-
 onMounted(() => {
-    if (isInbound) {
-        handleBack();
-        return;
-    }
-
-    if (!isInbound) {
-        loadOptions();
-    }
+    loadOptions();
 });
 </script>

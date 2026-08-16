@@ -162,6 +162,30 @@ describe("useTransactionCreate", () => {
         );
     });
 
+    it("blocks transfer submit when source or destination warehouse is missing", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("transfer");
+
+        create.form.value.fromWarehouseId = "warehouse-a";
+        create.form.value.toWarehouseId = "";
+        create.form.value.lines.push({
+            productId: "prod-1",
+            qty: "1",
+            locationId: "",
+            fromLocationId: "loc-a",
+            toLocationId: "loc-b",
+            enteredUomId: "",
+            enteredQty: "",
+        });
+
+        await create.handleSubmit();
+
+        expect(mocks.createSpy).not.toHaveBeenCalled();
+        expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
+            "Please select source and destination warehouses.",
+        );
+    });
+
     it("blocks register submit when a line is missing product or valid quantity", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("register");
@@ -207,9 +231,48 @@ describe("useTransactionCreate", () => {
         expect(pageSource).toContain("dtp_TransactionCreateDeadline");
     });
 
-    it("redirects inbound create pages back to the list view", () => {
-        expect(pageSource).toContain("if (isInbound) {");
-        expect(pageSource).toContain("handleBack();");
+    it("renders inbound create fields instead of a read-only blocker", () => {
+        expect(pageSource).not.toContain("Inbound is read-only");
+        expect(pageSource).not.toContain("wdg_TransactionCreateInboundBlocked");
+        expect(pageSource).toContain("Create a new inbound receipt document");
+        expect(pageSource).toContain("TransactionLineItems");
+    });
+
+    it("builds an inbound payload from web admin", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("inbound");
+
+        create.form.value.docNumber = "INB-001";
+        create.form.value.transactionDate = "2026-07-18";
+        create.form.value.notes = "Inbound receipt";
+        create.form.value.partnerId = "supplier-1";
+        create.form.value.lines.push({
+            productId: "prod-1",
+            qty: "5",
+            locationId: "loc-a",
+            fromLocationId: "",
+            toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
+        });
+
+        await create.handleSubmit();
+
+        expect(mocks.createSpy).toHaveBeenCalledWith("inbound", {
+            companyId: "company-1",
+            docNumber: "INB-001",
+            docDate: expect.any(String),
+            notes: "Inbound receipt",
+            supplierId: "supplier-1",
+            lines: [
+                {
+                    productId: "prod-1",
+                    locationId: "loc-a",
+                    qtyExpected: 5,
+                },
+            ],
+        });
+        expect(mocks.pushSpy).toHaveBeenCalledWith("/transactions/inbound");
     });
 
     it("wires product attribute summaries into the line items component", () => {
@@ -361,6 +424,50 @@ describe("useTransactionCreate", () => {
         };
         expect(payload.lines[0]).not.toHaveProperty("enteredUomId");
         expect(payload.lines[0]).not.toHaveProperty("enteredQty");
+    });
+
+    it("builds a putaway payload with only a target location", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("putaway");
+
+        create.form.value.docNumber = "PUT-001";
+        create.form.value.transactionDate = "2026-07-18";
+        create.form.value.warehouseId = "warehouse-1";
+        create.form.value.referenceType = "inbound";
+        create.form.value.referenceId = "INB-001";
+        create.form.value.lines.push({
+            productId: "prod-1",
+            qty: "10",
+            locationId: "",
+            fromLocationId: "loc-existing",
+            toLocationId: "loc-target",
+            enteredUomId: "",
+            enteredQty: "",
+        });
+
+        await create.handleSubmit();
+
+        expect(mocks.createSpy).toHaveBeenCalledWith("putaway", {
+            companyId: "company-1",
+            docNumber: "PUT-001",
+            docDate: expect.any(String),
+            notes: undefined,
+            warehouseId: "warehouse-1",
+            referenceType: "inbound",
+            referenceId: "INB-001",
+            lines: [
+                {
+                    lineNo: 1,
+                    productId: "prod-1",
+                    qty: 10,
+                    targetLocationId: "loc-target",
+                },
+            ],
+        });
+        const payload = mocks.createSpy.mock.calls[0][1] as {
+            lines: Record<string, unknown>[];
+        };
+        expect(payload.lines[0]).not.toHaveProperty("sourceLocationId");
     });
 
     it("builds a product-id-keyed UOM info map after loading options", async () => {

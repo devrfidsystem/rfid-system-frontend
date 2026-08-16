@@ -15,8 +15,8 @@ Reference: `.docs/FEATURE_MAP.md` (Transactions section), `.docs/BUSINESS_FLOW.m
 
 - `useTransactionCreate.ts:97-99` already caches the full `ProductRecord[]` (`productRecords`) fetched via `masterService.fetchList("products")` when the create page loads — this is the same cache `productAttributeSummaries` already reads from.
 - `ProductRecord` (`src/model/entities.ts:96-124`) carries:
-  - `uom?: { id, name, symbol }` — the product's base UOM (e.g. "Pcs").
-  - `unitType?`, `unitName?`, `conversionFactor?` — an optional single breakdown-unit tier (e.g. unitType="carton", unitName="Box", conversionFactor=12).
+    - `uom?: { id, name, symbol }` — the product's base UOM (e.g. "Pcs").
+    - `unitType?`, `unitName?`, `conversionFactor?` — an optional single breakdown-unit tier (e.g. unitType="carton", unitName="Box", conversionFactor=12).
 - These fields are set today via the Product master-data form (`src/domain/master/entityConfig.ts:395-425`) but **are never consumed for any calculation anywhere in the codebase** prior to this feature.
 
 ## Conversion semantics (confirmed)
@@ -29,7 +29,7 @@ Example: `unitName="Box"`, `conversionFactor=12` → 1 Box = 12 Pcs. If a produc
 
 - Applies to the `register` transaction line item UI (`TransactionLineItems.vue`, gated to the `register` transaction key only — other transaction types keep their current plain qty input, since this feature was only requested for register and other types were not scoped by the user).
 - The pre-existing "Tag Qty" input + its own Submit button (RFID tag count, a separate downstream step) is **out of scope** — untouched.
-- No changes to product master-data (UOM entity config, conversion factor field) — this feature only *consumes* the existing fields.
+- No changes to product master-data (UOM entity config, conversion factor field) — this feature only _consumes_ the existing fields.
 
 ## UI Design
 
@@ -38,8 +38,8 @@ Example: `unitName="Box"`, `conversionFactor=12` → 1 Box = 12 Pcs. If a produc
 Replaces the current plain qty `Input` for `register` lines only. After `line.productId` is set:
 
 - Renders one read-only qty chip per available UOM tier for that product:
-  - Always: base UOM chip (e.g. "12 Pcs").
-  - Additionally, if the product has `unitName` + `conversionFactor` configured: breakdown-unit chip (e.g. "1 Box").
+    - Always: base UOM chip (e.g. "12 Pcs").
+    - Additionally, if the product has `unitName` + `conversionFactor` configured: breakdown-unit chip (e.g. "1 Box").
 - An **"Edit Qty"** button next to the chips opens a modal (using the existing `Drawer`/modal molecule already used elsewhere in this design system, e.g. `DashboardAlertDetailDrawer.vue`'s `Drawer` component).
 
 ### Edit Qty modal

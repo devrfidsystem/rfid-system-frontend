@@ -65,17 +65,6 @@
                 <template v-if="showPutawayLocations">
                     <div class="w-full xl:w-48">
                         <Select
-                            v-model="line.fromLocationId"
-                            :options="locationOptions"
-                            label="Source Location"
-                            placeholder="Select source location"
-                            required
-                            :object-id="`cmb_TransactionLineItemsSourceLocation_Row${idx}`"
-                        />
-                    </div>
-
-                    <div class="w-full xl:w-48">
-                        <Select
                             v-model="line.toLocationId"
                             :options="locationOptions"
                             label="Target Location"

@@ -145,6 +145,11 @@ const routes: RouteRecordRaw[] = [
                         component: () =>
                             import("@/views/iam/UserAccessPage.vue"),
                     },
+                    {
+                        path: "roles/menus",
+                        component: () =>
+                            import("@/views/iam/RoleMenusPage.vue"),
+                    },
                 ],
             },
             {
@@ -212,11 +217,6 @@ const routes: RouteRecordRaw[] = [
                     transactionKey: route.params
                         .transactionKey as TransactionKey,
                 }),
-                beforeEnter: (to) => {
-                    if (to.params.transactionKey === "inbound") {
-                        return `/transactions/${to.params.transactionKey}`;
-                    }
-                },
             },
             {
                 path: `transactions/:transactionKey(${transactionPattern})/:id`,

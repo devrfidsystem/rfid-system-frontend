@@ -54,18 +54,21 @@
         >
             <form class="space-y-6" @submit.prevent="handleSubmit">
                 <Input
+                    v-if="!isEditing"
+                    id="txt_RolesFormCode"
+                    v-model="form.code"
+                    label="Role Code"
+                    placeholder="e.g. SUPER_ADMIN"
+                    required
+                    object-id="txt_RolesFormCode"
+                />
+                <Input
                     id="txt_RolesFormName"
                     v-model="form.name"
                     label="Role Name"
-                    placeholder="e.g. SUPER_ADMIN"
+                    placeholder="e.g. Super Admin"
                     required
                     object-id="txt_RolesFormName"
-                />
-                <Input
-                    id="txt_RolesFormDescription"
-                    v-model="form.description"
-                    label="Description"
-                    object-id="txt_RolesFormDescription"
                 />
 
                 <FormActions sticky>
@@ -103,30 +106,32 @@ import FormActions from "@/components/ui/form/FormActions.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
 import { iamService } from "@/services/iam.service";
 import { useNotifier } from "@/composable/useNotifier";
+import { useAuthStore } from "@/store/auth.store";
 
 interface RoleRecord extends Record<string, unknown> {
     id: string;
+    code: string;
     name: string;
-    description?: string | null;
 }
 
 interface RoleTableRow extends Record<string, unknown> {
     id: string;
+    code: string;
     name: string;
-    description: string;
     original: RoleRecord;
 }
 
 interface RoleForm {
+    code: string;
     name: string;
-    description: string;
 }
 
-const { withToast } = useNotifier();
+const { withToast, notifyError } = useNotifier();
+const authStore = useAuthStore();
 
 const columns = [
+    { key: "code", label: "Code" },
     { key: "name", label: "Role Name" },
-    { key: "description", label: "Description" },
     { key: "actions", label: "" },
 ];
 
@@ -140,15 +145,15 @@ const submitting = ref(false);
 const currentId = ref("");
 
 const form = ref<RoleForm>({
+    code: "",
     name: "",
-    description: "",
 });
 
 const tableRows = computed<RoleTableRow[]>(() => {
     return rows.value.map((r) => ({
         id: r.id,
+        code: r.code,
         name: r.name,
-        description: r.description || "-",
         original: r,
     }));
 });
@@ -168,7 +173,7 @@ const loadData = async () => {
 };
 
 const openCreateModal = () => {
-    form.value = { name: "", description: "" };
+    form.value = { code: "", name: "" };
     isEditing.value = false;
     currentId.value = "";
     isModalOpen.value = true;
@@ -177,8 +182,8 @@ const openCreateModal = () => {
 const openEditModal = (row: RoleTableRow) => {
     const original = row.original;
     form.value = {
+        code: original.code,
         name: original.name,
-        description: original.description || "",
     };
     isEditing.value = true;
     currentId.value = original.id;
@@ -186,14 +191,27 @@ const openEditModal = (row: RoleTableRow) => {
 };
 
 const handleSubmit = async () => {
+    if (!isEditing.value && !authStore.currentCompanyId) {
+        notifyError("Tidak ada perusahaan aktif untuk membuat role.");
+        return;
+    }
     submitting.value = true;
     try {
         await withToast(
             async () => {
                 if (isEditing.value) {
-                    await iamService.updateRole(currentId.value, form.value);
+                    await iamService.updateRole(currentId.value, {
+                        name: form.value.name,
+                    });
                 } else {
-                    await iamService.createRole(form.value);
+                    await iamService.createRole({
+                        companyId: authStore.currentCompanyId as string,
+                        code: form.value.code
+                            .trim()
+                            .toUpperCase()
+                            .replace(/\s+/g, "_"),
+                        name: form.value.name,
+                    });
                 }
             },
             {

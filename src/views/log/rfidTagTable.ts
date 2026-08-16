@@ -2,13 +2,7 @@ import type { RfidTag, RfidTagStatus } from "@/api/feature/dto/rfid.dto";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
 
 export type RfidBadgeTone =
-    | "neutral"
-    | "success"
-    | "warning"
-    | "error"
-    | "info"
-    | "purple"
-    | "teal";
+    "neutral" | "success" | "warning" | "error" | "info" | "purple" | "teal";
 
 export type RfidTagTableRow = Record<string, unknown> & {
     id: string;

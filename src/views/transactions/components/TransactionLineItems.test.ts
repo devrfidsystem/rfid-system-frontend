@@ -228,6 +228,21 @@ describe("TransactionLineItems", () => {
         expect(html).toContain("xl:w-48");
         expect(html).not.toContain("xl:w-32");
     });
+
+    it("renders only a target location for putaway lines", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            showPutawayLocations: true,
+            locationOptions: [{ label: "Rack A", value: "loc-target-1" }],
+        });
+        const html = await renderToString(app);
+
+        expect(html).not.toContain("Source Location");
+        expect(html).not.toContain("cmb_TransactionLineItemsSourceLocation");
+        expect(html).toContain("Target Location");
+        expect(html).toContain("cmb_TransactionLineItemsTargetLocation_Row0");
+    });
 });
 
 describe("TransactionLineItems Edit Qty modal wiring (source)", () => {

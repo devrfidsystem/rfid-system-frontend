@@ -440,12 +440,7 @@ const QUEUE_TASK_CANDIDATE_LIMIT = 5;
 const QUEUE_TASK_FINAL_LIMIT = 5;
 
 type MonitoringDocType =
-    | "inbound"
-    | "putaway"
-    | "outbound"
-    | "transfer"
-    | "relocation"
-    | "opname";
+    "inbound" | "putaway" | "outbound" | "transfer" | "relocation" | "opname";
 
 interface DocTypeConfig {
     completedStatus: string;

@@ -342,6 +342,14 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             return;
         }
 
+        if (
+            isTransfer.value &&
+            (!form.value.fromWarehouseId || !form.value.toWarehouseId)
+        ) {
+            notifyError("Please select source and destination warehouses.");
+            return;
+        }
+
         const cId = companyId.value;
         if (!cId) {
             notifyError(
@@ -458,7 +466,6 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                             lineNo: index + 1,
                             productId: l.productId,
                             qty: Number(l.qty),
-                            sourceLocationId: l.fromLocationId || undefined,
                             targetLocationId: l.toLocationId,
                         })),
                     };
