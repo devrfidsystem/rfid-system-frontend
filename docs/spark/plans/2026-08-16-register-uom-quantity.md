@@ -717,10 +717,7 @@ Expected: FAIL — no Edit Qty button, no `Drawer` usage, no `openEditQty`/`onEd
 In the template, replace the register-chip block's inner `<div v-if="line.productId" ...>` (added in Task 2) with a version that also includes the Edit Qty button:
 
 ```vue
-                        <div
-                            v-if="line.productId"
-                            class="flex flex-wrap items-center gap-2"
-                        >
+<div v-if="line.productId" class="flex flex-wrap items-center gap-2">
                             <span
                                 class="inline-flex items-center rounded-full border border-border bg-surface-secondary px-2.5 py-1 text-xs font-medium text-text"
                                 :object-id="`chp_TransactionLineItemsBaseQty_Row${idx}`"
@@ -749,14 +746,14 @@ In the template, replace the register-chip block's inner `<div v-if="line.produc
 Add the Edit Qty `Drawer` as a sibling right after the closing `</div>` of `<div class="flex-1 overflow-x-auto p-6 space-y-4">` (i.e. right before the footer `<div class="mt-auto ...">`), still inside `<Card>`:
 
 ```vue
-        <Drawer
-            :model-value="editQtyLineIndex !== null"
-            title="Edit Quantity"
-            side="right"
-            width="sm"
-            object-id="drw_TransactionLineItemsEditQty"
-            @update:model-value="(open) => !open && closeEditQty()"
-        >
+<Drawer
+    :model-value="editQtyLineIndex !== null"
+    title="Edit Quantity"
+    side="right"
+    width="sm"
+    object-id="drw_TransactionLineItemsEditQty"
+    @update:model-value="(open) => !open && closeEditQty()"
+>
             <div v-if="editQtyLineIndex !== null" class="space-y-4">
                 <Input
                     id="editQtyBase"
@@ -883,7 +880,7 @@ const editQtyProductInfo = computed<ProductUomInfo | null>(() => {
 const editQtyHasBreakdown = computed(() =>
     Boolean(
         editQtyProductInfo.value?.unitName &&
-            editQtyProductInfo.value?.conversionFactor,
+        editQtyProductInfo.value?.conversionFactor,
     ),
 );
 
@@ -1001,128 +998,125 @@ git commit -m "feat: add Edit Qty modal with live base/breakdown conversion"
 Append these test cases inside the existing `describe("useTransactionCreate", ...)` block in `src/views/transactions/composables/useTransactionCreate.test.ts` (after the last existing test, before the closing `});`):
 
 ```typescript
+it("adds a new line with empty enteredUomId and enteredQty defaults", async () => {
+    const { useTransactionCreate } = await import("./useTransactionCreate");
+    const create = useTransactionCreate("register");
 
-    it("adds a new line with empty enteredUomId and enteredQty defaults", async () => {
-        const { useTransactionCreate } = await import("./useTransactionCreate");
-        const create = useTransactionCreate("register");
+    create.addLine();
 
-        create.addLine();
+    expect(create.form.value.lines[0]).toMatchObject({
+        enteredUomId: "",
+        enteredQty: "",
+    });
+});
 
-        expect(create.form.value.lines[0]).toMatchObject({
-            enteredUomId: "",
-            enteredQty: "",
-        });
+it("builds a register payload including entered UOM tier and quantity", async () => {
+    const { useTransactionCreate } = await import("./useTransactionCreate");
+    const create = useTransactionCreate("register");
+
+    create.form.value.docNumber = "REG-001";
+    create.form.value.transactionDate = "2026-07-18";
+    create.form.value.registeredById = "user-7";
+    create.form.value.warehouseId = "warehouse-1";
+    create.form.value.locationId = "location-1";
+    create.form.value.lines.push({
+        productId: "prod-1",
+        qty: "24",
+        locationId: "",
+        fromLocationId: "",
+        toLocationId: "",
+        enteredUomId: "carton",
+        enteredQty: "2",
     });
 
-    it("builds a register payload including entered UOM tier and quantity", async () => {
-        const { useTransactionCreate } = await import("./useTransactionCreate");
-        const create = useTransactionCreate("register");
+    await create.handleSubmit();
 
-        create.form.value.docNumber = "REG-001";
-        create.form.value.transactionDate = "2026-07-18";
-        create.form.value.registeredById = "user-7";
-        create.form.value.warehouseId = "warehouse-1";
-        create.form.value.locationId = "location-1";
-        create.form.value.lines.push({
-            productId: "prod-1",
-            qty: "24",
-            locationId: "",
-            fromLocationId: "",
-            toLocationId: "",
-            enteredUomId: "carton",
-            enteredQty: "2",
-        });
-
-        await create.handleSubmit();
-
-        expect(mocks.createSpy).toHaveBeenCalledWith("register", {
-            companyId: "company-1",
-            docNumber: "REG-001",
-            docDate: expect.any(String),
-            registeredById: "user-7",
-            warehouseId: "warehouse-1",
-            locationId: "location-1",
-            lines: [
-                {
-                    productId: "prod-1",
-                    qtyExpected: 24,
-                    enteredUomId: "carton",
-                    enteredQty: 2,
-                },
-            ],
-        });
-        expect(mocks.notifySuccessSpy).toHaveBeenCalledWith(
-            "Transaction created successfully",
-        );
-        expect(mocks.pushSpy).toHaveBeenCalledWith("/transactions/register");
-    });
-
-    it("builds a product-id-keyed UOM info map after loading options", async () => {
-        const { masterService } = await import("@/services/master.service");
-        vi.mocked(masterService.fetchList).mockImplementation(
-            (entity: string) => {
-                if (entity === "products") {
-                    return Promise.resolve({
-                        items: [
-                            {
-                                id: "prod-1",
-                                code: "P1",
-                                name: "Widget",
-                                createdAt: "2026-01-01",
-                                uom: {
-                                    id: "uom-pcs",
-                                    name: "Pieces",
-                                    symbol: "Pcs",
-                                },
-                                unitType: "carton",
-                                unitName: "Box",
-                                conversionFactor: 12,
-                            },
-                            {
-                                id: "prod-2",
-                                code: "P2",
-                                name: "Gadget",
-                                createdAt: "2026-01-01",
-                                uom: {
-                                    id: "uom-pcs",
-                                    name: "Pieces",
-                                    symbol: "Pcs",
-                                },
-                            },
-                        ],
-                        meta: null,
-                    });
-                }
-                return Promise.resolve({ items: [], meta: null });
+    expect(mocks.createSpy).toHaveBeenCalledWith("register", {
+        companyId: "company-1",
+        docNumber: "REG-001",
+        docDate: expect.any(String),
+        registeredById: "user-7",
+        warehouseId: "warehouse-1",
+        locationId: "location-1",
+        lines: [
+            {
+                productId: "prod-1",
+                qtyExpected: 24,
+                enteredUomId: "carton",
+                enteredQty: 2,
             },
-        );
+        ],
+    });
+    expect(mocks.notifySuccessSpy).toHaveBeenCalledWith(
+        "Transaction created successfully",
+    );
+    expect(mocks.pushSpy).toHaveBeenCalledWith("/transactions/register");
+});
 
-        const { useTransactionCreate } = await import("./useTransactionCreate");
-        const create = useTransactionCreate("register");
-        await create.loadOptions();
-
-        expect(create.productUomInfo.value).toEqual({
-            "prod-1": {
-                baseUomId: "uom-pcs",
-                baseLabel: "Pcs",
-                unitName: "Box",
-                conversionFactor: 12,
-                breakdownUomId: "carton",
-            },
-            "prod-2": {
-                baseUomId: "uom-pcs",
-                baseLabel: "Pcs",
-                unitName: null,
-                conversionFactor: null,
-                breakdownUomId: null,
-            },
-        });
+it("builds a product-id-keyed UOM info map after loading options", async () => {
+    const { masterService } = await import("@/services/master.service");
+    vi.mocked(masterService.fetchList).mockImplementation((entity: string) => {
+        if (entity === "products") {
+            return Promise.resolve({
+                items: [
+                    {
+                        id: "prod-1",
+                        code: "P1",
+                        name: "Widget",
+                        createdAt: "2026-01-01",
+                        uom: {
+                            id: "uom-pcs",
+                            name: "Pieces",
+                            symbol: "Pcs",
+                        },
+                        unitType: "carton",
+                        unitName: "Box",
+                        conversionFactor: 12,
+                    },
+                    {
+                        id: "prod-2",
+                        code: "P2",
+                        name: "Gadget",
+                        createdAt: "2026-01-01",
+                        uom: {
+                            id: "uom-pcs",
+                            name: "Pieces",
+                            symbol: "Pcs",
+                        },
+                    },
+                ],
+                meta: null,
+            });
+        }
+        return Promise.resolve({ items: [], meta: null });
     });
 
-    it("wires isRegister and product UOM info into the line items component", () => {
-        expect(pageSource).toContain(':is-register="isRegister"');
-        expect(pageSource).toContain(':product-uom-info="productUomInfo"');
+    const { useTransactionCreate } = await import("./useTransactionCreate");
+    const create = useTransactionCreate("register");
+    await create.loadOptions();
+
+    expect(create.productUomInfo.value).toEqual({
+        "prod-1": {
+            baseUomId: "uom-pcs",
+            baseLabel: "Pcs",
+            unitName: "Box",
+            conversionFactor: 12,
+            breakdownUomId: "carton",
+        },
+        "prod-2": {
+            baseUomId: "uom-pcs",
+            baseLabel: "Pcs",
+            unitName: null,
+            conversionFactor: null,
+            breakdownUomId: null,
+        },
     });
+});
+
+it("wires isRegister and product UOM info into the line items component", () => {
+    expect(pageSource).toContain(':is-register="isRegister"');
+    expect(pageSource).toContain(':product-uom-info="productUomInfo"');
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -1135,48 +1129,48 @@ Expected: FAIL — `enteredUomId`/`enteredQty` not defaulted in `addLine`, regis
 Update the `form` ref's `lines` type (near the top of the function):
 
 ```typescript
-    const form = ref({
-        docNumber: `TRX-${Date.now()}`,
-        transactionDate: new Date().toISOString().split("T")[0],
-        title: "",
-        period: "",
-        warehouseId: "",
-        locationId: "",
-        fromWarehouseId: "",
-        toWarehouseId: "",
-        partnerId: "",
-        assignedById: "",
-        deadlineAt: "",
-        registeredById: "",
-        referenceType: "",
-        referenceId: "",
-        notes: "",
-        lines: [] as {
-            productId: string;
-            qty: string;
-            locationId: string;
-            fromLocationId: string;
-            toLocationId: string;
-            enteredUomId: string;
-            enteredQty: string;
-        }[],
-    });
+const form = ref({
+    docNumber: `TRX-${Date.now()}`,
+    transactionDate: new Date().toISOString().split("T")[0],
+    title: "",
+    period: "",
+    warehouseId: "",
+    locationId: "",
+    fromWarehouseId: "",
+    toWarehouseId: "",
+    partnerId: "",
+    assignedById: "",
+    deadlineAt: "",
+    registeredById: "",
+    referenceType: "",
+    referenceId: "",
+    notes: "",
+    lines: [] as {
+        productId: string;
+        qty: string;
+        locationId: string;
+        fromLocationId: string;
+        toLocationId: string;
+        enteredUomId: string;
+        enteredQty: string;
+    }[],
+});
 ```
 
 Update `addLine`:
 
 ```typescript
-    const addLine = () => {
-        form.value.lines.push({
-            productId: "",
-            qty: "1",
-            locationId: "",
-            fromLocationId: "",
-            toLocationId: "",
-            enteredUomId: "",
-            enteredQty: "",
-        });
-    };
+const addLine = () => {
+    form.value.lines.push({
+        productId: "",
+        qty: "1",
+        locationId: "",
+        fromLocationId: "",
+        toLocationId: "",
+        enteredUomId: "",
+        enteredQty: "",
+    });
+};
 ```
 
 - [ ] **Step 4: Add the `ProductUomInfo` type and `productUomInfo` computed**
@@ -1196,19 +1190,19 @@ export interface ProductUomInfo {
 Add the computed right after the existing `productAttributeSummaries` computed:
 
 ```typescript
-    const productUomInfo = computed<Record<string, ProductUomInfo>>(() => {
-        const map: Record<string, ProductUomInfo> = {};
-        productRecords.value.forEach((product) => {
-            map[String(product.id)] = {
-                baseUomId: product.uom?.id ?? "",
-                baseLabel: product.uom?.symbol || product.uom?.name || "Unit",
-                unitName: product.unitName ?? null,
-                conversionFactor: product.conversionFactor ?? null,
-                breakdownUomId: product.unitType ?? null,
-            };
-        });
-        return map;
+const productUomInfo = computed<Record<string, ProductUomInfo>>(() => {
+    const map: Record<string, ProductUomInfo> = {};
+    productRecords.value.forEach((product) => {
+        map[String(product.id)] = {
+            baseUomId: product.uom?.id ?? "",
+            baseLabel: product.uom?.symbol || product.uom?.name || "Unit",
+            unitName: product.unitName ?? null,
+            conversionFactor: product.conversionFactor ?? null,
+            breakdownUomId: product.unitType ?? null,
+        };
     });
+    return map;
+});
 ```
 
 - [ ] **Step 5: Extend the `register` payload builder**
@@ -1238,39 +1232,39 @@ Replace the `case "register":` block:
 Update the `return { ... }` block at the end of the function to add `productUomInfo` alongside `productAttributeSummaries`:
 
 ```typescript
-    return {
-        form,
-        submitting,
-        transactionTitle,
-        showSingleWarehouse,
-        showDualWarehouse,
-        showPartnerField,
-        isTransfer,
-        isRelocation,
-        isOpname,
-        isRegister,
-        isOutbound,
-        isPutaway,
-        partnerLabel,
-        warehouseOptions,
-        partnerOptions,
-        productOptions,
-        productAttributeSummaries,
-        productUomInfo,
-        userOptions,
-        locationOptions,
-        fromLocationOptions,
-        toLocationOptions,
-        showPutawayLocations,
-        opnameProfileOptions,
-        quartalOptions,
-        monthOptions,
-        addLine,
-        removeLine,
-        handleBack,
-        loadOptions,
-        handleSubmit,
-    };
+return {
+    form,
+    submitting,
+    transactionTitle,
+    showSingleWarehouse,
+    showDualWarehouse,
+    showPartnerField,
+    isTransfer,
+    isRelocation,
+    isOpname,
+    isRegister,
+    isOutbound,
+    isPutaway,
+    partnerLabel,
+    warehouseOptions,
+    partnerOptions,
+    productOptions,
+    productAttributeSummaries,
+    productUomInfo,
+    userOptions,
+    locationOptions,
+    fromLocationOptions,
+    toLocationOptions,
+    showPutawayLocations,
+    opnameProfileOptions,
+    quartalOptions,
+    monthOptions,
+    addLine,
+    removeLine,
+    handleBack,
+    loadOptions,
+    handleSubmit,
+};
 ```
 
 - [ ] **Step 7: Wire `isRegister` and `productUomInfo` into `TransactionCreatePage.vue`**
@@ -1315,26 +1309,26 @@ const {
 In the template, update the `<TransactionLineItems>` usage to pass the two new props:
 
 ```vue
-                <!-- Line Items Form (Hide for Opname only) -->
-                <TransactionLineItems
-                    v-if="!isOpname"
-                    :lines="form.lines"
-                    :product-options="productOptions"
-                    :product-attribute-summaries="productAttributeSummaries"
-                    :product-uom-info="productUomInfo"
-                    :location-options="locationOptions"
-                    :from-location-options="fromLocationOptions"
-                    :to-location-options="toLocationOptions"
-                    :show-single-warehouse="showSingleWarehouse && !isRegister"
-                    :is-relocation="isRelocation"
-                    :show-dual-warehouse="showDualWarehouse"
-                    :show-putaway-locations="showPutawayLocations"
-                    :is-register="isRegister"
-                    :submitting="submitting"
-                    @add-line="addLine"
-                    @remove-line="removeLine"
-                    @back="handleBack"
-                />
+<!-- Line Items Form (Hide for Opname only) -->
+<TransactionLineItems
+    v-if="!isOpname"
+    :lines="form.lines"
+    :product-options="productOptions"
+    :product-attribute-summaries="productAttributeSummaries"
+    :product-uom-info="productUomInfo"
+    :location-options="locationOptions"
+    :from-location-options="fromLocationOptions"
+    :to-location-options="toLocationOptions"
+    :show-single-warehouse="showSingleWarehouse && !isRegister"
+    :is-relocation="isRelocation"
+    :show-dual-warehouse="showDualWarehouse"
+    :show-putaway-locations="showPutawayLocations"
+    :is-register="isRegister"
+    :submitting="submitting"
+    @add-line="addLine"
+    @remove-line="removeLine"
+    @back="handleBack"
+/>
 ```
 
 - [ ] **Step 8: Run tests to verify they pass**
