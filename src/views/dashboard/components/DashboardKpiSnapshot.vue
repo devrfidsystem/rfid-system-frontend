@@ -1,8 +1,8 @@
 <template>
     <Card object-id="wdg_DashboardKpiSnapshot">
         <PanelHeader
-            title="KPI Control Snapshot"
-            description="Score movement for throughput, cycle time, and accuracy"
+            :title="t('dashboard.overview.kpiSnapshot.panelTitle')"
+            :description="t('dashboard.overview.kpiSnapshot.panelDescription')"
         />
 
         <div class="mt-6">
@@ -17,7 +17,7 @@
             <InlineAlert
                 v-else-if="error"
                 variant="error"
-                title="KPI snapshot unavailable"
+                :title="t('dashboard.overview.kpiSnapshot.unavailable.title')"
                 :description="error"
             />
 
@@ -25,7 +25,7 @@
                 v-else-if="!data || data.cards.length === 0"
                 class="rounded-md border border-border bg-surface-secondary/50 p-8 text-center text-sm text-text-secondary"
             >
-                No KPI scorecard data for the selected warehouse.
+                {{ t("dashboard.overview.kpiSnapshot.empty") }}
             </div>
 
             <div v-else class="grid gap-4 sm:grid-cols-3">
@@ -90,7 +90,7 @@
                         }"
                         class="mt-4 inline-block text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline"
                     >
-                        Open KPI Detail
+                        {{ t("dashboard.overview.kpiSnapshot.openDetail") }}
                     </RouterLink>
                 </div>
             </div>
@@ -100,6 +100,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
 import Card from "@/components/molecules/Card.vue";
 import PanelHeader from "@/components/molecules/PanelHeader.vue";
 import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
@@ -111,6 +112,8 @@ defineProps<{
     data: DashboardKpiSnapshotResponse | null;
     error?: string | null;
 }>();
+
+const { t } = useI18n();
 
 function sparklinePoints(values: number[]): string {
     if (!values || values.length === 0) return "";
