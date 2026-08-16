@@ -802,7 +802,9 @@ Expected: FAIL — source still hardcoded.
             <StatusPanel
                 v-else-if="!data || data.alerts.length === 0"
                 :title="t('dashboard.overview.alertCenter.empty.title')"
-                :description="t('dashboard.overview.alertCenter.empty.description')"
+                :description="
+                    t('dashboard.overview.alertCenter.empty.description')
+                "
                 :icon="CheckCircle2"
                 tone="success"
             />
@@ -867,7 +869,10 @@ const { t } = useI18n();
 
 const severityFilterOptions = computed<Array<{ label: string; value: string }>>(
     () => [
-        { label: t("dashboard.overview.alertCenter.filters.all"), value: "all" },
+        {
+            label: t("dashboard.overview.alertCenter.filters.all"),
+            value: "all",
+        },
         {
             label: t("dashboard.overview.alertCenter.filters.critical"),
             value: "critical",
@@ -1149,7 +1154,11 @@ Expected: FAIL — both sources still hardcoded.
                         <p
                             class="text-[10px] font-semibold uppercase text-text-secondary"
                         >
-                            {{ t("dashboard.overview.alertCenter.businessImpact") }}
+                            {{
+                                t(
+                                    "dashboard.overview.alertCenter.businessImpact",
+                                )
+                            }}
                         </p>
                         <p class="text-xs text-text mt-0.5">
                             {{ alert.businessImpact }}
@@ -1490,7 +1499,11 @@ Expected: FAIL — source still hardcoded.
                     <PanelHeader :title="panel.title" />
                     <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <MetricValueTile
-                            :label="t('dashboard.overview.workflowOverview.metrics.open')"
+                            :label="
+                                t(
+                                    'dashboard.overview.workflowOverview.metrics.open',
+                                )
+                            "
                             :value="panel.openCount"
                             class="border-0 bg-transparent p-0"
                         />
@@ -1813,9 +1826,7 @@ Expected: FAIL — source still hardcoded.
     <Card object-id="wdg_DashboardKpiSnapshot">
         <PanelHeader
             :title="t('dashboard.overview.kpiSnapshot.panelTitle')"
-            :description="
-                t('dashboard.overview.kpiSnapshot.panelDescription')
-            "
+            :description="t('dashboard.overview.kpiSnapshot.panelDescription')"
         />
 
         <div class="mt-6">
