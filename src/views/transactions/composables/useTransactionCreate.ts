@@ -13,6 +13,14 @@ import { normalizePaginationItems } from "@/lib/api/normalizers";
 import { formatProductAttributeSummary } from "@/utils/productAttributes";
 import type { ProductRecord } from "@/model/entities";
 
+export interface ProductUomInfo {
+    baseUomId: string;
+    baseLabel: string;
+    unitName?: string | null;
+    conversionFactor?: number | null;
+    breakdownUomId?: string | null;
+}
+
 export function useTransactionCreate(transactionKey: TransactionKey) {
     const router = useRouter();
     const { notifyError, notifySuccess } = useNotifier();
@@ -43,6 +51,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             locationId: string;
             fromLocationId: string;
             toLocationId: string;
+            enteredUomId: string;
+            enteredQty: string;
         }[],
     });
 
@@ -103,6 +113,19 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                 product.attributeValues,
             );
             if (summary) map[String(product.id)] = summary;
+        });
+        return map;
+    });
+    const productUomInfo = computed<Record<string, ProductUomInfo>>(() => {
+        const map: Record<string, ProductUomInfo> = {};
+        productRecords.value.forEach((product) => {
+            map[String(product.id)] = {
+                baseUomId: product.uom?.id ?? "",
+                baseLabel: product.uom?.symbol || product.uom?.name || "Unit",
+                unitName: product.unitName ?? null,
+                conversionFactor: product.conversionFactor ?? null,
+                breakdownUomId: product.unitType ?? null,
+            };
         });
         return map;
     });
@@ -199,6 +222,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             locationId: "",
             fromLocationId: "",
             toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
         });
     };
 
@@ -448,6 +473,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
                             qtyExpected: Number(l.qty),
+                            enteredUomId: l.enteredUomId,
+                            enteredQty: Number(l.enteredQty),
                         })),
                     };
                     break;
@@ -495,6 +522,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         partnerOptions,
         productOptions,
         productAttributeSummaries,
+        productUomInfo,
         userOptions,
         locationOptions,
         fromLocationOptions,

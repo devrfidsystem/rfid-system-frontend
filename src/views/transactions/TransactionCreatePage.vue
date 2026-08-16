@@ -237,6 +237,7 @@
                     :lines="form.lines"
                     :product-options="productOptions"
                     :product-attribute-summaries="productAttributeSummaries"
+                    :product-uom-info="productUomInfo"
                     :location-options="locationOptions"
                     :from-location-options="fromLocationOptions"
                     :to-location-options="toLocationOptions"
@@ -244,6 +245,7 @@
                     :is-relocation="isRelocation"
                     :show-dual-warehouse="showDualWarehouse"
                     :show-putaway-locations="showPutawayLocations"
+                    :is-register="isRegister"
                     :submitting="submitting"
                     @add-line="addLine"
                     @remove-line="removeLine"
@@ -326,6 +328,7 @@ const {
     partnerOptions,
     productOptions,
     productAttributeSummaries,
+    productUomInfo,
     userOptions,
     locationOptions,
     fromLocationOptions,

@@ -69,6 +69,8 @@ describe("useTransactionCreate", () => {
             locationId: "",
             fromLocationId: "loc-a",
             toLocationId: "loc-b",
+            enteredUomId: "",
+            enteredQty: "",
         });
 
         await create.handleSubmit();
@@ -109,6 +111,8 @@ describe("useTransactionCreate", () => {
             locationId: "loc-a",
             fromLocationId: "",
             toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
         });
 
         await create.handleSubmit();
@@ -146,6 +150,8 @@ describe("useTransactionCreate", () => {
             locationId: "loc-a",
             fromLocationId: "",
             toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
         });
 
         await create.handleSubmit();
@@ -169,6 +175,8 @@ describe("useTransactionCreate", () => {
             locationId: "",
             fromLocationId: "",
             toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
         });
 
         await create.handleSubmit();
@@ -256,5 +264,125 @@ describe("useTransactionCreate", () => {
         expect(create.productAttributeSummaries.value).toEqual({
             "prod-1": "Color: Red",
         });
+    });
+
+    it("adds a new line with empty enteredUomId and enteredQty defaults", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+
+        create.addLine();
+
+        expect(create.form.value.lines[0]).toMatchObject({
+            enteredUomId: "",
+            enteredQty: "",
+        });
+    });
+
+    it("builds a register payload including entered UOM tier and quantity", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+
+        create.form.value.docNumber = "REG-001";
+        create.form.value.transactionDate = "2026-07-18";
+        create.form.value.registeredById = "user-7";
+        create.form.value.warehouseId = "warehouse-1";
+        create.form.value.locationId = "location-1";
+        create.form.value.lines.push({
+            productId: "prod-1",
+            qty: "24",
+            locationId: "",
+            fromLocationId: "",
+            toLocationId: "",
+            enteredUomId: "carton",
+            enteredQty: "2",
+        });
+
+        await create.handleSubmit();
+
+        expect(mocks.createSpy).toHaveBeenCalledWith("register", {
+            companyId: "company-1",
+            docNumber: "REG-001",
+            docDate: expect.any(String),
+            registeredById: "user-7",
+            warehouseId: "warehouse-1",
+            locationId: "location-1",
+            lines: [
+                {
+                    productId: "prod-1",
+                    qtyExpected: 24,
+                    enteredUomId: "carton",
+                    enteredQty: 2,
+                },
+            ],
+        });
+        expect(mocks.notifySuccessSpy).toHaveBeenCalledWith(
+            "Transaction created successfully",
+        );
+        expect(mocks.pushSpy).toHaveBeenCalledWith("/transactions/register");
+    });
+
+    it("builds a product-id-keyed UOM info map after loading options", async () => {
+        const { masterService } = await import("@/services/master.service");
+        vi.mocked(masterService.fetchList).mockImplementation((entity: string) => {
+            if (entity === "products") {
+                return Promise.resolve({
+                    items: [
+                        {
+                            id: "prod-1",
+                            code: "P1",
+                            name: "Widget",
+                            createdAt: "2026-01-01",
+                            uom: {
+                                id: "uom-pcs",
+                                name: "Pieces",
+                                symbol: "Pcs",
+                            },
+                            unitType: "carton",
+                            unitName: "Box",
+                            conversionFactor: 12,
+                        },
+                        {
+                            id: "prod-2",
+                            code: "P2",
+                            name: "Gadget",
+                            createdAt: "2026-01-01",
+                            uom: {
+                                id: "uom-pcs",
+                                name: "Pieces",
+                                symbol: "Pcs",
+                            },
+                        },
+                    ],
+                    meta: null,
+                });
+            }
+            return Promise.resolve({ items: [], meta: null });
+        });
+
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+        await create.loadOptions();
+
+        expect(create.productUomInfo.value).toEqual({
+            "prod-1": {
+                baseUomId: "uom-pcs",
+                baseLabel: "Pcs",
+                unitName: "Box",
+                conversionFactor: 12,
+                breakdownUomId: "carton",
+            },
+            "prod-2": {
+                baseUomId: "uom-pcs",
+                baseLabel: "Pcs",
+                unitName: null,
+                conversionFactor: null,
+                breakdownUomId: null,
+            },
+        });
+    });
+
+    it("wires isRegister and product UOM info into the line items component", () => {
+        expect(pageSource).toContain(':is-register="isRegister"');
+        expect(pageSource).toContain(':product-uom-info="productUomInfo"');
     });
 });
