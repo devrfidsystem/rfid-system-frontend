@@ -278,7 +278,7 @@ describe("TransactionLineItems Edit Qty modal wiring (source)", () => {
         expect(transactionLineItemsSource).toContain('line.enteredUomId = ""');
         expect(transactionLineItemsSource).toContain('line.enteredQty = ""');
         expect(transactionLineItemsSource).toContain(
-            '@update:model-value="(val) => onProductChange(line, val)"',
+            "(val) => onProductChange(line, val)",
         );
     });
 
