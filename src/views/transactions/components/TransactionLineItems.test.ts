@@ -1,7 +1,30 @@
-import { describe, expect, it } from "vitest";
-import { createSSRApp } from "vue";
+import { describe, expect, it, vi } from "vitest";
+import { createSSRApp, defineComponent } from "vue";
 import { renderToString } from "vue/server-renderer";
 import TransactionLineItems from "./TransactionLineItems.vue";
+import transactionLineItemsSource from "./TransactionLineItems.vue?raw";
+
+// Drawer touches `document` directly (unguarded for SSR) and this repo's
+// Vitest environment is plain Node (no jsdom) — stub it out here the same
+// way page-level tests stub Drawer/Modal-based children (see
+// DashboardAlertCenter.test.ts).
+vi.mock("@/components/organisms/Drawer.vue", () => ({
+    default: defineComponent({
+        name: "DrawerStub",
+        inheritAttrs: false,
+        props: {
+            modelValue: Boolean,
+            title: String,
+            side: String,
+            width: String,
+            objectId: String,
+        },
+        setup:
+            (_props, { slots }) =>
+            () =>
+                slots.default?.(),
+    }),
+}));
 
 const baseProps = {
     lines: [
@@ -136,5 +159,78 @@ describe("TransactionLineItems", () => {
         const html = await renderToString(app);
         expect(html).not.toContain("chp_TransactionLineItemsBaseQty_Row0");
         expect(html).toContain("Select a product to set quantity.");
+    });
+
+    it("renders an Edit Qty button next to the chips for a register line with a product selected", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            isRegister: true,
+            productUomInfo: {
+                "prod-1": {
+                    baseUomId: "uom-pcs",
+                    baseLabel: "Pcs",
+                    unitName: "Box",
+                    conversionFactor: 12,
+                    breakdownUomId: "carton",
+                },
+            },
+        });
+        const html = await renderToString(app);
+        expect(html).toContain("btn_TransactionLineItemsEditQty_Row0");
+        expect(html).toContain("Edit Qty");
+    });
+
+    it("does not render the Edit Qty modal contents by default (closed state)", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            isRegister: true,
+        });
+        const html = await renderToString(app);
+        expect(html).not.toContain("nmf_TransactionLineItemsEditQtyBase");
+        expect(html).not.toContain("nmf_TransactionLineItemsEditQtyBreakdown");
+        expect(html).not.toContain("btn_TransactionLineItemsEditQtySubmit");
+    });
+});
+
+describe("TransactionLineItems Edit Qty modal wiring (source)", () => {
+    it("uses the Drawer molecule for the Edit Qty modal", () => {
+        expect(transactionLineItemsSource).toContain(
+            'import Drawer from "@/components/organisms/Drawer.vue"',
+        );
+        expect(transactionLineItemsSource).toContain("<Drawer");
+        expect(transactionLineItemsSource).toContain(
+            'object-id="drw_TransactionLineItemsEditQty"',
+        );
+    });
+
+    it("opens the modal for the clicked line's index via openEditQty", () => {
+        expect(transactionLineItemsSource).toContain(
+            '@click="openEditQty(idx)"',
+        );
+        expect(transactionLineItemsSource).toContain(
+            "const editQtyLineIndex = ref<number | null>(null);",
+        );
+    });
+
+    it("recalculates the other tier live via convertUomQty on each input", () => {
+        expect(transactionLineItemsSource).toContain("onEditBaseInput");
+        expect(transactionLineItemsSource).toContain("onEditBreakdownInput");
+        expect(transactionLineItemsSource).toContain(
+            'convertUomQty(n, "base", factor)',
+        );
+        expect(transactionLineItemsSource).toContain(
+            'convertUomQty(n, "breakdown", factor)',
+        );
+    });
+
+    it("commits both the base qty and the entered-tier fields back to the line on submit", () => {
+        expect(transactionLineItemsSource).toContain("const submitEditQty");
+        expect(transactionLineItemsSource).toContain(
+            "line.qty = editQtyBaseInput.value",
+        );
+        expect(transactionLineItemsSource).toContain("line.enteredUomId");
+        expect(transactionLineItemsSource).toContain("line.enteredQty");
     });
 });

@@ -137,6 +137,15 @@
                             >
                                 {{ breakdownQtyLabel(line) }}
                             </span>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                :object-id="`btn_TransactionLineItemsEditQty_Row${idx}`"
+                                @click="openEditQty(idx)"
+                            >
+                                Edit Qty
+                            </Button>
                         </div>
                         <p v-else class="text-xs text-text-secondary">
                             Select a product to set quantity.
@@ -172,6 +181,47 @@
                 No line items added yet. Click "Add Line" to begin.
             </p>
         </div>
+        <Drawer
+            :model-value="editQtyLineIndex !== null"
+            title="Edit Quantity"
+            side="right"
+            width="sm"
+            object-id="drw_TransactionLineItemsEditQty"
+            @update:model-value="(open) => !open && closeEditQty()"
+        >
+            <div v-if="editQtyLineIndex !== null" class="space-y-4">
+                <Input
+                    id="editQtyBase"
+                    :model-value="editQtyBaseInput"
+                    :label="`Quantity (${editQtyBaseLabel})`"
+                    type="number"
+                    min="0"
+                    object-id="nmf_TransactionLineItemsEditQtyBase"
+                    @update:model-value="onEditBaseInput"
+                />
+                <Input
+                    v-if="editQtyHasBreakdown"
+                    id="editQtyBreakdown"
+                    :model-value="editQtyBreakdownInput"
+                    :label="`Quantity (${editQtyUnitName})`"
+                    type="number"
+                    min="0"
+                    object-id="nmf_TransactionLineItemsEditQtyBreakdown"
+                    @update:model-value="onEditBreakdownInput"
+                />
+            </div>
+            <template #footer>
+                <Button
+                    type="button"
+                    variant="primary"
+                    class="w-full justify-center"
+                    object-id="btn_TransactionLineItemsEditQtySubmit"
+                    @click="submitEditQty"
+                >
+                    Submit
+                </Button>
+            </template>
+        </Drawer>
         <div
             class="mt-auto px-6 py-3 border-t border-border flex justify-end gap-3"
         >
@@ -198,10 +248,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
+import Drawer from "@/components/organisms/Drawer.vue";
 import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 import { convertUomQty } from "../utils/uomConversion";
 
@@ -267,5 +319,96 @@ const breakdownQtyLabel = (line: {
         info.conversionFactor,
     );
     return `${formatQtyNumber(breakdownQty)} ${info.unitName}`;
+};
+
+const editQtyLineIndex = ref<number | null>(null);
+const editQtyBaseInput = ref("");
+const editQtyBreakdownInput = ref("");
+const editQtyLastTier = ref<"base" | "breakdown">("base");
+
+const editQtyProductInfo = computed<ProductUomInfo | null>(() => {
+    if (editQtyLineIndex.value === null) return null;
+    const line = props.lines[editQtyLineIndex.value];
+    return props.productUomInfo[line.productId] ?? null;
+});
+
+const editQtyHasBreakdown = computed(() =>
+    Boolean(
+        editQtyProductInfo.value?.unitName &&
+        editQtyProductInfo.value?.conversionFactor,
+    ),
+);
+
+const editQtyConversionFactor = computed(
+    () => editQtyProductInfo.value?.conversionFactor ?? 0,
+);
+
+const editQtyBaseLabel = computed(
+    () => editQtyProductInfo.value?.baseLabel ?? "Unit",
+);
+
+const editQtyUnitName = computed(
+    () => editQtyProductInfo.value?.unitName ?? "",
+);
+
+const openEditQty = (idx: number) => {
+    editQtyLineIndex.value = idx;
+    const line = props.lines[idx];
+    editQtyBaseInput.value = line.qty || "0";
+    editQtyLastTier.value = "base";
+
+    const factor = props.productUomInfo[line.productId]?.conversionFactor;
+    if (factor) {
+        const baseValue = Number(line.qty) || 0;
+        editQtyBreakdownInput.value = formatQtyNumber(
+            convertUomQty(baseValue, "base", factor),
+        );
+    } else {
+        editQtyBreakdownInput.value = "";
+    }
+};
+
+const closeEditQty = () => {
+    editQtyLineIndex.value = null;
+};
+
+const onEditBaseInput = (value: string) => {
+    editQtyBaseInput.value = value;
+    editQtyLastTier.value = "base";
+    const factor = editQtyConversionFactor.value;
+    if (!factor) return;
+    const n = Number(value);
+    editQtyBreakdownInput.value = Number.isFinite(n)
+        ? formatQtyNumber(convertUomQty(n, "base", factor))
+        : "";
+};
+
+const onEditBreakdownInput = (value: string) => {
+    editQtyBreakdownInput.value = value;
+    editQtyLastTier.value = "breakdown";
+    const factor = editQtyConversionFactor.value;
+    if (!factor) return;
+    const n = Number(value);
+    editQtyBaseInput.value = Number.isFinite(n)
+        ? formatQtyNumber(convertUomQty(n, "breakdown", factor))
+        : "";
+};
+
+const submitEditQty = () => {
+    if (editQtyLineIndex.value === null) return;
+    const line = props.lines[editQtyLineIndex.value];
+    const info = editQtyProductInfo.value;
+
+    line.qty = editQtyBaseInput.value || "0";
+
+    if (editQtyLastTier.value === "breakdown" && editQtyHasBreakdown.value) {
+        line.enteredUomId = info?.breakdownUomId ?? "breakdown";
+        line.enteredQty = editQtyBreakdownInput.value || "0";
+    } else {
+        line.enteredUomId = info?.baseUomId ?? "";
+        line.enteredQty = editQtyBaseInput.value || "0";
+    }
+
+    closeEditQty();
 };
 </script>
