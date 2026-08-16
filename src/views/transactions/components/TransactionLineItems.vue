@@ -115,8 +115,35 @@
                     />
                 </div>
 
-                <div class="w-full xl:w-32">
+                <div class="w-full xl:w-48">
+                    <template v-if="isRegister">
+                        <p class="mb-1 text-xs font-medium text-text-secondary">
+                            Product Qty
+                        </p>
+                        <div
+                            v-if="line.productId"
+                            class="flex flex-wrap items-center gap-2"
+                        >
+                            <span
+                                class="inline-flex items-center rounded-full border border-border bg-surface-secondary px-2.5 py-1 text-xs font-medium text-text"
+                                :object-id="`chp_TransactionLineItemsBaseQty_Row${idx}`"
+                            >
+                                {{ baseQtyLabel(line) }}
+                            </span>
+                            <span
+                                v-if="hasBreakdownUnit(line.productId)"
+                                class="inline-flex items-center rounded-full border border-border bg-surface-secondary px-2.5 py-1 text-xs font-medium text-text"
+                                :object-id="`chp_TransactionLineItemsBreakdownQty_Row${idx}`"
+                            >
+                                {{ breakdownQtyLabel(line) }}
+                            </span>
+                        </div>
+                        <p v-else class="text-xs text-text-secondary">
+                            Select a product to set quantity.
+                        </p>
+                    </template>
                     <Input
+                        v-else
                         :id="`qty-${idx}`"
                         v-model="line.qty"
                         label="Quantity"
@@ -176,17 +203,29 @@ import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
+import { convertUomQty } from "../utils/uomConversion";
 
-defineProps<{
+interface ProductUomInfo {
+    baseUomId: string;
+    baseLabel: string;
+    unitName?: string | null;
+    conversionFactor?: number | null;
+    breakdownUomId?: string | null;
+}
+
+const props = defineProps<{
     lines: Array<{
         productId: string;
         qty: string;
         locationId: string;
         fromLocationId: string;
         toLocationId: string;
+        enteredUomId?: string;
+        enteredQty?: string;
     }>;
     productOptions: Array<{ label: string; value: string }>;
     productAttributeSummaries: Record<string, string>;
+    productUomInfo: Record<string, ProductUomInfo>;
     locationOptions: Array<{ label: string; value: string }>;
     fromLocationOptions: Array<{ label: string; value: string }>;
     toLocationOptions: Array<{ label: string; value: string }>;
@@ -194,8 +233,39 @@ defineProps<{
     isRelocation: boolean;
     showDualWarehouse: boolean;
     showPutawayLocations: boolean;
+    isRegister: boolean;
     submitting: boolean;
 }>();
 
 defineEmits(["add-line", "remove-line", "back"]);
+
+const hasBreakdownUnit = (productId: string): boolean => {
+    const info = props.productUomInfo[productId];
+    return Boolean(info?.unitName && info?.conversionFactor);
+};
+
+const formatQtyNumber = (value: number): string => {
+    if (!Number.isFinite(value)) return "0";
+    return Number(value.toFixed(2)).toString();
+};
+
+const baseQtyLabel = (line: { productId: string; qty: string }): string => {
+    const info = props.productUomInfo[line.productId];
+    const label = info?.baseLabel ?? "Unit";
+    return `${line.qty || "0"} ${label}`;
+};
+
+const breakdownQtyLabel = (line: {
+    productId: string;
+    qty: string;
+}): string => {
+    const info = props.productUomInfo[line.productId];
+    if (!info?.conversionFactor || !info?.unitName) return "";
+    const breakdownQty = convertUomQty(
+        Number(line.qty) || 0,
+        "base",
+        info.conversionFactor,
+    );
+    return `${formatQtyNumber(breakdownQty)} ${info.unitName}`;
+};
 </script>
