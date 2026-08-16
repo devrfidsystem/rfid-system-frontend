@@ -40,3 +40,13 @@ describe("LoginPage i18n usage", () => {
         expect(loginSource).not.toContain('"Masuk"');
     });
 });
+
+describe("RegisterPage i18n usage", () => {
+    it("resolves register copy through vue-i18n instead of hardcoded Indonesian text", () => {
+        expect(registerSource).toContain('import { useI18n } from "vue-i18n"');
+        expect(registerSource).toContain("auth.register.submit");
+        expect(registerSource).toContain("auth.register.emailLabel");
+        expect(registerSource).not.toContain("Buat akun enterprise");
+        expect(registerSource).not.toContain('"Daftar"');
+    });
+});
