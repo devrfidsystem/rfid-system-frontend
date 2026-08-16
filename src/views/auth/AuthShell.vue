@@ -110,7 +110,6 @@ const { t } = useI18n();
 .auth-card__body {
     margin-top: 2rem;
     width: 100%;
-    text-align: left;
 }
 
 .auth-page__footer {
