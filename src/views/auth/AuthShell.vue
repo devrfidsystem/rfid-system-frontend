@@ -24,17 +24,20 @@
         </div>
 
         <footer class="auth-page__footer">
-            © {{ new Date().getFullYear() }} ALIR Smart System · All rights
-            reserved
+            {{ t("auth.shell.footer", { year: new Date().getFullYear() }) }}
         </footer>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 defineProps<{
     formTitle?: string;
     formSubtitle?: string;
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>
@@ -107,6 +110,7 @@ defineProps<{
 .auth-card__body {
     margin-top: 2rem;
     width: 100%;
+    text-align: left;
 }
 
 .auth-page__footer {
