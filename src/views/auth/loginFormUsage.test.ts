@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import loginSource from "./LoginPage.vue?raw";
 import registerSource from "./RegisterPage.vue?raw";
+import useLoginSource from "./composables/useLogin.ts?raw";
+import useRegisterSource from "./composables/useRegister.ts?raw";
 
 describe("auth form primitives", () => {
     it("uses CheckboxField for login remember-me state", () => {
@@ -48,5 +50,27 @@ describe("RegisterPage i18n usage", () => {
         expect(registerSource).toContain("auth.register.emailLabel");
         expect(registerSource).not.toContain("Buat akun enterprise");
         expect(registerSource).not.toContain('"Daftar"');
+    });
+});
+
+describe("useLogin i18n usage", () => {
+    it("resolves validation and toast copy in the composable through t()", () => {
+        expect(useLoginSource).toContain('import { useI18n } from "vue-i18n"');
+        expect(useLoginSource).toContain("auth.login.errors.emailInvalid");
+        expect(useLoginSource).toContain("auth.login.toastSuccess");
+        expect(useLoginSource).not.toContain("Gunakan email valid perusahaan.");
+    });
+});
+
+describe("useRegister i18n usage", () => {
+    it("resolves validation and toast copy in the composable through t()", () => {
+        expect(useRegisterSource).toContain(
+            'import { useI18n } from "vue-i18n"',
+        );
+        expect(useRegisterSource).toContain(
+            "auth.register.errors.fullNameRequired",
+        );
+        expect(useRegisterSource).toContain("auth.register.toastSuccess");
+        expect(useRegisterSource).not.toContain("Nama tidak boleh kosong.");
     });
 });
