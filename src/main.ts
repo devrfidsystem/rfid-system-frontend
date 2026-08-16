@@ -4,6 +4,7 @@ import App from "./App.vue";
 import router from "./router";
 import { i18n } from "@/locales";
 import { useAuthStore } from "@/store/auth.store";
+import { useLocaleStore } from "@/store/locale.store";
 import "./assets/styles/app.css";
 
 const app = createApp(App);
@@ -14,6 +15,8 @@ app.use(router);
 app.use(i18n);
 
 const authStore = useAuthStore(pinia);
+const localeStore = useLocaleStore(pinia);
+localeStore.initialize();
 
 const bootstrapAuth = async () => {
     try {
