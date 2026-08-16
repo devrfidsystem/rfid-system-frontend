@@ -3,6 +3,8 @@ import commonId from "./id/common.json";
 import commonEn from "./en/common.json";
 import authId from "./id/auth.json";
 import authEn from "./en/auth.json";
+import dashboardId from "./id/dashboard.json";
+import dashboardEn from "./en/dashboard.json";
 
 export type AppLocale = "id" | "en";
 
@@ -10,10 +12,12 @@ const messages = {
     id: {
         common: commonId,
         auth: authId,
+        dashboard: dashboardId,
     },
     en: {
         common: commonEn,
         auth: authEn,
+        dashboard: dashboardEn,
     },
 };
 

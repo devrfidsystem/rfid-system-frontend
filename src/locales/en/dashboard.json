@@ -1,0 +1,73 @@
+{
+    "common": {
+        "warehouseFilterPlaceholder": "All Warehouses (Filter)",
+        "refresh": "Refresh"
+    },
+    "overview": {
+        "warehouseAlert": {
+            "title": "Warehouse selector unavailable"
+        },
+        "alertCenter": {
+            "panelTitle": "Operational Exceptions",
+            "panelDescription": "Open warehouse risks that need operator action",
+            "badges": {
+                "critical": "Critical {count}",
+                "warning": "Warning {count}",
+                "info": "Info {count}"
+            },
+            "filters": {
+                "all": "All",
+                "critical": "Critical",
+                "warning": "Warning",
+                "info": "Info"
+            },
+            "unavailable": {
+                "title": "Exception feed unavailable"
+            },
+            "empty": {
+                "title": "No open exceptions",
+                "description": "Selected warehouse has no active operational risk."
+            },
+            "emptyFiltered": "No {severity} exceptions in the current view.",
+            "businessImpact": "Business Impact",
+            "recommendedAction": "Recommended Action",
+            "occurred": "Occurred",
+            "documentReference": "Document Reference"
+        },
+        "workflowOverview": {
+            "panelTitle": "Workflow Position",
+            "panelDescription": "Document stages and bottlenecks across active warehouse flows",
+            "unavailable": {
+                "title": "Workflow position data unavailable"
+            },
+            "empty": {
+                "title": "No workflow position data",
+                "description": "No workflow position data for the selected warehouse."
+            },
+            "metrics": {
+                "open": "Open",
+                "completionRate": "Completion Rate",
+                "bottleneck": "Bottleneck"
+            },
+            "insufficientData": "Insufficient data yet",
+            "avgWait": "Avg wait"
+        },
+        "kpiSnapshot": {
+            "panelTitle": "KPI Control Snapshot",
+            "panelDescription": "Score movement for throughput, cycle time, and accuracy",
+            "unavailable": {
+                "title": "KPI snapshot unavailable"
+            },
+            "empty": "No KPI scorecard data for the selected warehouse.",
+            "openDetail": "Open KPI Detail"
+        },
+        "stageDonutChart": {
+            "ariaLabelPrefix": "Stage distribution",
+            "openLabel": "Open",
+            "otherLabel": "Other"
+        },
+        "errors": {
+            "loadFailed": "Failed to load dashboard data."
+        }
+    }
+}
