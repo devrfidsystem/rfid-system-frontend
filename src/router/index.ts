@@ -74,6 +74,14 @@ const authRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/auth/RegisterPage.vue"),
     },
     {
+        path: "/forgot-password",
+        component: () => import("@/views/auth/ForgotPasswordPage.vue"),
+    },
+    {
+        path: "/reset-password",
+        component: () => import("@/views/auth/ResetPasswordPage.vue"),
+    },
+    {
         path: "/auth/login",
         redirect: "/login",
     },
@@ -306,7 +314,9 @@ router.beforeEach(async (to) => {
     const isAuthRoute =
         to.path.startsWith("/auth") ||
         to.path === "/login" ||
-        to.path === "/register";
+        to.path === "/register" ||
+        to.path === "/forgot-password" ||
+        to.path === "/reset-password";
     const isAuthenticated = authStore.isAuthenticated;
 
     if (requiresAuth && !isAuthenticated) {
