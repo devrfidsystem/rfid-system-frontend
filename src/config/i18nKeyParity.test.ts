@@ -21,9 +21,11 @@ const readNamespaceKeys = (locale: string, fileName: string): string[] => {
 };
 
 describe("i18n key parity", () => {
-    const namespaceFiles = readdirSync(resolve(localesRoot, "id")).filter(
-        (fileName) => fileName.endsWith(".json"),
-    );
+    const namespaceFiles = readdirSync(resolve(localesRoot, "id"), {
+        withFileTypes: true,
+    })
+        .filter((entry) => entry.name.endsWith(".json"))
+        .map((entry) => entry.name);
 
     test("at least one locale namespace exists", () => {
         expect(namespaceFiles.length).toBeGreaterThan(0);
