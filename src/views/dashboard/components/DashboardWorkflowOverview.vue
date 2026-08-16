@@ -1,8 +1,10 @@
 <template>
     <Card object-id="wdg_DashboardWorkflowOverview">
         <PanelHeader
-            title="Workflow Position"
-            description="Document stages and bottlenecks across active warehouse flows"
+            :title="t('dashboard.overview.workflowOverview.panelTitle')"
+            :description="
+                t('dashboard.overview.workflowOverview.panelDescription')
+            "
         />
 
         <div class="mt-6">
@@ -16,7 +18,9 @@
 
             <StatusPanel
                 v-else-if="error"
-                title="Workflow position data unavailable"
+                :title="
+                    t('dashboard.overview.workflowOverview.unavailable.title')
+                "
                 :description="error"
                 :icon="AlertTriangle"
                 tone="error"
@@ -24,8 +28,10 @@
 
             <StatusPanel
                 v-else-if="!data || data.panels.length === 0"
-                title="No workflow position data"
-                description="No workflow position data for the selected warehouse."
+                :title="t('dashboard.overview.workflowOverview.empty.title')"
+                :description="
+                    t('dashboard.overview.workflowOverview.empty.description')
+                "
                 :icon="Activity"
                 tone="neutral"
             />
@@ -39,17 +45,29 @@
                     <PanelHeader :title="panel.title" />
                     <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <MetricValueTile
-                            label="Open"
+                            :label="
+                                t(
+                                    'dashboard.overview.workflowOverview.metrics.open',
+                                )
+                            "
                             :value="panel.openCount"
                             class="border-0 bg-transparent p-0"
                         />
                         <MetricValueTile
-                            label="Completion Rate"
+                            :label="
+                                t(
+                                    'dashboard.overview.workflowOverview.metrics.completionRate',
+                                )
+                            "
                             :value="`${Math.round(panel.completionRate * 100)}%`"
                             class="border-0 bg-transparent p-0"
                         />
                         <MetricValueTile
-                            label="Bottleneck"
+                            :label="
+                                t(
+                                    'dashboard.overview.workflowOverview.metrics.bottleneck',
+                                )
+                            "
                             :value="panel.bottleneckStage"
                             class="col-span-2 border-0 bg-transparent p-0"
                             value-class="text-warning-600"
@@ -82,7 +100,12 @@
                             <span class="text-text-secondary"
                                 >{{ stage.count }} · {{ stage.pctOfOpen ?? 0 }}%
                                 <template v-if="stage.avgWaitHours !== null">
-                                    · Avg wait
+                                    ·
+                                    {{
+                                        t(
+                                            "dashboard.overview.workflowOverview.avgWait",
+                                        )
+                                    }}
                                     {{
                                         stage.avgWaitHours.toFixed(1)
                                     }}h</template
@@ -92,7 +115,11 @@
                                 v-if="stage.trendPct === null"
                                 class="text-text-muted italic"
                             >
-                                Insufficient data yet
+                                {{
+                                    t(
+                                        "dashboard.overview.workflowOverview.insufficientData",
+                                    )
+                                }}
                             </span>
                             <span
                                 v-else
@@ -115,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import Card from "@/components/molecules/Card.vue";
 import PanelHeader from "@/components/molecules/PanelHeader.vue";
 import StatusPanel from "@/components/molecules/StatusPanel.vue";
@@ -129,4 +157,6 @@ defineProps<{
     data: DashboardWorkflowOverviewResponse | null;
     error?: string | null;
 }>();
+
+const { t } = useI18n();
 </script>
