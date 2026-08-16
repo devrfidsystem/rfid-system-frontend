@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createSSRApp, defineComponent } from "vue";
+import { createSSRApp, defineComponent, Fragment, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import TransactionLineItems from "./TransactionLineItems.vue";
 import transactionLineItemsSource from "./TransactionLineItems.vue?raw";
@@ -20,9 +20,14 @@ vi.mock("@/components/organisms/Drawer.vue", () => ({
             objectId: String,
         },
         setup:
-            (_props, { slots }) =>
+            (props, { slots }) =>
             () =>
-                slots.default?.(),
+                h(Fragment, [
+                    slots.default?.(),
+                    // Mirror Drawer.vue's real gating: the footer (and its
+                    // Submit button) only renders while the drawer is open.
+                    props.modelValue ? slots.footer?.() : undefined,
+                ]),
     }),
 }));
 
