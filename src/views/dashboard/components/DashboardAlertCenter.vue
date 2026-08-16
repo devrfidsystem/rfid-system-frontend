@@ -73,7 +73,9 @@
             >
                 {{
                     t("dashboard.overview.alertCenter.emptyFiltered", {
-                        severity: severityFilter,
+                        severity: t(
+                            `dashboard.overview.alertCenter.filters.${severityFilter}`,
+                        ),
                     })
                 }}
             </div>

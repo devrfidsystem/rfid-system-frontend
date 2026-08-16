@@ -122,4 +122,75 @@ describe("DashboardAlertCenter", () => {
         const html = await renderToString(app);
         expect(html).not.toContain("btn_DashboardAlertSeverity_all");
     });
+
+    // `severityFilter` is internal component state (defaults to "all") with
+    // no prop to preset it, and this repo's Node-only SSR harness
+    // (renderToString, no jsdom/@vue/test-utils — see ExecutiveKpiPage.test.ts)
+    // renders a component in a single synchronous pass with no reactivity
+    // step in between, so the SegmentedControl click that would flip
+    // `severityFilter` away from "all" and reveal the `emptyFiltered` <div>
+    // can't be simulated here. What IS directly verifiable, with the same
+    // real (non-mocked) `i18n` instance and the same two calls the template
+    // now makes, is that the interpolation resolves to the translated label
+    // used on the filter tabs rather than leaking the raw internal value
+    // ("critical"/"warning"/"info") into the sentence.
+    it("resolves emptyFiltered's {severity} placeholder to the translated filter label, not the raw value", () => {
+        const cases: Array<{
+            locale: "id" | "en";
+            severity: "all" | "critical" | "warning" | "info";
+            expected: string;
+        }> = [
+            {
+                locale: "id",
+                severity: "critical",
+                expected: "Tidak ada pengecualian Kritis pada tampilan ini.",
+            },
+            {
+                locale: "id",
+                severity: "warning",
+                expected: "Tidak ada pengecualian Peringatan pada tampilan ini.",
+            },
+            {
+                locale: "id",
+                severity: "info",
+                expected: "Tidak ada pengecualian Info pada tampilan ini.",
+            },
+            {
+                locale: "en",
+                severity: "critical",
+                expected: "No Critical exceptions in the current view.",
+            },
+            {
+                locale: "en",
+                severity: "warning",
+                expected: "No Warning exceptions in the current view.",
+            },
+            {
+                locale: "en",
+                severity: "info",
+                expected: "No Info exceptions in the current view.",
+            },
+        ];
+
+        const originalLocale = i18n.global.locale.value;
+        try {
+            for (const { locale, severity, expected } of cases) {
+                i18n.global.locale.value = locale;
+
+                const message = i18n.global.t(
+                    "dashboard.overview.alertCenter.emptyFiltered",
+                    {
+                        severity: i18n.global.t(
+                            `dashboard.overview.alertCenter.filters.${severity}`,
+                        ),
+                    },
+                );
+
+                expect(message).toBe(expected);
+                expect(message).not.toContain(severity);
+            }
+        } finally {
+            i18n.global.locale.value = originalLocale;
+        }
+    });
 });
