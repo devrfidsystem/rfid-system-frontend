@@ -31,7 +31,9 @@
                         placeholder="Select a product"
                         required
                         :object-id="`cmb_TransactionLineItemsProduct_Row${idx}`"
-                        @update:model-value="(val) => onProductChange(line, val)"
+                        @update:model-value="
+                            (val) => onProductChange(line, val)
+                        "
                     />
                     <p
                         v-if="productAttributeSummaries[line.productId]"
