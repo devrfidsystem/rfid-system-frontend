@@ -22,11 +22,17 @@ export const useLocaleStore = defineStore("locale", {
         initialize() {
             if (this.initialized) return;
             this.locale = getStoredLocale();
+            if (typeof document !== "undefined") {
+                document.documentElement.lang = this.locale;
+            }
             i18n.global.locale.value = this.locale;
             this.initialized = true;
         },
         setLocale(locale: AppLocale) {
             this.locale = locale;
+            if (typeof document !== "undefined") {
+                document.documentElement.lang = locale;
+            }
             i18n.global.locale.value = locale;
             if (typeof window !== "undefined") {
                 window.localStorage.setItem(STORAGE_KEY, locale);
