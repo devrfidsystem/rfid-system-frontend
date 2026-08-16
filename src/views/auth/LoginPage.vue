@@ -1,13 +1,13 @@
 <template>
     <AuthShell>
         <template #subtitle>
-            Belum punya akun?
+            {{ t("auth.login.subtitlePrompt") }}
             <RouterLink
                 id="lkl_LoginRegister"
                 to="/register"
                 data-testid="lkl_LoginRegister"
                 class="font-semibold text-primary-600 hover:text-primary-700"
-                >Daftar</RouterLink
+                >{{ t("auth.login.subtitleLink") }}</RouterLink
             >
         </template>
 
@@ -17,9 +17,9 @@
                     id="txt_LoginEmail"
                     v-model="form.email"
                     type="email"
-                    label="Email perusahaan"
+                    :label="t('auth.login.emailLabel')"
                     label-class="sr-only"
-                    placeholder="nama@perusahaan.co.id"
+                    :placeholder="t('auth.login.emailPlaceholder')"
                     autocomplete="email"
                     :error="fieldErrors.email"
                     object-id="txt_LoginEmail"
@@ -30,9 +30,9 @@
                     id="txt_LoginPassword"
                     v-model="form.password"
                     :type="showPassword ? 'text' : 'password'"
-                    label="Password"
+                    :label="t('auth.login.passwordLabel')"
                     label-class="sr-only"
-                    placeholder="Minimal 8 karakter"
+                    :placeholder="t('auth.login.passwordPlaceholder')"
                     autocomplete="current-password"
                     :error="fieldErrors.password"
                     object-id="txt_LoginPassword"
@@ -44,8 +44,8 @@
                             class="text-text-secondary hover:text-text"
                             :aria-label="
                                 showPassword
-                                    ? 'Sembunyikan password'
-                                    : 'Tampilkan password'
+                                    ? t('common.password.hide')
+                                    : t('common.password.show')
                             "
                             @click="showPassword = !showPassword"
                         >
@@ -57,11 +57,20 @@
                     </template>
                 </Input>
 
-                <CheckboxField
-                    v-model="form.remember"
-                    label="Ingat saya"
-                    object-id="chk_LoginRememberMe"
-                />
+                <div class="flex items-center justify-between">
+                    <CheckboxField
+                        v-model="form.remember"
+                        :label="t('auth.login.rememberMe')"
+                        object-id="chk_LoginRememberMe"
+                    />
+                    <RouterLink
+                        id="lkl_LoginForgotPassword"
+                        to="/forgot-password"
+                        data-testid="lkl_LoginForgotPassword"
+                        class="text-sm font-semibold text-primary-600 hover:text-primary-700"
+                        >{{ t("auth.login.forgotPassword") }}</RouterLink
+                    >
+                </div>
 
                 <Button
                     type="submit"
@@ -71,7 +80,11 @@
                     object-id="btn_LoginSubmit"
                 >
                     <span v-if="submitting" class="btn-spinner mr-2"></span>
-                    {{ submitting ? "Memproses..." : "Masuk" }}
+                    {{
+                        submitting
+                            ? t("auth.login.submitting")
+                            : t("auth.login.submit")
+                    }}
                 </Button>
 
                 <InlineAlert
@@ -89,6 +102,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { Eye, EyeOff } from "lucide-vue-next";
 import AuthShell from "./AuthShell.vue";
 import Input from "@/components/atoms/Input.vue";
@@ -109,4 +123,5 @@ const {
 } = useLogin();
 
 const showPassword = ref(false);
+const { t } = useI18n();
 </script>

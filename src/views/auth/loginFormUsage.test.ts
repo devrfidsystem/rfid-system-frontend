@@ -29,3 +29,14 @@ describe("auth form primitives", () => {
         expect(registerSource).not.toContain("bg-surface-secondary p-3");
     });
 });
+
+describe("LoginPage i18n usage", () => {
+    it("resolves login copy through vue-i18n instead of hardcoded Indonesian text", () => {
+        expect(loginSource).toContain('import { useI18n } from "vue-i18n"');
+        expect(loginSource).toContain("auth.login.submit");
+        expect(loginSource).toContain("auth.login.emailLabel");
+        expect(loginSource).toContain("common.password.show");
+        expect(loginSource).not.toContain("Belum punya akun?");
+        expect(loginSource).not.toContain('"Masuk"');
+    });
+});
