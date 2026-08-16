@@ -6,7 +6,7 @@
             :height="size"
             class="shrink-0"
             role="img"
-            :aria-label="`Stage distribution: ${segments.map((s) => `${s.name} ${s.pct}%`).join(', ')}`"
+            :aria-label="`${t('dashboard.overview.stageDonutChart.ariaLabelPrefix')}: ${segments.map((s) => `${s.name} ${s.pct}%`).join(', ')}`"
         >
             <circle
                 :cx="size / 2"
@@ -48,7 +48,7 @@
                 text-anchor="middle"
                 class="fill-text-secondary text-[9px] font-semibold uppercase"
             >
-                Open
+                {{ t("dashboard.overview.stageDonutChart.openLabel") }}
             </text>
         </svg>
 
@@ -75,6 +75,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 const props = withDefaults(
     defineProps<{
@@ -83,6 +84,8 @@ const props = withDefaults(
     }>(),
     { size: 96 },
 );
+
+const { t } = useI18n();
 
 // Fixed categorical order: a 6th stage folds into "Other" instead of cycling.
 const PALETTE = [
@@ -110,7 +113,13 @@ const groupedStages = computed(() => {
     const restCount = sorted
         .slice(MAX_SEGMENTS - 1)
         .reduce((sum, stage) => sum + stage.count, 0);
-    return [...head, { name: "Other", count: restCount }];
+    return [
+        ...head,
+        {
+            name: t("dashboard.overview.stageDonutChart.otherLabel"),
+            count: restCount,
+        },
+    ];
 });
 
 const segments = computed(() => {
