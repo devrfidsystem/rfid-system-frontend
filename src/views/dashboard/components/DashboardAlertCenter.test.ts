@@ -148,7 +148,8 @@ describe("DashboardAlertCenter", () => {
             {
                 locale: "id",
                 severity: "warning",
-                expected: "Tidak ada pengecualian Peringatan pada tampilan ini.",
+                expected:
+                    "Tidak ada pengecualian Peringatan pada tampilan ini.",
             },
             {
                 locale: "id",
