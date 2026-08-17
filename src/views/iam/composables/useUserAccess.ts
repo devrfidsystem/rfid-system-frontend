@@ -3,9 +3,11 @@ import { iamService } from "@/services/iam.service";
 import { settingsService } from "@/services/settings.service";
 import { masterService } from "@/services/master.service";
 import { useNotifier } from "@/composable/useNotifier";
+import { useAuthStore } from "@/store/auth.store";
 
 export function useUserAccess() {
     const { withToast, notifyError } = useNotifier();
+    const authStore = useAuthStore();
 
     const users = ref<Array<{ id: string; email?: string; name?: string }>>([]);
     const userOptions = ref<{ label: string; value: string }[]>([]);
@@ -140,6 +142,10 @@ export function useUserAccess() {
 
     const addRole = async () => {
         if (!selectedRole.value) return;
+        if (!authStore.currentCompanyId) {
+            notifyError("Tidak ada perusahaan aktif untuk menetapkan role.");
+            return;
+        }
         submitting.value = true;
         try {
             await withToast(
@@ -147,6 +153,7 @@ export function useUserAccess() {
                     await iamService.assignUserRole(
                         selectedUserId.value,
                         selectedRole.value,
+                        authStore.currentCompanyId as string,
                     );
                 },
                 {

@@ -8,35 +8,28 @@
             @refresh="refresh"
         />
 
-        <div>
-            <div class="flex items-center gap-3">
-                <h1 class="text-xl font-bold text-text">Monitoring</h1>
+        <PageHeader
+            title="Monitoring"
+            description="Real-time event feed and exception monitoring across the network"
+            tagline="Dashboard"
+        >
+            <template #actions>
                 <span
-                    class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-danger-600"
+                    class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-danger-600"
                     object-id="ind_MonitoringLive"
                 >
-                    <span class="relative flex h-1.5 w-1.5">
-                        <span
-                            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger-500 opacity-75"
-                        ></span>
-                        <span
-                            class="relative inline-flex h-1.5 w-1.5 rounded-full bg-danger-600"
-                        ></span>
-                    </span>
+                    <span class="h-1.5 w-1.5 rounded-full bg-danger-600"></span>
                     Live
                 </span>
-            </div>
-            <p class="text-sm text-text-secondary mt-0.5">
-                Real-time event feed and exception monitoring across the network
-            </p>
-        </div>
+            </template>
+        </PageHeader>
 
-        <p
+        <InlineAlert
             v-if="error"
-            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ error }}
-        </p>
+            variant="error"
+            title="Monitoring unavailable"
+            :description="error"
+        />
 
         <div class="grid gap-4 lg:grid-cols-3">
             <MonitoringDomainCard
@@ -69,6 +62,8 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
+import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
 import MonitoringDomainCard from "./components/MonitoringDomainCard.vue";
 import MonitoringLiveFeed from "./components/MonitoringLiveFeed.vue";

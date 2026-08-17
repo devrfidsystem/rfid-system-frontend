@@ -90,4 +90,12 @@ export const authService = {
     async register(payload: RegisterPayload): Promise<void> {
         await authApi.register(payload);
     },
+
+    async forgotPassword(email: string): Promise<void> {
+        await authApi.forgotPassword(email);
+    },
+
+    async resetPassword(accessToken: string, password: string): Promise<void> {
+        await authApi.resetPassword(accessToken, password);
+    },
 };

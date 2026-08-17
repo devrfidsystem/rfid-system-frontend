@@ -1,7 +1,7 @@
 import type { ApiResponse } from "@/lib/api/response";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
-import type { ReportKey } from "@/views/report/reportConfig";
 import type {
+    ReportKey,
     ReportListResult,
     ReportParams,
     ReportRow,

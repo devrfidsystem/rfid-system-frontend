@@ -27,11 +27,11 @@
             />
 
             <div v-if="error" class="px-6 pt-4">
-                <p
-                    class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-                >
-                    {{ error }}
-                </p>
+                <InlineAlert
+                    variant="error"
+                    title="Opname tree unavailable"
+                    :description="error"
+                />
             </div>
 
             <OpnameTreeTable
@@ -51,6 +51,7 @@
 import { onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import { useOpnameTree } from "./composables/useOpnameTree";
 import OpnameTreeToolbar from "./components/OpnameTreeToolbar.vue";
 import OpnameTreeTable from "./components/OpnameTreeTable.vue";

@@ -8,21 +8,19 @@
             @back="handleBack"
         />
 
-        <div
+        <InlineAlert
             v-if="error"
-            class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ error }}
-        </div>
+            variant="error"
+            title="Unable to create opname node"
+            :description="error"
+        />
 
         <form @submit.prevent="saveNode">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card class="md:col-span-1" object-id="wdg_OpnameCreateDetails">
-                    <h3
-                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
-                    >
-                        {{ sectionHeading }}
-                    </h3>
+                    <div class="mb-4 border-b border-border pb-3">
+                        <ToolbarTitle :title="sectionHeading" />
+                    </div>
 
                     <div class="space-y-4">
                         <div
@@ -78,13 +76,10 @@
                     object-id="wdg_OpnameCreateSummary"
                 >
                     <div class="border-b border-border px-6 py-5">
-                        <h3 class="text-base font-semibold text-text">
-                            {{ summaryHeading }}
-                        </h3>
-                        <p class="mt-2 text-sm text-text-secondary">
-                            Review the node details before saving it to the
-                            opname branch.
-                        </p>
+                        <ToolbarTitle
+                            :title="summaryHeading"
+                            description="Review the node details before saving it to the opname branch."
+                        />
                     </div>
 
                     <div class="flex-1 px-6 py-5 space-y-4">
@@ -152,6 +147,8 @@
 <script setup lang="ts">
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";

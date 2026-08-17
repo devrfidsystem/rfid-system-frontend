@@ -15,7 +15,7 @@
                     :key="tab.name"
                     :to="tab.href"
                     :class="[
-                        $route.path.startsWith(tab.href)
+                        tab.href === activeTabHref
                             ? 'border-primary-500 text-primary-600'
                             : 'border-transparent text-text-secondary hover:border-border hover:text-text',
                         'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors',
@@ -37,10 +37,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 
 const tabs = [
     { name: "Roles", href: "/iam/roles" },
     { name: "User Access", href: "/iam/users" },
+    { name: "Role Menus", href: "/iam/roles/menus" },
 ];
+
+const route = useRoute();
+
+// Pick the longest matching href, not "any" prefix match — otherwise
+// "/iam/roles/menus" would match both the "Roles" and "Role Menus" tabs
+// as prefixes and highlight two tabs at once.
+const activeTabHref = computed(() => {
+    const matches = tabs
+        .filter((tab) => route.path.startsWith(tab.href))
+        .sort((a, b) => b.href.length - a.href.length);
+    return matches[0]?.href;
+});
 </script>

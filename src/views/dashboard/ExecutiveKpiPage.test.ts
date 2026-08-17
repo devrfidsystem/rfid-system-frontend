@@ -2,6 +2,7 @@ import { createSSRApp, defineComponent } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/locales";
 
 const useExecutiveKpiMock = vi.hoisted(() => vi.fn());
 
@@ -46,6 +47,7 @@ const renderWithRoute = async (initialPath = "/dashboard/kpi") => {
     await router.isReady();
 
     const app = createSSRApp(ExecutiveKpiPage);
+    app.use(i18n);
     app.use(router);
     return renderToString(app);
 };

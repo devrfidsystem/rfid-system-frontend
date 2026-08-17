@@ -7,46 +7,7 @@
         />
 
         <Card no-padding object-id="wdg_UsersList">
-            <div
-                class="flex flex-wrap items-center justify-between gap-4 px-6 py-5"
-            >
-                <div>
-                    <h3 class="text-base font-semibold text-text">
-                        Users List
-                    </h3>
-                </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <Input
-                        v-model="keyword"
-                        placeholder="Search email or name"
-                        class="w-full max-w-xs"
-                        object-id="txt_UsersSearch"
-                    >
-                        <template #icon>
-                            <Icon :icon="Search" :size="16" />
-                        </template>
-                    </Input>
-                    <div class="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            class="px-3"
-                            object-id="btn_UsersFilter"
-                        >
-                            <Icon :icon="Filter" :size="14" />
-                            Filter
-                        </Button>
-                        <Button
-                            variant="outline"
-                            class="px-2"
-                            title="Refresh"
-                            object-id="btn_UsersRefresh"
-                            @click="refresh"
-                        >
-                            <Icon :icon="RefreshCw" :size="16" />
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <UsersTableToolbar v-model:keyword="keyword" @refresh="refresh" />
 
             <DataTable
                 object-id="UsersList"
@@ -73,13 +34,10 @@
 import { computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
-import Input from "@/components/atoms/Input.vue";
-import Button from "@/components/atoms/Button.vue";
 import DataTable from "@/components/organisms/DataTable/DataTable.vue";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
-import Icon from "@/components/atoms/Icon.vue";
-import { RefreshCw, Search, Filter } from "lucide-vue-next";
 import { useUsers } from "./composables/useUsers";
+import UsersTableToolbar from "./components/UsersTableToolbar.vue";
 
 const {
     columns,

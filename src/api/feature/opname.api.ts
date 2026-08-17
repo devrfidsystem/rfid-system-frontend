@@ -1,6 +1,8 @@
 import { apiRequest } from "@/lib/api/client";
-import type { OpnameTreeNode } from "@/views/opname/opnameTree";
-import type { OpnameSummaryResponse } from "@/views/opname/opnameSummary";
+import type {
+    OpnameSummaryResponse,
+    OpnameTreeNode,
+} from "@/api/feature/dto/opname.dto";
 
 export interface OpnameLineDetail {
     id: string;

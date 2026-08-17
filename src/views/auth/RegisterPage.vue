@@ -1,15 +1,15 @@
 <template>
     <AuthShell
-        form-title="Buat akun enterprise"
-        form-subtitle="Kelola RF tags, pengguna, dan hak akses dari satu portal yang terstandardisasi."
+        :form-title="t('auth.register.title')"
+        :form-subtitle="t('auth.register.subtitle')"
     >
         <template #default>
             <form class="space-y-5" @submit.prevent="handleSubmit">
                 <Input
                     id="txt_RegisterName"
                     v-model="form.fullName"
-                    label="Nama lengkap"
-                    placeholder="Nama sesuai KTP atau pass"
+                    :label="t('auth.register.fullNameLabel')"
+                    :placeholder="t('auth.register.fullNamePlaceholder')"
                     autocomplete="name"
                     :error="fieldErrors.fullName"
                     object-id="txt_RegisterName"
@@ -19,8 +19,8 @@
                 <Input
                     id="txt_RegisterCompany"
                     v-model="form.company"
-                    label="Perusahaan / unit"
-                    placeholder="Contoh: PT. Logistik Nusantara"
+                    :label="t('auth.register.companyLabel')"
+                    :placeholder="t('auth.register.companyPlaceholder')"
                     autocomplete="organization"
                     :error="fieldErrors.company"
                     object-id="txt_RegisterCompany"
@@ -31,8 +31,8 @@
                     id="txt_RegisterEmail"
                     v-model="form.email"
                     type="email"
-                    label="Email kerja"
-                    placeholder="nama@perusahaan.co.id"
+                    :label="t('auth.register.emailLabel')"
+                    :placeholder="t('auth.register.emailPlaceholder')"
                     autocomplete="email"
                     :error="fieldErrors.email"
                     object-id="txt_RegisterEmail"
@@ -44,8 +44,8 @@
                         id="txt_RegisterPassword"
                         v-model="form.password"
                         type="password"
-                        label="Password"
-                        placeholder="Minimal 10 karakter"
+                        :label="t('auth.register.passwordLabel')"
+                        :placeholder="t('auth.register.passwordPlaceholder')"
                         autocomplete="new-password"
                         :error="fieldErrors.password"
                         object-id="txt_RegisterPassword"
@@ -56,8 +56,10 @@
                         id="txt_RegisterConfirmPassword"
                         v-model="form.confirmPassword"
                         type="password"
-                        label="Konfirmasi password"
-                        placeholder="Ketik ulang password"
+                        :label="t('auth.register.confirmPasswordLabel')"
+                        :placeholder="
+                            t('auth.register.confirmPasswordPlaceholder')
+                        "
                         autocomplete="new-password"
                         :error="fieldErrors.confirmPassword"
                         object-id="txt_RegisterConfirmPassword"
@@ -65,29 +67,14 @@
                     />
                 </div>
 
-                <div>
-                    <label class="flex items-start gap-3 text-text-secondary">
-                        <input
-                            id="chk_RegisterTerms"
-                            v-model="form.terms"
-                            data-testid="chk_RegisterTerms"
-                            type="checkbox"
-                            class="mt-1 h-4 w-4 rounded border border-border text-brand-600 focus:ring-brand-500"
-                            @blur="touched.terms = true"
-                        />
-                        <span class="text-sm leading-relaxed">
-                            Saya sudah membaca kebijakan keamanan dan siap
-                            mengikuti role-based approval sebelum akses
-                            diberikan.
-                        </span>
-                    </label>
-                    <p
-                        v-if="fieldErrors.terms"
-                        class="mt-1 text-xs text-danger-600"
-                    >
-                        {{ fieldErrors.terms }}
-                    </p>
-                </div>
+                <CheckboxField
+                    v-model="form.terms"
+                    :label="t('auth.register.termsLabel')"
+                    object-id="chk_RegisterTerms"
+                    :error="fieldErrors.terms"
+                    align="start"
+                    @blur="touched.terms = true"
+                />
 
                 <Button
                     type="submit"
@@ -97,26 +84,31 @@
                     object-id="btn_RegisterSubmit"
                 >
                     <span v-if="submitting" class="btn-spinner mr-2"></span>
-                    {{ submitting ? "Mengecek..." : "Daftar" }}
+                    {{
+                        submitting
+                            ? t("auth.register.submitting")
+                            : t("auth.register.submit")
+                    }}
                 </Button>
 
                 <div class="text-center text-xs text-text-secondary">
-                    <p>Sudah punya akun?</p>
+                    <p>{{ t("auth.register.alreadyHaveAccount") }}</p>
                     <RouterLink
                         id="lkl_RegisterLogin"
                         to="/login"
                         data-testid="lkl_RegisterLogin"
-                        class="font-semibold text-text hover:text-brand-600"
-                        >Masuk di sini</RouterLink
+                        class="font-semibold text-primary-600 hover:text-primary-700"
+                        >{{ t("auth.register.loginLink") }}</RouterLink
                     >
                 </div>
 
-                <p
+                <InlineAlert
                     v-if="status"
-                    class="rounded-md border border-border bg-surface-secondary p-3 text-xs text-text-secondary text-center"
-                >
-                    {{ status }}
-                </p>
+                    variant="info"
+                    :description="status"
+                    compact
+                    class="text-xs"
+                />
             </form>
         </template>
     </AuthShell>
@@ -124,9 +116,12 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
 import AuthShell from "./AuthShell.vue";
 import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
 import { useRegister } from "./composables/useRegister";
 
 const {
@@ -138,4 +133,6 @@ const {
     fieldErrors,
     handleSubmit,
 } = useRegister();
+
+const { t } = useI18n();
 </script>

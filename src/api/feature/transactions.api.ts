@@ -1,14 +1,12 @@
 import { apiRequest } from "@/lib/api/client";
 import type { ReportParams } from "./dto/report.dto";
-import type { TransactionRecord } from "@/views/transactions/types";
-import type { TransactionKey } from "@/services/transactions.service";
-import { transactionPaths } from "@/services/transactions.service";
+import {
+    transactionPaths,
+    type TransactionKey,
+    type TransactionRecord,
+    type TransactionSummaryResponse,
+} from "@/api/feature/dto/transactions.dto";
 
-// Note: the backend exposes PATCH {path}/:id for inbound/outbound/relocation/
-// transfer/returns/putaway (register has no PATCH at all), but there is
-// intentionally no `update`/`patch` method here — draft-stage documents are
-// corrected by cancel-and-recreate, not in-place editing. This module only
-// implements list/get/create/post/cancel/complete.
 export const transactionsApi = {
     list(key: TransactionKey, params: ReportParams = {}) {
         const path = transactionPaths[key];
@@ -25,9 +23,7 @@ export const transactionsApi = {
 
     summary(key: TransactionKey, params: ReportParams = {}) {
         const path = transactionPaths[key];
-        return apiRequest<
-            import("@/views/transactions/types").TransactionSummaryResponse
-        >({
+        return apiRequest<TransactionSummaryResponse>({
             url: `${path}/summary`,
             method: "get",
             params,
@@ -47,6 +43,15 @@ export const transactionsApi = {
         return apiRequest<TransactionRecord>({
             url: path,
             method: "post",
+            data: payload,
+        });
+    },
+
+    update(key: TransactionKey, id: string, payload: Record<string, unknown>) {
+        const path = transactionPaths[key];
+        return apiRequest<TransactionRecord>({
+            url: `${path}/${id}`,
+            method: "patch",
             data: payload,
         });
     },

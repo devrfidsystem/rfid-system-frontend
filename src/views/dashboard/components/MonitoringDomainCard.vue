@@ -1,68 +1,47 @@
 <template>
     <Card :class="cardClass" object-id="wdg_MonitoringDomainCard">
         <div v-if="loading" class="space-y-3">
-            <div
-                class="h-5 w-24 rounded bg-surface-secondary animate-pulse"
-            ></div>
-            <div
-                class="h-16 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
-            <div
-                class="h-20 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
+            <SkeletonBlock height="h-5" width="w-24" />
+            <SkeletonBlock height="h-16" />
+            <SkeletonBlock height="h-20" />
         </div>
 
-        <div
+        <StatusPanel
             v-else-if="!data"
-            class="text-sm text-text-secondary text-center py-6"
-        >
-            No activity recorded for this operation lane.
-        </div>
+            title="No activity recorded"
+            description="No activity recorded for this operation lane."
+            :icon="Activity"
+            tone="neutral"
+            class="border-0 bg-transparent py-6"
+        />
 
         <div v-else class="flex min-h-[236px] flex-col gap-4">
             <div class="flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-text">
-                    {{ data.label }}
-                </h3>
-                <span
-                    class="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase"
-                    :class="healthChipClass"
-                >
+                <PanelHeader :title="data.label" />
+                <Badge :tone="healthTone">
                     {{ data.health }}
-                </span>
+                </Badge>
             </div>
 
             <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="rounded-md bg-surface-secondary py-2">
-                    <p class="text-lg font-bold text-text">
-                        {{ data.queueCount }}
-                    </p>
-                    <p
-                        class="text-[10px] font-semibold uppercase text-text-muted"
-                    >
-                        Open
-                    </p>
-                </div>
-                <div class="rounded-md bg-surface-secondary py-2">
-                    <p class="text-lg font-bold text-text">
-                        {{ data.completedTodayCount }}
-                    </p>
-                    <p
-                        class="text-[10px] font-semibold uppercase text-text-muted"
-                    >
-                        Closed Today
-                    </p>
-                </div>
-                <div class="rounded-md bg-surface-secondary py-2">
-                    <p :class="exceptionsCountClass">
-                        {{ data.exceptionsCount }}
-                    </p>
-                    <p
-                        class="text-[10px] font-semibold uppercase text-text-muted"
-                    >
-                        Exceptions
-                    </p>
-                </div>
+                <MetricValueTile
+                    label="Open"
+                    :value="data.queueCount"
+                    class="border-0 bg-surface-secondary py-2 text-center"
+                />
+                <MetricValueTile
+                    label="Closed Today"
+                    :value="data.completedTodayCount"
+                    class="border-0 bg-surface-secondary py-2 text-center"
+                />
+                <MetricValueTile
+                    label="Exceptions"
+                    :value="data.exceptionsCount"
+                    class="border-0 bg-surface-secondary py-2 text-center"
+                    :value-class="
+                        data.exceptionsCount > 0 ? 'text-danger-600' : ''
+                    "
+                />
             </div>
 
             <div class="mt-auto">
@@ -103,6 +82,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import MetricValueTile from "@/components/molecules/MetricValueTile.vue";
+import Badge from "@/components/atoms/Badge.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
+import { Activity } from "lucide-vue-next";
 import type { DomainHealth } from "@/model/dashboard";
 
 const props = defineProps<{
@@ -112,14 +97,16 @@ const props = defineProps<{
 
 const QUEUE_PREVIEW_LIMIT = 3;
 
-const healthChipClass = computed(() => {
+type HealthTone = "success" | "warning" | "error";
+
+const healthTone = computed<HealthTone>(() => {
     switch (props.data?.health) {
         case "critical":
-            return "bg-danger-50 text-danger-600";
+            return "error";
         case "warning":
-            return "bg-warning-50 text-warning-600";
+            return "warning";
         default:
-            return "bg-success-50 text-success-600";
+            return "success";
     }
 });
 
@@ -135,12 +122,6 @@ const cardClass = computed(() => {
             return "";
     }
 });
-
-const exceptionsCountClass = computed(() =>
-    props.data && props.data.exceptionsCount > 0
-        ? "text-2xl font-extrabold text-danger-600"
-        : "text-lg font-bold text-text",
-);
 
 const visibleQueueTasks = computed(
     () => props.data?.queueTasks.slice(0, QUEUE_PREVIEW_LIMIT) ?? [],

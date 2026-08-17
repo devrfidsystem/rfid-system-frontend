@@ -1,6 +1,7 @@
-import { createSSRApp, defineComponent } from "vue";
+import { createSSRApp, defineComponent, ref } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/locales";
 
 const useMonitoringMock = vi.hoisted(() => vi.fn());
 
@@ -33,9 +34,9 @@ describe("MonitoringPage", () => {
         start.mockReset();
         stop.mockReset();
         useMonitoringMock.mockReturnValue({
-            data: { value: null },
+            data: ref(null),
             loading: false,
-            error: { value: null },
+            error: ref(null),
             refresh: vi.fn(),
             start,
             stop,
@@ -50,12 +51,28 @@ describe("MonitoringPage", () => {
 
     it("renders the Monitoring page title", async () => {
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("Monitoring");
     });
 
+    it("renders without InlineAlert prop warnings", async () => {
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+        try {
+            const app = createSSRApp(MonitoringPage);
+            app.use(i18n);
+            await renderToString(app);
+
+            expect(warnSpy).not.toHaveBeenCalled();
+        } finally {
+            warnSpy.mockRestore();
+        }
+    });
+
     it("uses a command-layout grid for live transactions and exception feed", async () => {
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         const html = await renderToString(app);
 
         expect(html).toContain(
@@ -65,9 +82,9 @@ describe("MonitoringPage", () => {
 
     it("renders the error banner when the composable reports an error", async () => {
         useMonitoringMock.mockReturnValue({
-            data: { value: null },
+            data: ref(null),
             loading: false,
-            error: { value: "network down" },
+            error: ref("network down"),
             refresh: vi.fn(),
             start,
             stop,
@@ -77,45 +94,44 @@ describe("MonitoringPage", () => {
         });
 
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("network down");
     });
 
     it("does not throw when rendering with a fully populated monitoring snapshot", async () => {
         useMonitoringMock.mockReturnValue({
-            data: {
-                value: {
-                    domains: {
-                        stockIn: {
-                            label: "Stock In",
-                            health: "nominal",
-                            queueCount: 4,
-                            completedTodayCount: 12,
-                            exceptionsCount: 0,
-                            queueTasks: [],
-                        },
-                        stockOut: {
-                            label: "Stock Out",
-                            health: "warning",
-                            queueCount: 2,
-                            completedTodayCount: 6,
-                            exceptionsCount: 2,
-                            queueTasks: [],
-                        },
-                        inventory: {
-                            label: "Inventory",
-                            health: "critical",
-                            queueCount: 1,
-                            completedTodayCount: 3,
-                            exceptionsCount: 5,
-                            queueTasks: [],
-                        },
+            data: ref({
+                domains: {
+                    stockIn: {
+                        label: "Stock In",
+                        health: "nominal",
+                        queueCount: 4,
+                        completedTodayCount: 12,
+                        exceptionsCount: 0,
+                        queueTasks: [],
                     },
-                    liveTransactions: [],
+                    stockOut: {
+                        label: "Stock Out",
+                        health: "warning",
+                        queueCount: 2,
+                        completedTodayCount: 6,
+                        exceptionsCount: 2,
+                        queueTasks: [],
+                    },
+                    inventory: {
+                        label: "Inventory",
+                        health: "critical",
+                        queueCount: 1,
+                        completedTodayCount: 3,
+                        exceptionsCount: 5,
+                        queueTasks: [],
+                    },
                 },
-            },
+                liveTransactions: [],
+            }),
             loading: false,
-            error: { value: null },
+            error: ref(null),
             refresh: vi.fn(),
             start,
             stop,
@@ -125,6 +141,7 @@ describe("MonitoringPage", () => {
         });
 
         const app = createSSRApp(MonitoringPage);
+        app.use(i18n);
         await expect(renderToString(app)).resolves.toContain("Monitoring");
     });
 });

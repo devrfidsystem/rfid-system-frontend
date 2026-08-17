@@ -24,10 +24,7 @@ const baseURL = baseAPIBase
     : baseAPIBase;
 
 type QueryParamValue =
-    | string
-    | number
-    | boolean
-    | Array<string | number | boolean>;
+    string | number | boolean | Array<string | number | boolean>;
 
 const serializeQueryParams = (
     params?: Record<string, QueryParamValue | undefined>,

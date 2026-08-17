@@ -63,8 +63,16 @@ export const masterApi = {
     },
 
     remove<K extends MasterRemovableEntity>(entity: K, id: string) {
+        const deactivateEntities = new Set<MasterRemovableEntity>([
+            "products",
+            "warehouses",
+        ]);
+        const url = deactivateEntities.has(entity)
+            ? `${entityPaths[entity]}/${id}/deactivate`
+            : `${entityPaths[entity]}/${id}`;
+
         return apiRequest<MasterRecords[K]>({
-            url: `${entityPaths[entity]}/${id}`,
+            url,
             method: "delete",
         });
     },

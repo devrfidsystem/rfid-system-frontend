@@ -149,7 +149,7 @@ import MasterFormModal from "./components/MasterFormModal.vue";
 import MasterDeleteModal from "./components/MasterDeleteModal.vue";
 import { useMasterEntity } from "./composables/useMasterEntity";
 import { formatDate } from "@/utils/date";
-import type { MasterRecord } from "./types";
+import type { MasterRecord } from "@/domain/master/types";
 
 const {
     config,

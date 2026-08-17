@@ -3,7 +3,6 @@ import { stockService } from "@/services/stock.service";
 import { warehouseService } from "@/services/warehouse.service";
 import type { StockLedgerItem } from "@/api/feature/dto/stock.dto";
 import type { WarehouseOption } from "@/model/dashboard";
-import { formatDate } from "@/utils/date";
 
 export function useTracking() {
     const epc = ref("EPC-A001");
@@ -22,16 +21,6 @@ export function useTracking() {
     const totalPages = computed(() =>
         Math.max(1, Math.ceil((pagination.total || 0) / pagination.limit)),
     );
-    const tableRangeStart = computed(() =>
-        pagination.total ? (pagination.page - 1) * pagination.limit + 1 : 0,
-    );
-    const tableRangeEnd = computed(() =>
-        Math.min(
-            pagination.page * pagination.limit,
-            pagination.total || events.value.length,
-        ),
-    );
-
     const loadEvents = async () => {
         loading.value = true;
         error.value = null;
@@ -106,13 +95,9 @@ export function useTracking() {
         error,
         pagination,
         pageSizeOptions,
-        totalPages,
-        tableRangeStart,
-        tableRangeEnd,
         sortedEvents,
         emptyStateVariant,
         warehouseName,
-        formatDate,
         loadEvents,
         setPage,
         setLimit,

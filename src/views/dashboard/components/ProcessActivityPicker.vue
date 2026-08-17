@@ -1,30 +1,22 @@
 <template>
     <div class="space-y-3" object-id="wdg_ProcessActivityPicker">
         <div v-for="group in groups" :key="group.domain">
-            <p class="text-[10px] font-semibold uppercase text-text-muted mb-1">
+            <p class="mb-1 text-xs font-semibold uppercase text-text-muted">
                 {{ group.label }}
             </p>
-            <div class="flex flex-wrap gap-2">
-                <button
-                    v-for="item in group.items"
-                    :key="item.value"
-                    type="button"
-                    class="px-3 py-1.5 rounded-md border text-sm font-semibold transition-colors"
-                    :class="
-                        modelValue === item.value
-                            ? 'border-primary-600 bg-primary-50 text-primary-600'
-                            : 'border-border text-text-secondary hover:text-text'
-                    "
-                    @click="emit('update:modelValue', item.value)"
-                >
-                    {{ item.label }}
-                </button>
-            </div>
+            <SegmentedControl
+                :model-value="modelValue"
+                :options="group.items"
+                :object-id="`seg_ProcessActivityPicker_${group.domain}`"
+                object-id-prefix="btn_ProcessActivity"
+                @update:model-value="selectActivity"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import SegmentedControl from "@/components/molecules/SegmentedControl.vue";
 import type { ProcessActivity } from "@/model/dashboard";
 
 defineProps<{
@@ -34,6 +26,10 @@ defineProps<{
 const emit = defineEmits<{
     (e: "update:modelValue", value: ProcessActivity): void;
 }>();
+
+const selectActivity = (value: string) => {
+    emit("update:modelValue", value as ProcessActivity);
+};
 
 const groups: {
     domain: string;

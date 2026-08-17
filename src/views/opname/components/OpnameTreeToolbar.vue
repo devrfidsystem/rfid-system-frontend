@@ -2,11 +2,7 @@
     <div
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-3"
     >
-        <div>
-            <h3 class="text-base font-semibold text-text">
-                {{ heading }} List
-            </h3>
-        </div>
+        <ToolbarTitle :title="`${heading} List`" />
 
         <div
             class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-1 sm:justify-end"
@@ -29,25 +25,22 @@
             </Input>
 
             <div class="grid grid-cols-2 sm:flex items-center gap-2">
-                <div ref="filterPopoverRef" class="relative flex">
-                    <Button
-                        variant="outline"
-                        class="px-3 w-full sm:w-auto justify-center"
-                        object-id="btn_OpnameTreeFilter"
-                        @click="toggleFilter"
-                    >
-                        <Icon :icon="Filter" :size="14" />
-                        Filter
-                    </Button>
-
-                    <div
-                        v-if="isFilterOpen"
-                        class="absolute right-0 sm:right-auto z-10 mt-12 sm:mt-2 w-[320px] origin-top-right rounded-md bg-surface shadow-lg ring-1 ring-border focus:outline-none p-4 space-y-4"
-                    >
-                        <h4 class="font-medium text-sm text-text mb-2">
-                            Filters
-                        </h4>
-
+                <FilterPopover
+                    v-model:open="isFilterOpen"
+                    object-id="pop_OpnameTreeFilters"
+                >
+                    <template #trigger="{ toggle }">
+                        <Button
+                            variant="outline"
+                            class="px-3 w-full sm:w-auto justify-center"
+                            object-id="btn_OpnameTreeFilter"
+                            @click="toggle"
+                        >
+                            <Icon :icon="Filter" :size="14" />
+                            Filter
+                        </Button>
+                    </template>
+                    <template #default>
                         <Select
                             :model-value="selectedWarehouseId"
                             :options="warehouseOptions"
@@ -116,19 +109,18 @@
                                     )
                             "
                         />
-
-                        <div class="pt-2 flex justify-end">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                object-id="btn_OpnameTreeCloseFilter"
-                                @click="toggleFilter"
-                            >
-                                Close
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                    </template>
+                    <template #actions="{ close }">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            object-id="btn_OpnameTreeCloseFilter"
+                            @click="close"
+                        >
+                            Close
+                        </Button>
+                    </template>
+                </FilterPopover>
 
                 <Button
                     variant="outline"
@@ -156,11 +148,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { ref } from "vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import FilterPopover from "@/components/molecules/FilterPopover.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 import { Search, Filter, RefreshCw, Plus } from "lucide-vue-next";
 
 interface SelectOption {
@@ -191,26 +185,4 @@ defineEmits<{
 }>();
 
 const isFilterOpen = ref(false);
-const filterPopoverRef = ref<HTMLElement | null>(null);
-
-const toggleFilter = () => {
-    isFilterOpen.value = !isFilterOpen.value;
-};
-
-const closeFilter = (e: Event) => {
-    if (
-        filterPopoverRef.value &&
-        !filterPopoverRef.value.contains(e.target as Node)
-    ) {
-        isFilterOpen.value = false;
-    }
-};
-
-onMounted(() => {
-    document.addEventListener("click", closeFilter);
-});
-
-onUnmounted(() => {
-    document.removeEventListener("click", closeFilter);
-});
 </script>

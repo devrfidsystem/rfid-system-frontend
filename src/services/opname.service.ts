@@ -5,8 +5,10 @@ import {
     type UpdateOpnameLineCountPayload,
     type OpnameTreeFilterParams,
 } from "@/api/feature/opname.api";
-import type { OpnameTreeNode } from "@/views/opname/opnameTree";
-import type { OpnameSummaryResponse } from "@/views/opname/opnameSummary";
+import type {
+    OpnameSummaryResponse,
+    OpnameTreeNode,
+} from "@/api/feature/dto/opname.dto";
 
 export const opnameService = {
     async getTree(
@@ -76,9 +78,9 @@ export const opnameService = {
     },
 };
 
-export type { OpnameTreeNode } from "@/views/opname/opnameTree";
+export type { OpnameTreeNode } from "@/api/feature/dto/opname.dto";
 export type {
     OpnameNodePayload,
     OpnameTreeFilterParams,
 } from "@/api/feature/opname.api";
-export type { OpnameSummaryResponse } from "@/views/opname/opnameSummary";
+export type { OpnameSummaryResponse } from "@/api/feature/dto/opname.dto";

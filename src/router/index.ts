@@ -5,7 +5,7 @@ import {
 } from "vue-router";
 import { useAccess } from "@/composable/useAccess";
 import { useAuthStore } from "@/store/auth.store";
-import { masterEntities } from "@/views/master/entityConfig";
+import { masterEntities } from "@/domain/master/entityConfig";
 import type { EntityKey } from "@/model/entities";
 import type { TransactionKey } from "@/services/transactions.service";
 
@@ -74,6 +74,14 @@ const authRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/auth/RegisterPage.vue"),
     },
     {
+        path: "/forgot-password",
+        component: () => import("@/views/auth/ForgotPasswordPage.vue"),
+    },
+    {
+        path: "/reset-password",
+        component: () => import("@/views/auth/ResetPasswordPage.vue"),
+    },
+    {
         path: "/auth/login",
         redirect: "/login",
     },
@@ -103,10 +111,6 @@ const routes: RouteRecordRaw[] = [
             {
                 path: "dashboard",
                 redirect: "/dashboard/overview",
-            },
-            {
-                path: "todo",
-                component: () => import("@/views/todo/TodoListPage.vue"),
             },
             {
                 path: "dashboard/overview",
@@ -140,6 +144,11 @@ const routes: RouteRecordRaw[] = [
                         path: "users",
                         component: () =>
                             import("@/views/iam/UserAccessPage.vue"),
+                    },
+                    {
+                        path: "roles/menus",
+                        component: () =>
+                            import("@/views/iam/RoleMenusPage.vue"),
                     },
                 ],
             },
@@ -208,11 +217,16 @@ const routes: RouteRecordRaw[] = [
                     transactionKey: route.params
                         .transactionKey as TransactionKey,
                 }),
-                beforeEnter: (to) => {
-                    if (to.params.transactionKey === "inbound") {
-                        return `/transactions/${to.params.transactionKey}`;
-                    }
-                },
+            },
+            {
+                path: `transactions/:transactionKey(${transactionPattern})/:id/edit`,
+                component: () =>
+                    import("@/views/transactions/TransactionCreatePage.vue"),
+                props: (route) => ({
+                    transactionKey: route.params
+                        .transactionKey as TransactionKey,
+                    id: route.params.id,
+                }),
             },
             {
                 path: `transactions/:transactionKey(${transactionPattern})/:id`,
@@ -310,7 +324,9 @@ router.beforeEach(async (to) => {
     const isAuthRoute =
         to.path.startsWith("/auth") ||
         to.path === "/login" ||
-        to.path === "/register";
+        to.path === "/register" ||
+        to.path === "/forgot-password" ||
+        to.path === "/reset-password";
     const isAuthenticated = authStore.isAuthenticated;
 
     if (requiresAuth && !isAuthenticated) {

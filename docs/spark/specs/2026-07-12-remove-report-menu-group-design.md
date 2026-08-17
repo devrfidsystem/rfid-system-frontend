@@ -55,9 +55,7 @@ Both `useStockBalance.ts` and `useStockLedger.ts` gain an `exportRows` function,
 ```ts
 const exportRows = async () => {
     try {
-        const params = {
-            /* same shape already built for loadRows */
-        };
+        const params = {/* same shape already built for loadRows */};
         const blob = await reportService.exportReport(
             "current-stock", // or "stock-period" for the ledger
             params,

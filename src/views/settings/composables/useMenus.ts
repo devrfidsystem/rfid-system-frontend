@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed, watch } from "vue";
 import { settingsService } from "@/services/settings.service";
 import { useNotifier } from "@/composable/useNotifier";
@@ -11,6 +10,15 @@ export interface MenuRecord {
     path?: string;
     icon?: string;
     sequence: number;
+}
+
+export interface MenuTableRow extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    path: string;
+    sequence: number;
+    original: MenuRecord;
 }
 
 export function useMenus() {
@@ -47,7 +55,7 @@ export function useMenus() {
         { key: "actions", label: "" },
     ];
 
-    const tableRows = computed(() => {
+    const tableRows = computed<MenuTableRow[]>(() => {
         return rows.value
             .map((r) => ({
                 id: r.id,
@@ -57,7 +65,7 @@ export function useMenus() {
                 sequence: r.sequence || 0,
                 original: r,
             }))
-            .sort((a, b) => a.sequence - b.sequence) as Record<string, any>[];
+            .sort((a, b) => a.sequence - b.sequence);
     });
 
     const loadApps = async () => {

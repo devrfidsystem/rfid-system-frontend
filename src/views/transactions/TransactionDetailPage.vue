@@ -10,6 +10,15 @@
             <template #actions>
                 <div v-if="canShowActions" class="flex items-center gap-3">
                     <Button
+                        v-if="canEdit"
+                        variant="outline"
+                        object-id="btn_TransactionDetailEdit"
+                        :disabled="actionLoading"
+                        @click="handleEdit"
+                    >
+                        Edit Task
+                    </Button>
+                    <Button
                         v-if="canCancel"
                         variant="outline"
                         class="border-danger-500/30 text-danger-600 hover:bg-danger-50 hover:text-danger-600"
@@ -72,11 +81,11 @@
         </div>
 
         <div v-else-if="error" class="p-6">
-            <div
-                class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-            >
-                {{ error }}
-            </div>
+            <InlineAlert
+                variant="error"
+                title="Transaction detail unavailable"
+                :description="error"
+            />
         </div>
 
         <template v-else-if="record">
@@ -85,15 +94,13 @@
                     :class="isRegister ? 'md:col-span-3' : 'md:col-span-1'"
                     object-id="wdg_TransactionDetailInfo"
                 >
-                    <h3
-                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
-                    >
-                        Document Info
-                    </h3>
+                    <div class="mb-4 border-b border-border pb-3">
+                        <ToolbarTitle title="Document Info" />
+                    </div>
                     <div class="space-y-4">
                         <div v-for="col in headerColumns" :key="col.key">
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 {{ col.label }}
                             </span>
@@ -132,15 +139,13 @@
                     class="md:col-span-3"
                     object-id="wdg_TransactionDetailRegisterMeta"
                 >
-                    <h3
-                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
-                    >
-                        Task Meta
-                    </h3>
+                    <div class="mb-4 border-b border-border pb-3">
+                        <ToolbarTitle title="Task Meta" />
+                    </div>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Registered By
                             </span>
@@ -157,7 +162,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Created By
                             </span>
@@ -190,9 +195,7 @@
                     object-id="wdg_TransactionDetailLines"
                 >
                     <div class="border-b border-border px-6 py-5">
-                        <h3 class="text-base font-semibold text-text">
-                            Line Items
-                        </h3>
+                        <ToolbarTitle title="Line Items" />
                     </div>
                     <div class="overflow-x-auto">
                         <table
@@ -202,22 +205,22 @@
                             <thead class="bg-surface-secondary">
                                 <tr>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Product
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         From Location
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         To Location
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-right text-xs font-semibold text-text-secondary"
                                     >
                                         Qty
                                     </th>
@@ -276,11 +279,14 @@
                                     </td>
                                 </tr>
                                 <tr v-if="!lines || lines.length === 0">
-                                    <td
-                                        colspan="4"
-                                        class="px-6 py-8 text-center text-sm text-text-secondary"
-                                    >
-                                        No line items found.
+                                    <td colspan="4" class="px-6 py-6">
+                                        <StatusPanel
+                                            title="No line items"
+                                            description="No line item rows are available for this transaction."
+                                            :icon="FileText"
+                                            tone="neutral"
+                                            class="border-0 bg-transparent py-2"
+                                        />
                                     </td>
                                 </tr>
                             </tbody>
@@ -290,17 +296,17 @@
                             <thead class="bg-surface-secondary">
                                 <tr>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Product
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-right text-xs font-semibold text-text-secondary"
                                     >
                                         Expected
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-right text-xs font-semibold text-text-secondary"
                                     >
                                         Actual
                                     </th>
@@ -370,11 +376,14 @@
                                     </td>
                                 </tr>
                                 <tr v-if="!lines || lines.length === 0">
-                                    <td
-                                        colspan="3"
-                                        class="px-6 py-8 text-center text-sm text-text-secondary"
-                                    >
-                                        No line items found.
+                                    <td colspan="3" class="px-6 py-6">
+                                        <StatusPanel
+                                            title="No line items"
+                                            description="No line item rows are available for this transaction."
+                                            :icon="FileText"
+                                            tone="neutral"
+                                            class="border-0 bg-transparent py-2"
+                                        />
                                     </td>
                                 </tr>
                             </tbody>
@@ -390,10 +399,14 @@
 import { computed, onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import Button from "@/components/atoms/Button.vue";
 import ConfirmDialog from "@/components/organisms/ConfirmDialog.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import { FileText } from "lucide-vue-next";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionDetail } from "./composables/useTransactionDetail";
 import { getNestedValue } from "./utils/getNestedValue";
@@ -422,6 +435,7 @@ const {
     loadTransaction,
     handlePost,
     handleCancel,
+    handleEdit,
     handleComplete,
     confirmation,
     clearConfirmation,
@@ -432,6 +446,7 @@ const {
     canPost,
     canCancel,
     canComplete,
+    canEdit,
     isOutboundReadOnly,
     statusLabel,
     statusTone,

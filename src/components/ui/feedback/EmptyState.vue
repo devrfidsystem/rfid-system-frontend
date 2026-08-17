@@ -1,6 +1,6 @@
 <template>
     <div :class="containerClass">
-        <div v-if="$slots.icon || icon" class="mb-4 text-3xl text-text-muted">
+        <div v-if="$slots.icon || icon" class="mb-4 text-2xl text-text-muted">
             <slot name="icon">
                 <component :is="icon" v-if="icon" aria-hidden="true" />
             </slot>

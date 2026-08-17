@@ -6,7 +6,14 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "build:development": "vite build --mode development",
+        "build:staging": "vite build --mode staging",
+        "build:production": "vite build --mode production",
         "type-check": "vue-tsc --noEmit",
+        "test:unit": "vitest run",
+        "test:ci": "npm run type-check && npm run test:unit && npm run build",
+        "test:regression": "node tests/regression/runner.js",
+        "test:e2e": "node tests/e2e/runner.js",
         "preview": "vite preview",
         "storybook": "storybook dev -p 6006",
         "build-storybook": "storybook build",
@@ -24,6 +31,7 @@
         "pinia": "^2.3.0",
         "vee-validate": "^4.15.1",
         "vue": "^3.4.0",
+        "vue-i18n": "^11.4.8",
         "vue-router": "^4.2.2",
         "xlsx": "^0.18.5",
         "zod": "^4.3.6"

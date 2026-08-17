@@ -1,5 +1,6 @@
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { i18n } from "@/locales";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { useWarehouseStore } from "@/store/warehouse.store";
 import { dashboardService } from "@/services/dashboard.service";
@@ -13,7 +14,9 @@ import type {
 } from "@/model/dashboard";
 
 const normalizeErrorMessage = (error: unknown): string =>
-    error instanceof Error ? error.message : "Failed to load dashboard data.";
+    error instanceof Error
+        ? error.message
+        : i18n.global.t("dashboard.overview.errors.loadFailed");
 
 type RefreshDashboardOptions = {
     force?: boolean;
@@ -171,9 +174,11 @@ export function useDashboard() {
         ]);
     };
 
-    onMounted(() => {
-        void refreshDashboard();
-    });
+    if (getCurrentInstance()) {
+        onMounted(() => {
+            void refreshDashboard();
+        });
+    }
 
     useDebouncedWatch(
         () => warehouseStore.selectedWarehouseId,

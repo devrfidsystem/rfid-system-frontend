@@ -1,0 +1,73 @@
+{
+    "common": {
+        "warehouseFilterPlaceholder": "Semua Gudang (Filter)",
+        "refresh": "Muat Ulang"
+    },
+    "overview": {
+        "warehouseAlert": {
+            "title": "Pemilih gudang tidak tersedia"
+        },
+        "alertCenter": {
+            "panelTitle": "Pengecualian Operasional",
+            "panelDescription": "Risiko gudang terbuka yang memerlukan tindakan operator",
+            "badges": {
+                "critical": "Kritis {count}",
+                "warning": "Peringatan {count}",
+                "info": "Info {count}"
+            },
+            "filters": {
+                "all": "Semua",
+                "critical": "Kritis",
+                "warning": "Peringatan",
+                "info": "Info"
+            },
+            "unavailable": {
+                "title": "Feed pengecualian tidak tersedia"
+            },
+            "empty": {
+                "title": "Tidak ada pengecualian terbuka",
+                "description": "Gudang yang dipilih tidak memiliki risiko operasional aktif."
+            },
+            "emptyFiltered": "Tidak ada pengecualian {severity} pada tampilan ini.",
+            "businessImpact": "Dampak Bisnis",
+            "recommendedAction": "Tindakan yang Disarankan",
+            "occurred": "Terjadi Pada",
+            "documentReference": "Referensi Dokumen"
+        },
+        "workflowOverview": {
+            "panelTitle": "Posisi Alur Kerja",
+            "panelDescription": "Tahapan dokumen dan hambatan pada alur gudang yang aktif",
+            "unavailable": {
+                "title": "Data posisi alur kerja tidak tersedia"
+            },
+            "empty": {
+                "title": "Tidak ada data posisi alur kerja",
+                "description": "Tidak ada data posisi alur kerja untuk gudang yang dipilih."
+            },
+            "metrics": {
+                "open": "Terbuka",
+                "completionRate": "Tingkat Penyelesaian",
+                "bottleneck": "Hambatan"
+            },
+            "insufficientData": "Data belum mencukupi",
+            "avgWait": "Rata-rata tunggu"
+        },
+        "kpiSnapshot": {
+            "panelTitle": "Cuplikan Kontrol KPI",
+            "panelDescription": "Pergerakan skor untuk throughput, waktu siklus, dan akurasi",
+            "unavailable": {
+                "title": "Cuplikan KPI tidak tersedia"
+            },
+            "empty": "Tidak ada data kartu skor KPI untuk gudang yang dipilih.",
+            "openDetail": "Buka Detail KPI"
+        },
+        "stageDonutChart": {
+            "ariaLabelPrefix": "Distribusi tahap",
+            "openLabel": "Terbuka",
+            "otherLabel": "Lainnya"
+        },
+        "errors": {
+            "loadFailed": "Gagal memuat data dashboard."
+        }
+    }
+}

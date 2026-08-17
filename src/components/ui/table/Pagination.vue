@@ -33,8 +33,7 @@
             </Button>
 
             <label v-if="pageSizeOptions.length" :for="id">
-                <span
-                    class="ml-2 text-xs font-medium uppercase tracking-wide text-text-secondary"
+                <span class="ml-2 text-xs font-medium text-text-secondary"
                     >Rows per page</span
                 >
             </label>

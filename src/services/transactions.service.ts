@@ -2,9 +2,10 @@ import { normalizePaginationItems } from "@/lib/api/normalizers";
 import type { ApiPaginatedResult, ApiResponse } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
 import type {
+    TransactionKey,
     TransactionRecord,
     TransactionSummaryResponse,
-} from "@/views/transactions/types";
+} from "@/api/feature/dto/transactions.dto";
 import { transactionsApi } from "@/api/feature/transactions.api";
 
 // "opname" is intentionally part of this union/the maps below for
@@ -14,16 +15,7 @@ import { transactionsApi } from "@/api/feature/transactions.api";
 // with an incompatible response shape. See router/index.ts's
 // `genericTransactionKeys`, which deliberately excludes "opname" for this
 // reason — keep that exclusion in sync with this comment.
-export type TransactionKey =
-    | "register"
-    | "inbound"
-    | "putaway"
-    | "outbound"
-    | "relocation"
-    | "transfer"
-    | "return"
-    | "returns"
-    | "opname";
+export type { TransactionKey } from "@/api/feature/dto/transactions.dto";
 
 const formatRegisterLine = (line: Record<string, unknown>): string => {
     const product = line.product as Record<string, unknown> | undefined;
@@ -42,18 +34,6 @@ const summarizeRegisterLines = (lines: unknown): string | undefined => {
     return lines
         .map((line) => formatRegisterLine(line as Record<string, unknown>))
         .join(", ");
-};
-
-export const transactionPaths: Record<TransactionKey, string> = {
-    register: "/register",
-    inbound: "/inbound",
-    putaway: "/putaway",
-    outbound: "/outbound",
-    relocation: "/relocation",
-    transfer: "/transfer",
-    return: "/returns",
-    returns: "/returns",
-    opname: "/opname",
 };
 
 export const normalizeTransactionRecord = (
@@ -174,6 +154,14 @@ export const transactionService = {
         payload: Record<string, unknown>,
     ): Promise<TransactionRecord> {
         const response = await transactionsApi.create(key, payload);
+        return normalizeTransactionRecord(response.data);
+    },
+    async update(
+        key: TransactionKey,
+        id: string,
+        payload: Record<string, unknown>,
+    ): Promise<TransactionRecord> {
+        const response = await transactionsApi.update(key, id, payload);
         return normalizeTransactionRecord(response.data);
     },
     async post(

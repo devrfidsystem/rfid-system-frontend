@@ -1,31 +1,22 @@
 <template>
     <Card object-id="wdg_MonitoringExceptionFeed">
-        <h3 class="text-sm font-semibold text-text mb-3">Exception Feed</h3>
-        <p class="text-xs text-text-secondary mb-4 -mt-2">
-            Operation rows requiring manual intervention
-        </p>
+        <PanelHeader
+            title="Exception Feed"
+            description="Operation rows requiring manual intervention"
+            class="mb-4"
+        />
 
         <div v-if="loading" class="space-y-2">
-            <div
-                v-for="n in 3"
-                :key="n"
-                class="h-16 rounded bg-surface-secondary animate-pulse"
-            ></div>
+            <SkeletonBlock v-for="n in 3" :key="n" height="h-16" />
         </div>
 
-        <div
+        <StatusPanel
             v-else-if="exceptions.length === 0"
-            class="rounded-md border border-border bg-surface-secondary/50 px-4 py-5 flex flex-col items-center text-center"
-        >
-            <div
-                class="flex h-9 w-9 items-center justify-center rounded-full bg-surface shadow-sm ring-1 ring-success-500/20 mb-2 text-success-600"
-            >
-                <Icon :icon="CheckCircle2" :size="20" />
-            </div>
-            <p class="text-sm font-medium text-text">
-                No exceptions currently open
-            </p>
-        </div>
+            title="No exceptions currently open"
+            :icon="CheckCircle2"
+            tone="success"
+            class="px-4 py-5"
+        />
 
         <ul v-else class="space-y-3">
             <li
@@ -43,11 +34,9 @@
                         <span class="text-sm font-semibold text-text">
                             {{ row.eventLabel }} exception
                         </span>
-                        <span
-                            class="rounded-full bg-surface-secondary px-2 py-0.5 text-xs font-medium text-text-secondary"
-                        >
+                        <Badge tone="neutral">
                             {{ row.warehouseName }}
-                        </span>
+                        </Badge>
                     </div>
                     <p class="text-xs text-text-secondary mt-1">
                         {{ row.zoneLabel ?? "—" }} · Operator
@@ -66,7 +55,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import { AlertTriangle, CheckCircle2 } from "lucide-vue-next";
 import type { LiveTransactionRow } from "@/model/dashboard";
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { normalizePaginationItems } from "@/lib/api/normalizers";
 import type { ApiResponse, ApiPaginatedResult } from "@/lib/api/response";
 import type { StockBalanceRecord } from "@/model/entities";
@@ -11,27 +10,47 @@ import type {
 } from "@/api/feature/dto/stock.dto";
 import { stockApi } from "@/api/feature/stock.api";
 
-export const normalizeStockBalanceRecord = (row: any): StockBalanceRecord => {
-    if (!row) return row;
-    const mapped: any = { ...row };
-    mapped.productId = row.product?.name ?? row.productId;
-    mapped.warehouseId = row.warehouse?.name ?? row.warehouseId;
+type ApiStockRecord = Record<string, unknown>;
+
+const asRecord = (value: unknown): ApiStockRecord =>
+    value && typeof value === "object" ? (value as ApiStockRecord) : {};
+
+const nestedValue = (row: ApiStockRecord, key: string, field: string) =>
+    asRecord(row[key])[field];
+
+export const normalizeStockBalanceRecord = (
+    row: unknown,
+): StockBalanceRecord => {
+    const source = asRecord(row);
+    const mapped: ApiStockRecord = { ...source };
+    mapped.productId =
+        nestedValue(source, "product", "name") ?? source.productId;
+    mapped.warehouseId =
+        nestedValue(source, "warehouse", "name") ?? source.warehouseId;
     mapped.locationPath =
-        row.location?.name ?? row.locationPath ?? row.locationId;
-    mapped.quantity = row.qty ?? row.qty_on_hand ?? row.quantity;
-    return mapped as StockBalanceRecord;
+        nestedValue(source, "location", "name") ??
+        source.locationPath ??
+        source.locationId;
+    mapped.quantity = source.qty ?? source.qty_on_hand ?? source.quantity;
+    return mapped as unknown as StockBalanceRecord;
 };
 
-export const normalizeStockLedgerRecord = (row: any): StockLedgerItem => {
-    if (!row) return row;
-    const mapped: any = { ...row };
-    mapped.timestamp = row.createdAt ?? row.timestamp;
-    mapped.docNumber = row.doc_type ?? row.documentRef ?? row.docNumber;
-    mapped.epc = row.epc ?? row.product?.code ?? row.productId;
-    mapped.productId = row.product?.name ?? row.productId;
-    mapped.locationId = row.location?.name ?? row.locationId;
-    mapped.quantity = row.qty ?? row.quantity;
-    return mapped as StockLedgerItem;
+export const normalizeStockLedgerRecord = (row: unknown): StockLedgerItem => {
+    const source = asRecord(row);
+    const mapped: ApiStockRecord = { ...source };
+    mapped.timestamp = source.createdAt ?? source.timestamp;
+    mapped.docNumber =
+        source.doc_type ?? source.documentRef ?? source.docNumber;
+    mapped.epc =
+        source.epc ??
+        nestedValue(source, "product", "code") ??
+        source.productId;
+    mapped.productId =
+        nestedValue(source, "product", "name") ?? source.productId;
+    mapped.locationId =
+        nestedValue(source, "location", "name") ?? source.locationId;
+    mapped.quantity = source.qty ?? source.quantity;
+    return mapped as unknown as StockLedgerItem;
 };
 
 export const stockService = {
@@ -39,11 +58,11 @@ export const stockService = {
         params?: StockBalanceQueryParams,
     ): Promise<ApiPaginatedResult<StockBalanceRecord>> {
         const response = await stockApi.fetchBalance(params);
-        const items = normalizePaginationItems(
+        const items = normalizePaginationItems<unknown>(
             response as ApiResponse<{ items?: StockBalanceResponse["items"] }>,
         );
         return {
-            items: (items as any[]).map(normalizeStockBalanceRecord),
+            items: items.map(normalizeStockBalanceRecord),
             meta: response.meta,
         };
     },
@@ -52,11 +71,11 @@ export const stockService = {
         params?: StockLedgerQueryParams,
     ): Promise<ApiPaginatedResult<StockLedgerItem>> {
         const response = await stockApi.fetchLedger(params);
-        const items = normalizePaginationItems(
+        const items = normalizePaginationItems<unknown>(
             response as ApiResponse<{ items?: StockLedgerResponse["items"] }>,
         );
         return {
-            items: (items as any[]).map(normalizeStockLedgerRecord),
+            items: items.map(normalizeStockLedgerRecord),
             meta: response.meta,
         };
     },

@@ -148,12 +148,7 @@ Expected: PASS (all tests, including the 6 new ones)
 
 ```ts
 export type ProcessActivity =
-    | "receiving"
-    | "putaway"
-    | "outbound"
-    | "transfer"
-    | "relocation"
-    | "opname";
+    "receiving" | "putaway" | "outbound" | "transfer" | "relocation" | "opname";
 
 export type ProcessDomain = "stockIn" | "inventory" | "stockOut";
 
@@ -1166,12 +1161,7 @@ git commit -m "feat: add GET /dashboard/process-detail endpoint"
 
 ```ts
 export type ProcessActivity =
-    | "receiving"
-    | "putaway"
-    | "outbound"
-    | "transfer"
-    | "relocation"
-    | "opname";
+    "receiving" | "putaway" | "outbound" | "transfer" | "relocation" | "opname";
 
 export type ProcessDomain = "stockIn" | "inventory" | "stockOut";
 

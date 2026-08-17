@@ -1,6 +1,5 @@
 import { apiRequest } from "@/lib/api/client";
-import type { ReportKey } from "@/views/report/reportConfig";
-import type { ReportParams, ReportRow } from "./dto/report.dto";
+import type { ReportKey, ReportParams, ReportRow } from "./dto/report.dto";
 import { reportPaths } from "./dto/report.dto";
 
 export const reportApi = {

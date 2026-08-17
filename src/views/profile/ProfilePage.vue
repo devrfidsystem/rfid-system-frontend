@@ -148,19 +148,36 @@
             </Card>
         </div>
 
-        <p
+        <Card object-id="wdg_ProfileLanguage">
+            <div class="flex items-center justify-between gap-4">
+                <p class="text-sm font-semibold text-text">
+                    {{ t("common.language.label") }}
+                </p>
+                <SegmentedControl
+                    :model-value="currentLocale"
+                    :options="localeOptions"
+                    object-id-prefix="btn_ProfileLanguage"
+                    @update:model-value="setLocale"
+                />
+            </div>
+        </Card>
+
+        <InlineAlert
             v-if="status"
-            class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ status }}
-        </p>
+            variant="error"
+            title="Profile action failed"
+            :description="status"
+        />
     </section>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import SegmentedControl from "@/components/molecules/SegmentedControl.vue";
 import { useProfile } from "./composables/useProfile";
 
 const {
@@ -170,6 +187,11 @@ const {
     currentCompany,
     processing,
     status,
+    currentLocale,
+    localeOptions,
+    setLocale,
     handleLogout,
 } = useProfile();
+
+const { t } = useI18n();
 </script>

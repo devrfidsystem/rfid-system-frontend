@@ -1,5 +1,6 @@
 import { computed, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { sessionService } from "@/services/session.service";
 import { useAuthStore } from "@/store/auth.store";
 import { useNotifier } from "@/composable/useNotifier";
@@ -9,6 +10,7 @@ export function useLogin() {
     const route = useRoute();
     const authStore = useAuthStore();
     const { withToast } = useNotifier();
+    const { t } = useI18n();
 
     const form = reactive({
         email: "",
@@ -35,11 +37,11 @@ export function useLogin() {
     const fieldErrors = computed(() => ({
         email:
             touched.email && !isEmailValid.value
-                ? "Gunakan email valid perusahaan."
+                ? t("auth.login.errors.emailInvalid")
                 : undefined,
         password:
             touched.password && !isPasswordValid.value
-                ? "Password harus terdiri dari minimal 8 karakter."
+                ? t("auth.login.errors.passwordInvalid")
                 : undefined,
     }));
 
@@ -50,7 +52,7 @@ export function useLogin() {
         if (typeof error === "string") {
             return error;
         }
-        return "Gagal masuk. Silakan coba lagi.";
+        return t("auth.login.errors.genericFailure");
     };
 
     const handleSubmit = async () => {
@@ -58,7 +60,7 @@ export function useLogin() {
         touched.password = true;
 
         if (!canSubmit.value) {
-            status.value = "Lengkapi kolom sebelum melanjutkan.";
+            status.value = t("auth.login.errors.incomplete");
             return;
         }
 
@@ -77,9 +79,8 @@ export function useLogin() {
                 },
                 {
                     loadingRef: submitting,
-                    successMessage: "Selamat datang kembali!",
-                    errorMessage:
-                        "Login gagal. Silakan periksa kredensial Anda.",
+                    successMessage: t("auth.login.toastSuccess"),
+                    errorMessage: t("auth.login.toastError"),
                 },
             );
 

@@ -10,7 +10,9 @@
                     <Select
                         v-if="warehouseOptions.length > 0"
                         :options="warehouseOptions"
-                        placeholder="Semua Gudang (Filter)"
+                        :placeholder="
+                            t('dashboard.common.warehouseFilterPlaceholder')
+                        "
                         object-id="cmb_DashboardFilterWarehouse"
                         :placeholder-disabled="false"
                         :model-value="warehouseId ?? undefined"
@@ -41,7 +43,7 @@
                             "
                         />
                     </template>
-                    Refresh
+                    {{ t("dashboard.common.refresh") }}
                 </Button>
             </div>
         </div>
@@ -50,6 +52,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
@@ -65,6 +68,8 @@ defineEmits<{
     (e: "update:warehouseId", value: string | null): void;
     (e: "refresh"): void;
 }>();
+
+const { t } = useI18n();
 
 const isMounted = ref(false);
 onMounted(() => {

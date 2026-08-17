@@ -17,5 +17,6 @@ describe("MasterHeader", () => {
 
         expect(html).toContain("btn_MasterHeaderImport");
         expect(html).toContain("btn_MasterHeaderExport");
+        expect(html).toContain("data-toolbar-title");
     });
 });

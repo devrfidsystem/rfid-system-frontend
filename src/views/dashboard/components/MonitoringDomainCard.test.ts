@@ -103,7 +103,9 @@ describe("MonitoringDomainCard", () => {
 
         expect(html).toContain("border-l-4");
         expect(html).toContain("border-danger-500");
-        expect(html).toContain("text-2xl font-extrabold text-danger-600");
+        expect(html).toContain(
+            "text-base font-semibold text-text text-danger-600",
+        );
         expect(html).toContain("+1 more waiting");
         expect(html).not.toContain("OP-004");
     });
