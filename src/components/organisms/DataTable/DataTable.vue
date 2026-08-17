@@ -205,19 +205,19 @@
                                               ? 'text-right'
                                               : 'text-left'
                                     "
-                                    :style="getTreeRowIndentStyle(row)"
                                 >
                                     <div
                                         v-if="
                                             column.key === treeColumnKey &&
                                             getTreeDepth(row) !== undefined
                                         "
-                                        class="flex items-start gap-2"
+                                        class="flex items-start gap-2 py-1"
+                                        :style="getTreeCellIndentStyle(row)"
                                     >
                                         <button
                                             v-if="hasTreeChildren(row)"
                                             type="button"
-                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-text-muted transition-colors duration-150 hover:text-text"
+                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center text-text-secondary transition-colors duration-150 hover:text-text"
                                             :aria-label="
                                                 isTreeExpanded(row)
                                                     ? 'Collapse row'
@@ -235,10 +235,15 @@
                                                 :size="12"
                                             />
                                         </button>
+                                        <span
+                                            v-else
+                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center"
+                                            aria-hidden="true"
+                                        />
                                         <div
                                             class="flex flex-col leading-tight"
                                         >
-                                            <span class="font-medium text-text">
+                                            <span class="text-text">
                                                 <slot
                                                     :name="column.key"
                                                     :row="row"
@@ -477,8 +482,17 @@ const resolveCellValue = (
 
 // Optional tree-row metadata (used by hierarchical data such as Master
 // locations). Rows that don't set these fields render as plain flat rows.
-const getTreeDepth = (row: Record<string, unknown>) =>
-    row.treeDepth as number | undefined;
+const getTreeDepth = (row: Record<string, unknown>) => {
+    if (row.treeDepth === undefined || row.treeDepth === null) {
+        return undefined;
+    }
+
+    const depth =
+        typeof row.treeDepth === "number"
+            ? row.treeDepth
+            : Number(row.treeDepth);
+    return Number.isFinite(depth) ? depth : undefined;
+};
 const hasTreeChildren = (row: Record<string, unknown>) =>
     Boolean(row.treeHasChildren);
 const isTreeExpanded = (row: Record<string, unknown>) =>
@@ -486,11 +500,10 @@ const isTreeExpanded = (row: Record<string, unknown>) =>
 const getTreeSubtitle = (row: Record<string, unknown>) =>
     row.treeSubtitle as string | undefined;
 
-const getTreeRowIndentStyle = (row: Record<string, unknown>) => {
+const getTreeCellIndentStyle = (row: Record<string, unknown>) => {
     const depth = getTreeDepth(row);
     if (!depth || depth <= 0) return undefined;
-    const indent = 0.9 * depth;
-    return { paddingInlineStart: `calc(1rem + ${indent}rem)` };
+    return { marginInlineStart: `${1.75 * depth}rem` };
 };
 
 const visibleRows = computed(() => table.visibleRows.value);

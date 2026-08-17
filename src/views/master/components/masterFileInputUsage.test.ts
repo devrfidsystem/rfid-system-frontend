@@ -26,4 +26,15 @@ describe("master file input usage", () => {
             "focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30",
         );
     });
+
+    it("aligns master form and import footer actions with space between", () => {
+        expect(masterFormModalSource).toContain("justify-between");
+        expect(masterImportDialogSource).toContain("justify-between");
+        expect(masterFormModalSource).not.toContain(
+            "mt-auto flex justify-end gap-3 border-t border-border pt-4",
+        );
+        expect(masterImportDialogSource).not.toContain(
+            "flex justify-end gap-3 border-t border-border pt-4",
+        );
+    });
 });

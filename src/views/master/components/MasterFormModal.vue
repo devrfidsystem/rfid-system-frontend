@@ -102,7 +102,7 @@
                 </div>
             </div>
             <div
-                class="mt-auto flex justify-end gap-3 border-t border-border pt-4"
+                class="mt-auto flex justify-between gap-3 border-t border-border pt-4"
             >
                 <Button
                     variant="outline"

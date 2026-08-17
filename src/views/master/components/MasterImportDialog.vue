@@ -31,7 +31,7 @@
                 @change="handleImportFile"
             />
 
-            <div class="flex justify-end gap-3 border-t border-border pt-4">
+            <div class="flex justify-between gap-3 border-t border-border pt-4">
                 <Button
                     variant="outline"
                     size="sm"

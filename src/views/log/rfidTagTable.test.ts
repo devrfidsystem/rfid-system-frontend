@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    formatRfidLocation,
     formatRfidStatus,
     getRfidStatusTone,
     rfidTagColumns,
@@ -62,7 +63,28 @@ describe("rfidTagTable", () => {
         expect(getRfidStatusTone("available")).toBe("success");
         expect(getRfidStatusTone("encoded")).toBe("info");
         expect(getRfidStatusTone("assigned")).toBe("teal");
+        expect(formatRfidStatus("out_stock")).toBe("Out Stock");
+        expect(getRfidStatusTone("in_stock")).toBe("success");
+        expect(getRfidStatusTone("out_stock")).toBe("info");
+        expect(getRfidStatusTone("damaged")).toBe("error");
         expect(getRfidStatusTone("quarantined")).toBe("warning");
         expect(getRfidStatusTone("retired")).toBe("neutral");
+    });
+
+    it("prefers readable location labels over raw location ids", () => {
+        expect(
+            formatRfidLocation({
+                id: "tag-1",
+                epcCode: "EPC-001",
+                status: "assigned",
+                productId: "prod-1",
+                companyId: "company-1",
+                locationId: "loc-uuid",
+                locationCode: "R-A",
+                locationName: "Rack A",
+                createdAt: "2026-08-09T00:00:00.000Z",
+                updatedAt: "2026-08-09T00:00:00.000Z",
+            }),
+        ).toBe("R-A - Rack A");
     });
 });
