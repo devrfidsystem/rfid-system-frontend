@@ -20,7 +20,12 @@ export type MasterColumnDef = {
 };
 
 export type MasterFormFieldType =
-    "text" | "textarea" | "select" | "number" | "date" | "file";
+    | "text"
+    | "textarea"
+    | "select"
+    | "number"
+    | "date"
+    | "file";
 
 export interface MasterFormField {
     key: string;

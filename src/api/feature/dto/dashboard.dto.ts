@@ -182,7 +182,12 @@ export interface DashboardKpiDetailResponse {
 }
 
 export type ProcessActivity =
-    "receiving" | "putaway" | "outbound" | "transfer" | "relocation" | "opname";
+    | "receiving"
+    | "putaway"
+    | "outbound"
+    | "transfer"
+    | "relocation"
+    | "opname";
 
 export type ProcessDomain = "stockIn" | "inventory" | "stockOut";
 

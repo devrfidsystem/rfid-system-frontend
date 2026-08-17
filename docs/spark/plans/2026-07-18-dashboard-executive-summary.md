@@ -214,7 +214,10 @@ Expected: FAIL — `Cannot find module './doc-status-history.service'`
 import type { PrismaService } from "../../../shared/prisma/prisma.service";
 
 export type DocStatusHistoryDocType =
-    "inbound" | "outbound" | "putaway" | "opname";
+    | "inbound"
+    | "outbound"
+    | "putaway"
+    | "opname";
 
 export interface RecordTransitionParams {
     docType: DocStatusHistoryDocType;

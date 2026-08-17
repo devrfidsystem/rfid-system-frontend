@@ -4,7 +4,13 @@ import { renderToString } from "vue/server-renderer";
 import Badge from "./Badge.vue";
 
 type BadgeTone =
-    "neutral" | "success" | "warning" | "error" | "info" | "purple" | "teal";
+    | "neutral"
+    | "success"
+    | "warning"
+    | "error"
+    | "info"
+    | "purple"
+    | "teal";
 
 const renderBadge = async (tone: BadgeTone) => {
     const app = createSSRApp({

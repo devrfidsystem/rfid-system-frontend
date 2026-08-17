@@ -3,7 +3,10 @@ import type { MasterEntityKey } from "@/api/feature/dto/master.dto";
 type MasterPayloadInputValue = string | File | null;
 type AttributeListItem = { value: string; label: string };
 export type MasterPayloadValue =
-    string | number | boolean | AttributeListItem[];
+    | string
+    | number
+    | boolean
+    | AttributeListItem[];
 export type MasterPayload = Record<string, MasterPayloadValue>;
 
 const numericKeys = new Set([
