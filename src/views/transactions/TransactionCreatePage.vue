@@ -1,17 +1,23 @@
 <template>
     <section class="space-y-6">
         <PageHeader
-            :title="`New ${transactionTitle}`"
+            :title="
+                isEditMode
+                    ? `Edit ${transactionTitle}`
+                    : `New ${transactionTitle}`
+            "
             :description="
-                isRegister
-                    ? 'Create a new register task'
-                    : isPutaway
-                      ? 'Create a new putaway task'
-                      : isOutbound
-                        ? 'Create a new outbound assignment with an assigned user and deadline'
-                        : transactionKey === 'inbound'
-                          ? 'Create a new inbound receipt document'
-                          : `Create a new ${transactionKey} transaction`
+                isEditMode
+                    ? `Update draft ${transactionKey} details`
+                    : isRegister
+                      ? 'Create a new register task'
+                      : isPutaway
+                        ? 'Create a new putaway task'
+                        : isOutbound
+                          ? 'Create a new outbound assignment with an assigned user and deadline'
+                          : transactionKey === 'inbound'
+                            ? 'Create a new inbound receipt document'
+                            : `Create a new ${transactionKey} transaction`
             "
             tagline="Transactions"
             back-link
@@ -233,6 +239,7 @@
                     :submitting="submitting"
                     @add-line="addLine"
                     @remove-line="removeLine"
+                    @search-products="searchProducts"
                     @back="handleBack"
                 />
 
@@ -292,6 +299,7 @@ import { useTransactionCreate } from "./composables/useTransactionCreate";
 
 const props = defineProps<{
     transactionKey: TransactionKey;
+    id?: string;
 }>();
 
 const {
@@ -307,6 +315,7 @@ const {
     isRegister,
     isOutbound,
     isPutaway,
+    isEditMode,
     partnerLabel,
     warehouseOptions,
     partnerOptions,
@@ -324,10 +333,13 @@ const {
     removeLine,
     handleBack,
     loadOptions,
+    loadExistingTransaction,
+    searchProducts,
     handleSubmit,
-} = useTransactionCreate(props.transactionKey);
+} = useTransactionCreate(props.transactionKey, props.id);
 
-onMounted(() => {
-    loadOptions();
+onMounted(async () => {
+    await loadOptions();
+    await loadExistingTransaction();
 });
 </script>

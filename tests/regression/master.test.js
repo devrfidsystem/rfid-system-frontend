@@ -34,7 +34,9 @@ async function runMasterRegressionTests() {
         await masterPage.openCreateForm();
         await masterPage.fillProductCode(`CODE-${uniqueSuffix}`);
         await masterPage.fillProductName(testProductName);
+        await masterPage.selectFirstOption("uomId");
         await masterPage.submitForm();
+        await masterPage.searchProduct(testProductName);
         console.log("  -> Product created. PASS.");
 
         // 2. Search Product

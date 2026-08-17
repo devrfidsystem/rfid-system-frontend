@@ -10,6 +10,15 @@
             <template #actions>
                 <div v-if="canShowActions" class="flex items-center gap-3">
                     <Button
+                        v-if="canEdit"
+                        variant="outline"
+                        object-id="btn_TransactionDetailEdit"
+                        :disabled="actionLoading"
+                        @click="handleEdit"
+                    >
+                        Edit Task
+                    </Button>
+                    <Button
                         v-if="canCancel"
                         variant="outline"
                         class="border-danger-500/30 text-danger-600 hover:bg-danger-50 hover:text-danger-600"
@@ -426,6 +435,7 @@ const {
     loadTransaction,
     handlePost,
     handleCancel,
+    handleEdit,
     handleComplete,
     confirmation,
     clearConfirmation,
@@ -436,6 +446,7 @@ const {
     canPost,
     canCancel,
     canComplete,
+    canEdit,
     isOutboundReadOnly,
     statusLabel,
     statusTone,

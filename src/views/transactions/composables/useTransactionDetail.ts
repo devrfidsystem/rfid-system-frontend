@@ -127,9 +127,16 @@ export function useTransactionDetail(
     const canComplete = computed(
         () => isPutaway.value && status.value === "posted",
     );
+    const canEdit = computed(
+        () => transactionKey === "register" && status.value === "draft",
+    );
 
     const canShowActions = computed(
-        () => canPost.value || canCancel.value || canComplete.value,
+        () =>
+            canEdit.value ||
+            canPost.value ||
+            canCancel.value ||
+            canComplete.value,
     );
 
     const isOutboundReadOnly = computed(
@@ -311,6 +318,10 @@ export function useTransactionDetail(
         openConfirmation("cancel");
     };
 
+    const handleEdit = () => {
+        router.push(`/transactions/${transactionKey}/${id}/edit`);
+    };
+
     const handleComplete = () => {
         openConfirmation("complete");
     };
@@ -339,6 +350,8 @@ export function useTransactionDetail(
         canPost,
         canCancel,
         canComplete,
+        canEdit,
+        handleEdit,
         isInbound,
         isPutaway,
         isRelocation,

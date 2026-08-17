@@ -145,7 +145,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         return "Transactions";
     });
     const sectionHeading = computed(() => pageTitle.value);
-    const canCreate = computed(() => transactionKey.value !== "inbound");
+    const canCreate = computed(() =>
+        Boolean(transactionPaths[transactionKey.value]),
+    );
     const canExport = computed(() =>
         exportableTransactionKeys.has(transactionKey.value),
     );
@@ -265,6 +267,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         }
         if (config.value.partnerKey && selectedPartner.value) {
             base[config.value.partnerKey] = selectedPartner.value;
+        }
+        if (transactionKey.value === "register") {
+            base.status = "draft";
         }
         return base;
     };

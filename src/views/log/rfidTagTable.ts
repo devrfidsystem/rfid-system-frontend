@@ -8,6 +8,7 @@ export type RfidTagTableRow = Record<string, unknown> & {
     id: string;
     epcCode: string;
     product: string;
+    location: string;
     status: RfidTagStatus;
     registeredBy: string;
 };
@@ -15,6 +16,7 @@ export type RfidTagTableRow = Record<string, unknown> & {
 export const rfidTagColumns: ColumnDef<Record<string, unknown>>[] = [
     { key: "epcCode", header: "EPC" },
     { key: "product", header: "Product" },
+    { key: "location", header: "Location" },
     { key: "status", header: "Status" },
     { key: "registeredBy", header: "Registered By" },
 ];
@@ -60,6 +62,7 @@ export const toRfidTagRows = (tags: RfidTag[]): RfidTagTableRow[] =>
         id: tag.id,
         epcCode: tag.epcCode,
         product: formatRfidProduct(tag),
+        location: tag.locationId || "-",
         status: tag.status,
         registeredBy: tag.userName || "-",
     }));

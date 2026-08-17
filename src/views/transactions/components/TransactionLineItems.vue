@@ -30,10 +30,13 @@
                         label="Product"
                         placeholder="Select a product"
                         required
+                        searchable
+                        search-placeholder="Search products..."
                         :object-id="`cmb_TransactionLineItemsProduct_Row${idx}`"
                         @update:model-value="
                             (val) => onProductChange(line, val)
                         "
+                        @search="$emit('search-products', $event)"
                     />
                     <p
                         v-if="productAttributeSummaries[line.productId]"
@@ -281,7 +284,7 @@ const props = defineProps<{
     submitting: boolean;
 }>();
 
-defineEmits(["add-line", "remove-line", "back"]);
+defineEmits(["add-line", "remove-line", "back", "search-products"]);
 
 const onProductChange = (
     line: {

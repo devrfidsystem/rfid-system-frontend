@@ -219,6 +219,16 @@ const routes: RouteRecordRaw[] = [
                 }),
             },
             {
+                path: `transactions/:transactionKey(${transactionPattern})/:id/edit`,
+                component: () =>
+                    import("@/views/transactions/TransactionCreatePage.vue"),
+                props: (route) => ({
+                    transactionKey: route.params
+                        .transactionKey as TransactionKey,
+                    id: route.params.id,
+                }),
+            },
+            {
                 path: `transactions/:transactionKey(${transactionPattern})/:id`,
                 component: () =>
                     import("@/views/transactions/TransactionDetailPage.vue"),

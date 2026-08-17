@@ -52,6 +52,7 @@ const isFileValue = (value: unknown) =>
 const extractMasterFields = (
     entity: MasterEntityKey,
     submittedData: Record<string, MasterPayloadInputValue>,
+    options: { includeCode?: boolean } = {},
 ): MasterPayload => {
     const payload: MasterPayload = {};
 
@@ -63,7 +64,7 @@ const extractMasterFields = (
 
         if (key.startsWith("attribute:")) return;
         if (key === "imageFile") return;
-        if (key === "code") return;
+        if (key === "code" && !options.includeCode) return;
 
         if (
             entity === "attributes" &&
@@ -97,7 +98,9 @@ export const buildMasterCreatePayload = (
     entity: MasterEntityKey,
     submittedData: Record<string, MasterPayloadInputValue>,
 ): MasterPayload => {
-    const payload = extractMasterFields(entity, submittedData);
+    const payload = extractMasterFields(entity, submittedData, {
+        includeCode: entity === "products",
+    });
 
     if (entity === "warehouses" && typeof payload.name === "string") {
         payload.code = buildCodeFromName("WH", payload.name);

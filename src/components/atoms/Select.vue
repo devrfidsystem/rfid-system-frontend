@@ -52,6 +52,16 @@
                     v-if="opened"
                     class="absolute z-30 mt-1 w-full overflow-hidden rounded-md border border-border bg-surface shadow-sm"
                 >
+                    <div v-if="searchable" class="border-b border-border p-2">
+                        <input
+                            v-model="searchTerm"
+                            type="search"
+                            class="h-9 w-full rounded-md border border-border bg-surface px-3 text-sm text-text outline-none transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                            :placeholder="searchPlaceholder ?? 'Search...'"
+                            @click.stop
+                            @keydown.stop
+                        />
+                    </div>
                     <ul
                         ref="listRef"
                         role="listbox"
@@ -61,7 +71,7 @@
                         class="max-h-60 overflow-auto p-1"
                     >
                         <li
-                            v-for="(option, index) in options"
+                            v-for="(option, index) in filteredOptions"
                             :id="optionId(index)"
                             :key="String(option.value)"
                             role="option"
@@ -87,6 +97,12 @@
                                     :stroke-width="2"
                                 />
                             </button>
+                        </li>
+                        <li
+                            v-if="filteredOptions.length === 0"
+                            class="px-3 py-2 text-sm text-text-secondary"
+                        >
+                            No options found.
                         </li>
                     </ul>
                 </div>
@@ -133,18 +149,22 @@ const props = defineProps<{
     hideMessage?: boolean;
     placeholderDisabled?: boolean;
     objectId?: string;
+    searchable?: boolean;
+    searchPlaceholder?: string;
 }>();
 
 const attrs = useAttrs();
 const placeholderDisabled = computed(() => props.placeholderDisabled ?? true);
 const emit = defineEmits<{
     (e: "update:modelValue", value: string): void;
+    (e: "search", value: string): void;
 }>();
 
 const rootRef = ref<HTMLElement | null>(null);
 const listRef = ref<HTMLElement | null>(null);
 const opened = ref(false);
 const activeIndex = ref(-1);
+const searchTerm = ref("");
 
 const hasVisualError = computed(() => props.invalid || Boolean(props.error));
 const baseClasses =
@@ -163,6 +183,14 @@ const hasSelection = computed(() => Boolean(currentOption.value));
 const displayLabel = computed(
     () => currentOption.value?.label ?? props.placeholder ?? "Select an option",
 );
+const filteredOptions = computed(() => {
+    if (!props.searchable) return props.options;
+    const query = searchTerm.value.trim().toLowerCase();
+    if (!query) return props.options;
+    return props.options.filter((option) =>
+        option.label.toLowerCase().includes(query),
+    );
+});
 
 const optionId = (index: number) => `${props.id ?? "select"}-option-${index}`;
 
@@ -176,7 +204,7 @@ const open = () => {
     opened.value = true;
     activeIndex.value = Math.max(
         0,
-        props.options.findIndex(
+        filteredOptions.value.findIndex(
             (option) => String(option.value) === currentValue.value,
         ),
     );
@@ -196,12 +224,12 @@ const selectOption = (option: { label: string; value: string | number }) => {
 };
 
 const moveActive = (step: number) => {
-    if (!props.options.length) return;
+    if (!filteredOptions.value.length) return;
     const nextIndex =
         activeIndex.value < 0
             ? 0
-            : (activeIndex.value + step + props.options.length) %
-              props.options.length;
+            : (activeIndex.value + step + filteredOptions.value.length) %
+              filteredOptions.value.length;
     activeIndex.value = nextIndex;
     const optionEl = document.getElementById(optionId(nextIndex));
     optionEl?.scrollIntoView({ block: "nearest" });
@@ -235,7 +263,7 @@ const handleKeydown = (event: KeyboardEvent) => {
         case " ":
             event.preventDefault();
             if (activeIndex.value >= 0) {
-                selectOption(props.options[activeIndex.value]);
+                selectOption(filteredOptions.value[activeIndex.value]);
             }
             break;
     }
@@ -253,11 +281,16 @@ watch(
     () => props.modelValue,
     (value) => {
         if (!opened.value) return;
-        activeIndex.value = props.options.findIndex(
+        activeIndex.value = filteredOptions.value.findIndex(
             (option) => String(option.value) === (value ?? ""),
         );
     },
 );
+
+watch(searchTerm, (value) => {
+    emit("search", value);
+    activeIndex.value = filteredOptions.value.length ? 0 : -1;
+});
 
 onMounted(() => {
     document.addEventListener("click", handleDocumentClick);

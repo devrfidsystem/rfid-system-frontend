@@ -3,6 +3,8 @@ import pageSource from "../TransactionCreatePage.vue?raw";
 
 const mocks = vi.hoisted(() => ({
     createSpy: vi.fn(),
+    getSpy: vi.fn(),
+    updateSpy: vi.fn(),
     pushSpy: vi.fn(),
     notifyErrorSpy: vi.fn(),
     notifySuccessSpy: vi.fn(),
@@ -30,6 +32,8 @@ vi.mock("@/store/auth.store", () => ({
 vi.mock("@/services/transactions.service", () => ({
     transactionService: {
         create: mocks.createSpy,
+        get: mocks.getSpy,
+        update: mocks.updateSpy,
     },
 }));
 
@@ -329,6 +333,40 @@ describe("useTransactionCreate", () => {
         });
     });
 
+    it("searches products from the backend for transaction line pickers", async () => {
+        const { masterService } = await import("@/services/master.service");
+        vi.mocked(masterService.fetchList).mockImplementation(
+            (entity: string) => {
+                if (entity === "products") {
+                    return Promise.resolve({
+                        items: [
+                            {
+                                id: "prod-9",
+                                code: "SCN-9",
+                                name: "RFID Scanner",
+                                createdAt: "2026-01-01",
+                            },
+                        ],
+                        meta: null,
+                    });
+                }
+                return Promise.resolve({ items: [], meta: null });
+            },
+        );
+
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register");
+        await create.searchProducts("scanner");
+
+        expect(masterService.fetchList).toHaveBeenCalledWith("products", {
+            limit: 200,
+            search: "scanner",
+        });
+        expect(create.productOptions.value).toEqual([
+            { label: "SCN-9 - RFID Scanner", value: "prod-9" },
+        ]);
+    });
+
     it("adds a new line with empty enteredUomId and enteredQty defaults", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("register");
@@ -382,6 +420,58 @@ describe("useTransactionCreate", () => {
             "Transaction created successfully",
         );
         expect(mocks.pushSpy).toHaveBeenCalledWith("/transactions/register");
+    });
+
+    it("updates an existing draft register task with the same register payload shape", async () => {
+        mocks.getSpy.mockResolvedValueOnce({
+            id: "reg-1",
+            docNumber: "REG-001",
+            docDate: "2026-07-18T00:00:00.000Z",
+            registeredById: "user-7",
+            warehouseId: "warehouse-1",
+            locationId: "location-1",
+            status: "draft",
+            notes: "before",
+            lines: [
+                {
+                    productId: "prod-1",
+                    qty: 3,
+                    enteredUomId: "uom-pcs",
+                    enteredQty: 3,
+                },
+            ],
+        });
+
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("register", "reg-1");
+        await create.loadExistingTransaction();
+
+        create.form.value.notes = "after";
+        create.form.value.lines[0].qty = "4";
+
+        await create.handleSubmit();
+
+        expect(mocks.updateSpy).toHaveBeenCalledWith("register", "reg-1", {
+            companyId: "company-1",
+            docNumber: "REG-001",
+            docDate: expect.any(String),
+            notes: "after",
+            registeredById: "user-7",
+            warehouseId: "warehouse-1",
+            locationId: "location-1",
+            lines: [
+                {
+                    productId: "prod-1",
+                    qtyExpected: 4,
+                    enteredUomId: "uom-pcs",
+                    enteredQty: 3,
+                },
+            ],
+        });
+        expect(mocks.createSpy).not.toHaveBeenCalled();
+        expect(mocks.pushSpy).toHaveBeenCalledWith(
+            "/transactions/register/reg-1",
+        );
     });
 
     it("omits enteredUomId/enteredQty from an untouched register line's payload", async () => {
@@ -535,5 +625,6 @@ describe("useTransactionCreate", () => {
     it("wires isRegister and product UOM info into the line items component", () => {
         expect(pageSource).toContain(':is-register="isRegister"');
         expect(pageSource).toContain(':product-uom-info="productUomInfo"');
+        expect(pageSource).toContain('@search-products="searchProducts"');
     });
 });

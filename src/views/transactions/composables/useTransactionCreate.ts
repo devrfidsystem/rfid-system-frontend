@@ -21,7 +21,10 @@ export interface ProductUomInfo {
     breakdownUomId?: string | null;
 }
 
-export function useTransactionCreate(transactionKey: TransactionKey) {
+export function useTransactionCreate(
+    transactionKey: TransactionKey,
+    transactionId?: string,
+) {
     const router = useRouter();
     const { notifyError, notifySuccess } = useNotifier();
     const authStore = useAuthStore();
@@ -77,6 +80,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
     const isRegister = computed(() => transactionKey === "register");
     const isOutbound = computed(() => transactionKey === "outbound");
     const isPutaway = computed(() => transactionKey === "putaway");
+    const isEditMode = computed(() => Boolean(transactionId));
 
     const showSingleWarehouse = computed(() =>
         [
@@ -235,6 +239,26 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         router.push(`/transactions/${transactionKey}`);
     };
 
+    const loadProducts = async (search?: string) => {
+        const prodResponse = await masterService.fetchList("products", {
+            limit: 200,
+            search: search?.trim() || undefined,
+        });
+        productRecords.value = prodResponse.items;
+        productOptions.value = prodResponse.items.map((p) => ({
+            label: `${p.code} - ${p.name}`,
+            value: String(p.id),
+        }));
+    };
+
+    const searchProducts = async (search: string) => {
+        try {
+            await loadProducts(search);
+        } catch {
+            notifyError("Gagal memuat opsi produk");
+        }
+    };
+
     const loadOptions = async () => {
         try {
             if (isRegister.value || isOutbound.value) {
@@ -277,16 +301,69 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                 }));
             }
 
-            const prodResponse = await masterService.fetchList("products", {
-                limit: 200,
-            });
-            productRecords.value = prodResponse.items;
-            productOptions.value = prodResponse.items.map((p) => ({
-                label: `${p.code} - ${p.name}`,
-                value: String(p.id),
-            }));
+            await loadProducts();
         } catch {
             notifyError("Gagal memuat opsi form");
+        }
+    };
+
+    const toDateInput = (value: unknown): string => {
+        if (typeof value !== "string") return "";
+        return value.split("T")[0] ?? "";
+    };
+
+    const loadExistingTransaction = async () => {
+        if (!transactionId) return;
+        try {
+            const record = await transactionService.get(
+                transactionKey,
+                transactionId,
+            );
+            if ((record.status ?? "").toLowerCase() !== "draft") {
+                notifyError("Only draft register tasks can be edited.");
+                router.push(`/transactions/${transactionKey}/${transactionId}`);
+                return;
+            }
+
+            form.value.docNumber = String(
+                record.docNumber ?? record.docNo ?? form.value.docNumber,
+            );
+            form.value.transactionDate =
+                toDateInput(record.docDate ?? record.date) ||
+                form.value.transactionDate;
+            form.value.registeredById = String(
+                record.registeredById ??
+                    (record.registeredBy as { id?: string } | undefined)?.id ??
+                    "",
+            );
+            form.value.warehouseId = String(record.warehouseId ?? "");
+            form.value.locationId = String(record.locationId ?? "");
+            form.value.notes = String(record.notes ?? "");
+            form.value.lines = (
+                (record.lines ?? record.items ?? []) as Array<
+                    Record<string, unknown>
+                >
+            ).map((line) => ({
+                productId: String(
+                    line.productId ??
+                        (line.product as { id?: string } | undefined)?.id ??
+                        "",
+                ),
+                qty: String(
+                    line.qtyExpected ?? line.expectedQty ?? line.qty ?? "1",
+                ),
+                locationId: "",
+                fromLocationId: "",
+                toLocationId: "",
+                enteredUomId: String(line.enteredUomId ?? ""),
+                enteredQty: String(line.enteredQty ?? ""),
+            }));
+        } catch (err) {
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load transaction for editing.",
+            );
         }
     };
 
@@ -491,9 +568,19 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                     break;
             }
 
-            await transactionService.create(transactionKey, finalPayload);
-            notifySuccess("Transaction created successfully");
-            router.push(`/transactions/${transactionKey}`);
+            if (isEditMode.value && transactionId) {
+                await transactionService.update(
+                    transactionKey,
+                    transactionId,
+                    finalPayload,
+                );
+                notifySuccess("Transaction updated successfully");
+                router.push(`/transactions/${transactionKey}/${transactionId}`);
+            } else {
+                await transactionService.create(transactionKey, finalPayload);
+                notifySuccess("Transaction created successfully");
+                router.push(`/transactions/${transactionKey}`);
+            }
         } catch (err: unknown) {
             const errorObj = err as {
                 response?: { data?: { message?: string | string[] } };
@@ -528,6 +615,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         isRegister,
         isOutbound,
         isPutaway,
+        isEditMode,
         partnerLabel,
         warehouseOptions,
         partnerOptions,
@@ -546,6 +634,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         removeLine,
         handleBack,
         loadOptions,
+        loadExistingTransaction,
+        searchProducts,
         handleSubmit,
     };
 }

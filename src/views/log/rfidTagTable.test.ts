@@ -17,6 +17,7 @@ describe("rfidTagTable", () => {
                 productId: "prod-1",
                 productCode: "SKU-1",
                 productName: "Product One",
+                locationId: "Rack A",
                 companyId: "company-1",
                 createdAt: "2026-08-09T00:00:00.000Z",
                 updatedAt: "2026-08-09T00:00:00.000Z",
@@ -36,6 +37,7 @@ describe("rfidTagTable", () => {
         expect(rfidTagColumns.map((column) => column.key)).toEqual([
             "epcCode",
             "product",
+            "location",
             "status",
             "registeredBy",
         ]);
@@ -43,11 +45,13 @@ describe("rfidTagTable", () => {
             id: "tag-1",
             epcCode: "EPC-001",
             product: "SKU-1 - Product One",
+            location: "Rack A",
             status: "available",
             registeredBy: "Adit",
         });
         expect(rows[1]).toMatchObject({
             product: "prod-2",
+            location: "-",
             registeredBy: "-",
         });
     });

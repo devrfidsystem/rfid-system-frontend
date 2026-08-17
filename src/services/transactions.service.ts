@@ -156,6 +156,14 @@ export const transactionService = {
         const response = await transactionsApi.create(key, payload);
         return normalizeTransactionRecord(response.data);
     },
+    async update(
+        key: TransactionKey,
+        id: string,
+        payload: Record<string, unknown>,
+    ): Promise<TransactionRecord> {
+        const response = await transactionsApi.update(key, id, payload);
+        return normalizeTransactionRecord(response.data);
+    },
     async post(
         key: TransactionKey,
         id: string,
