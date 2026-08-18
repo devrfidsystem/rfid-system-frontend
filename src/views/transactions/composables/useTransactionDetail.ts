@@ -11,6 +11,7 @@ import {
     formatTransactionStatus,
     getTransactionStatusTone,
 } from "../utils/transactionStatus";
+import { canRunTransactionAction } from "../transactionFlow";
 
 type TransactionConfirmationAction = "post" | "cancel" | "complete";
 
@@ -111,24 +112,25 @@ export function useTransactionDetail(
 
     const status = computed(() => record.value?.status ?? "");
 
-    // Putaway is a three-stage lifecycle (draft -> posted -> done) with its
-    // own per-status action set; every other type is the standard two-stage
-    // draft -> posted/canceled shape where post/cancel only apply to drafts.
     const canPost = computed(
-        () => Boolean(record.value) && status.value === "draft",
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "post"),
     );
-    const canCancel = computed(() => {
-        if (!record.value) return false;
-        if (isPutaway.value) {
-            return status.value === "draft" || status.value === "posted";
-        }
-        return status.value === "draft";
-    });
+    const canCancel = computed(
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "cancel"),
+    );
     const canComplete = computed(
-        () => isPutaway.value && status.value === "posted",
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "complete"),
     );
     const canEdit = computed(
-        () => transactionKey === "register" && status.value === "draft",
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "edit"),
     );
 
     const canShowActions = computed(

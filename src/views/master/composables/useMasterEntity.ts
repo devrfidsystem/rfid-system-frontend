@@ -157,7 +157,11 @@ export function useMasterEntity() {
                     : (column.accessor ??
                       ((row: MasterRecord) =>
                           row[column.key] as
-                              string | number | boolean | null | undefined)),
+                              | string
+                              | number
+                              | boolean
+                              | null
+                              | undefined)),
         })),
     );
 

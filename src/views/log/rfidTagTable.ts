@@ -2,7 +2,13 @@ import type { RfidTag, RfidTagStatus } from "@/api/feature/dto/rfid.dto";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
 
 export type RfidBadgeTone =
-    "neutral" | "success" | "warning" | "error" | "info" | "purple" | "teal";
+    | "neutral"
+    | "success"
+    | "warning"
+    | "error"
+    | "info"
+    | "purple"
+    | "teal";
 
 export type RfidTagTableRow = Record<string, unknown> & {
     id: string;
@@ -28,6 +34,13 @@ export const formatRfidProduct = (tag: RfidTag) => {
     return tag.productName || tag.productId || "-";
 };
 
+export const formatRfidLocation = (tag: RfidTag) => {
+    if (tag.locationCode && tag.locationName) {
+        return `${tag.locationCode} - ${tag.locationName}`;
+    }
+    return tag.locationName || tag.locationCode || tag.locationId || "-";
+};
+
 export const formatRfidStatus = (status?: string | null) => {
     if (!status) return "-";
     return status
@@ -48,6 +61,13 @@ export const getRfidStatusTone = (
         case "assigned":
         case "in_use":
             return "teal";
+        case "in_stock":
+        case "returned":
+            return "success";
+        case "out_stock":
+            return "info";
+        case "damaged":
+            return "error";
         case "quarantined":
             return "warning";
         case "retired":
@@ -62,7 +82,7 @@ export const toRfidTagRows = (tags: RfidTag[]): RfidTagTableRow[] =>
         id: tag.id,
         epcCode: tag.epcCode,
         product: formatRfidProduct(tag),
-        location: tag.locationId || "-",
+        location: formatRfidLocation(tag),
         status: tag.status,
         registeredBy: tag.userName || "-",
     }));

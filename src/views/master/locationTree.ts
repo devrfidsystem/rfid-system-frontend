@@ -27,6 +27,16 @@ const getLocationTreeChildren = (
     return childrenByParentId.get(String(row.id)) ?? [];
 };
 
+const compareLocationRows = (a: MasterRecord, b: MasterRecord) => {
+    const labelA = getLocationName(a) || normalizeLabel(a.path) || String(a.id);
+    const labelB = getLocationName(b) || normalizeLabel(b.path) || String(b.id);
+
+    return labelA.localeCompare(labelB, undefined, {
+        numeric: true,
+        sensitivity: "base",
+    });
+};
+
 export const resolveLocationWarehouseLabel = (
     row: MasterRecord,
     warehouseLabels: LabelMap,
@@ -127,7 +137,9 @@ export const buildLocationTreeRows = (
         treeDepth: number,
         treeGuides: boolean[] = [],
     ) => {
-        siblings.forEach((row, index) => {
+        const sortedSiblings = [...siblings].sort(compareLocationRows);
+
+        sortedSiblings.forEach((row, index) => {
             const id = String(row.id ?? "");
             if (!id || visited.has(id)) return;
             visited.add(id);
@@ -135,7 +147,7 @@ export const buildLocationTreeRows = (
             const children = getLocationTreeChildren(row, childrenByParentId);
             const treeHasChildren = children.length > 0;
             const treeExpanded = treeHasChildren && expandedIds.has(id);
-            const hasNextSibling = index < siblings.length - 1;
+            const hasNextSibling = index < sortedSiblings.length - 1;
 
             orderedRows.push({
                 ...row,
@@ -158,7 +170,10 @@ export const buildLocationTreeRows = (
 
     rows.forEach((row) => {
         const id = String(row.id ?? "");
-        if (id && !visited.has(id)) {
+        const parentId = String(row.parentId ?? "");
+        const hasVisibleParent = parentId && rowsById.has(parentId);
+
+        if (id && !visited.has(id) && !hasVisibleParent) {
             appendSiblings([row], 0, []);
         }
     });
