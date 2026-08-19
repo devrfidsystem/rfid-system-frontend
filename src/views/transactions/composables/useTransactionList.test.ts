@@ -2,17 +2,25 @@ import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 
+const authStoreMock = vi.hoisted(() => ({
+    currentCompanyId: null as string | null,
+}));
+
+vi.mock("@/store/auth.store", () => ({
+    useAuthStore: () => authStoreMock,
+}));
+
 vi.mock("@/composable/useDebouncedWatch", () => ({
     useDebouncedWatch: vi.fn(),
 }));
 
 vi.mock("@/composable/useWarehouseOptions", () => ({
-    useWarehouseOptions: () => ({
+    useWarehouseOptions: vi.fn(() => ({
         options: ref([]),
         loading: ref(false),
         error: ref(null),
         refresh: vi.fn(),
-    }),
+    })),
 }));
 
 vi.mock("@/api/feature/transactions.api", () => ({
@@ -97,6 +105,7 @@ vi.mock("@/domain/report/reportConfig", () => ({
 describe("useTransactionList", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        authStoreMock.currentCompanyId = null;
     });
 
     it("renders relocation list metadata and create entrypoint", async () => {
@@ -323,6 +332,35 @@ describe("useTransactionList", () => {
         expect(transactionService.summary).toHaveBeenCalledWith(
             "relocation",
             expect.objectContaining({ page: 1, limit: 20 }),
+        );
+    });
+
+    it("scopes transaction rows, summary, and warehouse options to the current company", async () => {
+        authStoreMock.currentCompanyId = "company-1";
+
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        const { useWarehouseOptions } = await import(
+            "@/composable/useWarehouseOptions"
+        );
+
+        const { useTransactionList } = await import("./useTransactionList");
+        useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(useWarehouseOptions).toHaveBeenCalledWith(
+            expect.objectContaining({ value: "company-1" }),
+        );
+        expect(transactionService.list).toHaveBeenCalledWith(
+            "relocation",
+            expect.objectContaining({ companyId: "company-1" }),
+        );
+        expect(transactionService.summary).toHaveBeenCalledWith(
+            "relocation",
+            expect.objectContaining({ companyId: "company-1" }),
         );
     });
 
