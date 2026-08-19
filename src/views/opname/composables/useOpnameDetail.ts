@@ -59,7 +59,8 @@ export function useOpnameDetail() {
     const router = useRouter();
     const authStore = useAuthStore();
     const { notifySuccess, notifyError } = useNotifier();
-    const warehouseState = useWarehouseOptions();
+    const companyId = computed(() => authStore.currentCompanyId ?? "");
+    const warehouseState = useWarehouseOptions(companyId);
 
     const loading = ref(false);
     const error = ref<string | null>(null);
@@ -87,7 +88,6 @@ export function useOpnameDetail() {
         },
     });
 
-    const companyId = computed(() => authStore.currentCompanyId ?? "");
     const opnameId = computed(() => String(route.params.id ?? ""));
 
     const warehouseOptions = computed(() =>
