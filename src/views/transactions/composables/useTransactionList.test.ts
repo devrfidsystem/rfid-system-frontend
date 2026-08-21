@@ -2,17 +2,25 @@ import { ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 
+const authStoreMock = vi.hoisted(() => ({
+    currentCompanyId: null as string | null,
+}));
+
+vi.mock("@/store/auth.store", () => ({
+    useAuthStore: () => authStoreMock,
+}));
+
 vi.mock("@/composable/useDebouncedWatch", () => ({
     useDebouncedWatch: vi.fn(),
 }));
 
 vi.mock("@/composable/useWarehouseOptions", () => ({
-    useWarehouseOptions: () => ({
+    useWarehouseOptions: vi.fn(() => ({
         options: ref([]),
         loading: ref(false),
         error: ref(null),
         refresh: vi.fn(),
-    }),
+    })),
 }));
 
 vi.mock("@/api/feature/transactions.api", () => ({
@@ -76,7 +84,7 @@ vi.mock("@/services/report.service", () => ({
     },
 }));
 
-vi.mock("@/views/report/reportConfig", () => ({
+vi.mock("@/domain/report/reportConfig", () => ({
     reportConfigs: {
         inbound: {
             title: "Inbound Documents",
@@ -97,6 +105,7 @@ vi.mock("@/views/report/reportConfig", () => ({
 describe("useTransactionList", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        authStoreMock.currentCompanyId = null;
     });
 
     it("renders relocation list metadata and create entrypoint", async () => {
@@ -112,18 +121,18 @@ describe("useTransactionList", () => {
         );
     });
 
-    it("disables create entrypoint for inbound", async () => {
+    it("allows create entrypoint for inbound direct documents", async () => {
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "inbound" });
 
         expect(list.pageTitle.value).toBe("Inbound Documents");
         expect(list.sectionHeading.value).toBe("Inbound Documents");
-        expect(list.canCreate.value).toBe(false);
+        expect(list.canCreate.value).toBe(true);
     });
 
     it("renders outbound list metadata and wireframe columns", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "outbound" });
@@ -171,7 +180,7 @@ describe("useTransactionList", () => {
 
     it("only allows export for inbound/outbound — the only two backend-supported export routes", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { useTransactionList } = await import("./useTransactionList");
 
@@ -201,7 +210,7 @@ describe("useTransactionList", () => {
 
     it("configures register list with warehouse filter and register-specific columns", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { useTransactionList } = await import("./useTransactionList");
         const list = useTransactionList({ transactionKey: "register" });
@@ -219,6 +228,29 @@ describe("useTransactionList", () => {
             { key: "status", label: "Status" },
             { key: "actions", label: "" },
         ]);
+    });
+
+    it("loads register task rows as draft-only by default", async () => {
+        vi.resetModules();
+        vi.unmock("@/domain/report/reportConfig");
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        vi.mocked(transactionService.list).mockResolvedValueOnce({
+            items: [],
+            meta: { page: 1, limit: 20, total: 0 },
+        });
+
+        const { useTransactionList } = await import("./useTransactionList");
+        useTransactionList({ transactionKey: "register" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(transactionService.list).toHaveBeenCalledWith(
+            "register",
+            expect.objectContaining({ status: "draft" }),
+        );
     });
 
     it("normalizes register warehouse, location, and product summary for list rows", async () => {
@@ -251,7 +283,7 @@ describe("useTransactionList", () => {
 
     it("exposes the raw loaded rows for downstream summary derivation", async () => {
         vi.resetModules();
-        vi.unmock("@/views/report/reportConfig");
+        vi.unmock("@/domain/report/reportConfig");
 
         const { transactionService } =
             await import("@/services/transactions.service");
@@ -300,6 +332,35 @@ describe("useTransactionList", () => {
         expect(transactionService.summary).toHaveBeenCalledWith(
             "relocation",
             expect.objectContaining({ page: 1, limit: 20 }),
+        );
+    });
+
+    it("scopes transaction rows, summary, and warehouse options to the current company", async () => {
+        authStoreMock.currentCompanyId = "company-1";
+
+        const { transactionService } =
+            await import("@/services/transactions.service");
+        const { useWarehouseOptions } = await import(
+            "@/composable/useWarehouseOptions"
+        );
+
+        const { useTransactionList } = await import("./useTransactionList");
+        useTransactionList({ transactionKey: "relocation" });
+
+        const flushPromises = () =>
+            new Promise((resolve) => setTimeout(resolve, 0));
+        await flushPromises();
+
+        expect(useWarehouseOptions).toHaveBeenCalledWith(
+            expect.objectContaining({ value: "company-1" }),
+        );
+        expect(transactionService.list).toHaveBeenCalledWith(
+            "relocation",
+            expect.objectContaining({ companyId: "company-1" }),
+        );
+        expect(transactionService.summary).toHaveBeenCalledWith(
+            "relocation",
+            expect.objectContaining({ companyId: "company-1" }),
         );
     });
 

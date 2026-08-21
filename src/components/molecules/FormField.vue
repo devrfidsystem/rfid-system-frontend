@@ -8,10 +8,7 @@
                 <span>{{ label }}</span>
                 <span v-if="required" class="text-signal-red">*</span>
             </p>
-            <p
-                v-if="hint"
-                class="text-[11px] font-normal uppercase tracking-wider text-text-secondary"
-            >
+            <p v-if="hint" class="text-[11px] font-normal text-text-secondary">
                 {{ hint }}
             </p>
         </div>

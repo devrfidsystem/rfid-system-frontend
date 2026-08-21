@@ -1,8 +1,11 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/store/auth.store";
-import { masterEntities, supportedMasterEntities } from "../entityConfig";
-import type { MasterEntityConfig } from "../entityConfig";
+import {
+    masterEntities,
+    supportedMasterEntities,
+} from "@/domain/master/entityConfig";
+import type { MasterEntityConfig } from "@/domain/master/entityConfig";
 import type { EntityKey } from "@/model/entities";
 import type { MasterEntityKey } from "@/api/feature/dto/master.dto";
 import { warehouseService } from "@/services/warehouse.service";

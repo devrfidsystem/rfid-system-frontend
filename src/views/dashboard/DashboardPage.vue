@@ -8,12 +8,12 @@
             @refresh="refreshDashboard"
         />
 
-        <p
+        <InlineAlert
             v-if="warehouseError && !warehousesLoading"
-            class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ warehouseError }}
-        </p>
+            variant="error"
+            :title="t('dashboard.overview.warehouseAlert.title')"
+            :description="warehouseError"
+        />
 
         <div class="space-y-6">
             <DashboardAlertCenter
@@ -38,6 +38,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import DashboardToolbar from "./components/DashboardToolbar.vue";
 import DashboardAlertCenter from "./components/DashboardAlertCenter.vue";
 import DashboardWorkflowOverview from "./components/DashboardWorkflowOverview.vue";
@@ -62,4 +64,6 @@ const {
     kpiSnapshotLoading,
     kpiSnapshotError,
 } = useDashboard();
+
+const { t } = useI18n();
 </script>

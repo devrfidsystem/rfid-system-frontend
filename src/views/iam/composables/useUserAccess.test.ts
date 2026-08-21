@@ -46,6 +46,10 @@ vi.mock("@/composable/useNotifier", () => ({
     }),
 }));
 
+vi.mock("@/store/auth.store", () => ({
+    useAuthStore: () => ({ currentCompanyId: "company-1" }),
+}));
+
 describe("useUserAccess", () => {
     beforeEach(() => {
         mocks.getRolesSpy.mockResolvedValue([]);
@@ -115,5 +119,21 @@ describe("useUserAccess", () => {
             "wh-1",
         );
         expect(access.confirmation.value).toBeNull();
+    });
+
+    it("assigns a role with the current company id", async () => {
+        const { useUserAccess } = await import("./useUserAccess");
+        const access = useUserAccess();
+
+        access.selectedUserId.value = "user-1";
+        access.selectedRole.value = "role-1";
+
+        await access.addRole();
+
+        expect(mocks.assignUserRoleSpy).toHaveBeenCalledWith(
+            "user-1",
+            "role-1",
+            "company-1",
+        );
     });
 });

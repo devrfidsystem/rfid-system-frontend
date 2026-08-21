@@ -10,32 +10,29 @@ export class DashboardPage {
     async navigate() {
         await this.driver.get(this.url);
         await this.driver.wait(
-            until.elementLocated(By.css(DashboardSelectors.HEATMAP_WIDGET)),
+            until.elementLocated(
+                By.css(DashboardSelectors.ALERT_CENTER_WIDGET),
+            ),
             10000,
         );
         await this.driver.sleep(1000);
     }
 
-    async getHeatmapWidget() {
+    async getAlertCenterWidget() {
         return await this.driver.findElement(
-            By.css(DashboardSelectors.HEATMAP_WIDGET),
+            By.css(DashboardSelectors.ALERT_CENTER_WIDGET),
         );
     }
 
-    async getLowStockWidget() {
+    async getWorkflowOverviewWidget() {
         return await this.driver.findElement(
-            By.css(DashboardSelectors.LOW_STOCK_WIDGET),
+            By.css(DashboardSelectors.WORKFLOW_OVERVIEW_WIDGET),
         );
     }
 
-    async clickLowStockViewInventory() {
-        const link = await this.driver.findElement(
-            By.css(DashboardSelectors.LOW_STOCK_VIEW_LINK),
-        );
-        await link.click();
-        await this.driver.wait(
-            until.urlContains("/master-data/products"),
-            5000,
+    async getKpiSnapshotWidget() {
+        return await this.driver.findElement(
+            By.css(DashboardSelectors.KPI_SNAPSHOT_WIDGET),
         );
     }
 }

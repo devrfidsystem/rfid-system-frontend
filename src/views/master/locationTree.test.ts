@@ -6,7 +6,7 @@ import {
     resolveLocationParentLabel,
     resolveLocationWarehouseLabel,
 } from "./locationTree";
-import type { MasterRecord } from "./types";
+import type { MasterRecord } from "@/domain/master/types";
 
 describe("locationTree", () => {
     const warehouseOptions = new Map<string, string>([
@@ -103,5 +103,65 @@ describe("locationTree", () => {
         expect(treeRows[2]?.treeDepth).toBe(2);
         expect(treeRows[3]?.treeDepth).toBe(3);
         expect(treeRows[3]?.treeGuides).toEqual([false, false, false]);
+    });
+
+    it("sorts location siblings naturally while preserving hierarchy", () => {
+        const treeRows = buildLocationTreeRows(
+            [
+                {
+                    id: "loc-b",
+                    name: "Zone B",
+                },
+                {
+                    id: "loc-a-rack-10",
+                    name: "Rack 10",
+                    parentId: "loc-a",
+                },
+                {
+                    id: "loc-a-rack-2",
+                    name: "Rack 2",
+                    parentId: "loc-a",
+                },
+                {
+                    id: "loc-a",
+                    name: "Zone A",
+                },
+            ],
+            new Set(["loc-a"]),
+        );
+
+        expect(treeRows.map((row) => row.id)).toEqual([
+            "loc-a",
+            "loc-a-rack-2",
+            "loc-a-rack-10",
+            "loc-b",
+        ]);
+    });
+
+    it("shows only root locations until a parent is expanded", () => {
+        const rows: MasterRecord[] = [
+            {
+                id: "loc-b",
+                name: "Zone B",
+            },
+            {
+                id: "loc-a-rack-1",
+                name: "Rack 1",
+                parentId: "loc-a",
+            },
+            {
+                id: "loc-a",
+                name: "Zone A",
+            },
+        ];
+
+        expect(
+            buildLocationTreeRows(rows, new Set()).map((row) => row.id),
+        ).toEqual(["loc-a", "loc-b"]);
+        expect(
+            buildLocationTreeRows(rows, new Set(["loc-a"])).map(
+                (row) => row.id,
+            ),
+        ).toEqual(["loc-a", "loc-a-rack-1", "loc-b"]);
     });
 });

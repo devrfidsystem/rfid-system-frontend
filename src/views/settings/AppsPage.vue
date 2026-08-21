@@ -1,20 +1,19 @@
 <template>
     <div class="space-y-4">
-        <div class="flex justify-between items-center px-2">
-            <div>
-                <h3 class="text-lg font-medium text-text">Applications</h3>
-                <p class="text-sm text-text-secondary">
-                    Control app entries used for menu routing and access scope.
-                </p>
-            </div>
+        <SectionHeader
+            title="Applications"
+            description="Control app entries used for menu routing and access scope."
+            object-id="hdr_SettingsApps"
+        >
             <Button
                 variant="primary"
+                class="w-full justify-center sm:w-auto"
                 object-id="btn_AppsNewApp"
                 @click="openCreateModal"
             >
-                New Application
+                Add App
             </Button>
-        </div>
+        </SectionHeader>
 
         <Card no-padding object-id="wdg_AppsList">
             <DataTable
@@ -33,7 +32,8 @@
                             {
                                 key: 'edit',
                                 label: 'Edit',
-                                onClick: () => openEditModal(row),
+                                onClick: () =>
+                                    openEditModal(row as AppTableRow),
                             },
                         ]"
                     />
@@ -46,8 +46,8 @@
             :title="isEditing ? 'Edit Application' : 'New Application'"
             :description="
                 isEditing
-                    ? 'Update app details.'
-                    : 'Register a new application.'
+                    ? 'Adjust routing metadata and access visibility.'
+                    : 'Create an app entry for route and menu assignment.'
             "
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
@@ -89,20 +89,14 @@
                     placeholder="e.g. Box"
                     object-id="txt_AppsFormIcon"
                 />
-                <div class="flex items-center gap-2 mt-4">
-                    <input
-                        id="chk_AppsFormIsActive"
-                        v-model="form.isActive"
-                        data-testid="chk_AppsFormIsActive"
-                        type="checkbox"
-                        class="rounded border-border text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
-                    />
-                    <label for="chk_AppsFormIsActive" class="text-sm text-text"
-                        >Active</label
-                    >
-                </div>
+                <CheckboxField
+                    v-model="form.isActive"
+                    label="Active"
+                    object-id="chk_AppsFormIsActive"
+                    class="mt-4"
+                />
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-border">
+                <FormActions sticky>
                     <Button
                         type="button"
                         variant="outline"
@@ -118,14 +112,13 @@
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </Drawer>
     </div>
 </template>
 
 <script setup lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, onMounted, computed } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
@@ -133,8 +126,42 @@ import Input from "@/components/atoms/Input.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
 import DataTable from "@/components/organisms/DataTable/DataTable.vue";
 import type { ColumnDef } from "@/components/organisms/DataTable/types";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
+import FormActions from "@/components/ui/form/FormActions.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
+import SectionHeader from "@/components/molecules/SectionHeader.vue";
 import { settingsService } from "@/services/settings.service";
+import { useNotifier } from "@/composable/useNotifier";
+
+interface AppRecord extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    description?: string | null;
+    url?: string | null;
+    icon?: string | null;
+    isActive?: boolean | null;
+}
+
+interface AppTableRow extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    url: string;
+    status: string;
+    original: AppRecord;
+}
+
+interface AppForm {
+    code: string;
+    name: string;
+    description: string;
+    url: string;
+    icon: string;
+    isActive: boolean;
+}
+
+const { withToast } = useNotifier();
 
 const columns = [
     { key: "code", label: "Code" },
@@ -144,7 +171,7 @@ const columns = [
     { key: "actions", label: "" },
 ];
 
-const rows = ref<any[]>([]);
+const rows = ref<AppRecord[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -153,7 +180,7 @@ const isEditing = ref(false);
 const submitting = ref(false);
 const currentId = ref("");
 
-const form = ref({
+const form = ref<AppForm>({
     code: "",
     name: "",
     description: "",
@@ -162,7 +189,7 @@ const form = ref({
     isActive: true,
 });
 
-const tableRows = computed(() => {
+const tableRows = computed<AppTableRow[]>(() => {
     return rows.value.map((r) => ({
         id: r.id,
         code: r.code,
@@ -178,9 +205,10 @@ const loadData = async () => {
     error.value = null;
     try {
         const response = await settingsService.fetchList("apps");
-        rows.value = response.items || [];
-    } catch (err: any) {
-        error.value = err.message || "Failed to load apps";
+        rows.value = response.items as AppRecord[];
+    } catch (err: unknown) {
+        error.value =
+            err instanceof Error ? err.message : "Failed to load apps";
     } finally {
         loading.value = false;
     }
@@ -200,7 +228,7 @@ const openCreateModal = () => {
     isModalOpen.value = true;
 };
 
-const openEditModal = (row: any) => {
+const openEditModal = (row: AppTableRow) => {
     const original = row.original;
     form.value = {
         code: original.code,
@@ -218,15 +246,27 @@ const openEditModal = (row: any) => {
 const handleSubmit = async () => {
     submitting.value = true;
     try {
-        if (isEditing.value) {
-            await settingsService.update("apps", currentId.value, form.value);
-        } else {
-            await settingsService.create("apps", form.value);
-        }
+        await withToast(
+            async () => {
+                if (isEditing.value) {
+                    await settingsService.update(
+                        "apps",
+                        currentId.value,
+                        form.value,
+                    );
+                } else {
+                    await settingsService.create("apps", form.value);
+                }
+            },
+            {
+                successMessage: isEditing.value
+                    ? "Application updated successfully"
+                    : "Application created successfully",
+                errorMessage: "Failed to save application",
+            },
+        );
         isModalOpen.value = false;
-        loadData();
-    } catch (err: any) {
-        alert(err.message || "Failed to save app");
+        await loadData();
     } finally {
         submitting.value = false;
     }

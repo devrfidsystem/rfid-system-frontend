@@ -1,6 +1,7 @@
 import { createSSRApp, defineComponent } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/locales";
 
 const useProcessPerformanceMock = vi.hoisted(() => vi.fn());
 
@@ -58,12 +59,14 @@ describe("ProcessPerformancePage", () => {
 
     it("renders the Process Performance page title", async () => {
         const app = createSSRApp(ProcessPerformancePage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("Process Performance");
     });
 
     it("renders the week/month period toggle", async () => {
         const app = createSSRApp(ProcessPerformancePage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("Week");
         expect(html).toContain("Month");
@@ -85,6 +88,7 @@ describe("ProcessPerformancePage", () => {
         });
 
         const app = createSSRApp(ProcessPerformancePage);
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("network down");
     });
@@ -132,6 +136,7 @@ describe("ProcessPerformancePage", () => {
         });
 
         const app = createSSRApp(ProcessPerformancePage);
+        app.use(i18n);
         await renderToString(app);
         // Rendered through the stubbed KpiSupportingMetrics component (no assertion on
         // its internal HTML since it's stubbed); this test guards against the mapping

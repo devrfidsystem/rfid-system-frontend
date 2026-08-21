@@ -4,13 +4,14 @@ import {
     transactionService,
     type TransactionKey,
 } from "@/services/transactions.service";
-import { reportConfigs } from "@/views/report/reportConfig";
+import { reportConfigs } from "@/domain/report/reportConfig";
 import type { TransactionRecord } from "../types";
 import { useNotifier } from "@/composable/useNotifier";
 import {
     formatTransactionStatus,
     getTransactionStatusTone,
 } from "../utils/transactionStatus";
+import { canRunTransactionAction } from "../transactionFlow";
 
 type TransactionConfirmationAction = "post" | "cancel" | "complete";
 
@@ -111,28 +112,33 @@ export function useTransactionDetail(
 
     const status = computed(() => record.value?.status ?? "");
 
-    // Putaway is a three-stage lifecycle (draft -> posted -> done) with its
-    // own per-status action set; every other type is the standard two-stage
-    // draft -> posted/canceled shape where post/cancel only apply to drafts.
     const canPost = computed(
         () =>
             Boolean(record.value) &&
-            !isInbound.value &&
-            status.value === "draft",
+            canRunTransactionAction(transactionKey, status.value, "post"),
     );
-    const canCancel = computed(() => {
-        if (!record.value || isInbound.value) return false;
-        if (isPutaway.value) {
-            return status.value === "draft" || status.value === "posted";
-        }
-        return status.value === "draft";
-    });
+    const canCancel = computed(
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "cancel"),
+    );
     const canComplete = computed(
-        () => isPutaway.value && status.value === "posted",
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "complete"),
+    );
+    const canEdit = computed(
+        () =>
+            Boolean(record.value) &&
+            canRunTransactionAction(transactionKey, status.value, "edit"),
     );
 
     const canShowActions = computed(
-        () => canPost.value || canCancel.value || canComplete.value,
+        () =>
+            canEdit.value ||
+            canPost.value ||
+            canCancel.value ||
+            canComplete.value,
     );
 
     const isOutboundReadOnly = computed(
@@ -204,7 +210,6 @@ export function useTransactionDetail(
     };
 
     const openConfirmation = (action: TransactionConfirmationAction) => {
-        if (isInbound.value) return;
         if (isOutboundReadOnly.value) return;
         const label = actionLabel.value.toLowerCase();
         const titleByAction: Record<TransactionConfirmationAction, string> = {
@@ -239,7 +244,6 @@ export function useTransactionDetail(
     };
 
     const executePost = async () => {
-        if (isInbound.value) return;
         if (isOutboundReadOnly.value) return;
         actionLoading.value = true;
         try {
@@ -258,7 +262,6 @@ export function useTransactionDetail(
     };
 
     const executeCancel = async () => {
-        if (isInbound.value) return;
         if (isOutboundReadOnly.value) return;
         actionLoading.value = true;
         try {
@@ -317,6 +320,10 @@ export function useTransactionDetail(
         openConfirmation("cancel");
     };
 
+    const handleEdit = () => {
+        router.push(`/transactions/${transactionKey}/${id}/edit`);
+    };
+
     const handleComplete = () => {
         openConfirmation("complete");
     };
@@ -345,6 +352,8 @@ export function useTransactionDetail(
         canPost,
         canCancel,
         canComplete,
+        canEdit,
+        handleEdit,
         isInbound,
         isPutaway,
         isRelocation,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
+import { i18n } from "@/locales";
 import StageDonutChart from "./StageDonutChart.vue";
 
 describe("StageDonutChart", () => {
@@ -11,6 +12,7 @@ describe("StageDonutChart", () => {
                 { name: "QC Hold", count: 40 },
             ],
         });
+        app.use(i18n);
         const html = await renderToString(app);
 
         expect(html).toContain("160");
@@ -31,15 +33,17 @@ describe("StageDonutChart", () => {
                 { name: "F", count: 5 },
             ],
         });
+        app.use(i18n);
         const html = await renderToString(app);
 
-        expect(html).toContain("Other");
+        expect(html).toContain("Lainnya");
     });
 
     it("renders 0% and no NaN when total count is zero", async () => {
         const app = createSSRApp(StageDonutChart, {
             stages: [{ name: "Empty Stage", count: 0 }],
         });
+        app.use(i18n);
         const html = await renderToString(app);
 
         expect(html).not.toContain("NaN");

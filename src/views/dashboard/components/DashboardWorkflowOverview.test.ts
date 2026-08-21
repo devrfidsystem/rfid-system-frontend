@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
+import { i18n } from "@/locales";
 import DashboardWorkflowOverview from "./DashboardWorkflowOverview.vue";
 
 describe("DashboardWorkflowOverview", () => {
@@ -9,6 +10,7 @@ describe("DashboardWorkflowOverview", () => {
             loading: true,
             data: null,
         });
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("animate-pulse");
     });
@@ -38,14 +40,15 @@ describe("DashboardWorkflowOverview", () => {
                 ],
             },
         });
+        app.use(i18n);
         const html = await renderToString(app);
-        expect(html).toContain("Workflow Position");
+        expect(html).toContain("Posisi Alur Kerja");
         expect(html).toContain(
-            "Document stages and bottlenecks across active warehouse flows",
+            "Tahapan dokumen dan hambatan pada alur gudang yang aktif",
         );
         expect(html).toContain("Inbound &amp; Putaway Workflow");
         expect(html).toContain("Waiting Putaway");
-        expect(html).toContain("Insufficient data yet");
+        expect(html).toContain("Data belum mencukupi");
     });
 
     it("renders avg wait hours when present, and omits it when null", async () => {
@@ -80,6 +83,7 @@ describe("DashboardWorkflowOverview", () => {
                 ],
             },
         });
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("2.4h");
         expect(html).toContain("QC Hold");
@@ -87,7 +91,7 @@ describe("DashboardWorkflowOverview", () => {
         // "QC Hold" now also appears in the donut chart legend above the
         // detailed stage list, so scope to the LAST occurrence (the list row).
         const qcHoldSection = html.slice(html.lastIndexOf("QC Hold"));
-        expect(qcHoldSection).not.toContain("Avg wait");
+        expect(qcHoldSection).not.toContain("Rata-rata tunggu");
     });
 
     it("renders a trend percentage when present", async () => {
@@ -115,6 +119,7 @@ describe("DashboardWorkflowOverview", () => {
                 ],
             },
         });
+        app.use(i18n);
         const html = await renderToString(app);
         expect(html).toContain("text-success-600");
         expect(html).toContain("+12.5%");

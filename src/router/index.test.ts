@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error Vite raw imports are resolved at test runtime.
 import routerSource from "./index.ts?raw";
 
 describe("transaction routes", () => {

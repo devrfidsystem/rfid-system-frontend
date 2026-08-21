@@ -4,8 +4,8 @@
         :title="title"
         :description="
             isEdit
-                ? 'Update master data entry.'
-                : 'Create a new master data entry.'
+                ? 'Review field values before saving this reference record.'
+                : 'Add a reference record used by warehouse workflows.'
         "
         side="right"
         :width="drawerWidth"
@@ -64,38 +64,19 @@
                             (value) => setFieldValue(field.key, value)
                         "
                     />
-                    <div
+                    <Textarea
                         v-else-if="field.type === 'textarea'"
-                        class="flex flex-col gap-1"
-                    >
-                        <label
-                            :for="`form-${field.key}`"
-                            class="font-medium text-text-secondary"
-                            >{{ field.label }}</label
-                        >
-                        <textarea
-                            :id="`txa_MasterForm_Field${field.key}`"
-                            :value="String(localFormState[field.key] ?? '')"
-                            :disabled="isFieldDisabled(field)"
-                            class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text transition-colors duration-150 placeholder:text-text-muted focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary"
-                            rows="2"
-                            :object-id="`txa_MasterForm_Field${field.key}`"
-                            @input="
-                                (event) =>
-                                    setFieldValue(
-                                        field.key,
-                                        (event.target as HTMLTextAreaElement)
-                                            .value,
-                                    )
-                            "
-                        />
-                        <p
-                            v-if="errors[field.key]"
-                            class="text-xs text-signal-red"
-                        >
-                            {{ errors[field.key] }}
-                        </p>
-                    </div>
+                        :model-value="String(localFormState[field.key] ?? '')"
+                        :label="field.label"
+                        :placeholder="field.placeholder ?? field.label"
+                        :disabled="isFieldDisabled(field)"
+                        :error="errors[field.key]"
+                        :object-id="`txa_MasterForm_Field${field.key}`"
+                        :rows="2"
+                        @update:model-value="
+                            (value) => setFieldValue(field.key, value)
+                        "
+                    />
                     <Select
                         v-else-if="field.type === 'select'"
                         :label="field.label"
@@ -109,42 +90,19 @@
                             (value) => setFieldValue(field.key, value)
                         "
                     />
-                    <div
+                    <FileInput
                         v-else-if="field.type === 'file'"
-                        class="flex flex-col gap-1"
-                    >
-                        <label
-                            :for="`form-${field.key}`"
-                            class="font-medium text-text-secondary"
-                            >{{ field.label }}</label
-                        >
-                        <input
-                            :id="`file_MasterForm_Field${field.key}`"
-                            type="file"
-                            :disabled="isFieldDisabled(field)"
-                            class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text transition-colors duration-150 file:mr-3 file:rounded-md file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 disabled:bg-surface-secondary"
-                            :object-id="`file_MasterForm_Field${field.key}`"
-                            @change="
-                                (event) => handleFileChange(field.key, event)
-                            "
-                        />
-                        <p
-                            v-if="fileNames[field.key]"
-                            class="text-xs text-text-secondary"
-                        >
-                            Selected: {{ fileNames[field.key] }}
-                        </p>
-                        <p
-                            v-if="errors[field.key]"
-                            class="text-xs text-signal-red"
-                        >
-                            {{ errors[field.key] }}
-                        </p>
-                    </div>
+                        :label="field.label"
+                        :disabled="isFieldDisabled(field)"
+                        :selected-file="getSelectedFile(field.key)"
+                        :error="errors[field.key]"
+                        :object-id="`file_MasterForm_Field${field.key}`"
+                        @change="(file) => handleFileChange(field.key, file)"
+                    />
                 </div>
             </div>
             <div
-                class="mt-auto flex justify-end gap-3 border-t border-border pt-4"
+                class="mt-auto flex justify-between gap-3 border-t border-border pt-4"
             >
                 <Button
                     variant="outline"
@@ -176,10 +134,12 @@ import { computed, ref, watch } from "vue";
 import Drawer from "@/components/organisms/Drawer.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
+import Textarea from "@/components/atoms/Textarea.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import FileInput from "@/components/ui/form/FileInput.vue";
 import { X, Save } from "lucide-vue-next";
-import type { MasterFormField } from "../entityConfig";
+import type { MasterFormField } from "@/domain/master/entityConfig";
 import { validateMasterForm } from "../masterFormValidation";
 
 const props = defineProps<{
@@ -203,7 +163,6 @@ const emit = defineEmits<{
 }>();
 
 const localFormState = ref<Record<string, string | File | null>>({});
-const fileNames = ref<Record<string, string>>({});
 const errors = ref<Record<string, string>>({});
 
 const isProductForm = computed(() =>
@@ -224,7 +183,6 @@ watch(
     (newVal) => {
         if (newVal) {
             localFormState.value = { ...props.initialState };
-            fileNames.value = {};
             errors.value = {};
         }
     },
@@ -247,11 +205,13 @@ const isFieldDisabled = (field: MasterFormField) =>
 const fieldSpanClass = (field: MasterFormField) =>
     field.type === "file" ? "md:col-span-2" : "";
 
-const handleFileChange = (key: string, event: Event) => {
-    const target = event.target as HTMLInputElement | null;
-    const file = target?.files?.[0] ?? null;
+const handleFileChange = (key: string, file: File | null) => {
     localFormState.value[key] = file;
-    fileNames.value[key] = file?.name ?? "";
+};
+
+const getSelectedFile = (key: string) => {
+    const value = localFormState.value[key];
+    return value instanceof File ? value : null;
 };
 
 const setFieldValue = (key: string, value: string) => {

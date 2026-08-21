@@ -3,15 +3,15 @@ import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { masterService } from "@/services/master.service";
 import {
     transactionService,
-    transactionPaths,
     type TransactionKey,
 } from "@/services/transactions.service";
+import { transactionPaths } from "@/api/feature/dto/transactions.dto";
 import { reportService } from "@/services/report.service";
 import {
     reportConfigs,
     hasPartnerDatasetSupport,
     type ReportKey,
-} from "@/views/report/reportConfig";
+} from "@/domain/report/reportConfig";
 import type { ApiMeta } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
 import type { TransactionRecord, TransactionSummaryResponse } from "../types";
@@ -19,6 +19,7 @@ import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
 import { formatDate } from "@/utils/date";
 import { getNestedValue } from "../utils/getNestedValue";
 import { useWarehouseStore } from "@/store/warehouse.store";
+import { useAuthStore } from "@/store/auth.store";
 
 type TransactionRow = TransactionRecord & Record<string, unknown>;
 type TransactionSortableRecord = TransactionRecord & {
@@ -112,11 +113,13 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const pageSizeOptions = [10, 20, 50];
     const partners = ref<{ id: string; name: string }[]>([]);
     const partnerError = ref<string | null>(null);
-    const warehouseOptions = useWarehouseOptions();
     const suppressFilterWatch = ref(false);
     const warehouseStore = useWarehouseStore();
+    const authStore = useAuthStore();
 
     const transactionKey = computed(() => props.transactionKey);
+    const companyId = computed(() => authStore.currentCompanyId ?? "");
+    const warehouseOptions = useWarehouseOptions(companyId);
     const config = computed(
         () => reportConfigs[transactionToReportKey[transactionKey.value]],
     );
@@ -145,7 +148,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         return "Transactions";
     });
     const sectionHeading = computed(() => pageTitle.value);
-    const canCreate = computed(() => transactionKey.value !== "inbound");
+    const canCreate = computed(() =>
+        Boolean(transactionPaths[transactionKey.value]),
+    );
     const canExport = computed(() =>
         exportableTransactionKeys.has(transactionKey.value),
     );
@@ -259,12 +264,18 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             dateFrom: normalizeDate(startDate.value),
             dateTo: normalizeDate(endDate.value, true),
         };
+        if (companyId.value) {
+            base.companyId = companyId.value;
+        }
         const warehouseKey = config.value.warehouseKey ?? "warehouseId";
         if (selectedWarehouse.value) {
             base[warehouseKey] = selectedWarehouse.value;
         }
         if (config.value.partnerKey && selectedPartner.value) {
             base[config.value.partnerKey] = selectedPartner.value;
+        }
+        if (transactionKey.value === "register") {
+            base.status = "draft";
         }
         return base;
     };

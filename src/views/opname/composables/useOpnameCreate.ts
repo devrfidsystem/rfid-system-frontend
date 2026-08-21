@@ -36,7 +36,8 @@ export function useOpnameCreate() {
     const router = useRouter();
     const authStore = useAuthStore();
     const { notifyError, notifySuccess } = useNotifier();
-    const warehouseState = useWarehouseOptions();
+    const companyId = computed(() => authStore.currentCompanyId ?? "");
+    const warehouseState = useWarehouseOptions(companyId);
 
     const submitting = ref(false);
     const loadingContext = ref(false);
@@ -48,8 +49,6 @@ export function useOpnameCreate() {
         docNumber: defaultDocNumber(),
         notes: "",
     });
-
-    const companyId = computed(() => authStore.currentCompanyId ?? "");
 
     const mode = computed<CreateMode>(() => {
         const value = String(route.query.mode ?? "group");

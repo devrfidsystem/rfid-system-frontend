@@ -4,7 +4,11 @@ export type RfidTagStatus =
     | "quarantined"
     | "retired"
     | "encoded"
-    | "assigned";
+    | "assigned"
+    | "in_stock"
+    | "out_stock"
+    | "returned"
+    | "damaged";
 
 export interface RfidTag {
     id: string;
@@ -16,6 +20,8 @@ export interface RfidTag {
     companyId: string;
     warehouseId?: string | null;
     locationId?: string | null;
+    locationName?: string | null;
+    locationCode?: string | null;
     metadata?: Record<string, unknown>;
     createdAt: string;
     updatedAt: string;

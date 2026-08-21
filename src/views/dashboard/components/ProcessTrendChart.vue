@@ -1,7 +1,7 @@
 <template>
     <Card object-id="wdg_ProcessTrendChart">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-text">Process Trend</h3>
+            <PanelHeader title="Process Trend" />
             <button
                 v-if="data && data.length > 0"
                 type="button"
@@ -13,11 +13,11 @@
         </div>
 
         <div v-if="loading" class="grid gap-4 sm:grid-cols-2">
-            <div
+            <SkeletonBlock
                 v-for="n in 2"
                 :key="`trend-skel-${n}`"
-                class="h-36 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
+                height="h-36"
+            />
         </div>
 
         <div
@@ -89,6 +89,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import TrendMiniChart from "./TrendMiniChart.vue";
 import type { ProcessTrendPoint } from "@/model/dashboard";
 

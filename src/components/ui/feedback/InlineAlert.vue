@@ -1,7 +1,8 @@
 <template>
     <div
         :class="[
-            'w-full rounded-md border px-4 py-3 text-text',
+            'w-full rounded-md border text-text',
+            compact ? 'px-3 py-2' : 'px-4 py-3',
             variantClasses,
         ]"
         :role="variantRole"
@@ -72,6 +73,7 @@ const props = defineProps<{
     title?: string;
     description?: string;
     closable?: boolean;
+    compact?: boolean;
 }>();
 
 defineEmits<{

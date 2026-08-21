@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { masterEntities, supportedMasterEntities } from "./entityConfig";
+import {
+    masterEntities,
+    supportedMasterEntities,
+} from "@/domain/master/entityConfig";
 
 describe("master entity wiring", () => {
     it("enables attributes as a supported master entity", () => {

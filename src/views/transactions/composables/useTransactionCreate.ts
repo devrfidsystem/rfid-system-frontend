@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import {
@@ -14,7 +13,18 @@ import { normalizePaginationItems } from "@/lib/api/normalizers";
 import { formatProductAttributeSummary } from "@/utils/productAttributes";
 import type { ProductRecord } from "@/model/entities";
 
-export function useTransactionCreate(transactionKey: TransactionKey) {
+export interface ProductUomInfo {
+    baseUomId: string;
+    baseLabel: string;
+    unitName?: string | null;
+    conversionFactor?: number | null;
+    breakdownUomId?: string | null;
+}
+
+export function useTransactionCreate(
+    transactionKey: TransactionKey,
+    transactionId?: string,
+) {
     const router = useRouter();
     const { notifyError, notifySuccess } = useNotifier();
     const authStore = useAuthStore();
@@ -44,6 +54,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             locationId: string;
             fromLocationId: string;
             toLocationId: string;
+            enteredUomId: string;
+            enteredQty: string;
         }[],
     });
 
@@ -68,6 +80,7 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
     const isRegister = computed(() => transactionKey === "register");
     const isOutbound = computed(() => transactionKey === "outbound");
     const isPutaway = computed(() => transactionKey === "putaway");
+    const isEditMode = computed(() => Boolean(transactionId));
 
     const showSingleWarehouse = computed(() =>
         [
@@ -104,6 +117,19 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                 product.attributeValues,
             );
             if (summary) map[String(product.id)] = summary;
+        });
+        return map;
+    });
+    const productUomInfo = computed<Record<string, ProductUomInfo>>(() => {
+        const map: Record<string, ProductUomInfo> = {};
+        productRecords.value.forEach((product) => {
+            map[String(product.id)] = {
+                baseUomId: product.uom?.id ?? "",
+                baseLabel: product.uom?.symbol || product.uom?.name || "Unit",
+                unitName: product.unitName ?? null,
+                conversionFactor: product.conversionFactor ?? null,
+                breakdownUomId: product.unitType ?? null,
+            };
         });
         return map;
     });
@@ -200,6 +226,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
             locationId: "",
             fromLocationId: "",
             toLocationId: "",
+            enteredUomId: "",
+            enteredQty: "",
         });
     };
 
@@ -209,6 +237,26 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
 
     const handleBack = () => {
         router.push(`/transactions/${transactionKey}`);
+    };
+
+    const loadProducts = async (search?: string) => {
+        const prodResponse = await masterService.fetchList("products", {
+            limit: 200,
+            search: search?.trim() || undefined,
+        });
+        productRecords.value = prodResponse.items;
+        productOptions.value = prodResponse.items.map((p) => ({
+            label: `${p.code} - ${p.name}`,
+            value: String(p.id),
+        }));
+    };
+
+    const searchProducts = async (search: string) => {
+        try {
+            await loadProducts(search);
+        } catch {
+            notifyError("Gagal memuat opsi produk");
+        }
     };
 
     const loadOptions = async () => {
@@ -253,17 +301,69 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                 }));
             }
 
-            const prodResponse = await masterService.fetchList("products", {
-                limit: 200,
-            });
-            productRecords.value = prodResponse.items;
-            productOptions.value = prodResponse.items.map((p) => ({
-                label: `${p.code} - ${p.name}`,
-                value: String(p.id),
+            await loadProducts();
+        } catch {
+            notifyError("Gagal memuat opsi form");
+        }
+    };
+
+    const toDateInput = (value: unknown): string => {
+        if (typeof value !== "string") return "";
+        return value.split("T")[0] ?? "";
+    };
+
+    const loadExistingTransaction = async () => {
+        if (!transactionId) return;
+        try {
+            const record = await transactionService.get(
+                transactionKey,
+                transactionId,
+            );
+            if ((record.status ?? "").toLowerCase() !== "draft") {
+                notifyError("Only draft register tasks can be edited.");
+                router.push(`/transactions/${transactionKey}/${transactionId}`);
+                return;
+            }
+
+            form.value.docNumber = String(
+                record.docNumber ?? record.docNo ?? form.value.docNumber,
+            );
+            form.value.transactionDate =
+                toDateInput(record.docDate ?? record.date) ||
+                form.value.transactionDate;
+            form.value.registeredById = String(
+                record.registeredById ??
+                    (record.registeredBy as { id?: string } | undefined)?.id ??
+                    "",
+            );
+            form.value.warehouseId = String(record.warehouseId ?? "");
+            form.value.locationId = String(record.locationId ?? "");
+            form.value.notes = String(record.notes ?? "");
+            form.value.lines = (
+                (record.lines ?? record.items ?? []) as Array<
+                    Record<string, unknown>
+                >
+            ).map((line) => ({
+                productId: String(
+                    line.productId ??
+                        (line.product as { id?: string } | undefined)?.id ??
+                        "",
+                ),
+                qty: String(
+                    line.qtyExpected ?? line.expectedQty ?? line.qty ?? "1",
+                ),
+                locationId: "",
+                fromLocationId: "",
+                toLocationId: "",
+                enteredUomId: String(line.enteredUomId ?? ""),
+                enteredQty: String(line.enteredQty ?? ""),
             }));
         } catch (err) {
-            console.error("Failed to load options", err);
-            notifyError("Gagal memuat opsi form");
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load transaction for editing.",
+            );
         }
     };
 
@@ -316,6 +416,14 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                 !form.value.locationId)
         ) {
             notifyError("Please select user, warehouse, and location.");
+            return;
+        }
+
+        if (
+            isTransfer.value &&
+            (!form.value.fromWarehouseId || !form.value.toWarehouseId)
+        ) {
+            notifyError("Please select source and destination warehouses.");
             return;
         }
 
@@ -435,7 +543,6 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                             lineNo: index + 1,
                             productId: l.productId,
                             qty: Number(l.qty),
-                            sourceLocationId: l.fromLocationId || undefined,
                             targetLocationId: l.toLocationId,
                         })),
                     };
@@ -450,14 +557,30 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
                             qtyExpected: Number(l.qty),
+                            ...(l.enteredUomId
+                                ? {
+                                      enteredUomId: l.enteredUomId,
+                                      enteredQty: Number(l.enteredQty),
+                                  }
+                                : {}),
                         })),
                     };
                     break;
             }
 
-            await transactionService.create(transactionKey, finalPayload);
-            notifySuccess("Transaction created successfully");
-            router.push(`/transactions/${transactionKey}`);
+            if (isEditMode.value && transactionId) {
+                await transactionService.update(
+                    transactionKey,
+                    transactionId,
+                    finalPayload,
+                );
+                notifySuccess("Transaction updated successfully");
+                router.push(`/transactions/${transactionKey}/${transactionId}`);
+            } else {
+                await transactionService.create(transactionKey, finalPayload);
+                notifySuccess("Transaction created successfully");
+                router.push(`/transactions/${transactionKey}`);
+            }
         } catch (err: unknown) {
             const errorObj = err as {
                 response?: { data?: { message?: string | string[] } };
@@ -492,11 +615,13 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         isRegister,
         isOutbound,
         isPutaway,
+        isEditMode,
         partnerLabel,
         warehouseOptions,
         partnerOptions,
         productOptions,
         productAttributeSummaries,
+        productUomInfo,
         userOptions,
         locationOptions,
         fromLocationOptions,
@@ -509,6 +634,8 @@ export function useTransactionCreate(transactionKey: TransactionKey) {
         removeLine,
         handleBack,
         loadOptions,
+        loadExistingTransaction,
+        searchProducts,
         handleSubmit,
     };
 }

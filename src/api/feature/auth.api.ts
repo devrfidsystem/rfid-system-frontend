@@ -45,4 +45,24 @@ export const authApi = {
             data: payload,
         });
     },
+
+    forgotPassword(email: string) {
+        return apiRequest({
+            url: "/auth/forgot-password",
+            method: "post",
+            data: { email },
+        });
+    },
+
+    resetPassword(accessToken: string, password: string) {
+        return apiRequest({
+            url: "/auth/reset-password",
+            method: "post",
+            data: { accessToken, password },
+            // An invalid/expired recovery token 401s for reasons unrelated to
+            // the current (guest) session, so this flow owns its own error
+            // handling instead of the global interceptor's redirect-to-login.
+            skipAuthErrorHandling: true,
+        });
+    },
 };

@@ -1,6 +1,7 @@
 import { createSSRApp, defineComponent, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "@/locales";
 
 const useDashboardMock = vi.hoisted(() => vi.fn());
 
@@ -63,6 +64,7 @@ describe("DashboardPage", () => {
 
     it("renders each dashboard section component exactly once, with no duplicated heading wrapper", async () => {
         const app = createSSRApp(DashboardPage);
+        app.use(i18n);
         const html = await renderToString(app);
 
         // Each section component (which owns its own heading) should render
@@ -104,6 +106,7 @@ describe("DashboardPage", () => {
         });
 
         const app = createSSRApp(DashboardPage);
+        app.use(i18n);
         const html = await renderToString(app);
 
         // The stub echoes `error` as a plain HTML attribute

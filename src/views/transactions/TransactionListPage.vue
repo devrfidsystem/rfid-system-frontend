@@ -34,15 +34,21 @@
             />
 
             <div class="px-6">
-                <p v-if="partnerError" class="text-xs text-danger-600 mb-4">
-                    {{ partnerError }}
-                </p>
-                <p
+                <InlineAlert
+                    v-if="partnerError"
+                    variant="error"
+                    title="Partner filter unavailable"
+                    :description="partnerError"
+                    compact
+                    class="mb-4 text-xs"
+                />
+                <InlineAlert
                     v-if="error && !loading"
-                    class="rounded-md border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-700 mb-4"
-                >
-                    {{ error }}
-                </p>
+                    variant="error"
+                    title="Transaction list unavailable"
+                    :description="error"
+                    class="mb-4"
+                />
             </div>
 
             <TransactionTable
@@ -63,6 +69,7 @@
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import TransactionHeader from "./components/TransactionHeader.vue";
 import TransactionTable from "./components/TransactionTable.vue";
 import TransactionSummaryWidget from "./components/TransactionSummaryWidget.vue";

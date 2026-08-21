@@ -25,23 +25,25 @@
             </template>
         </DataTableToolbar>
 
-        <p
+        <InlineAlert
             v-if="loadError"
-            class="mx-4 my-4 rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ loadError }}
-        </p>
-        <p
+            variant="error"
+            title="Unable to load table data"
+            :description="loadError"
+            class="mx-4 my-4"
+        />
+        <InlineAlert
             v-else-if="unsupportedFeature"
-            class="mx-4 my-4 rounded-md border border-warning-500/20 bg-warning-50 px-4 py-3 text-sm text-warning-600"
-        >
-            {{ unsupportedFeatureMessage }}
-        </p>
+            variant="warning"
+            title="Feature unavailable"
+            :description="unsupportedFeatureMessage"
+            class="mx-4 my-4"
+        />
         <template v-else>
             <div v-if="loading || displayRows.length" class="overflow-x-auto">
                 <table class="min-w-full density-table">
                     <thead
-                        class="border-b border-border bg-surface-secondary text-left text-xs font-semibold uppercase tracking-wide text-text-secondary"
+                        class="border-b border-border bg-surface-secondary text-left text-xs font-semibold text-text-secondary"
                     >
                         <tr>
                             <th v-if="selectable" class="px-4 py-3 w-10">
@@ -55,23 +57,19 @@
                                 >
                                     Select all rows
                                 </label>
-                                <input
+                                <TableCheckbox
                                     :id="
                                         objectId
                                             ? `${objectId}SelectAll`
                                             : 'datatable-select-all'
                                     "
-                                    type="checkbox"
-                                    class="h-4 w-4 rounded border border-border text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
                                     :checked="allSelected"
-                                    v-bind="
-                                        bindObjectId(
-                                            objectId
-                                                ? `${objectId}SelectAll`
-                                                : undefined,
-                                        )
+                                    :object-id="
+                                        objectId
+                                            ? `${objectId}SelectAll`
+                                            : undefined
                                     "
-                                    @change="onToggleAll"
+                                    @change="toggleSelectAll"
                                 />
                             </th>
                             <th
@@ -143,29 +141,27 @@
                                 :key="`skeleton-${n}`"
                             >
                                 <td v-if="selectable" class="px-4 py-3 w-10">
-                                    <div
-                                        class="h-4 w-4 animate-pulse rounded bg-surface-secondary"
-                                    ></div>
+                                    <SkeletonBlock height="h-4" width="w-4" />
                                 </td>
                                 <td
                                     v-for="column in columns"
                                     :key="column.key"
                                     class="px-4 py-3"
                                 >
-                                    <div
-                                        class="h-4 animate-pulse rounded bg-surface-secondary"
-                                        :style="{
-                                            width: skeletonCellWidth(column),
-                                        }"
-                                    ></div>
+                                    <SkeletonBlock
+                                        height="h-4"
+                                        :width="skeletonCellWidth(column)"
+                                    />
                                 </td>
                                 <td
                                     v-if="$slots.rowActions"
                                     class="sticky right-0 z-10 min-w-[96px] bg-surface px-4 py-3 text-right shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.35)]"
                                 >
-                                    <div
-                                        class="ml-auto h-4 w-16 animate-pulse rounded bg-surface-secondary"
-                                    ></div>
+                                    <SkeletonBlock
+                                        height="h-4"
+                                        width="w-16"
+                                        class="ml-auto"
+                                    />
                                 </td>
                             </tr>
                         </template>
@@ -182,20 +178,19 @@
                                     >
                                         Select row {{ rowKey(row) }}
                                     </label>
-                                    <input
+                                    <TableCheckbox
                                         :id="`datatable-select-${rowKey(row)}`"
-                                        type="checkbox"
                                         :checked="table.isSelected(rowKey(row))"
-                                        class="h-4 w-4 rounded border border-border text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        v-bind="
-                                            bindObjectId(
-                                                objectId
-                                                    ? `${objectId}Select_${rowKey(row)}`
-                                                    : undefined,
-                                            )
+                                        :object-id="
+                                            objectId
+                                                ? `${objectId}Select_${rowKey(row)}`
+                                                : undefined
                                         "
                                         @change="
-                                            table.toggleSelection(rowKey(row))
+                                            () =>
+                                                table.toggleSelection(
+                                                    rowKey(row),
+                                                )
                                         "
                                     />
                                 </td>
@@ -210,19 +205,19 @@
                                               ? 'text-right'
                                               : 'text-left'
                                     "
-                                    :style="getTreeRowIndentStyle(row)"
                                 >
                                     <div
                                         v-if="
                                             column.key === treeColumnKey &&
                                             getTreeDepth(row) !== undefined
                                         "
-                                        class="flex items-start gap-2"
+                                        class="flex items-start gap-2 py-1"
+                                        :style="getTreeCellIndentStyle(row)"
                                     >
                                         <button
                                             v-if="hasTreeChildren(row)"
                                             type="button"
-                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full text-text-muted transition-colors duration-150 hover:text-text"
+                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center text-text-secondary transition-colors duration-150 hover:text-text"
                                             :aria-label="
                                                 isTreeExpanded(row)
                                                     ? 'Collapse row'
@@ -240,10 +235,15 @@
                                                 :size="12"
                                             />
                                         </button>
+                                        <span
+                                            v-else
+                                            class="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center"
+                                            aria-hidden="true"
+                                        />
                                         <div
                                             class="flex flex-col leading-tight"
                                         >
-                                            <span class="font-medium text-text">
+                                            <span class="text-text">
                                                 <slot
                                                     :name="column.key"
                                                     :row="row"
@@ -323,9 +323,12 @@
 import { computed, useSlots } from "vue";
 import Card from "@/components/molecules/Card.vue";
 import Icon from "@/components/atoms/Icon.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import DataTableToolbar from "./DataTableToolbar.vue";
 import DataTablePagination from "./DataTablePagination.vue";
 import DataTableEmpty from "./DataTableEmpty.vue";
+import TableCheckbox from "./TableCheckbox.vue";
 import ServerPagination from "@/components/ui/table/Pagination.vue";
 import { useDataTable } from "./useDataTable";
 import type { ColumnDef, SortState } from "./types";
@@ -449,11 +452,6 @@ const toggleSelectAll = (checked: boolean) => {
     table.clearSelection();
 };
 
-const onToggleAll = (event: Event) => {
-    const target = event.target as HTMLInputElement | null;
-    toggleSelectAll(Boolean(target?.checked));
-};
-
 const rowKey = (row: Record<string, unknown> | null) => {
     if (!row) return "";
     try {
@@ -484,8 +482,17 @@ const resolveCellValue = (
 
 // Optional tree-row metadata (used by hierarchical data such as Master
 // locations). Rows that don't set these fields render as plain flat rows.
-const getTreeDepth = (row: Record<string, unknown>) =>
-    row.treeDepth as number | undefined;
+const getTreeDepth = (row: Record<string, unknown>) => {
+    if (row.treeDepth === undefined || row.treeDepth === null) {
+        return undefined;
+    }
+
+    const depth =
+        typeof row.treeDepth === "number"
+            ? row.treeDepth
+            : Number(row.treeDepth);
+    return Number.isFinite(depth) ? depth : undefined;
+};
 const hasTreeChildren = (row: Record<string, unknown>) =>
     Boolean(row.treeHasChildren);
 const isTreeExpanded = (row: Record<string, unknown>) =>
@@ -493,11 +500,10 @@ const isTreeExpanded = (row: Record<string, unknown>) =>
 const getTreeSubtitle = (row: Record<string, unknown>) =>
     row.treeSubtitle as string | undefined;
 
-const getTreeRowIndentStyle = (row: Record<string, unknown>) => {
+const getTreeCellIndentStyle = (row: Record<string, unknown>) => {
     const depth = getTreeDepth(row);
     if (!depth || depth <= 0) return undefined;
-    const indent = 0.9 * depth;
-    return { paddingInlineStart: `calc(1rem + ${indent}rem)` };
+    return { marginInlineStart: `${1.75 * depth}rem` };
 };
 
 const visibleRows = computed(() => table.visibleRows.value);

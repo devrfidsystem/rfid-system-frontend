@@ -1,51 +1,39 @@
 <template>
     <section class="space-y-6">
         <PageHeader
-            :title="isInbound ? transactionTitle : `New ${transactionTitle}`"
+            :title="
+                isEditMode
+                    ? `Edit ${transactionTitle}`
+                    : `New ${transactionTitle}`
+            "
             :description="
-                isRegister
-                    ? 'Create a new register task'
-                    : isPutaway
-                      ? 'Create a new putaway task'
-                      : isOutbound
-                        ? 'Create a new outbound assignment with an assigned user and deadline'
-                        : transactionKey === 'inbound'
-                          ? 'Inbound documents are read-only in web admin'
-                          : `Create a new ${transactionKey} transaction`
+                isEditMode
+                    ? `Update draft ${transactionKey} details`
+                    : isRegister
+                      ? 'Create a new register task'
+                      : isPutaway
+                        ? 'Create a new putaway task'
+                        : isOutbound
+                          ? 'Create a new outbound assignment with an assigned user and deadline'
+                          : transactionKey === 'inbound'
+                            ? 'Create a new inbound receipt document'
+                            : `Create a new ${transactionKey} transaction`
             "
             tagline="Transactions"
             back-link
             @back="handleBack"
         />
 
-        <div v-if="isInbound" class="grid grid-cols-1 gap-6">
-            <Card
-                class="md:col-span-3"
-                object-id="wdg_TransactionCreateInboundBlocked"
-            >
-                <h3 class="text-base font-semibold text-text mb-3">
-                    Inbound is read-only
-                </h3>
-                <p class="text-sm text-text-secondary leading-6">
-                    Inbound documents are only displayed from data that has
-                    already been registered. Web admin only reviews inbound data
-                    and does not create it directly.
-                </p>
-            </Card>
-        </div>
-
-        <form v-else @submit.prevent="handleSubmit">
+        <form @submit.prevent="handleSubmit">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Header Form -->
                 <Card
                     class="md:col-span-1"
                     object-id="wdg_TransactionCreateDetails"
                 >
-                    <h3
-                        class="text-base font-semibold text-text mb-4 border-b border-border pb-3"
-                    >
-                        Document Details
-                    </h3>
+                    <div class="mb-4 border-b border-border pb-3">
+                        <ToolbarTitle title="Document Details" />
+                    </div>
                     <div class="space-y-4">
                         <Input
                             id="docNumber"
@@ -239,6 +227,7 @@
                     :lines="form.lines"
                     :product-options="productOptions"
                     :product-attribute-summaries="productAttributeSummaries"
+                    :product-uom-info="productUomInfo"
                     :location-options="locationOptions"
                     :from-location-options="fromLocationOptions"
                     :to-location-options="toLocationOptions"
@@ -246,9 +235,11 @@
                     :is-relocation="isRelocation"
                     :show-dual-warehouse="showDualWarehouse"
                     :show-putaway-locations="showPutawayLocations"
+                    :is-register="isRegister"
                     :submitting="submitting"
                     @add-line="addLine"
                     @remove-line="removeLine"
+                    @search-products="searchProducts"
                     @back="handleBack"
                 />
 
@@ -260,15 +251,10 @@
                     object-id="wdg_TransactionCreateOpname"
                 >
                     <div class="px-6 py-5 border-b border-border">
-                        <h3 class="text-base font-semibold text-text">
-                            Opname Creation
-                        </h3>
-                        <p class="text-sm text-text-secondary mt-2">
-                            Creating a Stock Opname does not require line items
-                            initially. Once created, you can start the counting
-                            process and the system will automatically snapshot
-                            the warehouse balances.
-                        </p>
+                        <ToolbarTitle
+                            title="Opname Creation"
+                            description="Creating a Stock Opname does not require line items initially. Once created, you can start the counting process and the system will automatically snapshot the warehouse balances."
+                        />
                     </div>
                     <div
                         class="px-6 py-3 border-t border-border flex justify-end gap-3"
@@ -303,6 +289,7 @@
 import { onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
@@ -312,6 +299,7 @@ import { useTransactionCreate } from "./composables/useTransactionCreate";
 
 const props = defineProps<{
     transactionKey: TransactionKey;
+    id?: string;
 }>();
 
 const {
@@ -327,11 +315,13 @@ const {
     isRegister,
     isOutbound,
     isPutaway,
+    isEditMode,
     partnerLabel,
     warehouseOptions,
     partnerOptions,
     productOptions,
     productAttributeSummaries,
+    productUomInfo,
     userOptions,
     locationOptions,
     fromLocationOptions,
@@ -343,19 +333,13 @@ const {
     removeLine,
     handleBack,
     loadOptions,
+    loadExistingTransaction,
+    searchProducts,
     handleSubmit,
-} = useTransactionCreate(props.transactionKey);
+} = useTransactionCreate(props.transactionKey, props.id);
 
-const isInbound = props.transactionKey === "inbound";
-
-onMounted(() => {
-    if (isInbound) {
-        handleBack();
-        return;
-    }
-
-    if (!isInbound) {
-        loadOptions();
-    }
+onMounted(async () => {
+    await loadOptions();
+    await loadExistingTransaction();
 });
 </script>

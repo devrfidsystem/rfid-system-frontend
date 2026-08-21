@@ -10,8 +10,10 @@ const toOption = (record: WarehouseRecord): WarehouseOption => ({
 });
 
 export const warehouseService = {
-    async fetchOptions(): Promise<WarehouseOption[]> {
-        const response = await warehouseApi.fetchOptions();
+    async fetchOptions(companyId?: string): Promise<WarehouseOption[]> {
+        const response = await warehouseApi.fetchOptions(
+            companyId ? { companyId } : {},
+        );
         const records = normalizePaginationItems(response);
         return records.map(toOption);
     },

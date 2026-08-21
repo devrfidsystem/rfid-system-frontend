@@ -23,30 +23,15 @@
                 </Button>
             </div>
 
-            <div class="space-y-2">
-                <label
-                    for="file_MasterHeaderImport"
-                    class="text-sm font-medium text-text-secondary"
-                >
-                    Excel File
-                </label>
-                <input
-                    id="file_MasterHeaderImport"
-                    type="file"
-                    accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-                    class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text transition-colors duration-150 file:mr-3 file:rounded-md file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 focus:outline-none"
-                    object-id="file_MasterHeaderImport"
-                    @change="handleImportFile"
-                />
-                <p
-                    v-if="selectedImportFile"
-                    class="text-xs text-text-secondary"
-                >
-                    Selected: {{ selectedImportFile.name }}
-                </p>
-            </div>
+            <FileInput
+                label="Excel File"
+                object-id="file_MasterHeaderImport"
+                accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                :selected-file="selectedImportFile"
+                @change="handleImportFile"
+            />
 
-            <div class="flex justify-end gap-3 border-t border-border pt-4">
+            <div class="flex justify-between gap-3 border-t border-border pt-4">
                 <Button
                     variant="outline"
                     size="sm"
@@ -79,6 +64,7 @@ import { ref, watch } from "vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Modal from "@/components/organisms/Modal.vue";
+import FileInput from "@/components/ui/form/FileInput.vue";
 import { Download, Upload, X } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -101,9 +87,8 @@ const closeDialog = () => {
     emit("close");
 };
 
-const handleImportFile = (event: Event) => {
-    const input = event.target as HTMLInputElement | null;
-    selectedImportFile.value = input?.files?.[0] ?? null;
+const handleImportFile = (file: File | null) => {
+    selectedImportFile.value = file;
 };
 
 const submitImportFile = () => {

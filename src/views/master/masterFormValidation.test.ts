@@ -3,7 +3,7 @@ import {
     validateMasterField,
     validateMasterForm,
 } from "./masterFormValidation";
-import type { MasterFormField } from "./entityConfig";
+import type { MasterFormField } from "@/domain/master/entityConfig";
 
 describe("validateMasterField", () => {
     it("flags a required text field left empty", () => {

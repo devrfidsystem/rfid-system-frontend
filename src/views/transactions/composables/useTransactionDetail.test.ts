@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-// @ts-expect-error Vite raw imports are resolved at test runtime.
 import pageSource from "../TransactionDetailPage.vue?raw";
 
 const mocks = vi.hoisted(() => ({
@@ -34,7 +33,7 @@ vi.mock("@/services/transactions.service", () => ({
     },
 }));
 
-vi.mock("@/views/report/reportConfig", () => ({
+vi.mock("@/domain/report/reportConfig", () => ({
     reportConfigs: {
         relocation: {
             entity: "relocation",
@@ -77,6 +76,17 @@ vi.mock("@/views/report/reportConfig", () => ({
             columns: [
                 { key: "docNumber", label: "Doc No" },
                 { key: "docDate", label: "Date" },
+                { key: "status", label: "Status" },
+            ],
+            warehouseKey: "warehouseId",
+        },
+        inbound: {
+            entity: "inbound",
+            title: "Inbound Report",
+            description: "Recent receipts coming into each hub.",
+            columns: [
+                { key: "inbound_no", label: "Doc No" },
+                { key: "inbound_date", label: "Date" },
                 { key: "status", label: "Status" },
             ],
             warehouseKey: "warehouseId",
@@ -223,6 +233,32 @@ describe("useTransactionDetail", () => {
 
         expect(mocks.postSpy).toHaveBeenCalledWith("register", "reg-1");
         expect(detail.confirmation.value).toBeNull();
+    });
+
+    it("allows draft inbound documents to be posted and canceled", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "inb-1",
+            docNo: "INB-001",
+            status: "draft",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("inbound", "inb-1");
+
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(true);
+        expect(detail.canCancel.value).toBe(true);
+
+        detail.handlePost();
+        expect(detail.confirmation.value).toMatchObject({
+            action: "post",
+            title: "Post Document",
+        });
+
+        await detail.handleConfirmAction();
+
+        expect(mocks.postSpy).toHaveBeenCalledWith("inbound", "inb-1");
     });
 
     it("shows Post+Cancel for a draft putaway task, and Complete+Cancel once posted", async () => {

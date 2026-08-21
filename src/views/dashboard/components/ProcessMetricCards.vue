@@ -1,12 +1,8 @@
 <template>
     <div class="grid gap-4 sm:grid-cols-2" object-id="wdg_ProcessMetricCards">
         <div v-if="loading" class="contents">
-            <div
-                class="h-28 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
-            <div
-                class="h-28 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
+            <SkeletonBlock height="h-28" />
+            <SkeletonBlock height="h-28" />
         </div>
 
         <template v-else-if="!data">
@@ -16,18 +12,14 @@
         </template>
 
         <template v-else>
-            <Card>
-                <p class="text-xs font-semibold uppercase text-text-muted">
-                    Cycle Time
-                </p>
-                <p class="text-3xl font-extrabold text-text mt-1">
-                    {{ data.cycleTime.minutes
-                    }}<span class="text-base font-semibold text-text-muted">
-                        min</span
-                    >
-                </p>
+            <MetricSummaryCard
+                label="Cycle Time"
+                :value="`${data.cycleTime.minutes} min`"
+                :icon="Clock"
+                tone="info"
+            >
                 <p
-                    class="text-sm font-semibold mt-1"
+                    class="text-sm font-semibold"
                     :class="
                         data.cycleTime.trendPct <= 0
                             ? 'text-success-600'
@@ -41,19 +33,15 @@
                 <p class="text-xs text-text-secondary mt-2">
                     Previous: {{ data.cycleTime.previousMinutes }} min
                 </p>
-            </Card>
-            <Card>
-                <p class="text-xs font-semibold uppercase text-text-muted">
-                    Productivity
-                </p>
-                <p class="text-3xl font-extrabold text-text mt-1">
-                    {{ data.productivity.unitsPerHour
-                    }}<span class="text-base font-semibold text-text-muted">
-                        u/hr</span
-                    >
-                </p>
+            </MetricSummaryCard>
+            <MetricSummaryCard
+                label="Productivity"
+                :value="`${data.productivity.unitsPerHour} u/hr`"
+                :icon="Gauge"
+                tone="primary"
+            >
                 <p
-                    class="text-sm font-semibold mt-1"
+                    class="text-sm font-semibold"
                     :class="
                         data.productivity.trendPct >= 0
                             ? 'text-success-600'
@@ -67,14 +55,16 @@
                 <p class="text-xs text-text-secondary mt-2">
                     Previous: {{ data.productivity.previousUnitsPerHour }} u/hr
                 </p>
-            </Card>
+            </MetricSummaryCard>
         </template>
     </div>
 </template>
 
 <script setup lang="ts">
-import Card from "@/components/molecules/Card.vue";
+import MetricSummaryCard from "@/components/molecules/MetricSummaryCard.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import type { ProcessDetailResponse } from "@/api/feature/dto/dashboard.dto";
+import { Clock, Gauge } from "lucide-vue-next";
 
 defineProps<{
     loading: boolean;

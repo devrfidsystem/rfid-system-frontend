@@ -18,7 +18,7 @@ export const iamApi = {
         });
     },
 
-    createRole(payload: { name: string; description?: string }) {
+    createRole(payload: { companyId: string; code: string; name: string }) {
         return apiRequest<IamRecord>({
             url: "/iam/roles",
             method: "post",
@@ -26,7 +26,7 @@ export const iamApi = {
         });
     },
 
-    updateRole(id: string, payload: { name?: string; description?: string }) {
+    updateRole(id: string, payload: { name?: string }) {
         return apiRequest<IamRecord>({
             url: `/iam/roles/${id}`,
             method: "patch",
@@ -34,11 +34,19 @@ export const iamApi = {
         });
     },
 
-    assignMenuToRole(roleId: string, menuId: string) {
+    assignMenuToRole(
+        roleId: string,
+        menuId: string,
+        permissions?: {
+            canCreate?: boolean;
+            canUpdate?: boolean;
+            canDelete?: boolean;
+        },
+    ) {
         return apiRequest<IamRecord>({
             url: `/iam/roles/${roleId}/menus`,
             method: "post",
-            data: { menuId },
+            data: { menuId, ...permissions },
         });
     },
 
@@ -46,6 +54,13 @@ export const iamApi = {
         return apiRequest<IamRecord>({
             url: `/iam/roles/${roleId}/menus/${menuId}`,
             method: "delete",
+        });
+    },
+
+    getRoleMenus(roleId: string) {
+        return apiRequest<IamRecord[]>({
+            url: `/iam/roles/${roleId}/menus`,
+            method: "get",
         });
     },
 

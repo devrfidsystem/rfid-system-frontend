@@ -6,6 +6,20 @@
             tagline="RFID"
         />
 
+        <ConfirmDialog
+            v-model="deleteConfirmationOpen"
+            title="Delete Registered EPC"
+            description="This EPC registration will be removed from the active tag list."
+            confirm-text="Delete"
+            cancel-text="Cancel"
+            variant="danger"
+            :loading="deleting"
+            persistent
+            object-id="dlg_TagRegistrationDeleteConfirm"
+            @confirm="confirmDelete"
+            @cancel="clearDeleteConfirm"
+        />
+
         <Card object-id="wdg_TagRegistrationCreate">
             <form
                 class="grid grid-cols-1 gap-4 md:grid-cols-4"
@@ -50,83 +64,64 @@
 
         <Card no-padding object-id="wdg_TagRegistrationList">
             <div class="border-b border-border px-6 py-4">
-                <h3 class="text-base font-semibold text-text">
-                    Registered EPC List
-                </h3>
+                <ToolbarTitle title="Registered EPC List" />
             </div>
-            <div v-if="loading" class="p-6 text-sm text-text-secondary">
-                Loading EPC tags...
-            </div>
-            <div v-else-if="error" class="p-6 text-sm text-danger-600">
-                {{ error }}
-            </div>
-            <div v-else class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-border text-sm">
-                    <thead
-                        class="bg-surface-secondary text-left text-xs font-semibold uppercase text-text-secondary"
+            <DataTable
+                object-id="TagRegistrationList"
+                bare
+                :rows="tableRows"
+                :columns="rfidTagColumns"
+                :row-key="(row) => String(row.id ?? '')"
+                :loading="loading"
+                :load-error="error ?? undefined"
+                :show-search="false"
+            >
+                <template #status="{ row }">
+                    <Badge :tone="getRfidStatusTone(String(row.status))">
+                        {{ formatRfidStatus(String(row.status)) }}
+                    </Badge>
+                </template>
+                <template #rowActions="{ row }">
+                    <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        :disabled="deleting"
+                        :object-id="`btn_TagRegistrationDelete_${row.id}`"
+                        @click="openDeleteConfirm(String(row.id))"
                     >
-                        <tr>
-                            <th class="px-6 py-3">EPC</th>
-                            <th class="px-6 py-3">Product</th>
-                            <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3">Registered By</th>
-                            <th class="px-6 py-3 text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-border">
-                        <tr v-for="tag in items" :key="tag.id">
-                            <td class="px-6 py-4 font-medium text-text">
-                                {{ tag.epcCode }}
-                            </td>
-                            <td class="px-6 py-4 text-text">
-                                {{ formatProduct(tag) }}
-                            </td>
-                            <td class="px-6 py-4 text-text">
-                                {{ tag.status }}
-                            </td>
-                            <td class="px-6 py-4 text-text">
-                                {{ tag.userName || "-" }}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    class="border-danger-500/30 text-danger-600 hover:bg-danger-50"
-                                    :disabled="deleting"
-                                    :object-id="`btn_TagRegistrationDelete_${tag.id}`"
-                                    @click="handleDelete(tag.id)"
-                                >
-                                    Delete
-                                </Button>
-                            </td>
-                        </tr>
-                        <tr v-if="items.length === 0">
-                            <td
-                                colspan="5"
-                                class="px-6 py-8 text-center text-text-secondary"
-                            >
-                                No registered EPC tags found.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                        <Icon :icon="Trash2" :size="12" />
+                        Delete
+                    </Button>
+                </template>
+            </DataTable>
         </Card>
     </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import Badge from "@/components/atoms/Badge.vue";
 import Button from "@/components/atoms/Button.vue";
+import Icon from "@/components/atoms/Icon.vue";
 import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
+import ConfirmDialog from "@/components/organisms/ConfirmDialog.vue";
+import DataTable from "@/components/organisms/DataTable/DataTable.vue";
 import { useNotifier } from "@/composable/useNotifier";
 import { useRfidTags } from "@/composable/useRfidTags";
 import { masterService } from "@/services/master.service";
 import { useAuthStore } from "@/store/auth.store";
-import type { RfidTag } from "@/api/feature/dto/rfid.dto";
+import { Trash2 } from "lucide-vue-next";
+import {
+    formatRfidStatus,
+    getRfidStatusTone,
+    rfidTagColumns,
+    toRfidTagRows,
+} from "./rfidTagTable";
 
 const authStore = useAuthStore();
 const { notifyError, notifySuccess } = useNotifier();
@@ -146,6 +141,9 @@ const form = reactive({
     productId: "",
 });
 const productOptions = ref<Array<{ label: string; value: string }>>([]);
+const deleteConfirmationOpen = ref(false);
+const pendingDeleteId = ref<string | null>(null);
+const tableRows = computed(() => toRfidTagRows(items.value));
 
 const loadProducts = async () => {
     const response = await masterService.fetchList("products", { limit: 200 });
@@ -177,24 +175,27 @@ const handleRegister = async () => {
     }
 };
 
-const handleDelete = async (id: string) => {
-    const confirmed = window.confirm("Delete this registered EPC?");
-    if (!confirmed) return;
+const openDeleteConfirm = (id: string) => {
+    pendingDeleteId.value = id;
+    deleteConfirmationOpen.value = true;
+};
+
+const clearDeleteConfirm = () => {
+    pendingDeleteId.value = null;
+    deleteConfirmationOpen.value = false;
+};
+
+const confirmDelete = async () => {
+    if (!pendingDeleteId.value) return;
     try {
-        await deleteTag(id);
+        await deleteTag(pendingDeleteId.value);
         notifySuccess("EPC deleted successfully.");
+        clearDeleteConfirm();
     } catch (err) {
         notifyError(
             err instanceof Error ? err.message : "Failed to delete EPC.",
         );
     }
-};
-
-const formatProduct = (tag: RfidTag) => {
-    if (tag.productCode && tag.productName) {
-        return `${tag.productCode} - ${tag.productName}`;
-    }
-    return tag.productName || tag.productId || "-";
 };
 
 onMounted(() => {

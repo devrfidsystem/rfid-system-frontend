@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createSSRApp } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { i18n } from "@/locales";
 import DashboardKpiSnapshot from "./DashboardKpiSnapshot.vue";
 
 // RouterLink requires an injected router, so tests install a minimal
@@ -19,6 +20,7 @@ const renderWithRouter = async (props: Record<string, unknown>) => {
     const app = createSSRApp(DashboardKpiSnapshot, props);
     const router = createTestRouter();
     app.use(router);
+    app.use(i18n);
     // Memory history never auto-navigates, so isReady() would hang forever
     // without an explicit initial push.
     await router.push("/");
@@ -54,11 +56,11 @@ describe("DashboardKpiSnapshot", () => {
                 ],
             },
         });
-        expect(html).toContain("KPI Control Snapshot");
+        expect(html).toContain("Cuplikan Kontrol KPI");
         expect(html).toContain("Stock In Performance");
         expect(html).toContain("83");
         expect(html).toContain("Productivity Improvement");
-        expect(html).toContain("Open KPI Detail");
+        expect(html).toContain("Buka Detail KPI");
         expect(html).toContain('href="/dashboard/kpi?domain=stockIn"');
     });
 });

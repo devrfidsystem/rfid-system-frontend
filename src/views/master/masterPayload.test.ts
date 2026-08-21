@@ -56,6 +56,20 @@ describe("buildMasterCreatePayload", () => {
         });
     });
 
+    it("keeps the submitted product code in create payloads", () => {
+        const payload = buildMasterCreatePayload("products", {
+            code: "SKU-001",
+            name: "RFID Scanner",
+            uomId: "uom-1",
+        });
+
+        expect(payload).toEqual({
+            code: "SKU-001",
+            name: "RFID Scanner",
+            uomId: "uom-1",
+        });
+    });
+
     it("ignores file fields and generates location codes", () => {
         const payload = buildMasterCreatePayload("locations", {
             warehouseId: "wh-1",

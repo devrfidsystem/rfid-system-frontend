@@ -42,7 +42,7 @@ import type { ColumnDef } from "@/components/organisms/DataTable/types";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
 import Badge from "@/components/atoms/Badge.vue";
-import type { ReportColumnDef } from "@/views/report/reportConfig";
+import type { ReportColumnDef } from "@/domain/report/reportConfig";
 import { Eye } from "lucide-vue-next";
 import {
     formatTransactionStatus,

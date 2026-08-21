@@ -1,35 +1,31 @@
 <template>
     <Card object-id="wdg_DashboardKpiSnapshot">
-        <div>
-            <h2 class="text-lg font-semibold text-text">
-                KPI Control Snapshot
-            </h2>
-            <p class="text-sm text-text-secondary mt-0.5">
-                Score movement for throughput, cycle time, and accuracy
-            </p>
-        </div>
+        <PanelHeader
+            :title="t('dashboard.overview.kpiSnapshot.panelTitle')"
+            :description="t('dashboard.overview.kpiSnapshot.panelDescription')"
+        />
 
         <div class="mt-6">
             <div v-if="loading" class="grid gap-4 sm:grid-cols-3">
-                <div
+                <SkeletonBlock
                     v-for="n in 3"
                     :key="`kpi-skel-${n}`"
-                    class="h-40 rounded-md bg-surface-secondary animate-pulse"
-                ></div>
+                    height="h-40"
+                />
             </div>
 
-            <div
+            <InlineAlert
                 v-else-if="error"
-                class="rounded-md border border-danger-500/20 bg-danger-50 p-8 text-center text-sm text-danger-600"
-            >
-                KPI snapshot unavailable: {{ error }}
-            </div>
+                variant="error"
+                :title="t('dashboard.overview.kpiSnapshot.unavailable.title')"
+                :description="error"
+            />
 
             <div
                 v-else-if="!data || data.cards.length === 0"
                 class="rounded-md border border-border bg-surface-secondary/50 p-8 text-center text-sm text-text-secondary"
             >
-                No KPI scorecard data for the selected warehouse.
+                {{ t("dashboard.overview.kpiSnapshot.empty") }}
             </div>
 
             <div v-else class="grid gap-4 sm:grid-cols-3">
@@ -55,7 +51,7 @@
                             }}{{ card.trendVsPrevious }}pt
                         </span>
                     </div>
-                    <p class="text-3xl font-extrabold text-text mt-2">
+                    <p class="text-2xl font-semibold text-text mt-2">
                         {{ card.score
                         }}<span class="text-xs font-semibold text-text-muted">
                             / 100</span
@@ -94,7 +90,7 @@
                         }"
                         class="mt-4 inline-block text-xs font-semibold text-primary-600 hover:text-primary-700 hover:underline"
                     >
-                        Open KPI Detail
+                        {{ t("dashboard.overview.kpiSnapshot.openDetail") }}
                     </RouterLink>
                 </div>
             </div>
@@ -104,7 +100,11 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
 import type { DashboardKpiSnapshotResponse } from "@/model/dashboard";
 
 defineProps<{
@@ -112,6 +112,8 @@ defineProps<{
     data: DashboardKpiSnapshotResponse | null;
     error?: string | null;
 }>();
+
+const { t } = useI18n();
 
 function sparklinePoints(values: number[]): string {
     if (!values || values.length === 0) return "";

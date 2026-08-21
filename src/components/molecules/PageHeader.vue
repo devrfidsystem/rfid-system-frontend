@@ -7,7 +7,7 @@
                 <div class="min-w-0">
                     <p
                         v-if="tagline"
-                        class="mb-1 text-xs font-medium uppercase tracking-wide text-text-secondary"
+                        class="mb-1 text-xs font-medium text-text-secondary"
                     >
                         {{ tagline }}
                     </p>

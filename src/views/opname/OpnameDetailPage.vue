@@ -84,26 +84,24 @@
             <LoadingState :lines="5" />
         </div>
 
-        <div
+        <InlineAlert
             v-else-if="error"
-            class="rounded-md border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-600"
-        >
-            {{ error }}
-        </div>
+            variant="error"
+            title="Opname detail unavailable"
+            :description="error"
+        />
 
         <template v-else-if="selectedNode">
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card class="md:col-span-1" object-id="wdg_OpnameDetailInfo">
-                    <h3
-                        class="mb-4 border-b border-border pb-3 text-base font-semibold text-text"
-                    >
-                        Node Details
-                    </h3>
+                    <div class="mb-4 border-b border-border pb-3">
+                        <ToolbarTitle title="Node Details" />
+                    </div>
 
                     <div class="space-y-4 text-sm">
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Title
                             </span>
@@ -113,7 +111,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Document Number
                             </span>
@@ -123,7 +121,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Node Type
                             </span>
@@ -133,7 +131,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Status
                             </span>
@@ -143,7 +141,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Warehouse
                             </span>
@@ -153,7 +151,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Parent
                             </span>
@@ -163,7 +161,7 @@
                         </div>
                         <div>
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Location
                             </span>
@@ -173,7 +171,7 @@
                         </div>
                         <div v-if="selectedNode.description">
                             <span
-                                class="block text-xs font-medium uppercase tracking-wider text-text-secondary"
+                                class="block text-xs font-medium text-text-secondary"
                             >
                                 Description
                             </span>
@@ -190,13 +188,10 @@
                     object-id="wdg_OpnameDetailChildren"
                 >
                     <div class="px-6 py-5 border-b border-border">
-                        <h3 class="text-base font-semibold text-text">
-                            Line Items
-                        </h3>
-                        <p class="mt-2 text-sm text-text-secondary">
-                            Review line items and open the action drawer for
-                            each item.
-                        </p>
+                        <ToolbarTitle
+                            title="Line Items"
+                            description="Review line items and open the action drawer for each item."
+                        />
                     </div>
 
                     <div
@@ -207,32 +202,32 @@
                             <thead class="bg-surface-secondary">
                                 <tr>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Item
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Location
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         System Qty
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Counted Qty
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Diff
                                     </th>
                                     <th
-                                        class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                                        class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
                                         Action
                                     </th>
@@ -494,19 +489,13 @@
                             />
                         </template>
 
-                        <div>
-                            <label
-                                class="mb-1 block text-sm font-medium text-text"
-                            >
-                                Note
-                            </label>
-                            <textarea
-                                v-model="activeActionForm.note"
-                                rows="3"
-                                class="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                                placeholder="Add a short note"
-                            />
-                        </div>
+                        <Textarea
+                            v-model="activeActionForm.note"
+                            label="Note"
+                            placeholder="Add a short note"
+                            :rows="3"
+                            object-id="txa_OpnameItemActionNote"
+                        />
                     </div>
 
                     <div
@@ -564,8 +553,11 @@
 import { computed, onMounted } from "vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
 import Card from "@/components/molecules/Card.vue";
+import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
+import Textarea from "@/components/atoms/Textarea.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
 import Drawer from "@/components/organisms/Drawer.vue";

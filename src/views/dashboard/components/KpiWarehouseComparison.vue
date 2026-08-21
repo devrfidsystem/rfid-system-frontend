@@ -1,24 +1,20 @@
 <template>
     <Card object-id="wdg_KpiWarehouseComparison">
-        <h3 class="text-sm font-semibold text-text mb-3">
-            Warehouse Benchmark
-        </h3>
+        <PanelHeader title="Warehouse Benchmark" class="mb-3" />
         <div v-if="loading" class="grid gap-4 sm:grid-cols-2">
-            <div
-                class="h-24 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
-            <div
-                class="h-24 rounded-md bg-surface-secondary animate-pulse"
-            ></div>
+            <SkeletonBlock height="h-24" />
+            <SkeletonBlock height="h-24" />
         </div>
-        <div
+        <StatusPanel
             v-else-if="
                 !data || (data.top.length === 0 && data.bottom.length === 0)
             "
-            class="text-sm text-text-secondary text-center py-6"
-        >
-            No warehouse benchmark data in this window.
-        </div>
+            title="No warehouse benchmark data"
+            description="No warehouse benchmark data in this window."
+            :icon="Warehouse"
+            tone="neutral"
+            class="border-0 bg-transparent py-6"
+        />
         <div v-else class="grid gap-6 sm:grid-cols-2">
             <div>
                 <p class="text-xs font-semibold text-text-secondary mb-2">
@@ -31,10 +27,7 @@
                         class="flex items-center justify-between text-sm"
                     >
                         <span class="flex items-center gap-2">
-                            <span
-                                class="flex h-5 w-5 items-center justify-center rounded-full bg-success-50 text-success-600 text-xs font-bold"
-                                >{{ index + 1 }}</span
-                            >
+                            <RankBadge :label="index + 1" tone="success" />
                             {{ warehouse.warehouseName }}
                         </span>
                         <span class="font-semibold">{{ warehouse.score }}</span>
@@ -52,10 +45,7 @@
                         class="flex items-center justify-between text-sm"
                     >
                         <span class="flex items-center gap-2">
-                            <span
-                                class="flex h-5 w-5 items-center justify-center rounded-full bg-danger-50 text-danger-600 text-xs font-bold"
-                                >!</span
-                            >
+                            <RankBadge label="!" tone="error" />
                             {{ warehouse.warehouseName }}
                         </span>
                         <span class="font-semibold">{{ warehouse.score }}</span>
@@ -68,6 +58,11 @@
 
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
+import PanelHeader from "@/components/molecules/PanelHeader.vue";
+import StatusPanel from "@/components/molecules/StatusPanel.vue";
+import RankBadge from "@/components/molecules/RankBadge.vue";
+import SkeletonBlock from "@/components/ui/feedback/SkeletonBlock.vue";
+import { Warehouse } from "lucide-vue-next";
 import type { DashboardKpiDetailResponse } from "@/model/dashboard";
 
 defineProps<{

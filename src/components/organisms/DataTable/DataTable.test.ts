@@ -46,4 +46,54 @@ describe("DataTable", () => {
         expect(html).toContain("Actions");
         expect(html).toContain("Edit product");
     });
+
+    it("renders tree rows with chevron toggles and clear nested spacing", async () => {
+        const columns: ColumnDef<Record<string, unknown>>[] = [
+            { key: "warehouse", header: "Warehouse" },
+            { key: "path", header: "Path" },
+        ];
+        const app = createSSRApp({
+            render: () =>
+                h(DataTable, {
+                    rows: [
+                        {
+                            id: "zone-a",
+                            warehouse: "Main",
+                            path: "Zone A",
+                            treeDepth: 0,
+                            treeHasChildren: true,
+                            treeExpanded: true,
+                        },
+                        {
+                            id: "zone-b",
+                            warehouse: "Main",
+                            path: "Zone B",
+                            treeDepth: 0,
+                            treeHasChildren: true,
+                            treeExpanded: false,
+                        },
+                        {
+                            id: "rack-1",
+                            warehouse: "Main",
+                            path: "Zone A > Rack 1",
+                            treeDepth: 1,
+                            treeHasChildren: false,
+                        },
+                    ],
+                    columns,
+                    rowKey: (item: Record<string, unknown>) => String(item.id),
+                    showSearch: false,
+                    treeColumnKey: "path",
+                }),
+        });
+
+        const html = await renderToString(app);
+
+        expect(html).toContain("lucide-chevron-down");
+        expect(html).toContain("lucide-chevron-right");
+        expect(html).toContain("margin-inline-start:1.75rem");
+        expect(html).not.toContain("border-l-2");
+        expect(html).not.toContain("bg-surface-secondary/50");
+        expect(html).not.toContain("padding-inline-start");
+    });
 });

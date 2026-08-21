@@ -17,7 +17,8 @@ import {
 export function useOpnameTree() {
     const router = useRouter();
     const authStore = useAuthStore();
-    const warehouseState = useWarehouseOptions();
+    const companyId = computed(() => authStore.currentCompanyId ?? "");
+    const warehouseState = useWarehouseOptions(companyId);
 
     const loading = ref(false);
     const error = ref<string | null>(null);
@@ -34,8 +35,6 @@ export function useOpnameTree() {
     const summary = ref<OpnameSummaryResponse | null>(null);
     const summaryLoading = ref(false);
     const summaryError = ref<string | null>(null);
-
-    const companyId = computed(() => authStore.currentCompanyId ?? "");
 
     const warehouseOptions = computed(() =>
         warehouseState.options.value.map((warehouse) => ({

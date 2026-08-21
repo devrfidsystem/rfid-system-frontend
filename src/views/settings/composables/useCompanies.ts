@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed } from "vue";
 import { settingsService } from "@/services/settings.service";
 import { useNotifier } from "@/composable/useNotifier";
@@ -9,6 +8,14 @@ export interface CompanyRecord {
     name: string;
     description?: string;
     isActive: boolean;
+}
+
+export interface CompanyTableRow extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    status: string;
+    original: CompanyRecord;
 }
 
 export function useCompanies() {
@@ -37,14 +44,14 @@ export function useCompanies() {
         { key: "actions", label: "" },
     ];
 
-    const tableRows = computed(() => {
+    const tableRows = computed<CompanyTableRow[]>(() => {
         return rows.value.map((r) => ({
             id: r.id,
             code: r.code,
             name: r.name,
             status: r.isActive ? "Active" : "Inactive",
             original: r,
-        })) as Record<string, any>[];
+        }));
     });
 
     const loadData = async () => {

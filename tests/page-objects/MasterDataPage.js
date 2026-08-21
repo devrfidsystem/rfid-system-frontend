@@ -58,12 +58,41 @@ export class MasterDataPage {
         }
     }
 
+    async selectFirstOption(fieldKey) {
+        const selector = MasterSelectors.INPUT_SELECT(fieldKey);
+        const trigger = await this.driver.wait(
+            until.elementLocated(By.css(selector)),
+            5000,
+        );
+        await trigger.click();
+
+        const optionButton = await this.driver.wait(
+            until.elementLocated(
+                By.xpath(
+                    `//*[contains(@object-id, 'cmb_MasterForm_Field${fieldKey}')]/ancestor::div[contains(@class,'relative')][1]//li[1]//button`,
+                ),
+            ),
+            5000,
+        );
+        await optionButton.click();
+        await this.driver.sleep(300);
+    }
+
     async submitForm() {
         const saveBtn = await this.driver.findElement(
             By.css(MasterSelectors.SAVE_BTN),
         );
         await saveBtn.click();
         await this.driver.sleep(1000);
+    }
+
+    async waitForTableText(text) {
+        await this.driver.wait(
+            until.elementLocated(
+                By.xpath(`//*[contains(normalize-space(.), '${text}')]`),
+            ),
+            10000,
+        );
     }
 
     async search(text) {
@@ -85,6 +114,7 @@ export class MasterDataPage {
 
     async searchProduct(text) {
         await this.search(text);
+        await this.waitForTableText(text);
     }
 
     async editFirstProduct() {
@@ -96,36 +126,27 @@ export class MasterDataPage {
     }
 
     async editFirstItem() {
-        const editBtns = await this.driver.findElements(
-            By.css(MasterSelectors.EDIT_BTN_PREFIX),
+        const editBtn = await this.driver.wait(
+            until.elementLocated(By.css(MasterSelectors.EDIT_BTN_PREFIX)),
+            10000,
         );
-        if (editBtns.length > 0) {
-            await editBtns[0].click();
-            await this.driver.sleep(1000);
-        } else {
-            throw new Error("No edit buttons found in the table.");
-        }
+        await editBtn.click();
+        await this.driver.sleep(1000);
     }
 
     async deleteFirstItem() {
-        const deleteBtns = await this.driver.findElements(
-            By.css(MasterSelectors.DELETE_BTN_PREFIX),
+        const deleteBtn = await this.driver.wait(
+            until.elementLocated(By.css(MasterSelectors.DELETE_BTN_PREFIX)),
+            10000,
         );
-        if (deleteBtns.length > 0) {
-            await deleteBtns[0].click();
-            await this.driver.sleep(1000);
+        await deleteBtn.click();
+        await this.driver.sleep(1000);
 
-            // Confirm delete
-            const confirmBtn = await this.driver.wait(
-                until.elementLocated(
-                    By.css(MasterSelectors.CONFIRM_DELETE_BTN),
-                ),
-                5000,
-            );
-            await confirmBtn.click();
-            await this.driver.sleep(1500); // Wait for API response
-        } else {
-            throw new Error("No delete buttons found in the table.");
-        }
+        const confirmBtn = await this.driver.wait(
+            until.elementLocated(By.css(MasterSelectors.CONFIRM_DELETE_BTN)),
+            5000,
+        );
+        await confirmBtn.click();
+        await this.driver.sleep(1500);
     }
 }

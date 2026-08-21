@@ -1,7 +1,7 @@
 <template>
     <div class="w-full space-y-3">
         <div
-            class="grid gap-3 text-xs uppercase tracking-wider text-text-muted"
+            class="grid gap-3 text-xs text-text-muted"
             :style="{ gridTemplateColumns: columnsTemplate }"
         >
             <SkeletonBlock
