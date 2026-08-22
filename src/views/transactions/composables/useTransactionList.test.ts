@@ -340,9 +340,8 @@ describe("useTransactionList", () => {
 
         const { transactionService } =
             await import("@/services/transactions.service");
-        const { useWarehouseOptions } = await import(
-            "@/composable/useWarehouseOptions"
-        );
+        const { useWarehouseOptions } =
+            await import("@/composable/useWarehouseOptions");
 
         const { useTransactionList } = await import("./useTransactionList");
         useTransactionList({ transactionKey: "relocation" });

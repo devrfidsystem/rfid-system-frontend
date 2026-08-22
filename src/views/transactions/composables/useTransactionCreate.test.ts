@@ -215,13 +215,13 @@ describe("useTransactionCreate", () => {
         );
     });
 
-    it("does not expose the generic single warehouse field for register tasks", async () => {
+    it("does not expose location fields for register tasks", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("register");
 
         expect(create.showSingleWarehouse.value).toBe(false);
         expect(pageSource).toContain("cmb_TransactionCreateRegisterWarehouse");
-        expect(pageSource).toContain("cmb_TransactionCreateRegisterLocation");
+        expect(pageSource).not.toContain("cmb_TransactionCreateRegisterLocation");
     });
 
     it("renders outbound create fields in the page template", () => {
@@ -387,7 +387,6 @@ describe("useTransactionCreate", () => {
         create.form.value.transactionDate = "2026-07-18";
         create.form.value.registeredById = "user-7";
         create.form.value.warehouseId = "warehouse-1";
-        create.form.value.locationId = "location-1";
         create.form.value.lines.push({
             productId: "prod-1",
             qty: "24",
@@ -406,7 +405,6 @@ describe("useTransactionCreate", () => {
             docDate: expect.any(String),
             registeredById: "user-7",
             warehouseId: "warehouse-1",
-            locationId: "location-1",
             lines: [
                 {
                     productId: "prod-1",
@@ -429,7 +427,6 @@ describe("useTransactionCreate", () => {
             docDate: "2026-07-18T00:00:00.000Z",
             registeredById: "user-7",
             warehouseId: "warehouse-1",
-            locationId: "location-1",
             status: "draft",
             notes: "before",
             lines: [
@@ -458,7 +455,6 @@ describe("useTransactionCreate", () => {
             notes: "after",
             registeredById: "user-7",
             warehouseId: "warehouse-1",
-            locationId: "location-1",
             lines: [
                 {
                     productId: "prod-1",
@@ -482,7 +478,6 @@ describe("useTransactionCreate", () => {
         create.form.value.transactionDate = "2026-07-18";
         create.form.value.registeredById = "user-7";
         create.form.value.warehouseId = "warehouse-1";
-        create.form.value.locationId = "location-1";
         create.form.value.lines.push({
             productId: "prod-1",
             qty: "1",
@@ -501,7 +496,6 @@ describe("useTransactionCreate", () => {
             docDate: expect.any(String),
             registeredById: "user-7",
             warehouseId: "warehouse-1",
-            locationId: "location-1",
             lines: [
                 {
                     productId: "prod-1",
@@ -516,7 +510,7 @@ describe("useTransactionCreate", () => {
         expect(payload.lines[0]).not.toHaveProperty("enteredQty");
     });
 
-    it("builds a putaway payload with only a target location", async () => {
+    it("builds a putaway payload with source and target locations", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("putaway");
 
@@ -550,14 +544,11 @@ describe("useTransactionCreate", () => {
                     lineNo: 1,
                     productId: "prod-1",
                     qty: 10,
+                    sourceLocationId: "loc-existing",
                     targetLocationId: "loc-target",
                 },
             ],
         });
-        const payload = mocks.createSpy.mock.calls[0][1] as {
-            lines: Record<string, unknown>[];
-        };
-        expect(payload.lines[0]).not.toHaveProperty("sourceLocationId");
     });
 
     it("builds a product-id-keyed UOM info map after loading options", async () => {

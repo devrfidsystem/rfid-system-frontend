@@ -411,11 +411,9 @@ export function useTransactionCreate(
 
         if (
             isRegister.value &&
-            (!form.value.registeredById ||
-                !form.value.warehouseId ||
-                !form.value.locationId)
+            (!form.value.registeredById || !form.value.warehouseId)
         ) {
-            notifyError("Please select user, warehouse, and location.");
+            notifyError("Please select user and warehouse.");
             return;
         }
 
@@ -543,6 +541,9 @@ export function useTransactionCreate(
                             lineNo: index + 1,
                             productId: l.productId,
                             qty: Number(l.qty),
+                            ...(l.fromLocationId
+                                ? { sourceLocationId: l.fromLocationId }
+                                : {}),
                             targetLocationId: l.toLocationId,
                         })),
                     };
@@ -553,7 +554,6 @@ export function useTransactionCreate(
                         docDate: docDateStr,
                         registeredById: form.value.registeredById,
                         warehouseId: form.value.warehouseId,
-                        locationId: form.value.locationId,
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
                             qtyExpected: Number(l.qty),

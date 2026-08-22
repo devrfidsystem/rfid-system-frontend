@@ -86,16 +86,6 @@
                         />
 
                         <Select
-                            v-if="isRegister"
-                            v-model="form.locationId"
-                            :options="locationOptions"
-                            label="Location"
-                            placeholder="Select location"
-                            required
-                            object-id="cmb_TransactionCreateRegisterLocation"
-                        />
-
-                        <Select
                             v-if="isOpname"
                             id="title"
                             v-model="form.title"

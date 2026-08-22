@@ -61,6 +61,17 @@
                             object-id="cmb_OpnameCreateWarehouse"
                         />
 
+                        <Select
+                            v-if="mode !== 'group'"
+                            v-model="selectedParentId"
+                            :options="parentOptions"
+                            label="Parent"
+                            placeholder="Select parent"
+                            required
+                            searchable
+                            object-id="cmb_OpnameCreateParent"
+                        />
+
                         <Input
                             v-model="formState.notes"
                             label="Notes"
@@ -168,7 +179,9 @@ const {
     parentLabel,
     primaryActionLabel,
     warehouseOptions,
+    parentOptions,
     selectedWarehouseId,
+    selectedParentId,
     selectedWarehouseLabel,
     selectedParent,
     handleBack,
