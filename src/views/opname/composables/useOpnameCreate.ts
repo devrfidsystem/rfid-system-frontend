@@ -44,6 +44,7 @@ export function useOpnameCreate() {
     const error = ref<string | null>(null);
     const tree = ref<OpnameTreeNode[]>([]);
     const selectedWarehouseId = ref("");
+    const selectedParentId = ref("");
     const formState = reactive<NodeFormState>({
         title: "",
         docNumber: defaultDocNumber(),
@@ -57,6 +58,10 @@ export function useOpnameCreate() {
     });
 
     const parentId = computed(() => {
+        return selectedParentId.value;
+    });
+
+    const routeParentId = computed(() => {
         const value = route.query.parentId;
         return typeof value === "string" && value.trim() ? value : "";
     });
@@ -78,6 +83,26 @@ export function useOpnameCreate() {
     const selectedParent = computed(() => {
         if (!parentId.value) return null;
         return findNode(tree.value, parentId.value);
+    });
+
+    const parentOptions = computed(() => {
+        const options: { label: string; value: string }[] = [];
+        const walk = (nodes: OpnameTreeNode[]) => {
+            nodes.forEach((node) => {
+                const nodeType = node.nodeType;
+                const canSelect =
+                    mode.value === "profile"
+                        ? nodeType === "group"
+                        : mode.value === "task" &&
+                          (nodeType === "group" || nodeType === "profile");
+                if (canSelect) {
+                    options.push({ label: node.title, value: node.id });
+                }
+                walk(node.children ?? []);
+            });
+        };
+        walk(tree.value);
+        return options;
     });
 
     const pageTitle = computed(() => "Create Stock Opname");
@@ -147,6 +172,14 @@ export function useOpnameCreate() {
                         : String(options[0]?.id ?? "");
                 selectedWarehouseId.value = resolvedWarehouseId;
             }
+        },
+        { immediate: true },
+    );
+
+    watch(
+        routeParentId,
+        (nextParentId) => {
+            if (nextParentId) selectedParentId.value = nextParentId;
         },
         { immediate: true },
     );
@@ -227,7 +260,9 @@ export function useOpnameCreate() {
         parentLabel,
         primaryActionLabel,
         warehouseOptions,
+        parentOptions,
         selectedWarehouseId,
+        selectedParentId,
         selectedWarehouseLabel,
         selectedParent,
         handleBack,
