@@ -229,11 +229,13 @@ describe("useTransactionList", () => {
         ]);
     });
 
-    it("loads register task rows as draft-only by default", async () => {
+    it("loads register task rows without a status filter so posted tasks appear", async () => {
         vi.resetModules();
         vi.unmock("@/domain/report/reportConfig");
         const { transactionService } =
             await import("@/services/transactions.service");
+        vi.mocked(transactionService.list).mockClear();
+        vi.mocked(transactionService.summary).mockClear();
         vi.mocked(transactionService.list).mockResolvedValueOnce({
             items: [],
             meta: { page: 1, limit: 20, total: 0 },
@@ -248,7 +250,11 @@ describe("useTransactionList", () => {
 
         expect(transactionService.list).toHaveBeenCalledWith(
             "register",
-            expect.objectContaining({ status: "draft" }),
+            expect.not.objectContaining({ status: expect.anything() }),
+        );
+        expect(transactionService.summary).toHaveBeenCalledWith(
+            "register",
+            expect.not.objectContaining({ status: expect.anything() }),
         );
     });
 

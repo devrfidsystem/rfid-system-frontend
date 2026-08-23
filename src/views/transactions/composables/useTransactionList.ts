@@ -274,9 +274,6 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         if (config.value.partnerKey && selectedPartner.value) {
             base[config.value.partnerKey] = selectedPartner.value;
         }
-        if (transactionKey.value === "register") {
-            base.status = "draft";
-        }
         return base;
     };
 
