@@ -89,7 +89,6 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
             { key: "docNumber", label: "Doc No" },
             { key: "docDate", label: "Date Issue" },
             { key: "warehouseId", label: "Warehouse" },
-            { key: "locationName", label: "Location" },
             { key: "productSummary", label: "Products" },
             { key: "registeredBy.fullName", label: "User" },
             { key: "status", label: "Status" },
