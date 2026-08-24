@@ -42,6 +42,7 @@
     position: relative;
     width: 140px;
     height: 140px;
+    overflow: hidden;
 }
 
 .app-loading-screen__frame {
@@ -50,9 +51,9 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    opacity: 0;
-    transform: scale(0.92);
-    animation: app-loading-frame-cycle 2.6s ease-in-out infinite;
+    transform: translateX(100%);
+    animation: app-loading-frame-swipe 2.6s cubic-bezier(0.65, 0, 0.35, 1)
+        infinite;
 }
 
 .app-loading-screen__frame--1 {
@@ -71,20 +72,19 @@
     animation-delay: 1.95s;
 }
 
-@keyframes app-loading-frame-cycle {
+@keyframes app-loading-frame-swipe {
     0% {
-        opacity: 0;
-        transform: scale(0.92);
+        transform: translateX(100%);
     }
-    6%,
-    19% {
-        opacity: 1;
-        transform: scale(1);
+    8% {
+        transform: translateX(0%);
+    }
+    17% {
+        transform: translateX(0%);
     }
     25%,
     100% {
-        opacity: 0;
-        transform: scale(0.92);
+        transform: translateX(-100%);
     }
 }
 </style>
