@@ -1,5 +1,17 @@
 export type OpnameNodeType = "group" | "profile" | "task";
 
+export interface OpnameLocationRef {
+    id: string;
+    code: string;
+    name: string;
+    epc?: string | null;
+}
+
+export interface OpnameAssigneeRef {
+    id: string;
+    fullName: string;
+}
+
 export interface OpnameTreeNode {
     id: string;
     parentId: string | null;
@@ -12,6 +24,11 @@ export interface OpnameTreeNode {
     task_period: string | null;
     status: string;
     nodeType: OpnameNodeType;
+    assignedTo?: OpnameAssigneeRef | null;
+    assignedAt?: string | null;
+    deadlineAt?: string | null;
+    locations?: OpnameLocationRef[];
+    locationSummary?: string | null;
     createdAt?: string | null;
     updatedAt?: string | null;
     children?: OpnameTreeNode[];

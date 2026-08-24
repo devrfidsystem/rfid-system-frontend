@@ -70,6 +70,7 @@ export interface LocationRecord {
     depth: number;
     rowNo: number;
     colNo: number;
+    epc?: string | null;
     createdAt: string;
     updatedAt?: string;
 }

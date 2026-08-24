@@ -84,7 +84,13 @@ export function useOpnameTree() {
                 !statusLower || node.status.toLowerCase().includes(statusLower);
             const locationOk =
                 !locationLower ||
-                [node.task_group, node.task_period, node.description]
+                [
+                    node.task_group,
+                    node.task_period,
+                    node.description,
+                    node.locationSummary ?? "",
+                    ...(node.locations ?? []).map((location) => location.code),
+                ]
                     .filter(Boolean)
                     .join(" ")
                     .toLowerCase()
@@ -244,6 +250,20 @@ export function useOpnameTree() {
     };
 
     const openDetail = (node: OpnameTreeNode) => {
+        if (node.nodeType === "task" && node.status === "draft") {
+            void router.push({
+                path: "/transactions/opname/new",
+                query: {
+                    mode: "task",
+                    id: node.id,
+                    parentId: node.parentId ?? undefined,
+                    warehouseId:
+                        selectedWarehouseId.value ||
+                        String(node.warehouse_id ?? ""),
+                },
+            });
+            return;
+        }
         void router.push({
             path: `/transactions/opname/${node.id}`,
             query: {

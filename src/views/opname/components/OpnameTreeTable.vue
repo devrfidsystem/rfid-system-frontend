@@ -204,6 +204,11 @@ const statusTone = (value: string) => {
 };
 
 const locationLabel = (row: OpnameTreeRow) => {
+    if (row.nodeType === "task") {
+        if (row.locationSummary?.trim()) return row.locationSummary;
+        const codes = (row.locations ?? []).map((location) => location.code).filter(Boolean);
+        if (codes.length) return codes.join(", ");
+    }
     const parts = [row.task_group, row.task_period, row.description]
         .filter(Boolean)
         .map(String);

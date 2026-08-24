@@ -37,13 +37,26 @@ export interface OpnameTreeFilterParams {
 export interface OpnameNodePayload {
     companyId?: string;
     warehouseId?: string;
-    docNumber: string;
+    docNumber?: string;
     title?: string;
     notes?: string;
     parentId?: string | null;
     nodeType?: "group" | "profile" | "task";
     taskGroup?: string;
     taskPeriod?: string;
+    locationIds?: string[];
+    assignedToId?: string;
+    assignedAt?: string;
+    deadlineAt?: string;
+}
+
+export interface UpdateOpnameTaskPayload {
+    title?: string;
+    notes?: string;
+    locationIds: string[];
+    assignedToId: string;
+    assignedAt: string;
+    deadlineAt: string;
 }
 
 export interface UpdateOpnameLineCountPayload {
@@ -93,6 +106,18 @@ export const opnameApi = {
         }>({
             url: `/opname/${id}`,
             method: "get",
+        });
+    },
+
+    update(id: string, payload: UpdateOpnameTaskPayload) {
+        return apiRequest<{
+            id: string;
+            nodeType?: string;
+            [key: string]: unknown;
+        }>({
+            url: `/opname/${id}`,
+            method: "patch",
+            data: payload,
         });
     },
 
