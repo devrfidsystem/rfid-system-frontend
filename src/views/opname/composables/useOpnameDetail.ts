@@ -29,6 +29,7 @@ const findNode = (
 };
 
 const getStatusLabel = (value: string) => {
+    if (value === "posted") return "Posted";
     if (value === "counting") return "On Going";
     if (value === "reconciled") return "Reconciled";
     if (value === "closed") return "Closed";
@@ -37,6 +38,7 @@ const getStatusLabel = (value: string) => {
 };
 
 const getStatusTone = (value: string) => {
+    if (value === "posted") return "info";
     if (value === "counting") return "warning";
     if (value === "reconciled") return "info";
     if (value === "closed") return "success";
@@ -112,7 +114,7 @@ export function useOpnameDetail() {
     // purely organizational and never transition through these statuses.
     const isTaskNode = computed(() => selectedNode.value?.nodeType === "task");
     const canStartCounting = computed(
-        () => isTaskNode.value && selectedNode.value?.status === "draft",
+        () => isTaskNode.value && selectedNode.value?.status === "posted",
     );
     const canReconcile = computed(
         () => isTaskNode.value && selectedNode.value?.status === "counting",
@@ -124,6 +126,7 @@ export function useOpnameDetail() {
         () =>
             isTaskNode.value &&
             (selectedNode.value?.status === "draft" ||
+                selectedNode.value?.status === "posted" ||
                 selectedNode.value?.status === "counting"),
     );
 
@@ -365,7 +368,7 @@ export function useOpnameDetail() {
         "start-counting": {
             title: "Start Counting",
             description:
-                "This snapshots current stock balances for this warehouse into opname lines. The document moves from draft to counting.",
+                "This snapshots current stock balances for this warehouse into opname lines. The document moves from posted to counting.",
             confirmText: "Start Counting",
         },
         reconcile: {
@@ -383,7 +386,7 @@ export function useOpnameDetail() {
         cancel: {
             title: "Cancel Opname",
             description:
-                "This cancels the opname document. Only draft or counting documents can be canceled.",
+                "This cancels the opname document. Only draft, posted, or counting documents can be canceled.",
             confirmText: "Cancel Opname",
         },
     };

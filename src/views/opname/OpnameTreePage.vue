@@ -42,6 +42,7 @@
                 @new-profile="(row) => openCreateChild(row, 'profile')"
                 @new-task="(row) => openCreateChild(row, 'task')"
                 @view-node="openDetail"
+                @post-task="postTask"
             />
         </Card>
     </section>
@@ -77,6 +78,7 @@ const {
     openCreateRoot,
     openCreateChild,
     openDetail,
+    postTask,
     toggleExpand,
 } = useOpnameTree();
 

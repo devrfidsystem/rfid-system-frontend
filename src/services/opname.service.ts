@@ -47,6 +47,11 @@ export const opnameService = {
         return response.data as OpnameTreeNode;
     },
 
+    async post(id: string): Promise<OpnameTreeNode> {
+        const response = await opnameApi.post(id);
+        return response.data as OpnameTreeNode;
+    },
+
     async getDetail(id: string) {
         const response = await opnameApi.getDetail(id);
         return response.data as {

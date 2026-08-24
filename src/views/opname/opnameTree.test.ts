@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+    collectOpnameNodeIds,
     flattenOpnameTree,
     normalizeOpnameTree,
     type OpnameTreeNode,
@@ -72,6 +73,20 @@ describe("opnameTree", () => {
         expect(tree).toHaveLength(1);
         expect(tree[0]?.children).toHaveLength(1);
         expect(tree[0]?.children?.[0]?.children).toHaveLength(1);
+    });
+
+    it("hides nested tasks when only the root id is expanded", () => {
+        const tree = normalizeOpnameTree(rows);
+        const visible = flattenOpnameTree(tree, new Set(["root-1"]));
+
+        expect(visible.map((row) => row.id)).toEqual(["root-1", "profile-1"]);
+    });
+
+    it("collects every nested node id so the tree can expand after create", () => {
+        const tree = normalizeOpnameTree(rows);
+        expect(collectOpnameNodeIds(tree).sort()).toEqual(
+            ["profile-1", "root-1", "task-1"].sort(),
+        );
     });
 
     it("flattens only expanded branches", () => {
