@@ -6,7 +6,11 @@ const mocks = vi.hoisted(() => ({
     pushSpy: vi.fn(),
     createSpy: vi.fn(),
     createChildSpy: vi.fn(),
+    updateSpy: vi.fn(),
+    getDetailSpy: vi.fn(),
     getTreeSpy: vi.fn(),
+    listLocationsSpy: vi.fn(),
+    listUsersSpy: vi.fn(),
     notifyErrorSpy: vi.fn(),
     notifySuccessSpy: vi.fn(),
 }));
@@ -40,6 +44,20 @@ vi.mock("@/services/opname.service", () => ({
         getTree: mocks.getTreeSpy,
         create: mocks.createSpy,
         createChild: mocks.createChildSpy,
+        update: mocks.updateSpy,
+        getDetail: mocks.getDetailSpy,
+    },
+}));
+
+vi.mock("@/services/location.service", () => ({
+    locationService: {
+        list: mocks.listLocationsSpy,
+    },
+}));
+
+vi.mock("@/services/users.service", () => ({
+    usersService: {
+        list: mocks.listUsersSpy,
     },
 }));
 
@@ -47,6 +65,22 @@ describe("useOpnameCreate", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mocks.routeQuery = {};
+        mocks.listLocationsSpy.mockResolvedValue({
+            data: {
+                items: [
+                    {
+                        id: "rack-a",
+                        parentId: "floor-a",
+                        code: "RA",
+                        name: "Rack A",
+                        epc: "EPC-A",
+                    },
+                ],
+            },
+        });
+        mocks.listUsersSpy.mockResolvedValue({
+            items: [{ id: "user-7", fullName: "Wilson" }],
+        });
         mocks.getTreeSpy.mockResolvedValue([
             {
                 id: "group-1",
@@ -83,8 +117,11 @@ describe("useOpnameCreate", () => {
         ]);
 
         create.selectedParentId.value = "profile-1";
-        create.formState.docNumber = "OPN-TASK-001";
         create.formState.title = "Rack Count";
+        create.formState.assignedToId = "user-7";
+        create.formState.assignedAt = "2026-06-20";
+        create.formState.deadlineAt = "2026-06-30";
+        create.locationIds.value = ["rack-a"];
 
         await create.saveNode();
 
@@ -93,11 +130,17 @@ describe("useOpnameCreate", () => {
             expect.objectContaining({
                 companyId: "company-1",
                 warehouseId: "wh-1",
-                docNumber: "OPN-TASK-001",
                 title: "Rack Count",
                 parentId: "profile-1",
                 nodeType: "task",
+                locationIds: ["rack-a"],
+                assignedToId: "user-7",
+                assignedAt: "2026-06-20",
+                deadlineAt: "2026-06-30",
             }),
+        );
+        expect(mocks.createChildSpy.mock.calls[0]?.[1]).not.toHaveProperty(
+            "docNumber",
         );
     });
 });
