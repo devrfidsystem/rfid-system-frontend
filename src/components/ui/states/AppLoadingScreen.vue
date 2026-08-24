@@ -5,65 +5,12 @@
             alt="ALIR Smart System"
             class="app-loading-screen__logo"
         />
-        <div class="app-loading-screen__badge">
-            <svg
-                class="app-loading-screen__icon app-loading-screen__icon--1"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#FFFFFF"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path d="M4 11a8 8 0 0 1 16 0"></path>
-                <path d="M7.5 11a4.5 4.5 0 0 1 9 0"></path>
-                <circle
-                    cx="12"
-                    cy="17"
-                    r="2"
-                    fill="#FFFFFF"
-                    stroke="none"
-                ></circle>
-            </svg>
-            <svg
-                class="app-loading-screen__icon app-loading-screen__icon--2"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#FFFFFF"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path d="M21 8v13H3V8"></path>
-                <path d="M1 3h22v5H1z"></path>
-                <path d="M10 12h4"></path>
-            </svg>
-            <svg
-                class="app-loading-screen__icon app-loading-screen__icon--3"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#FFFFFF"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path
-                    d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"
-                ></path>
-                <circle cx="12" cy="10" r="2.4"></circle>
-            </svg>
-            <svg
-                class="app-loading-screen__icon app-loading-screen__icon--4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#FFFFFF"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path d="M3 3v18h18"></path>
-                <path d="m19 9-5 5-4-4-3 3"></path>
-            </svg>
+        <div class="app-loading-screen__wave">
+            <span class="app-loading-screen__dot app-loading-screen__dot--1"></span>
+            <span class="app-loading-screen__dot app-loading-screen__dot--2"></span>
+            <span class="app-loading-screen__dot app-loading-screen__dot--3"></span>
+            <span class="app-loading-screen__dot app-loading-screen__dot--4"></span>
+            <span class="app-loading-screen__dot app-loading-screen__dot--5"></span>
         </div>
     </div>
 </template>
@@ -78,7 +25,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 28px;
+    gap: 24px;
     background: #ffffff;
     z-index: 9999;
 }
@@ -87,56 +34,55 @@
     height: 40px;
 }
 
-.app-loading-screen__badge {
-    position: relative;
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-lg, 16px);
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #14b8a6 100%);
+.app-loading-screen__wave {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    height: 24px;
 }
 
-.app-loading-screen__icon {
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    opacity: 0;
-    transform: scale(0.85);
-    animation: app-loading-icon-cycle 1.2s ease-in-out infinite;
+.app-loading-screen__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: app-loading-wave 1s ease-in-out infinite;
 }
 
-.app-loading-screen__icon--1 {
+.app-loading-screen__dot--1 {
+    background: #1e40af;
     animation-delay: 0s;
 }
 
-.app-loading-screen__icon--2 {
+.app-loading-screen__dot--2 {
+    background: #2650cb;
+    animation-delay: 0.1s;
+}
+
+.app-loading-screen__dot--3 {
+    background: #2563eb;
+    animation-delay: 0.2s;
+}
+
+.app-loading-screen__dot--4 {
+    background: #1c95a3;
     animation-delay: 0.3s;
 }
 
-.app-loading-screen__icon--3 {
-    animation-delay: 0.6s;
+.app-loading-screen__dot--5 {
+    background: #14b8a6;
+    animation-delay: 0.4s;
 }
 
-.app-loading-screen__icon--4 {
-    animation-delay: 0.9s;
-}
-
-@keyframes app-loading-icon-cycle {
-    0% {
-        opacity: 0;
-        transform: scale(0.85);
-    }
-    8%,
-    17% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    25%,
+@keyframes app-loading-wave {
+    0%,
+    60%,
     100% {
-        opacity: 0;
-        transform: scale(0.85);
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
     }
 }
 </style>
