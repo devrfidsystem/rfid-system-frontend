@@ -109,6 +109,17 @@ export const opnameApi = {
         });
     },
 
+    post(id: string) {
+        return apiRequest<{
+            id: string;
+            nodeType?: string;
+            [key: string]: unknown;
+        }>({
+            url: `/opname/${id}/post`,
+            method: "post",
+        });
+    },
+
     update(id: string, payload: UpdateOpnameTaskPayload) {
         return apiRequest<{
             id: string;

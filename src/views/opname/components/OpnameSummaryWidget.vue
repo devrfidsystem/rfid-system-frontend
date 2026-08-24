@@ -120,7 +120,7 @@ defineProps<{
 // covers Opname's statuses too, but importing across unrelated view
 // folders for a same-output mapping isn't worth the coupling.
 const SUCCESS_STATUSES = new Set(["closed", "reconciled"]);
-const WARNING_STATUSES = new Set(["counting", "draft"]);
+const WARNING_STATUSES = new Set(["counting", "draft", "posted"]);
 const ERROR_STATUSES = new Set(["canceled", "cancelled"]);
 
 const statusTone = (

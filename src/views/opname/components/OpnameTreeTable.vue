@@ -79,7 +79,13 @@
                             {{ formatDate(row.createdAt) }}
                         </td>
                         <td class="px-6 py-3 align-top">
-                            <Badge :tone="statusTone(row.status)">
+                            <span
+                                v-if="row.nodeType !== 'task'"
+                                class="text-text-secondary"
+                            >
+                                -
+                            </span>
+                            <Badge v-else :tone="statusTone(row.status)">
                                 {{ statusLabel(row.status) }}
                             </Badge>
                         </td>
@@ -130,8 +136,22 @@
                                     New Task
                                 </Button>
                             </div>
-                            <div v-else class="text-xs text-text-secondary">
-                                Task node
+                            <div v-else class="flex flex-wrap gap-2">
+                                <Button
+                                    v-if="row.status === 'draft'"
+                                    size="sm"
+                                    variant="primary"
+                                    object-id="btn_OpnameTreePostTask"
+                                    @click="$emit('post-task', row)"
+                                >
+                                    Post
+                                </Button>
+                                <span
+                                    v-else
+                                    class="text-xs text-text-secondary"
+                                >
+                                    Task node
+                                </span>
                             </div>
                         </td>
                     </tr>
@@ -174,6 +194,7 @@ defineEmits<{
     (e: "new-profile", row: OpnameTreeRow): void;
     (e: "new-task", row: OpnameTreeRow): void;
     (e: "view-node", row: OpnameTreeRow): void;
+    (e: "post-task", row: OpnameTreeRow): void;
 }>();
 
 const formatDate = (value?: string | null) => {
@@ -188,18 +209,19 @@ const formatDate = (value?: string | null) => {
 };
 
 const statusLabel = (value: string) => {
+    if (value === "posted") return "Posted";
     if (value === "counting") return "On Going";
+    if (value === "reconciled") return "Done";
     if (value === "closed") return "Closed";
+    if (value === "canceled") return "Canceled";
     return "Draft";
 };
 
 const statusTone = (value: string) => {
-    if (value === "counting") {
-        return "warning";
-    }
-    if (value === "closed") {
-        return "success";
-    }
+    if (value === "posted") return "info";
+    if (value === "counting") return "warning";
+    if (value === "closed" || value === "reconciled") return "success";
+    if (value === "canceled") return "error";
     return "neutral";
 };
 

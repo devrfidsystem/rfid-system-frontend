@@ -36,7 +36,15 @@ vi.mock("@/services/opname.service", () => ({
     opnameService: {
         getTree: getTreeMock,
         summary: getSummaryMock,
+        post: vi.fn(),
     },
+}));
+
+vi.mock("@/composable/useNotifier", () => ({
+    useNotifier: () => ({
+        notifyError: vi.fn(),
+        notifySuccess: vi.fn(),
+    }),
 }));
 
 vi.mock("@/composable/useWarehouseOptions", async () => {

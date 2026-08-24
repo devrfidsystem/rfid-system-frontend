@@ -3,6 +3,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useNotifier } from "@/composable/useNotifier";
+import { normalizePaginationItems } from "@/lib/api/normalizers";
 import {
     opnameService,
     type OpnameNodePayload,
@@ -158,16 +159,7 @@ export function useOpnameCreate() {
     const parentLabel = computed(() => selectedParent.value?.title ?? "-");
     const primaryActionLabel = computed(() => (isEdit.value ? "Save" : "Create"));
 
-    const extractItems = <T,>(response: unknown): T[] => {
-        const envelope = response as {
-            data?: { items?: T[] } | T[];
-            items?: T[];
-        };
-        if (Array.isArray(envelope.data)) return envelope.data;
-        if (Array.isArray(envelope.data?.items)) return envelope.data.items;
-        if (Array.isArray(envelope.items)) return envelope.items;
-        return [];
-    };
+    const LOCATION_PAGE_SIZE = 200;
 
     const loadLocations = async () => {
         if (!selectedWarehouseId.value) {
@@ -175,25 +167,36 @@ export function useOpnameCreate() {
             return;
         }
         const items: LocationRecord[] = [];
-        let page = 1;
-        while (page <= 10) {
-            const response = await locationService.list({
-                warehouseId: selectedWarehouseId.value,
-                page,
-                limit: 500,
-            });
-            const batch = extractItems<LocationRecord>(response);
-            items.push(...batch);
-            if (batch.length < 500) break;
-            page += 1;
+        try {
+            let page = 1;
+            while (page <= 20) {
+                const response = await locationService.list({
+                    warehouseId: selectedWarehouseId.value,
+                    page,
+                    limit: LOCATION_PAGE_SIZE,
+                });
+                const batch = normalizePaginationItems<LocationRecord>(
+                    response,
+                );
+                items.push(...batch);
+                if (batch.length < LOCATION_PAGE_SIZE) break;
+                page += 1;
+            }
+            locationOptions.value = items.map((item) => ({
+                id: String(item.id),
+                parentId: item.parentId ?? null,
+                code: item.code,
+                name: item.name,
+                epc: item.epc ?? null,
+            }));
+        } catch (err) {
+            locationOptions.value = [];
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load warehouse locations.",
+            );
         }
-        locationOptions.value = items.map((item) => ({
-            id: String(item.id),
-            parentId: item.parentId ?? null,
-            code: item.code,
-            name: item.name,
-            epc: item.epc ?? null,
-        }));
     };
 
     const loadUsers = async () => {

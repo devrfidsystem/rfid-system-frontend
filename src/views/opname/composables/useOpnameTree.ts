@@ -2,6 +2,7 @@ import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
+import { useNotifier } from "@/composable/useNotifier";
 import {
     opnameService,
     type OpnameTreeFilterParams,
@@ -19,6 +20,8 @@ export function useOpnameTree() {
     const route = useRoute();
     const router = useRouter();
     const authStore = useAuthStore();
+    const { notifyError, notifySuccess } = useNotifier();
+    const postingId = ref<string | null>(null);
     const companyId = computed(() => authStore.currentCompanyId ?? "");
     const warehouseState = useWarehouseOptions(companyId);
 
@@ -83,7 +86,9 @@ export function useOpnameTree() {
 
             const keywordOk = !keywordLower || fields.includes(keywordLower);
             const statusOk =
-                !statusLower || node.status.toLowerCase().includes(statusLower);
+                !statusLower ||
+                (node.nodeType === "task" &&
+                    node.status.toLowerCase().includes(statusLower));
             const locationOk =
                 !locationLower ||
                 [
@@ -286,6 +291,24 @@ export function useOpnameTree() {
         });
     };
 
+    const postTask = async (node: OpnameTreeNode) => {
+        if (node.nodeType !== "task" || node.status !== "draft") return;
+        postingId.value = node.id;
+        try {
+            await opnameService.post(node.id);
+            notifySuccess("Opname task posted");
+            await refresh();
+        } catch (err) {
+            notifyError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to post opname task.",
+            );
+        } finally {
+            postingId.value = null;
+        }
+    };
+
     const toggleExpand = (id: string) => {
         const next = new Set(expandedIds.value);
         if (next.has(id)) next.delete(id);
@@ -315,6 +338,8 @@ export function useOpnameTree() {
         openCreateRoot,
         openCreateChild,
         openDetail,
+        postTask,
+        postingId,
         toggleExpand,
     };
 }
