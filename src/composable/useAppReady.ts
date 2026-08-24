@@ -5,7 +5,7 @@ export type ReadyRouter = {
     isReady: () => Promise<void>;
 };
 
-export const MIN_DISPLAY_MS = 1000;
+export const MIN_DISPLAY_MS = 2000;
 
 export const useAppReady = (router: ReadyRouter): Ref<boolean> => {
     const appReady = ref(false);

@@ -1,25 +1,25 @@
 <template>
     <div class="app-loading-screen">
-        <img
-            src="@/assets/image.png"
-            alt="ALIR Smart System"
-            class="app-loading-screen__logo"
-        />
         <div class="app-loading-screen__stage">
             <img
-                src="@/assets/warehouse-icons/truck.png"
-                alt=""
+                src="@/assets/image.png"
+                alt="ALIR Smart System"
                 class="app-loading-screen__frame app-loading-screen__frame--1"
             />
             <img
-                src="@/assets/warehouse-icons/forklift.png"
+                src="@/assets/warehouse-icons/truck.png"
                 alt=""
                 class="app-loading-screen__frame app-loading-screen__frame--2"
             />
             <img
-                src="@/assets/warehouse-icons/warehouse-row.png"
+                src="@/assets/warehouse-icons/forklift.png"
                 alt=""
                 class="app-loading-screen__frame app-loading-screen__frame--3"
+            />
+            <img
+                src="@/assets/warehouse-icons/warehouse-row.png"
+                alt=""
+                class="app-loading-screen__frame app-loading-screen__frame--4"
             />
         </div>
     </div>
@@ -32,23 +32,16 @@
     position: fixed;
     inset: 0;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
     background: #ffffff;
     z-index: 9999;
 }
 
-.app-loading-screen__logo {
-    height: 40px;
-    animation: app-loading-logo-in 500ms ease-out both;
-}
-
 .app-loading-screen__stage {
     position: relative;
-    width: 110px;
-    height: 110px;
+    width: 140px;
+    height: 140px;
 }
 
 .app-loading-screen__frame {
@@ -59,7 +52,7 @@
     object-fit: contain;
     opacity: 0;
     transform: scale(0.92);
-    animation: app-loading-frame-cycle 1.2s ease-in-out infinite;
+    animation: app-loading-frame-cycle 2.6s ease-in-out infinite;
 }
 
 .app-loading-screen__frame--1 {
@@ -67,22 +60,15 @@
 }
 
 .app-loading-screen__frame--2 {
-    animation-delay: 0.4s;
+    animation-delay: 0.65s;
 }
 
 .app-loading-screen__frame--3 {
-    animation-delay: 0.8s;
+    animation-delay: 1.3s;
 }
 
-@keyframes app-loading-logo-in {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.app-loading-screen__frame--4 {
+    animation-delay: 1.95s;
 }
 
 @keyframes app-loading-frame-cycle {
@@ -90,12 +76,12 @@
         opacity: 0;
         transform: scale(0.92);
     }
-    10%,
-    23% {
+    6%,
+    19% {
         opacity: 1;
         transform: scale(1);
     }
-    33%,
+    25%,
     100% {
         opacity: 0;
         transform: scale(0.92);

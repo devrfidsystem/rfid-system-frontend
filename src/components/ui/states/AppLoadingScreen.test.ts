@@ -12,23 +12,18 @@ const renderLoadingScreen = async () => {
 };
 
 describe("AppLoadingScreen", () => {
-    it("renders the full-screen overlay with the ALIR logo", async () => {
+    it("renders the full-screen overlay with a stage that cycles the ALIR logo and three warehouse icons", async () => {
         const html = await renderLoadingScreen();
 
         expect(html).toContain("app-loading-screen");
-        expect(html).toContain("app-loading-screen__logo");
-        expect(html).toContain("ALIR Smart System");
-    });
-
-    it("renders a stage that cycles through three warehouse icons", async () => {
-        const html = await renderLoadingScreen();
-
         expect(html).toContain("app-loading-screen__stage");
         expect(html).toContain("app-loading-screen__frame--1");
         expect(html).toContain("app-loading-screen__frame--2");
         expect(html).toContain("app-loading-screen__frame--3");
+        expect(html).toContain("app-loading-screen__frame--4");
+        expect(html).toContain("ALIR Smart System");
 
         const imgCount = (html.match(/<img/g) ?? []).length;
-        expect(imgCount).toBe(4); // 1 ALIR logo + 3 cycling icons
+        expect(imgCount).toBe(4); // ALIR logo + 3 cycling icons, all in the same stage
     });
 });
