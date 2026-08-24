@@ -1,5 +1,5 @@
 import { computed, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import {
@@ -8,6 +8,7 @@ import {
     type OpnameSummaryResponse,
 } from "@/services/opname.service";
 import {
+    collectOpnameNodeIds,
     flattenOpnameTree,
     normalizeOpnameTree,
     type OpnameNodeType,
@@ -15,6 +16,7 @@ import {
 } from "../opnameTree";
 
 export function useOpnameTree() {
+    const route = useRoute();
     const router = useRouter();
     const authStore = useAuthStore();
     const companyId = computed(() => authStore.currentCompanyId ?? "");
@@ -157,7 +159,7 @@ export function useOpnameTree() {
             };
             const rows = await opnameService.getTree(params);
             tree.value = rows;
-            expandedIds.value = new Set(rows.map((row) => row.id));
+            expandedIds.value = new Set(collectOpnameNodeIds(rows));
         } catch (err) {
             error.value =
                 err instanceof Error
@@ -201,7 +203,17 @@ export function useOpnameTree() {
         () => warehouseState.options.value,
         (options) => {
             if (!selectedWarehouseId.value && options.length) {
-                selectedWarehouseId.value = String(options[0]?.id ?? "");
+                const queryWarehouse = route.query.warehouseId;
+                const fromQuery =
+                    typeof queryWarehouse === "string" && queryWarehouse.trim()
+                        ? queryWarehouse
+                        : "";
+                const match = fromQuery
+                    ? options.find((option) => String(option.id) === fromQuery)
+                    : undefined;
+                selectedWarehouseId.value = String(
+                    match?.id ?? options[0]?.id ?? "",
+                );
             }
         },
         { immediate: true },

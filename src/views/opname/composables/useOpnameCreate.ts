@@ -367,7 +367,12 @@ export function useOpnameCreate() {
                 }
                 notifySuccess("Opname node created");
             }
-            router.push("/transactions/opname");
+            router.push({
+                path: "/transactions/opname",
+                query: {
+                    warehouseId: selectedWarehouseId.value || undefined,
+                },
+            });
         } catch (err) {
             notifyError(
                 err instanceof Error
