@@ -1,8 +1,16 @@
-import { describe, expect, it } from "vitest";
-import { useAppReady } from "./useAppReady";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MIN_DISPLAY_MS, useAppReady } from "./useAppReady";
 
 describe("useAppReady", () => {
-    it("stays false until the router reports ready, then flips true", async () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    it("stays false until the router reports ready AND the minimum display time has elapsed", async () => {
         let resolveReady: () => void = () => {};
         const readyPromise = new Promise<void>((resolve) => {
             resolveReady = resolve;
@@ -15,7 +23,32 @@ describe("useAppReady", () => {
 
         resolveReady();
         await readyPromise;
-        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(appReady.value).toBe(false);
+
+        await vi.advanceTimersByTimeAsync(MIN_DISPLAY_MS - 1);
+        expect(appReady.value).toBe(false);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(appReady.value).toBe(true);
+    });
+
+    it("flips true as soon as the router is ready if the minimum display time already elapsed", async () => {
+        let resolveReady: () => void = () => {};
+        const readyPromise = new Promise<void>((resolve) => {
+            resolveReady = resolve;
+        });
+        const fakeRouter = { isReady: () => readyPromise };
+
+        const appReady = useAppReady(fakeRouter);
+
+        await vi.advanceTimersByTimeAsync(MIN_DISPLAY_MS + 500);
+        expect(appReady.value).toBe(false);
+
+        resolveReady();
+        await readyPromise;
+        await vi.advanceTimersByTimeAsync(0);
 
         expect(appReady.value).toBe(true);
     });
@@ -25,12 +58,12 @@ describe("useAppReady", () => {
         const fakeRouter = { isReady: () => foreverPending };
 
         const appReady = useAppReady(fakeRouter);
-        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(MIN_DISPLAY_MS + 1000);
 
         expect(appReady.value).toBe(false);
     });
 
-    it("flips true even if the router's isReady rejects", async () => {
+    it("flips true even if the router's isReady rejects, after the minimum display time", async () => {
         let rejectReady: () => void = () => {};
         const readyPromise = new Promise<void>((_resolve, reject) => {
             rejectReady = reject;
@@ -42,8 +75,10 @@ describe("useAppReady", () => {
 
         rejectReady();
         await readyPromise.catch(() => {});
-        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(MIN_DISPLAY_MS - 1);
+        expect(appReady.value).toBe(false);
 
+        await vi.advanceTimersByTimeAsync(1);
         expect(appReady.value).toBe(true);
     });
 });

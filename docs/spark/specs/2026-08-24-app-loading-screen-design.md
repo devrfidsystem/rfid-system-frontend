@@ -51,8 +51,11 @@ No changes to `router/index.ts` or `auth.store.ts` — this only consumes the ex
 - Component test for `AppLoadingScreen.vue`: renders the mark, no unexpected props/slots needed.
 - A light test on `App.vue` (or existing router test setup) asserting: `AppLoadingScreen` is present before `router.isReady()` resolves, and absent (with `router-view` present) after.
 
+## Revision (2026-08-24, post-implementation)
+
+The original "no minimum display duration" decision was reversed after the first implementation felt too brief to register on a fast local network. `useAppReady` now enforces a **1000ms minimum display time**: it starts a timer when the composable is created, and `appReady` flips to `true` only once both the router has settled (resolved or rejected) AND at least 1000ms have elapsed since start — whichever finishes last. If the router takes longer than 1000ms on its own, there is no extra wait.
+
 ## Out of Scope
 
-- No minimum display duration / anti-flicker delay — the screen shows for exactly as long as `initializeAuth()` actually takes.
 - Not shown on every navigation to `/login`, only on cold start.
 - No reduced-motion handling beyond what's already standard in the codebase (none identified as a pattern to follow here).
