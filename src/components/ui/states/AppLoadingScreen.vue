@@ -17,7 +17,13 @@
             >
                 <path d="M4 11a8 8 0 0 1 16 0"></path>
                 <path d="M7.5 11a4.5 4.5 0 0 1 9 0"></path>
-                <circle cx="12" cy="17" r="2" fill="#FFFFFF" stroke="none"></circle>
+                <circle
+                    cx="12"
+                    cy="17"
+                    r="2"
+                    fill="#FFFFFF"
+                    stroke="none"
+                ></circle>
             </svg>
             <svg
                 class="app-loading-screen__icon app-loading-screen__icon--2"
@@ -41,7 +47,9 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
             >
-                <path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"></path>
+                <path
+                    d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"
+                ></path>
                 <circle cx="12" cy="10" r="2.4"></circle>
             </svg>
             <svg
@@ -96,7 +104,7 @@
     height: 28px;
     opacity: 0;
     transform: scale(0.85);
-    animation: app-loading-icon-cycle 3.2s ease-in-out infinite;
+    animation: app-loading-icon-cycle 1.2s ease-in-out infinite;
 }
 
 .app-loading-screen__icon--1 {
@@ -104,24 +112,28 @@
 }
 
 .app-loading-screen__icon--2 {
-    animation-delay: 0.8s;
+    animation-delay: 0.3s;
 }
 
 .app-loading-screen__icon--3 {
-    animation-delay: 1.6s;
+    animation-delay: 0.6s;
 }
 
 .app-loading-screen__icon--4 {
-    animation-delay: 2.4s;
+    animation-delay: 0.9s;
 }
 
 @keyframes app-loading-icon-cycle {
-    0%,
-    15% {
+    0% {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    8%,
+    17% {
         opacity: 1;
         transform: scale(1);
     }
-    20%,
+    25%,
     100% {
         opacity: 0;
         transform: scale(0.85);
