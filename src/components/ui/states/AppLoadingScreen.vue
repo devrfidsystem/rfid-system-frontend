@@ -5,12 +5,27 @@
             alt="ALIR Smart System"
             class="app-loading-screen__logo"
         />
-        <div class="app-loading-screen__wave">
-            <span class="app-loading-screen__dot app-loading-screen__dot--1"></span>
-            <span class="app-loading-screen__dot app-loading-screen__dot--2"></span>
-            <span class="app-loading-screen__dot app-loading-screen__dot--3"></span>
-            <span class="app-loading-screen__dot app-loading-screen__dot--4"></span>
-            <span class="app-loading-screen__dot app-loading-screen__dot--5"></span>
+        <div class="app-loading-screen__stage">
+            <img
+                src="@/assets/warehouse-icons/truck.png"
+                alt=""
+                class="app-loading-screen__frame app-loading-screen__frame--1"
+            />
+            <img
+                src="@/assets/warehouse-icons/forklift.png"
+                alt=""
+                class="app-loading-screen__frame app-loading-screen__frame--2"
+            />
+            <img
+                src="@/assets/warehouse-icons/rack-shelf.png"
+                alt=""
+                class="app-loading-screen__frame app-loading-screen__frame--3"
+            />
+            <img
+                src="@/assets/warehouse-icons/warehouse-row.png"
+                alt=""
+                class="app-loading-screen__frame app-loading-screen__frame--4"
+            />
         </div>
     </div>
 </template>
@@ -25,7 +40,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 20px;
     background: #ffffff;
     z-index: 9999;
 }
@@ -34,55 +49,53 @@
     height: 40px;
 }
 
-.app-loading-screen__wave {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    height: 24px;
+.app-loading-screen__stage {
+    position: relative;
+    width: 110px;
+    height: 110px;
 }
 
-.app-loading-screen__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    animation: app-loading-wave 1s ease-in-out infinite;
+.app-loading-screen__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.9);
+    animation: app-loading-frame-cycle 1s ease-in-out infinite;
 }
 
-.app-loading-screen__dot--1 {
-    background: #1e40af;
+.app-loading-screen__frame--1 {
     animation-delay: 0s;
 }
 
-.app-loading-screen__dot--2 {
-    background: #2650cb;
-    animation-delay: 0.1s;
+.app-loading-screen__frame--2 {
+    animation-delay: 0.25s;
 }
 
-.app-loading-screen__dot--3 {
-    background: #2563eb;
-    animation-delay: 0.2s;
+.app-loading-screen__frame--3 {
+    animation-delay: 0.5s;
 }
 
-.app-loading-screen__dot--4 {
-    background: #1c95a3;
-    animation-delay: 0.3s;
+.app-loading-screen__frame--4 {
+    animation-delay: 0.75s;
 }
 
-.app-loading-screen__dot--5 {
-    background: #14b8a6;
-    animation-delay: 0.4s;
-}
-
-@keyframes app-loading-wave {
-    0%,
-    60%,
-    100% {
-        transform: translateY(0);
-        opacity: 0.5;
+@keyframes app-loading-frame-cycle {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
     }
-    30% {
-        transform: translateY(-10px);
+    8%,
+    17% {
         opacity: 1;
+        transform: scale(1);
+    }
+    25%,
+    100% {
+        opacity: 0;
+        transform: scale(0.9);
     }
 }
 </style>
