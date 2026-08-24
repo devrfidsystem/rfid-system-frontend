@@ -12,11 +12,11 @@ const renderLoadingScreen = async () => {
 };
 
 describe("AppLoadingScreen", () => {
-    it("renders the full-screen overlay with the brand mark", async () => {
+    it("renders the full-screen overlay with the ALIR logo", async () => {
         const html = await renderLoadingScreen();
 
         expect(html).toContain("app-loading-screen");
-        expect(html).toContain("app-loading-screen__mark");
-        expect(html).toContain("<svg");
+        expect(html).toContain("app-loading-screen__logo");
+        expect(html).toContain("ALIR Smart System");
     });
 });

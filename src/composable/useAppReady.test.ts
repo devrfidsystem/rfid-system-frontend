@@ -29,4 +29,21 @@ describe("useAppReady", () => {
 
         expect(appReady.value).toBe(false);
     });
+
+    it("flips true even if the router's isReady rejects", async () => {
+        let rejectReady: () => void = () => {};
+        const readyPromise = new Promise<void>((_resolve, reject) => {
+            rejectReady = reject;
+        });
+        const fakeRouter = { isReady: () => readyPromise };
+
+        const appReady = useAppReady(fakeRouter);
+        expect(appReady.value).toBe(false);
+
+        rejectReady();
+        await readyPromise.catch(() => {});
+        await Promise.resolve();
+
+        expect(appReady.value).toBe(true);
+    });
 });
