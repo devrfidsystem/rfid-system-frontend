@@ -17,14 +17,9 @@
                 class="app-loading-screen__frame app-loading-screen__frame--2"
             />
             <img
-                src="@/assets/warehouse-icons/rack-shelf.png"
-                alt=""
-                class="app-loading-screen__frame app-loading-screen__frame--3"
-            />
-            <img
                 src="@/assets/warehouse-icons/warehouse-row.png"
                 alt=""
-                class="app-loading-screen__frame app-loading-screen__frame--4"
+                class="app-loading-screen__frame app-loading-screen__frame--3"
             />
         </div>
     </div>
@@ -47,6 +42,7 @@
 
 .app-loading-screen__logo {
     height: 40px;
+    animation: app-loading-logo-in 500ms ease-out both;
 }
 
 .app-loading-screen__stage {
@@ -62,8 +58,8 @@
     height: 100%;
     object-fit: contain;
     opacity: 0;
-    transform: scale(0.9);
-    animation: app-loading-frame-cycle 1s ease-in-out infinite;
+    transform: scale(0.92);
+    animation: app-loading-frame-cycle 1.2s ease-in-out infinite;
 }
 
 .app-loading-screen__frame--1 {
@@ -71,31 +67,38 @@
 }
 
 .app-loading-screen__frame--2 {
-    animation-delay: 0.25s;
+    animation-delay: 0.4s;
 }
 
 .app-loading-screen__frame--3 {
-    animation-delay: 0.5s;
+    animation-delay: 0.8s;
 }
 
-.app-loading-screen__frame--4 {
-    animation-delay: 0.75s;
+@keyframes app-loading-logo-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes app-loading-frame-cycle {
     0% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.92);
     }
-    8%,
-    17% {
+    10%,
+    23% {
         opacity: 1;
         transform: scale(1);
     }
-    25%,
+    33%,
     100% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.92);
     }
 }
 </style>

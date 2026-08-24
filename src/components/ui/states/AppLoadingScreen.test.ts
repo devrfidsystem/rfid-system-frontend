@@ -20,16 +20,15 @@ describe("AppLoadingScreen", () => {
         expect(html).toContain("ALIR Smart System");
     });
 
-    it("renders a stage that cycles through four warehouse icons", async () => {
+    it("renders a stage that cycles through three warehouse icons", async () => {
         const html = await renderLoadingScreen();
 
         expect(html).toContain("app-loading-screen__stage");
         expect(html).toContain("app-loading-screen__frame--1");
         expect(html).toContain("app-loading-screen__frame--2");
         expect(html).toContain("app-loading-screen__frame--3");
-        expect(html).toContain("app-loading-screen__frame--4");
 
         const imgCount = (html.match(/<img/g) ?? []).length;
-        expect(imgCount).toBe(5); // 1 ALIR logo + 4 cycling icons
+        expect(imgCount).toBe(4); // 1 ALIR logo + 3 cycling icons
     });
 });
