@@ -151,6 +151,14 @@ export const activeStatusOptions: Array<{ label: string; value: string }> = [
     { label: "Inactive", value: "false" },
 ];
 
+export const locationTypeOptions: Array<{ label: string; value: string }> = [
+    { label: "Storage", value: "storage" },
+    { label: "Staging", value: "staging" },
+    { label: "Receiving", value: "receiving" },
+    { label: "Dispatch", value: "dispatch" },
+    { label: "Product", value: "product" },
+];
+
 export const masterEntities: Partial<
     Record<MasterEntityConfig["entity"], MasterEntityConfig>
 > = {
@@ -307,6 +315,13 @@ export const masterEntities: Partial<
                 required: true,
             },
             { key: "name", label: "Name", required: true },
+            {
+                key: "locationType",
+                label: "Location Type",
+                type: "select",
+                options: locationTypeOptions,
+                required: true,
+            },
             {
                 key: "parentId",
                 label: "Parent Location",

@@ -1,5 +1,6 @@
 import { By, until } from "selenium-webdriver";
 import { RfidSelectors } from "../selectors/rfid.selectors.js";
+import { navigateInApp } from "../helpers/navigation.js";
 
 export class RfidPage {
     constructor(driver, appUrl, route = "tags") {
@@ -8,27 +9,23 @@ export class RfidPage {
     }
 
     async navigate() {
-        await this.driver.get(this.url);
-        await this.driver.wait(until.elementLocated(By.css("body")), 5000);
-        await this.driver.sleep(1000);
+        await navigateInApp(this.driver, this.url);
+    }
+
+    async isAccessible() {
+        return (await this.driver.getCurrentUrl()) === this.url;
     }
 
     async registerTag(epc, sku) {
-        const addBtn = await this.driver.findElement(
-            By.css(RfidSelectors.REGISTER_TAG_BTN),
-        );
-        await addBtn.click();
-        await this.driver.sleep(1000);
-
         const epcInput = await this.driver.findElement(
             By.css(RfidSelectors.TAG_EPC_INPUT),
         );
         await epcInput.sendKeys(epc);
 
-        const skuInput = await this.driver.findElement(
-            By.css(RfidSelectors.ITEM_SKU_INPUT),
+        const productSelect = await this.driver.findElement(
+            By.css(RfidSelectors.PRODUCT_SELECT),
         );
-        await skuInput.sendKeys(sku);
+        await productSelect.sendKeys(sku);
 
         const saveBtn = await this.driver.findElement(
             By.css(RfidSelectors.SAVE_BTN),
@@ -37,12 +34,30 @@ export class RfidPage {
         await this.driver.sleep(1000);
     }
 
-    async search(text) {
-        const searchInput = await this.driver.findElement(
-            By.css(RfidSelectors.SEARCH_INPUT),
+    async verifyRegistrationSurface() {
+        const createCard = await this.driver.wait(
+            until.elementLocated(By.css(RfidSelectors.CREATE_CARD)),
+            10000,
         );
-        await searchInput.clear();
-        await searchInput.sendKeys(text);
-        await this.driver.sleep(1500);
+        const listCard = await this.driver.wait(
+            until.elementLocated(By.css(RfidSelectors.LIST_CARD)),
+            10000,
+        );
+        const epcInput = await this.driver.findElement(
+            By.css(RfidSelectors.TAG_EPC_INPUT),
+        );
+        const productSelect = await this.driver.findElement(
+            By.css(RfidSelectors.PRODUCT_SELECT),
+        );
+        const refreshBtn = await this.driver.findElement(
+            By.css(RfidSelectors.REFRESH_BTN),
+        );
+        return (
+            (await createCard.isDisplayed()) &&
+            (await listCard.isDisplayed()) &&
+            (await epcInput.isDisplayed()) &&
+            (await productSelect.isDisplayed()) &&
+            (await refreshBtn.isDisplayed())
+        );
     }
 }

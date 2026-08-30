@@ -1,6 +1,7 @@
 /* eslint-disable no-console, @typescript-eslint/no-unused-vars */
 import { By, until } from "selenium-webdriver";
 import { TransactionSelectors } from "../selectors/transaction.selectors.js";
+import { navigateInApp } from "../helpers/navigation.js";
 
 export class TransactionPage {
     constructor(driver, appUrl, type = "inbound") {
@@ -10,9 +11,7 @@ export class TransactionPage {
     }
 
     async navigate() {
-        await this.driver.get(this.url);
-        await this.driver.wait(until.elementLocated(By.css("body")), 5000);
-        await this.driver.sleep(1000);
+        await navigateInApp(this.driver, this.url);
     }
 
     async switchTab(targetType) {

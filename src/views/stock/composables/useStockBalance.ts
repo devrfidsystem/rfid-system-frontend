@@ -74,8 +74,8 @@ export function useStockBalance() {
 
         return sorted.map((row) => ({
             id: row.id,
-            productId: formatValue(row.productId),
-            warehouseId: formatValue(row.warehouseId),
+            productId: formatValue(row.productName ?? row.productId),
+            warehouseId: formatValue(row.warehouseName ?? row.warehouseId),
             locationPath: formatValue(row.locationPath),
             quantity: formatValue(row.quantity),
         }));

@@ -193,7 +193,7 @@ describe("useOpnameTree", () => {
         expect(composable.summary.value).toEqual(mockSummary);
     });
 
-    it("does not refetch the summary when a client-side filter changes", async () => {
+    it("reloads tree and summary with status and location filters", async () => {
         const composable = mountOpnameTree();
         await nextTick();
 
@@ -202,16 +202,26 @@ describe("useOpnameTree", () => {
         await Promise.resolve();
 
         expect(getSummaryMock).toHaveBeenCalledTimes(1);
+        expect(getTreeMock).toHaveBeenCalledTimes(1);
         getSummaryMock.mockClear();
+        getTreeMock.mockClear();
 
-        composable.keyword.value = "search term";
         composable.statusFilter.value = "counting";
         composable.locationFilter.value = "Rack A";
-        composable.startDate.value = "2026-08-01";
-        composable.endDate.value = "2026-08-06";
         await nextTick();
         await Promise.resolve();
 
-        expect(getSummaryMock).not.toHaveBeenCalled();
+        expect(getTreeMock).toHaveBeenCalledWith({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+            status: "counting",
+            location: "Rack A",
+        });
+        expect(getSummaryMock).toHaveBeenCalledWith({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+            status: "counting",
+            location: "Rack A",
+        });
     });
 });

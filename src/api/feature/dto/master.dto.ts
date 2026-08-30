@@ -55,10 +55,12 @@ export interface CreateLocationPayload {
     parentId?: string;
     code: string;
     name: string;
+    locationType?: string;
 }
 
 export type UpdateLocationPayload = {
     name?: string;
+    locationType?: string;
 };
 
 export interface ProductAttributeValuePayload {

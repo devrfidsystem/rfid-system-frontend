@@ -148,6 +148,8 @@ export function useOpnameTree() {
             const params: OpnameTreeFilterParams = {
                 companyId: companyId.value,
                 warehouseId: selectedWarehouseId.value,
+                status: statusFilter.value.trim() || undefined,
+                location: locationFilter.value.trim() || undefined,
             };
             const rows = await opnameService.getTree(params);
             tree.value = rows;
@@ -174,6 +176,8 @@ export function useOpnameTree() {
             summary.value = await opnameService.summary({
                 companyId: companyId.value,
                 warehouseId: selectedWarehouseId.value,
+                status: statusFilter.value.trim() || undefined,
+                location: locationFilter.value.trim() || undefined,
             });
         } catch (err) {
             summary.value = null;
@@ -215,6 +219,12 @@ export function useOpnameTree() {
         },
         { immediate: true },
     );
+
+    watch([statusFilter, locationFilter], () => {
+        if (!companyId.value || !selectedWarehouseId.value) return;
+        void loadTree();
+        void loadSummary();
+    });
 
     const openCreateRoot = () => {
         void router.push({

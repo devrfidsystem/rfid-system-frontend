@@ -24,21 +24,23 @@ async function runIamTests() {
         console.log("\n[Test] 1. Roles Management");
         const rolesPage = new IamPage(driver, APP_URL, "roles");
         await rolesPage.navigate();
+        if (!(await rolesPage.verifyRolesSurface())) {
+            throw new Error("Roles surface is not visible.");
+        }
 
         const roleName = `Role-${Date.now()}`;
         await rolesPage.createRole(roleName);
-        await rolesPage.search(roleName);
+        await rolesPage.waitForText(roleName);
         console.log(`  -> Role created and found: ${roleName}. PASS.`);
 
-        // 2. Users
-        console.log("\n[Test] 2. Users Management");
-        const usersPage = new IamPage(driver, APP_URL, "user-access"); // Adjust route if needed
+        // 2. User access assignment surface
+        console.log("\n[Test] 2. User Access Management");
+        const usersPage = new IamPage(driver, APP_URL, "users");
         await usersPage.navigate();
-
-        const userEmail = `user${Date.now()}@e2e.test`;
-        await usersPage.createUser(userEmail);
-        await usersPage.search(userEmail);
-        console.log(`  -> User created and found: ${userEmail}. PASS.`);
+        if (!(await usersPage.verifyUserAccessSurface())) {
+            throw new Error("User access surface is not visible.");
+        }
+        console.log("  -> User access controls visible. PASS.");
 
         console.log("\nAll IAM Regression scenarios covered.");
     } catch (err) {

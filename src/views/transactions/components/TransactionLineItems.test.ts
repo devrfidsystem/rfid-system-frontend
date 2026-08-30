@@ -229,7 +229,7 @@ describe("TransactionLineItems", () => {
         expect(html).not.toContain("xl:w-32");
     });
 
-    it("renders only a target location for putaway lines", async () => {
+    it("renders source location before target location for putaway lines", async () => {
         const app = createSSRApp(TransactionLineItems, {
             ...baseProps,
             productAttributeSummaries: {},
@@ -238,10 +238,35 @@ describe("TransactionLineItems", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).not.toContain("Source Location");
-        expect(html).not.toContain("cmb_TransactionLineItemsSourceLocation");
+        expect(html).toContain("Source Location");
+        expect(html).toContain("cmb_TransactionLineItemsSourceLocation_Row0");
         expect(html).toContain("Target Location");
         expect(html).toContain("cmb_TransactionLineItemsTargetLocation_Row0");
+        expect(html.indexOf("Source Location")).toBeLessThan(
+            html.indexOf("Target Location"),
+        );
+    });
+
+    it("disables the putaway product picker until a source location is selected", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            showPutawayLocations: true,
+            lines: [
+                {
+                    productId: "",
+                    qty: "1",
+                    locationId: "",
+                    fromLocationId: "",
+                    toLocationId: "",
+                },
+            ],
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("Select source location first");
+        expect(html).toContain("cmb_TransactionLineItemsProduct_Row0");
+        expect(html).toContain("disabled");
     });
 });
 

@@ -44,6 +44,12 @@ async function runStockTests() {
             console.log(`[Test] 3. Filter ${route} by Warehouse`);
             await stockPage.filterByWarehouse("Main Warehouse");
             console.log(`  -> Filter executed. PASS.`);
+
+            console.log(`[Test] 4. Export control exists for ${route}`);
+            if (!(await stockPage.verifyExportControl())) {
+                throw new Error(`Export control is not visible for ${route}`);
+            }
+            console.log(`  -> Export control visible. PASS.`);
         }
 
         console.log("\nAll Stock variants tested successfully.");

@@ -52,13 +52,13 @@ const MASTER_ENTITIES = [
         name: "UOM",
         fields: {
             name: { value: `E2E UOM ${Date.now()}`, type: "text" },
-            symbol: { value: "PCS", type: "text" },
+            symbol: { value: `PCS-${Date.now()}`, type: "text" },
         },
         searchKey: "name",
     },
     {
         route: "product-categories",
-        name: "Category",
+        name: "Product Categories",
         fields: {
             name: { value: `E2E Category ${Date.now()}`, type: "text" },
         },
@@ -71,6 +71,7 @@ const MASTER_ENTITIES = [
             code: { value: `PROD-${Date.now()}`, type: "text" },
             name: { value: `E2E Product ${Date.now()}`, type: "text" },
         },
+        selectFirstOptions: ["uomId"],
         searchKey: "name",
     },
 ];
@@ -102,6 +103,7 @@ async function runMasterAllTests() {
                 driver,
                 APP_URL,
                 entity.route,
+                entity.name,
             );
 
             console.log(`[Test] Navigating to /master-data/${entity.route}...`);
@@ -112,6 +114,9 @@ async function runMasterAllTests() {
             console.log(`[Test] 1. Create ${entity.name}`);
             await masterPage.openCreateForm();
             await masterPage.fillForm(entity.fields);
+            for (const fieldKey of entity.selectFirstOptions ?? []) {
+                await masterPage.selectFirstOption(fieldKey);
+            }
             await masterPage.submitForm();
             console.log(`  -> ${entity.name} created. PASS.`);
 

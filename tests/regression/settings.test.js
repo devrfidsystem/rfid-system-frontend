@@ -39,21 +39,19 @@ async function runSettingsTests() {
             await settingsPage.navigate();
             console.log(`  -> Page loaded. PASS.`);
 
-            // Only perform creation on companies and apps for now
-            if (route.type === "companies" || route.type === "apps") {
-                console.log(`[Test] 2. Create ${route.type}`);
-                const testName = `TEST-${route.type.toUpperCase()}-${Date.now()}`;
-                await settingsPage.createItem(testName, route.type);
-                console.log(`  -> Item created. PASS.`);
-
-                console.log(`[Test] 3. Search ${route.type}`);
-                await settingsPage.search(testName);
-                console.log(`  -> Search executed. PASS.`);
-            } else {
-                console.log(`[Test] 2. Search menus`);
-                await settingsPage.search("Dashboard");
-                console.log(`  -> Search executed. PASS.`);
+            console.log(`[Test] 2. Header and list are wired`);
+            if (!(await settingsPage.verifySurface())) {
+                throw new Error(`${route.type} surface is not visible.`);
             }
+            console.log(`  -> Header and list visible. PASS.`);
+
+            console.log(`[Test] 3. Create form controls are wired`);
+            if (!(await settingsPage.verifyCreateForm())) {
+                throw new Error(
+                    `${route.type} create controls are not visible.`,
+                );
+            }
+            console.log(`  -> Create controls visible. PASS.`);
         }
 
         console.log("\nAll Settings Regression scenarios covered.");

@@ -66,6 +66,7 @@ export interface LocationRecord {
     parentId?: string | null;
     code: string;
     name: string;
+    locationType?: string;
     path: string;
     depth: number;
     rowNo: number;
@@ -269,7 +270,9 @@ export interface PutawayRecord {
 export interface StockBalanceRecord {
     id: string;
     productId: string;
+    productName?: string;
     warehouseId: string;
+    warehouseName?: string;
     locationId: string;
     locationPath: string;
     quantity: number;

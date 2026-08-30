@@ -74,6 +74,7 @@ describe("buildMasterCreatePayload", () => {
         const payload = buildMasterCreatePayload("locations", {
             warehouseId: "wh-1",
             name: "Rack A",
+            locationType: "storage",
             parentId: "loc-1",
             imageFile: null,
         });
@@ -81,6 +82,7 @@ describe("buildMasterCreatePayload", () => {
         expect(payload).toEqual({
             warehouseId: "wh-1",
             name: "Rack A",
+            locationType: "storage",
             parentId: "loc-1",
             code: "LOC-RACK-A",
         });
@@ -139,8 +141,9 @@ describe("buildMasterUpdatePayload", () => {
             buildMasterUpdatePayload("locations", {
                 name: "Rack A Renamed",
                 code: "LOC-SHOULD-NOT-BE-SENT",
+                locationType: "product",
             }),
-        ).toEqual({ name: "Rack A Renamed" });
+        ).toEqual({ name: "Rack A Renamed", locationType: "product" });
     });
 
     it("converts isActive to a boolean on update", () => {

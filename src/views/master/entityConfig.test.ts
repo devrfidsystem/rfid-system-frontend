@@ -29,7 +29,7 @@ describe("master entity wiring", () => {
         ).toBe(false);
         expect(
             masterEntities.locations?.formFields.map((field) => field.key),
-        ).toEqual(["warehouseId", "name", "parentId"]);
+        ).toEqual(["warehouseId", "name", "locationType", "parentId"]);
         expect(
             masterEntities.customers?.formFields.some(
                 (field) => field.key === "description",
@@ -43,6 +43,22 @@ describe("master entity wiring", () => {
         expect(
             masterEntities.products?.formFields.map((field) => field.key),
         ).toContain("imageFile");
+    });
+
+    it("exposes location type options including product", () => {
+        const locationTypeField = masterEntities.locations?.formFields.find(
+            (field) => field.key === "locationType",
+        );
+
+        expect(locationTypeField).toMatchObject({
+            label: "Location Type",
+            type: "select",
+            required: true,
+        });
+        expect(locationTypeField?.options).toContainEqual({
+            label: "Product",
+            value: "product",
+        });
     });
 
     it("does not fall back to raw ids for relation labels", () => {

@@ -197,6 +197,7 @@ const handleSubmit = async () => {
     }
     submitting.value = true;
     try {
+        let createdRole: RoleRecord | undefined;
         await withToast(
             async () => {
                 if (isEditing.value) {
@@ -204,14 +205,14 @@ const handleSubmit = async () => {
                         name: form.value.name,
                     });
                 } else {
-                    await iamService.createRole({
+                    createdRole = (await iamService.createRole({
                         companyId: authStore.currentCompanyId as string,
                         code: form.value.code
                             .trim()
                             .toUpperCase()
                             .replace(/\s+/g, "_"),
                         name: form.value.name,
-                    });
+                    })) as RoleRecord;
                 }
             },
             {
@@ -222,7 +223,15 @@ const handleSubmit = async () => {
             },
         );
         isModalOpen.value = false;
-        await loadData();
+        const savedRole = createdRole as RoleRecord | undefined;
+        if (savedRole?.id) {
+            rows.value = [
+                savedRole,
+                ...rows.value.filter((role) => role.id !== savedRole.id),
+            ];
+        } else {
+            await loadData();
+        }
     } finally {
         submitting.value = false;
     }
