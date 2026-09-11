@@ -44,7 +44,6 @@ const requiredGenericTransactionKeys = [
     "putaway",
     "outbound",
     "relocation",
-    "transfer",
     "return",
     "returns",
 ];
@@ -71,15 +70,10 @@ const requiredTransactionFormMarkers: Record<string, string[]> = {
         "cmb_TransactionCreatePartner",
     ],
     relocation: [
-        "cmb_TransactionCreateWarehouse",
-        "cmb_TransactionLineItemsFromLocation_Row",
-        "cmb_TransactionLineItemsToLocation_Row",
-    ],
-    transfer: [
-        "cmb_TransactionCreateFromWarehouse",
-        "cmb_TransactionCreateToWarehouse",
-        "cmb_TransactionLineItemsFromLocation_Row",
-        "cmb_TransactionLineItemsToLocation_Row",
+        "cmb_TransactionLineItemsRelocationFromWarehouse",
+        "cmb_TransactionLineItemsRelocationFromLocation",
+        "cmb_TransactionLineItemsRelocationToWarehouse",
+        "cmb_TransactionLineItemsRelocationToLocation",
     ],
     returns: ["cmb_TransactionCreatePartner", "TransactionLineItems"],
 };

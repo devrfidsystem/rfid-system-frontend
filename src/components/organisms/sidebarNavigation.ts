@@ -73,7 +73,6 @@ const iconMap: Record<string, Component> = {
     TRANSACTION_PUTAWAY: Warehouse,
     TRANSACTION_OUTBOUND: ArrowUpFromLine,
     TRANSACTION_RELOCATION: Map,
-    TRANSACTION_TRANSFER: Truck,
     TRANSACTION_RETURN: ArrowDownToLine,
     TRANSACTION_RETURNS: ArrowDownToLine,
     TRANSACTION_OPNAME: FileText,

@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
     createSpy: vi.fn(),
     getSpy: vi.fn(),
     updateSpy: vi.fn(),
+    availablePutawayProductsSpy: vi.fn().mockResolvedValue([]),
     locationListSpy: vi.fn().mockResolvedValue({ items: [], meta: null }),
     stockBalanceSpy: vi.fn().mockResolvedValue({ items: [], meta: null }),
     pushSpy: vi.fn(),
@@ -36,6 +37,7 @@ vi.mock("@/services/transactions.service", () => ({
         create: mocks.createSpy,
         get: mocks.getSpy,
         update: mocks.updateSpy,
+        availablePutawayProducts: mocks.availablePutawayProductsSpy,
     },
 }));
 
@@ -63,6 +65,7 @@ vi.mock("@/services/stock.service", () => ({
     },
 }));
 
+
 describe("useTransactionCreate", () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -82,19 +85,23 @@ describe("useTransactionCreate", () => {
         expect(create.form.value.docNumber).toBe("OUT-250826-001");
     });
 
-    it("builds a relocation payload with from and to location lines", async () => {
+    it("builds a relocation payload with shared source and destination fields", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("relocation");
 
         create.form.value.docNumber = "REL-001";
         create.form.value.transactionDate = "2026-07-18";
         create.form.value.notes = "Relocation task";
+        create.form.value.fromWarehouseId = "warehouse-a";
+        create.form.value.fromLocationId = "loc-a";
+        create.form.value.toWarehouseId = "warehouse-b";
+        create.form.value.toLocationId = "loc-b";
         create.form.value.lines.push({
             productId: "prod-1",
             qty: "3",
             locationId: "",
-            fromLocationId: "loc-a",
-            toLocationId: "loc-b",
+            fromLocationId: "",
+            toLocationId: "",
             enteredUomId: "",
             enteredQty: "",
         });
@@ -106,11 +113,13 @@ describe("useTransactionCreate", () => {
             docNumber: "REL-001",
             docDate: expect.any(String),
             notes: "Relocation task",
+            fromWarehouseId: "warehouse-a",
+            fromLocationId: "loc-a",
+            toWarehouseId: "warehouse-b",
+            toLocationId: "loc-b",
             lines: [
                 {
                     productId: "prod-1",
-                    fromLocationId: "loc-a",
-                    toLocationId: "loc-b",
                     qty: 3,
                 },
             ],
@@ -200,18 +209,20 @@ describe("useTransactionCreate", () => {
         );
     });
 
-    it("blocks transfer submit when source or destination warehouse is missing", async () => {
+    it("blocks relocation submit when source or destination field is missing", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
-        const create = useTransactionCreate("transfer");
+        const create = useTransactionCreate("relocation");
 
         create.form.value.fromWarehouseId = "warehouse-a";
         create.form.value.toWarehouseId = "";
+        create.form.value.fromLocationId = "loc-a";
+        create.form.value.toLocationId = "";
         create.form.value.lines.push({
             productId: "prod-1",
             qty: "1",
             locationId: "",
-            fromLocationId: "loc-a",
-            toLocationId: "loc-b",
+            fromLocationId: "",
+            toLocationId: "",
             enteredUomId: "",
             enteredQty: "",
         });
@@ -220,7 +231,7 @@ describe("useTransactionCreate", () => {
 
         expect(mocks.createSpy).not.toHaveBeenCalled();
         expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
-            "Please select source and destination warehouses.",
+            "Please complete product, location, and quantity for every line item.",
         );
     });
 
@@ -303,7 +314,7 @@ describe("useTransactionCreate", () => {
         );
     });
 
-    it("requires putaway target location but keeps source location optional", async () => {
+    it("requires only the putaway target location", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("putaway");
 
@@ -340,43 +351,49 @@ describe("useTransactionCreate", () => {
         expect(payload.lines[0]).not.toHaveProperty("sourceLocationId");
     });
 
-    it("loads putaway products from the selected source location stock balance", async () => {
-        mocks.stockBalanceSpy.mockResolvedValueOnce({
-            items: [
-                {
-                    id: "bal-1",
-                    productId: "prod-1",
-                    productCode: "SKU-1",
-                    productName: "Widget",
-                    warehouseId: "warehouse-1",
-                    locationId: "loc-source",
-                    quantity: 12,
-                },
-            ],
-            meta: null,
-        });
+    it("applies one shared putaway target location to every added line", async () => {
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("putaway");
+
+        create.putawayTargetLocationId.value = "loc-target";
+        create.addLine();
+        create.addLine();
+
+        expect(create.form.value.lines).toHaveLength(2);
+        expect(create.form.value.lines.map((line) => line.toLocationId)).toEqual([
+            "loc-target",
+            "loc-target",
+        ]);
+    });
+
+    it("loads only inbound products that do not have a location", async () => {
+        mocks.availablePutawayProductsSpy.mockResolvedValueOnce([
+            {
+                productId: "prod-1",
+                code: "SKU-1",
+                name: "Widget",
+                qty: 12,
+            },
+        ]);
 
         const { nextTick } = await import("vue");
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("putaway");
 
         create.form.value.warehouseId = "warehouse-1";
-        create.addLine();
-        create.form.value.lines[0].fromLocationId = "loc-source";
         await nextTick();
         await Promise.resolve();
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(mocks.stockBalanceSpy).toHaveBeenCalledWith({
-            warehouseId: "warehouse-1",
-            locationId: "loc-source",
-            limit: 200,
-        });
+        expect(mocks.availablePutawayProductsSpy).toHaveBeenCalledWith(
+            "warehouse-1",
+        );
         expect(create.productOptions.value).toEqual([
             { label: "SKU-1 - Widget (Qty 12)", value: "prod-1" },
         ]);
     });
 
-    it("does not load global master products for putaway before a source location is selected", async () => {
+    it("does not load global master products for putaway", async () => {
         const { masterService } = await import("@/services/master.service");
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("putaway");
@@ -756,7 +773,7 @@ describe("useTransactionCreate", () => {
         expect(payload.lines[0]).not.toHaveProperty("enteredQty");
     });
 
-    it("builds a putaway payload with source and target locations", async () => {
+    it("builds a putaway payload with target location only", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("putaway");
 
@@ -790,7 +807,6 @@ describe("useTransactionCreate", () => {
                     lineNo: 1,
                     productId: "prod-1",
                     qty: 10,
-                    sourceLocationId: "loc-existing",
                     targetLocationId: "loc-target",
                 },
             ],

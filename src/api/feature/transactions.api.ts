@@ -8,6 +8,20 @@ import {
 } from "@/api/feature/dto/transactions.dto";
 
 export const transactionsApi = {
+    availablePutawayProducts(warehouseId: string) {
+        return apiRequest<
+            Array<{
+                productId: string;
+                code: string;
+                name: string;
+                qty: number;
+            }>
+        >({
+            url: "/putaway/available-products",
+            method: "get",
+            params: { warehouseId },
+        });
+    },
     list(key: TransactionKey, params: ReportParams = {}) {
         const path = transactionPaths[key];
         return apiRequest<{ items?: TransactionRecord[] }>({

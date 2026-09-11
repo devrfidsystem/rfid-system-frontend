@@ -219,12 +219,18 @@
                     :product-attribute-summaries="productAttributeSummaries"
                     :product-uom-info="productUomInfo"
                     :location-options="locationOptions"
+                    :warehouse-options="warehouseOptions"
                     :from-location-options="fromLocationOptions"
                     :to-location-options="toLocationOptions"
                     :show-single-warehouse="showSingleWarehouse && !isRegister"
                     :is-relocation="isRelocation"
                     :show-dual-warehouse="showDualWarehouse"
                     :show-putaway-locations="showPutawayLocations"
+                    v-model:putaway-target-location-id="putawayTargetLocationId"
+                    v-model:relocation-from-warehouse-id="form.fromWarehouseId"
+                    v-model:relocation-from-location-id="form.fromLocationId"
+                    v-model:relocation-to-warehouse-id="form.toWarehouseId"
+                    v-model:relocation-to-location-id="form.toLocationId"
                     :is-register="isRegister"
                     :submitting="submitting"
                     @add-line="addLine"
@@ -299,6 +305,7 @@ const {
     showSingleWarehouse,
     showDualWarehouse,
     showPutawayLocations,
+    putawayTargetLocationId,
     showPartnerField,
     isRelocation,
     isOpname,

@@ -44,12 +44,18 @@ const baseProps = {
     productOptions: [{ label: "P1 - Widget", value: "prod-1" }],
     productUomInfo: {},
     locationOptions: [],
+    warehouseOptions: [],
     fromLocationOptions: [],
     toLocationOptions: [],
     showSingleWarehouse: false,
     isRelocation: false,
     showDualWarehouse: false,
     showPutawayLocations: false,
+    putawayTargetLocationId: "",
+    relocationFromWarehouseId: "",
+    relocationFromLocationId: "",
+    relocationToWarehouseId: "",
+    relocationToLocationId: "",
     isRegister: false,
     submitting: false,
 };
@@ -229,25 +235,47 @@ describe("TransactionLineItems", () => {
         expect(html).not.toContain("xl:w-32");
     });
 
-    it("renders source location before target location for putaway lines", async () => {
+    it("renders one shared target location before putaway lines", async () => {
         const app = createSSRApp(TransactionLineItems, {
             ...baseProps,
             productAttributeSummaries: {},
             showPutawayLocations: true,
             locationOptions: [{ label: "Rack A", value: "loc-target-1" }],
+            putawayTargetLocationId: "",
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("Source Location");
-        expect(html).toContain("cmb_TransactionLineItemsSourceLocation_Row0");
         expect(html).toContain("Target Location");
-        expect(html).toContain("cmb_TransactionLineItemsTargetLocation_Row0");
-        expect(html.indexOf("Source Location")).toBeLessThan(
-            html.indexOf("Target Location"),
-        );
+        expect(html).toContain("cmb_TransactionLineItemsPutawayTargetLocation");
+        expect(html).not.toContain("Source Location");
+        expect(html).not.toContain("cmb_TransactionLineItemsSourceLocation_Row0");
+        expect(html).not.toContain("cmb_TransactionLineItemsTargetLocation_Row0");
     });
 
-    it("disables the putaway product picker until a source location is selected", async () => {
+    it("renders shared warehouse and location fields for relocation", async () => {
+        const app = createSSRApp(TransactionLineItems, {
+            ...baseProps,
+            productAttributeSummaries: {},
+            isRelocation: true,
+            warehouseOptions: [{ label: "WH A", value: "wh-a" }],
+            fromLocationOptions: [{ label: "Rack A", value: "loc-a" }],
+            toLocationOptions: [{ label: "Rack B", value: "loc-b" }],
+            relocationFromWarehouseId: "wh-a",
+            relocationFromLocationId: "loc-a",
+            relocationToWarehouseId: "wh-a",
+            relocationToLocationId: "loc-b",
+        });
+        const html = await renderToString(app);
+
+        expect(html).toContain("cmb_TransactionLineItemsRelocationFromWarehouse");
+        expect(html).toContain("cmb_TransactionLineItemsRelocationFromLocation");
+        expect(html).toContain("cmb_TransactionLineItemsRelocationToWarehouse");
+        expect(html).toContain("cmb_TransactionLineItemsRelocationToLocation");
+        expect(html).not.toContain("cmb_TransactionLineItemsFromLocation_Row0");
+        expect(html).not.toContain("cmb_TransactionLineItemsToLocation_Row0");
+    });
+
+    it("keeps the putaway product picker available without a source location", async () => {
         const app = createSSRApp(TransactionLineItems, {
             ...baseProps,
             productAttributeSummaries: {},
@@ -264,9 +292,11 @@ describe("TransactionLineItems", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("Select source location first");
+        expect(html).toContain("Select a product");
         expect(html).toContain("cmb_TransactionLineItemsProduct_Row0");
-        expect(html).toContain("disabled");
+        expect(html).not.toContain(
+            'disabled required data-testid="cmb_TransactionLineItemsProduct_Row0"',
+        );
     });
 });
 

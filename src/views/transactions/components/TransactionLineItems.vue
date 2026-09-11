@@ -17,36 +17,72 @@
                 >Add Line</Button
             >
         </div>
+        <div v-if="showPutawayLocations" class="px-6 pt-5">
+            <Select
+                :model-value="putawayTargetLocationId"
+                :options="locationOptions"
+                label="Target Location"
+                placeholder="Select target location"
+                required
+                object-id="cmb_TransactionLineItemsPutawayTargetLocation"
+                @update:model-value="$emit('update:putawayTargetLocationId', $event)"
+            />
+            <p class="mt-1 text-xs text-text-secondary">
+                Semua barang yang ditambahkan akan ditempatkan di location ini.
+            </p>
+        </div>
+        <div v-if="isRelocation" class="grid grid-cols-1 xl:grid-cols-2 gap-4 px-6 pt-5">
+            <Select
+                :model-value="relocationFromWarehouseId"
+                :options="warehouseOptions"
+                label="Source Warehouse"
+                placeholder="Select source warehouse"
+                required
+                object-id="cmb_TransactionLineItemsRelocationFromWarehouse"
+                @update:model-value="$emit('update:relocationFromWarehouseId', $event)"
+            />
+            <Select
+                :model-value="relocationFromLocationId"
+                :options="fromLocationOptions"
+                label="Source Location"
+                placeholder="Select source location"
+                required
+                object-id="cmb_TransactionLineItemsRelocationFromLocation"
+                @update:model-value="$emit('update:relocationFromLocationId', $event)"
+            />
+            <Select
+                :model-value="relocationToWarehouseId"
+                :options="warehouseOptions"
+                label="Destination Warehouse"
+                placeholder="Select destination warehouse"
+                required
+                object-id="cmb_TransactionLineItemsRelocationToWarehouse"
+                @update:model-value="$emit('update:relocationToWarehouseId', $event)"
+            />
+            <Select
+                :model-value="relocationToLocationId"
+                :options="toLocationOptions"
+                label="Destination Location"
+                placeholder="Select destination location"
+                required
+                object-id="cmb_TransactionLineItemsRelocationToLocation"
+                @update:model-value="$emit('update:relocationToLocationId', $event)"
+            />
+        </div>
         <div class="flex-1 overflow-x-auto p-6 space-y-4">
             <div
                 v-for="(line, idx) in lines"
                 :key="idx"
                 class="flex flex-col xl:flex-row xl:flex-wrap gap-4 xl:items-end border-b border-border xl:border-none pb-6 xl:pb-0 last:border-0"
             >
-                <div v-if="showPutawayLocations" class="w-full xl:w-48">
-                    <Select
-                        v-model="line.fromLocationId"
-                        :options="locationOptions"
-                        label="Source Location"
-                        placeholder="Select source location"
-                        required
-                        :object-id="`cmb_TransactionLineItemsSourceLocation_Row${idx}`"
-                    />
-                </div>
-
                 <div class="flex-1">
                     <Select
                         :model-value="line.productId"
                         :options="productOptions"
                         label="Product"
-                        :placeholder="
-                            showPutawayLocations && !line.fromLocationId
-                                ? 'Select source location first'
-                                : 'Select a product'
-                        "
+                        placeholder="Select a product"
                         required
                         searchable
-                        :disabled="showPutawayLocations && !line.fromLocationId"
                         search-placeholder="Search products..."
                         :object-id="`cmb_TransactionLineItemsProduct_Row${idx}`"
                         @update:model-value="
@@ -81,21 +117,8 @@
                     />
                 </div>
 
-                <template v-if="showPutawayLocations">
-                    <div class="w-full xl:w-48">
-                        <Select
-                            v-model="line.toLocationId"
-                            :options="locationOptions"
-                            label="Target Location"
-                            placeholder="Select target location"
-                            required
-                            :object-id="`cmb_TransactionLineItemsTargetLocation_Row${idx}`"
-                        />
-                    </div>
-                </template>
-
                 <div
-                    v-if="showDualWarehouse || isRelocation"
+                    v-if="showDualWarehouse"
                     class="w-full xl:w-48"
                 >
                     <Select
@@ -111,7 +134,7 @@
                 </div>
 
                 <div
-                    v-if="showDualWarehouse || isRelocation"
+                    v-if="showDualWarehouse"
                     class="w-full xl:w-48"
                 >
                     <Select
@@ -290,6 +313,7 @@ const props = defineProps<{
     productAttributeSummaries: Record<string, string>;
     productUomInfo: Record<string, ProductUomInfo>;
     locationOptions: Array<{ label: string; value: string }>;
+    warehouseOptions: Array<{ label: string; value: string }>;
     fromLocationOptions: Array<{ label: string; value: string }>;
     toLocationOptions: Array<{ label: string; value: string }>;
     showSingleWarehouse: boolean;
@@ -298,9 +322,24 @@ const props = defineProps<{
     showPutawayLocations: boolean;
     isRegister: boolean;
     submitting: boolean;
+    putawayTargetLocationId: string;
+    relocationFromWarehouseId: string;
+    relocationFromLocationId: string;
+    relocationToWarehouseId: string;
+    relocationToLocationId: string;
 }>();
 
-defineEmits(["add-line", "remove-line", "back", "search-products"]);
+defineEmits([
+    "add-line",
+    "remove-line",
+    "back",
+    "search-products",
+    "update:putawayTargetLocationId",
+    "update:relocationFromWarehouseId",
+    "update:relocationFromLocationId",
+    "update:relocationToWarehouseId",
+    "update:relocationToLocationId",
+]);
 
 const onProductChange = (
     line: {

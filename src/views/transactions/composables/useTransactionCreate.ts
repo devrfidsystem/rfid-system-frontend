@@ -43,6 +43,8 @@ export function useTransactionCreate(
         locationId: "",
         fromWarehouseId: "",
         toWarehouseId: "",
+        fromLocationId: "",
+        toLocationId: "",
         partnerId: "",
         assignedById: "",
         deadlineAt: "",
@@ -92,11 +94,11 @@ export function useTransactionCreate(
             "return",
             "returns",
             "opname",
-            "relocation",
         ].includes(transactionKey),
     );
     const showDualWarehouse = computed(() => isTransfer.value);
     const showPutawayLocations = computed(() => isPutaway.value);
+    const putawayTargetLocationId = ref("");
 
     const showPartnerField = computed(() => {
         return ["inbound", "outbound", "return", "returns"].includes(
@@ -189,41 +191,76 @@ export function useTransactionCreate(
         }
     };
 
-    const loadPutawayProductsFromLocation = async (
+    const loadPutawayProducts = async (
         warehouseId: string,
-        locationId: string,
+        search?: string,
     ) => {
         try {
-            const res = await stockService.fetchBalance({
+            const items = await transactionService.availablePutawayProducts(
+                warehouseId,
+            );
+            const normalizedSearch = search?.trim().toLowerCase();
+            productOptions.value = items
+                .filter((item) => {
+                    if (!normalizedSearch) return true;
+                    return `${item.code} ${item.name}`
+                        .toLowerCase()
+                        .includes(normalizedSearch);
+                })
+                .map((item) => {
+                    const productLabel = item.code
+                        ? `${item.code} - ${item.name}`
+                        : item.name;
+                    return {
+                        label: `${productLabel} (Qty ${item.qty})`,
+                        value: item.productId,
+                    };
+                });
+        } catch {
+            productOptions.value = [];
+        }
+    };
+
+    const loadRelocationProducts = async (
+        warehouseId: string,
+        locationId: string,
+        search?: string,
+    ) => {
+        try {
+            const response = await stockService.fetchBalance({
                 warehouseId,
                 locationId,
                 limit: 200,
             });
-            productOptions.value = res.items.map((balance) => {
-                const record = balance as typeof balance & {
-                    productCode?: string;
-                    productName?: string;
-                    product?: { id?: string; code?: string; name?: string };
-                    quantity?: number;
-                    qty?: number;
-                    qty_on_hand?: number;
-                };
-                const productId = String(
-                    record.product?.id ?? record.productId,
+            const normalizedSearch = search?.trim().toLowerCase();
+            productOptions.value = response.items
+                .map((balance) => {
+                    const record = balance as typeof balance & {
+                        productCode?: string;
+                        productName?: string;
+                        product?: { id?: string; code?: string; name?: string };
+                        quantity?: number;
+                        qty?: number;
+                        qty_on_hand?: number;
+                    };
+                    const productId = String(
+                        record.product?.id ?? record.productId,
+                    );
+                    const code = record.product?.code ?? record.productCode;
+                    const name =
+                        record.product?.name ?? record.productName ?? productId;
+                    const qty =
+                        record.quantity ?? record.qty ?? record.qty_on_hand;
+                    return {
+                        label: `${code ? `${code} - ` : ""}${name} (Qty ${qty ?? 0})`,
+                        value: productId,
+                    };
+                })
+                .filter((option) =>
+                    normalizedSearch
+                        ? option.label.toLowerCase().includes(normalizedSearch)
+                        : true,
                 );
-                const code = record.product?.code ?? record.productCode;
-                const name =
-                    record.product?.name ?? record.productName ?? productId;
-                const qty = record.quantity ?? record.qty ?? record.qty_on_hand;
-                const productLabel = code ? `${code} - ${name}` : name;
-                return {
-                    label:
-                        qty === undefined
-                            ? productLabel
-                            : `${productLabel} (Qty ${qty})`,
-                    value: productId,
-                };
-            });
         } catch {
             productOptions.value = [];
         }
@@ -237,30 +274,29 @@ export function useTransactionCreate(
                 return;
             }
             locationOptions.value = await fetchLocations(newVal);
+            if (isPutaway.value) {
+                await loadPutawayProducts(newVal);
+            }
         },
     );
 
     watch(
-        () =>
-            form.value.lines
-                .map((line) => line.fromLocationId)
-                .filter(Boolean)
-                .join("|"),
-        async () => {
-            if (!isPutaway.value) return;
-            const sourceLocationId = form.value.lines.find(
-                (line) => line.fromLocationId,
-            )?.fromLocationId;
-            if (!form.value.warehouseId || !sourceLocationId) {
-                productOptions.value = [];
+        () => [form.value.fromWarehouseId, form.value.fromLocationId],
+        async ([warehouseId, locationId]) => {
+            if (!isRelocation.value || !warehouseId || !locationId) {
+                if (isRelocation.value) productOptions.value = [];
                 return;
             }
-            await loadPutawayProductsFromLocation(
-                form.value.warehouseId,
-                sourceLocationId,
-            );
+            await loadRelocationProducts(warehouseId, locationId);
         },
     );
+
+    watch(putawayTargetLocationId, (targetLocationId) => {
+        if (!isPutaway.value) return;
+        form.value.lines.forEach((line) => {
+            line.toLocationId = targetLocationId;
+        });
+    });
 
     watch(
         () => form.value.fromWarehouseId,
@@ -290,7 +326,9 @@ export function useTransactionCreate(
             qty: "1",
             locationId: "",
             fromLocationId: "",
-            toLocationId: "",
+            toLocationId: isPutaway.value
+                ? putawayTargetLocationId.value
+                : "",
             enteredUomId: "",
             enteredQty: "",
         });
@@ -318,6 +356,22 @@ export function useTransactionCreate(
 
     const searchProducts = async (search: string) => {
         try {
+            if (isPutaway.value && form.value.warehouseId) {
+                await loadPutawayProducts(form.value.warehouseId, search);
+                return;
+            }
+            if (
+                isRelocation.value &&
+                form.value.fromWarehouseId &&
+                form.value.fromLocationId
+            ) {
+                await loadRelocationProducts(
+                    form.value.fromWarehouseId,
+                    form.value.fromLocationId,
+                    search,
+                );
+                return;
+            }
             await loadProducts(search);
         } catch {
             notifyError("Gagal memuat opsi produk");
@@ -366,7 +420,7 @@ export function useTransactionCreate(
                 }));
             }
 
-            if (!isPutaway.value) {
+            if (!isPutaway.value && !isRelocation.value) {
                 await loadProducts();
             }
         } catch {
@@ -404,7 +458,15 @@ export function useTransactionCreate(
                     "",
             );
             form.value.warehouseId = String(record.warehouseId ?? "");
+            form.value.fromWarehouseId = String(
+                record.fromWarehouseId ?? record.origin_warehouse_id ?? "",
+            );
+            form.value.toWarehouseId = String(
+                record.toWarehouseId ?? record.destination_warehouse_id ?? "",
+            );
             form.value.locationId = String(record.locationId ?? "");
+            form.value.fromLocationId = String(record.fromLocationId ?? "");
+            form.value.toLocationId = String(record.toLocationId ?? "");
             form.value.notes = String(record.notes ?? "");
             form.value.lines = (
                 (record.lines ?? record.items ?? []) as Array<
@@ -461,6 +523,24 @@ export function useTransactionCreate(
                     enteredQty: String(line.enteredQty ?? ""),
                 };
             });
+            if (isPutaway.value) {
+                putawayTargetLocationId.value =
+                    form.value.lines[0]?.toLocationId ?? "";
+            }
+            if (isRelocation.value) {
+                form.value.fromLocationId = String(
+                    record.fromLocationId ??
+                        record.origin_location_id ??
+                        form.value.lines[0]?.fromLocationId ??
+                        "",
+                );
+                form.value.toLocationId = String(
+                    record.toLocationId ??
+                        record.destination_location_id ??
+                        form.value.lines[0]?.toLocationId ??
+                        "",
+                );
+            }
         } catch (err) {
             notifyError(
                 err instanceof Error
@@ -487,7 +567,10 @@ export function useTransactionCreate(
                 ) &&
                     !line.locationId) ||
                 (isRelocation.value &&
-                    (!line.fromLocationId || !line.toLocationId)) ||
+                    (!form.value.fromWarehouseId ||
+                        !form.value.fromLocationId ||
+                        !form.value.toWarehouseId ||
+                        !form.value.toLocationId)) ||
                 (isTransfer.value &&
                     (!line.fromLocationId || !line.toLocationId)) ||
                 (isPutaway.value && !line.toLocationId)
@@ -521,8 +604,11 @@ export function useTransactionCreate(
         }
 
         if (
-            isTransfer.value &&
-            (!form.value.fromWarehouseId || !form.value.toWarehouseId)
+            isRelocation.value &&
+            (!form.value.fromWarehouseId ||
+                !form.value.fromLocationId ||
+                !form.value.toWarehouseId ||
+                !form.value.toLocationId)
         ) {
             notifyError("Please select source and destination warehouses.");
             return;
@@ -584,10 +670,12 @@ export function useTransactionCreate(
                     finalPayload = {
                         ...basePayload,
                         docDate: docDateStr,
+                        fromWarehouseId: form.value.fromWarehouseId,
+                        toWarehouseId: form.value.toWarehouseId,
+                        fromLocationId: form.value.fromLocationId,
+                        toLocationId: form.value.toLocationId,
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
-                            fromLocationId: l.fromLocationId,
-                            toLocationId: l.toLocationId,
                             qty: Number(l.qty),
                         })),
                     };
@@ -644,9 +732,6 @@ export function useTransactionCreate(
                             lineNo: index + 1,
                             productId: l.productId,
                             qty: Number(l.qty),
-                            ...(l.fromLocationId
-                                ? { sourceLocationId: l.fromLocationId }
-                                : {}),
                             targetLocationId: l.toLocationId,
                         })),
                     };
@@ -734,6 +819,7 @@ export function useTransactionCreate(
         fromLocationOptions,
         toLocationOptions,
         showPutawayLocations,
+        putawayTargetLocationId,
         opnameProfileOptions,
         quartalOptions,
         monthOptions,

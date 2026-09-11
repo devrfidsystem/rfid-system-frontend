@@ -65,7 +65,10 @@ const flatRows = computed(() =>
 
 const isChecked = (row: LocationPickerRow) => {
     if (row.isLeaf) return props.selectedIds.includes(row.id);
-    return parentCheckState(row.id, props.selectedIds, props.locations) === "checked";
+    return (
+        parentCheckState(row.id, props.selectedIds, props.locations) ===
+        "checked"
+    );
 };
 
 const isIndeterminate = (row: LocationPickerRow) =>
