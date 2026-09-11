@@ -124,7 +124,8 @@ export const normalizeTransactionRecord = (
 
 export const transactionService = {
     async availablePutawayProducts(warehouseId: string) {
-        const response = await transactionsApi.availablePutawayProducts(warehouseId);
+        const response =
+            await transactionsApi.availablePutawayProducts(warehouseId);
         return response.data ?? [];
     },
     async list(

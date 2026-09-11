@@ -248,8 +248,12 @@ describe("TransactionLineItems", () => {
         expect(html).toContain("Target Location");
         expect(html).toContain("cmb_TransactionLineItemsPutawayTargetLocation");
         expect(html).not.toContain("Source Location");
-        expect(html).not.toContain("cmb_TransactionLineItemsSourceLocation_Row0");
-        expect(html).not.toContain("cmb_TransactionLineItemsTargetLocation_Row0");
+        expect(html).not.toContain(
+            "cmb_TransactionLineItemsSourceLocation_Row0",
+        );
+        expect(html).not.toContain(
+            "cmb_TransactionLineItemsTargetLocation_Row0",
+        );
     });
 
     it("renders shared warehouse and location fields for relocation", async () => {
@@ -267,8 +271,12 @@ describe("TransactionLineItems", () => {
         });
         const html = await renderToString(app);
 
-        expect(html).toContain("cmb_TransactionLineItemsRelocationFromWarehouse");
-        expect(html).toContain("cmb_TransactionLineItemsRelocationFromLocation");
+        expect(html).toContain(
+            "cmb_TransactionLineItemsRelocationFromWarehouse",
+        );
+        expect(html).toContain(
+            "cmb_TransactionLineItemsRelocationFromLocation",
+        );
         expect(html).toContain("cmb_TransactionLineItemsRelocationToWarehouse");
         expect(html).toContain("cmb_TransactionLineItemsRelocationToLocation");
         expect(html).not.toContain("cmb_TransactionLineItemsFromLocation_Row0");

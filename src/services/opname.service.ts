@@ -3,6 +3,7 @@ import {
     type OpnameNodePayload,
     type OpnameLineDetail,
     type UpdateOpnameLineCountPayload,
+    type CreateOpnameRelocationPayload,
     type OpnameTreeFilterParams,
     type UpdateOpnameTaskPayload,
 } from "@/api/feature/opname.api";
@@ -28,7 +29,7 @@ export const opnameService = {
 
     async create(payload: OpnameNodePayload): Promise<OpnameTreeNode> {
         const response = await opnameApi.create(payload);
-        return response.data as OpnameTreeNode;
+        return response.data as unknown as OpnameTreeNode;
     },
 
     async createChild(
@@ -36,7 +37,7 @@ export const opnameService = {
         payload: OpnameNodePayload,
     ): Promise<OpnameTreeNode> {
         const response = await opnameApi.createChild(parentId, payload);
-        return response.data as OpnameTreeNode;
+        return response.data as unknown as OpnameTreeNode;
     },
 
     async update(
@@ -44,12 +45,12 @@ export const opnameService = {
         payload: UpdateOpnameTaskPayload,
     ): Promise<OpnameTreeNode> {
         const response = await opnameApi.update(id, payload);
-        return response.data as OpnameTreeNode;
+        return response.data as unknown as OpnameTreeNode;
     },
 
     async post(id: string): Promise<OpnameTreeNode> {
         const response = await opnameApi.post(id);
-        return response.data as OpnameTreeNode;
+        return response.data as unknown as OpnameTreeNode;
     },
 
     async getDetail(id: string) {
@@ -73,6 +74,15 @@ export const opnameService = {
             payload,
         );
         return response.data as OpnameLineDetail;
+    },
+
+    async createRelocation(
+        docId: string,
+        lineId: string,
+        payload: CreateOpnameRelocationPayload,
+    ) {
+        const response = await opnameApi.createRelocation(docId, lineId, payload);
+        return response.data;
     },
 
     async startCounting(id: string, warehouseId: string): Promise<void> {

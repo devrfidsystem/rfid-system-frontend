@@ -44,6 +44,7 @@
                             "
                             :required="mode !== 'task'"
                             :disabled="mode === 'task'"
+                            :readonly="true"
                             object-id="txt_OpnameCreateDocNumber"
                         />
 

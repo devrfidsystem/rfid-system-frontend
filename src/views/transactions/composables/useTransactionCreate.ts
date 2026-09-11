@@ -196,9 +196,8 @@ export function useTransactionCreate(
         search?: string,
     ) => {
         try {
-            const items = await transactionService.availablePutawayProducts(
-                warehouseId,
-            );
+            const items =
+                await transactionService.availablePutawayProducts(warehouseId);
             const normalizedSearch = search?.trim().toLowerCase();
             productOptions.value = items
                 .filter((item) => {
@@ -326,9 +325,7 @@ export function useTransactionCreate(
             qty: "1",
             locationId: "",
             fromLocationId: "",
-            toLocationId: isPutaway.value
-                ? putawayTargetLocationId.value
-                : "",
+            toLocationId: isPutaway.value ? putawayTargetLocationId.value : "",
             enteredUomId: "",
             enteredQty: "",
         });

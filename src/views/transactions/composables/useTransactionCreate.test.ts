@@ -65,7 +65,6 @@ vi.mock("@/services/stock.service", () => ({
     },
 }));
 
-
 describe("useTransactionCreate", () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -360,10 +359,9 @@ describe("useTransactionCreate", () => {
         create.addLine();
 
         expect(create.form.value.lines).toHaveLength(2);
-        expect(create.form.value.lines.map((line) => line.toLocationId)).toEqual([
-            "loc-target",
-            "loc-target",
-        ]);
+        expect(
+            create.form.value.lines.map((line) => line.toLocationId),
+        ).toEqual(["loc-target", "loc-target"]);
     });
 
     it("loads only inbound products that do not have a location", async () => {

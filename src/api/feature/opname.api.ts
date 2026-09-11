@@ -66,6 +66,13 @@ export interface UpdateOpnameLineCountPayload {
     notes?: string;
 }
 
+export interface CreateOpnameRelocationPayload {
+    toWarehouseId: string;
+    toLocationId: string;
+    qty: number;
+    notes?: string;
+}
+
 export const opnameApi = {
     getTree(params: OpnameTreeFilterParams = {}) {
         return apiRequest<OpnameTreeNode[]>({
@@ -142,6 +149,18 @@ export const opnameApi = {
         return apiRequest<OpnameLineDetail>({
             url: `/opname/${docId}/lines/${lineId}`,
             method: "patch",
+            data: payload,
+        });
+    },
+
+    createRelocation(
+        docId: string,
+        lineId: string,
+        payload: CreateOpnameRelocationPayload,
+    ) {
+        return apiRequest<unknown>({
+            url: `/opname/${docId}/lines/${lineId}/relocation`,
+            method: "post",
             data: payload,
         });
     },
