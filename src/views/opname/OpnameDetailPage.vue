@@ -214,12 +214,12 @@
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
-                                        System Qty
+                                        Expected Qty
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
                                     >
-                                        Counted Qty
+                                        Actual Qty
                                     </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-text-secondary"
@@ -374,7 +374,7 @@
                         Location: {{ selectedLineItemLocation }}
                     </div>
                     <div class="mt-1">
-                        System Qty:
+                        Expected Qty:
                         {{
                             selectedLineItem.qtySystem ??
                             selectedLineItem.system_qty ??
@@ -382,7 +382,7 @@
                         }}
                     </div>
                     <div class="mt-1">
-                        Counted Qty:
+                        Actual Qty:
                         {{
                             selectedLineItem.qtyCounted ??
                             selectedLineItem.counted_qty ??

@@ -39,8 +39,9 @@
                         <Input
                             v-model="formState.docNumber"
                             label="Opname ID Number"
-                            placeholder="OP-0001"
-                            required
+                            :placeholder="mode === 'task' ? 'Auto generate' : 'OP-0001'"
+                            :required="mode !== 'task'"
+                            :disabled="mode === 'task'"
                             object-id="txt_OpnameCreateDocNumber"
                         />
 
@@ -58,6 +59,7 @@
                             label="Warehouse"
                             placeholder="Select warehouse"
                             required
+                            :disabled="Boolean(selectedParentId)"
                             object-id="cmb_OpnameCreateWarehouse"
                         />
 
@@ -70,6 +72,42 @@
                             required
                             searchable
                             object-id="cmb_OpnameCreateParent"
+                        />
+
+                        <OpnameLocationPicker
+                            v-if="mode === 'task'"
+                            :locations="locationOptions"
+                            :selected-ids="locationIds"
+                            @update:selected-ids="locationIds = $event"
+                        />
+
+                        <Select
+                            v-if="mode === 'task'"
+                            v-model="formState.assignedToId"
+                            :options="userOptions"
+                            label="Assigned User"
+                            placeholder="Select user"
+                            required
+                            searchable
+                            object-id="cmb_OpnameCreateAssignee"
+                        />
+
+                        <Input
+                            v-if="mode === 'task'"
+                            v-model="formState.assignedAt"
+                            label="Assigned Date"
+                            type="date"
+                            required
+                            object-id="txt_OpnameCreateAssignedAt"
+                        />
+
+                        <Input
+                            v-if="mode === 'task'"
+                            v-model="formState.deadlineAt"
+                            label="Deadline"
+                            type="date"
+                            required
+                            object-id="txt_OpnameCreateDeadlineAt"
                         />
 
                         <Input
@@ -145,7 +183,11 @@
                             object-id="btn_OpnameCreateSubmit"
                         >
                             {{
-                                submitting ? "Creating..." : primaryActionLabel
+                                submitting
+                                    ? isEdit
+                                        ? "Saving..."
+                                        : "Creating..."
+                                    : primaryActionLabel
                             }}
                         </Button>
                     </div>
@@ -164,6 +206,7 @@ import Input from "@/components/atoms/Input.vue";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import { useOpnameCreate } from "./composables/useOpnameCreate";
+import OpnameLocationPicker from "./components/OpnameLocationPicker.vue";
 
 const {
     error,
@@ -186,5 +229,9 @@ const {
     selectedParent,
     handleBack,
     saveNode,
+    locationIds,
+    locationOptions,
+    userOptions,
+    isEdit,
 } = useOpnameCreate();
 </script>

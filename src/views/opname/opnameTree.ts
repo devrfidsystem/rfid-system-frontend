@@ -12,7 +12,7 @@ export interface OpnameTreeRow extends OpnameTreeNode {
 }
 
 const sortByTitle = (a: OpnameTreeNode, b: OpnameTreeNode) =>
-    a.title.localeCompare(b.title);
+    (a.title ?? "").localeCompare(b.title ?? "");
 
 const normalizeNestedTree = (nodes: OpnameTreeNode[]): OpnameTreeNode[] => {
     const cloned = nodes.map((node) => ({
@@ -51,6 +51,12 @@ export const normalizeOpnameTree = (nodes: OpnameTreeNode[]) => {
     sortTree(roots);
     return roots;
 };
+
+export const collectOpnameNodeIds = (nodes: OpnameTreeNode[]): string[] =>
+    nodes.flatMap((node) => [
+        node.id,
+        ...collectOpnameNodeIds(node.children ?? []),
+    ]);
 
 export const flattenOpnameTree = (
     nodes: OpnameTreeNode[],

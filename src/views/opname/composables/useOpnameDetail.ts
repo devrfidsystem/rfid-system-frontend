@@ -35,6 +35,7 @@ const collectTaskNodes = (node: OpnameTreeNode | null): OpnameTreeNode[] => {
 };
 
 const getStatusLabel = (value: string) => {
+    if (value === "posted") return "Posted";
     if (value === "counting") return "On Going";
     if (value === "reconciled") return "Reconciled";
     if (value === "closed") return "Closed";
@@ -43,6 +44,7 @@ const getStatusLabel = (value: string) => {
 };
 
 const getStatusTone = (value: string) => {
+    if (value === "posted") return "info";
     if (value === "counting") return "warning";
     if (value === "reconciled") return "info";
     if (value === "closed") return "success";
@@ -130,10 +132,10 @@ export function useOpnameDetail() {
     );
     const taskNodesForAction = (action: OpnameDocAction) => {
         const statusByAction: Record<OpnameDocAction, string[]> = {
-            "start-counting": ["draft"],
+            "start-counting": ["posted"],
             reconcile: ["counting"],
             close: ["reconciled"],
-            cancel: ["draft", "counting"],
+            cancel: ["draft", "posted", "counting"],
         };
         return selectedTaskNodes.value.filter((node) =>
             statusByAction[action].includes(node.status),
@@ -408,7 +410,7 @@ export function useOpnameDetail() {
         "start-counting": {
             title: "Start Counting",
             description:
-                "This snapshots current stock balances for this warehouse into opname lines. The document moves from draft to counting.",
+                "This snapshots current stock balances for this warehouse into opname lines. The document moves from posted to counting.",
             confirmText: "Start Counting",
         },
         reconcile: {
@@ -426,7 +428,7 @@ export function useOpnameDetail() {
         cancel: {
             title: "Cancel Opname",
             description:
-                "This cancels the opname document. Only draft or counting documents can be canceled.",
+                "This cancels the opname document. Only draft, posted, or counting documents can be canceled.",
             confirmText: "Cancel Opname",
         },
     };

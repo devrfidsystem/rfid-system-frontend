@@ -87,7 +87,7 @@
                             :model-value="statusFilter"
                             label="Status"
                             aria-label="Status"
-                            placeholder="Draft, On Going, Closed"
+                            placeholder="Draft, Posted, On Going"
                             object-id="txt_OpnameTreeStatus"
                             @update:model-value="
                                 (value) =>

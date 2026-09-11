@@ -36,7 +36,15 @@ vi.mock("@/services/opname.service", () => ({
     opnameService: {
         getTree: getTreeMock,
         summary: getSummaryMock,
+        post: vi.fn(),
     },
+}));
+
+vi.mock("@/composable/useNotifier", () => ({
+    useNotifier: () => ({
+        notifyError: vi.fn(),
+        notifySuccess: vi.fn(),
+    }),
 }));
 
 vi.mock("@/composable/useWarehouseOptions", async () => {
@@ -58,6 +66,7 @@ vi.mock("vue-router", async (importOriginal) => {
     const actual = await importOriginal<typeof import("vue-router")>();
     return {
         ...actual,
+        useRoute: () => ({ query: {} }),
         useRouter: () => ({
             push: vi.fn(),
         }),
@@ -191,6 +200,88 @@ describe("useOpnameTree", () => {
         expect(composable.error.value).toBe("Tree down");
         expect(composable.summaryError.value).toBeNull();
         expect(composable.summary.value).toEqual(mockSummary);
+    });
+
+    it("expands nested task rows after the tree API returns a nested payload", async () => {
+        getTreeMock.mockResolvedValueOnce([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "2026",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "draft",
+                nodeType: "group",
+                children: [
+                    {
+                        id: "profile-1",
+                        parentId: "root-1",
+                        companyId: "company-1",
+                        warehouse_id: "wh-1",
+                        profile_id: "OP-PROFILE",
+                        title: "Q1",
+                        description: null,
+                        task_group: null,
+                        task_period: null,
+                        status: "draft",
+                        nodeType: "profile",
+                        children: [
+                            {
+                                id: "task-1",
+                                parentId: "profile-1",
+                                companyId: "company-1",
+                                warehouse_id: "wh-1",
+                                profile_id: "OP-TASK",
+                                title: "Floor A",
+                                description: null,
+                                task_group: null,
+                                task_period: null,
+                                status: "draft",
+                                nodeType: "task",
+                            },
+                        ],
+                    },
+                ],
+            },
+        ]);
+
+        const composable = mountOpnameTree();
+        await nextTick();
+        authStoreState.setProfile({ currentCompanyId: "company-1" });
+        await nextTick();
+        await Promise.resolve();
+
+        expect(composable.rows.value.map((row) => row.id)).toEqual([
+            "root-1",
+            "profile-1",
+            "task-1",
+        ]);
+    });
+
+    it("does not refetch the summary when a client-side filter changes", async () => {
+        const composable = mountOpnameTree();
+        await nextTick();
+
+        authStoreState.setProfile({ currentCompanyId: "company-1" });
+        await nextTick();
+        await Promise.resolve();
+
+        expect(getSummaryMock).toHaveBeenCalledTimes(1);
+        getSummaryMock.mockClear();
+
+        composable.keyword.value = "search term";
+        composable.statusFilter.value = "counting";
+        composable.locationFilter.value = "Rack A";
+        composable.startDate.value = "2026-08-01";
+        composable.endDate.value = "2026-08-06";
+        await nextTick();
+        await Promise.resolve();
+
+        expect(getSummaryMock).not.toHaveBeenCalled();
     });
 
     it("reloads tree and summary with status and location filters", async () => {

@@ -4,6 +4,7 @@ import {
     type OpnameLineDetail,
     type UpdateOpnameLineCountPayload,
     type OpnameTreeFilterParams,
+    type UpdateOpnameTaskPayload,
 } from "@/api/feature/opname.api";
 import type {
     OpnameSummaryResponse,
@@ -35,6 +36,19 @@ export const opnameService = {
         payload: OpnameNodePayload,
     ): Promise<OpnameTreeNode> {
         const response = await opnameApi.createChild(parentId, payload);
+        return response.data as OpnameTreeNode;
+    },
+
+    async update(
+        id: string,
+        payload: UpdateOpnameTaskPayload,
+    ): Promise<OpnameTreeNode> {
+        const response = await opnameApi.update(id, payload);
+        return response.data as OpnameTreeNode;
+    },
+
+    async post(id: string): Promise<OpnameTreeNode> {
+        const response = await opnameApi.post(id);
         return response.data as OpnameTreeNode;
     },
 
@@ -82,5 +96,6 @@ export type { OpnameTreeNode } from "@/api/feature/dto/opname.dto";
 export type {
     OpnameNodePayload,
     OpnameTreeFilterParams,
+    UpdateOpnameTaskPayload,
 } from "@/api/feature/opname.api";
 export type { OpnameSummaryResponse } from "@/api/feature/dto/opname.dto";
