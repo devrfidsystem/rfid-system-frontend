@@ -7,11 +7,13 @@ import {
 import { masterService } from "@/services/master.service";
 import { usersService } from "@/services/users.service";
 import { locationService } from "@/services/location.service";
+import { stockService } from "@/services/stock.service";
 import { useNotifier } from "@/composable/useNotifier";
 import { useAuthStore } from "@/store/auth.store";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
 import { formatProductAttributeSummary } from "@/utils/productAttributes";
 import type { ProductRecord } from "@/model/entities";
+import { buildDefaultDocumentNumber } from "../utils/documentNumber";
 
 export interface ProductUomInfo {
     baseUomId: string;
@@ -33,7 +35,7 @@ export function useTransactionCreate(
     const companyId = computed(() => authStore.currentCompanyId);
 
     const form = ref({
-        docNumber: `TRX-${Date.now()}`,
+        docNumber: buildDefaultDocumentNumber(transactionKey),
         transactionDate: new Date().toISOString().split("T")[0],
         title: "",
         period: "",
@@ -172,6 +174,7 @@ export function useTransactionCreate(
             const res = await locationService.list({
                 warehouseId: wId,
                 limit: 200,
+                excludeTypes: ["product"],
             });
             const items = normalizePaginationItems(res);
             return items.map((l) => {
@@ -186,6 +189,46 @@ export function useTransactionCreate(
         }
     };
 
+    const loadPutawayProductsFromLocation = async (
+        warehouseId: string,
+        locationId: string,
+    ) => {
+        try {
+            const res = await stockService.fetchBalance({
+                warehouseId,
+                locationId,
+                limit: 200,
+            });
+            productOptions.value = res.items.map((balance) => {
+                const record = balance as typeof balance & {
+                    productCode?: string;
+                    productName?: string;
+                    product?: { id?: string; code?: string; name?: string };
+                    quantity?: number;
+                    qty?: number;
+                    qty_on_hand?: number;
+                };
+                const productId = String(
+                    record.product?.id ?? record.productId,
+                );
+                const code = record.product?.code ?? record.productCode;
+                const name =
+                    record.product?.name ?? record.productName ?? productId;
+                const qty = record.quantity ?? record.qty ?? record.qty_on_hand;
+                const productLabel = code ? `${code} - ${name}` : name;
+                return {
+                    label:
+                        qty === undefined
+                            ? productLabel
+                            : `${productLabel} (Qty ${qty})`,
+                    value: productId,
+                };
+            });
+        } catch {
+            productOptions.value = [];
+        }
+    };
+
     watch(
         () => form.value.warehouseId,
         async (newVal) => {
@@ -194,6 +237,28 @@ export function useTransactionCreate(
                 return;
             }
             locationOptions.value = await fetchLocations(newVal);
+        },
+    );
+
+    watch(
+        () =>
+            form.value.lines
+                .map((line) => line.fromLocationId)
+                .filter(Boolean)
+                .join("|"),
+        async () => {
+            if (!isPutaway.value) return;
+            const sourceLocationId = form.value.lines.find(
+                (line) => line.fromLocationId,
+            )?.fromLocationId;
+            if (!form.value.warehouseId || !sourceLocationId) {
+                productOptions.value = [];
+                return;
+            }
+            await loadPutawayProductsFromLocation(
+                form.value.warehouseId,
+                sourceLocationId,
+            );
         },
     );
 
@@ -301,7 +366,9 @@ export function useTransactionCreate(
                 }));
             }
 
-            await loadProducts();
+            if (!isPutaway.value) {
+                await loadProducts();
+            }
         } catch {
             notifyError("Gagal memuat opsi form");
         }
@@ -343,21 +410,57 @@ export function useTransactionCreate(
                 (record.lines ?? record.items ?? []) as Array<
                     Record<string, unknown>
                 >
-            ).map((line) => ({
-                productId: String(
-                    line.productId ??
-                        (line.product as { id?: string } | undefined)?.id ??
+            ).map((line) => {
+                const sourceLocation = line.sourceLocation as
+                    | { id?: string }
+                    | undefined;
+                const targetLocation = line.targetLocation as
+                    | { id?: string }
+                    | undefined;
+                const fromLocation = line.fromLocation as
+                    | { id?: string }
+                    | undefined;
+                const toLocation = line.toLocation as
+                    | { id?: string }
+                    | undefined;
+                const location = line.location as { id?: string } | undefined;
+
+                const sourceLocationId = String(
+                    line.sourceLocationId ??
+                        line.origin_location_id ??
+                        sourceLocation?.id ??
+                        fromLocation?.id ??
                         "",
-                ),
-                qty: String(
-                    line.qtyExpected ?? line.expectedQty ?? line.qty ?? "1",
-                ),
-                locationId: "",
-                fromLocationId: "",
-                toLocationId: "",
-                enteredUomId: String(line.enteredUomId ?? ""),
-                enteredQty: String(line.enteredQty ?? ""),
-            }));
+                );
+                const targetLocationId = String(
+                    line.targetLocationId ??
+                        line.destination_location_id ??
+                        targetLocation?.id ??
+                        toLocation?.id ??
+                        "",
+                );
+
+                return {
+                    productId: String(
+                        line.productId ??
+                            (line.product as { id?: string } | undefined)?.id ??
+                            "",
+                    ),
+                    qty: String(
+                        line.qtyExpected ?? line.expectedQty ?? line.qty ?? "1",
+                    ),
+                    locationId: String(
+                        line.locationId ??
+                            location?.id ??
+                            sourceLocationId ??
+                            "",
+                    ),
+                    fromLocationId: sourceLocationId,
+                    toLocationId: targetLocationId,
+                    enteredUomId: String(line.enteredUomId ?? ""),
+                    enteredQty: String(line.enteredQty ?? ""),
+                };
+            });
         } catch (err) {
             notifyError(
                 err instanceof Error
@@ -569,6 +672,10 @@ export function useTransactionCreate(
             }
 
             if (isEditMode.value && transactionId) {
+                if (!isRegister.value) {
+                    delete finalPayload.companyId;
+                    delete finalPayload.docNumber;
+                }
                 await transactionService.update(
                     transactionKey,
                     transactionId,

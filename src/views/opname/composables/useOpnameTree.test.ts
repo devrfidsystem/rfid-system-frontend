@@ -274,13 +274,43 @@ describe("useOpnameTree", () => {
         getSummaryMock.mockClear();
 
         composable.keyword.value = "search term";
-        composable.statusFilter.value = "counting";
-        composable.locationFilter.value = "Rack A";
         composable.startDate.value = "2026-08-01";
         composable.endDate.value = "2026-08-06";
         await nextTick();
         await Promise.resolve();
 
         expect(getSummaryMock).not.toHaveBeenCalled();
+    });
+
+    it("reloads tree and summary with status and location filters", async () => {
+        const composable = mountOpnameTree();
+        await nextTick();
+
+        authStoreState.setProfile({ currentCompanyId: "company-1" });
+        await nextTick();
+        await Promise.resolve();
+
+        expect(getSummaryMock).toHaveBeenCalledTimes(1);
+        expect(getTreeMock).toHaveBeenCalledTimes(1);
+        getSummaryMock.mockClear();
+        getTreeMock.mockClear();
+
+        composable.statusFilter.value = "counting";
+        composable.locationFilter.value = "Rack A";
+        await nextTick();
+        await Promise.resolve();
+
+        expect(getTreeMock).toHaveBeenCalledWith({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+            status: "counting",
+            location: "Rack A",
+        });
+        expect(getSummaryMock).toHaveBeenCalledWith({
+            companyId: "company-1",
+            warehouseId: "wh-1",
+            status: "counting",
+            location: "Rack A",
+        });
     });
 });

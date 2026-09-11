@@ -41,7 +41,10 @@ export function useMasterFormLifecycle({
 
     const syncFormFromRow = async (row: MasterRecord) => {
         formFields.value.forEach((field) => {
-            const value = row[field.key];
+            const value =
+                entityKey.value === "locations" && field.key === "locationType"
+                    ? (row.locationType ?? row.location_type)
+                    : row[field.key];
             formState[field.key] =
                 value !== undefined && value !== null ? String(value) : "";
         });

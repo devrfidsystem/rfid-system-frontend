@@ -168,6 +168,8 @@ describe("useOpnameDetail", () => {
         expect(detail.drawerActions.map((action) => action.key)).toEqual([
             "match",
             "unmatch",
+            "adjust",
+            "relocation",
         ]);
         expect(detail.selectedNode.value?.id).toBe("root-1");
         expect(detail.selectedDetailLines.value).toHaveLength(1);
@@ -193,6 +195,42 @@ describe("useOpnameDetail", () => {
             "Match saved for Sample Item.",
         );
         expect(detail.isItemDrawerOpen.value).toBe(false);
+    });
+
+    it("submits adjust and relocation actions through the line-count endpoint", async () => {
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+
+        detail.openDetail(detail.selectedDetailLines.value[0]);
+        detail.selectItemAction("adjust");
+        detail.activeActionForm.value.actualQty = "8";
+        detail.activeActionForm.value.reason = "Physical correction";
+        await detail.submitItemAction();
+
+        expect(updateLineCountMock).toHaveBeenLastCalledWith(
+            "root-1",
+            "line-1",
+            {
+                qtyCounted: 8,
+                notes: "Adjust | Reason: Physical correction",
+            },
+        );
+
+        detail.openDetail(detail.selectedDetailLines.value[0]);
+        detail.selectItemAction("relocation");
+        detail.activeActionForm.value.actualQty = "6";
+        detail.activeActionForm.value.reason = "Moved to rack B";
+        await detail.submitItemAction();
+
+        expect(updateLineCountMock).toHaveBeenLastCalledWith(
+            "root-1",
+            "line-1",
+            {
+                qtyCounted: 6,
+                notes: "Relocation | Reason: Moved to rack B",
+            },
+        );
     });
 
     it("gates start-counting/reconcile/close/cancel by node type and status", async () => {
@@ -236,6 +274,70 @@ describe("useOpnameDetail", () => {
         expect(detail.canCancelDoc.value).toBe(false);
     });
 
+    it("runs lifecycle actions for all matching child task nodes", async () => {
+        getTreeMock.mockResolvedValue([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "Root Opname",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "draft",
+                nodeType: "group",
+                children: [
+                    {
+                        id: "task-1",
+                        parentId: "root-1",
+                        companyId: "company-1",
+                        warehouse_id: "wh-1",
+                        profile_id: "OP-TASK-1",
+                        title: "Task 1",
+                        description: null,
+                        task_group: null,
+                        task_period: null,
+                        status: "counting",
+                        nodeType: "task",
+                        children: [],
+                    },
+                    {
+                        id: "task-2",
+                        parentId: "root-1",
+                        companyId: "company-1",
+                        warehouse_id: "wh-1",
+                        profile_id: "OP-TASK-2",
+                        title: "Task 2",
+                        description: null,
+                        task_group: null,
+                        task_period: null,
+                        status: "counting",
+                        nodeType: "task",
+                        children: [],
+                    },
+                ],
+            },
+        ]);
+        reconcileMock.mockResolvedValue(undefined);
+
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+
+        expect(detail.canReconcile.value).toBe(true);
+        detail.handleReconcile();
+        await detail.handleConfirmDocAction();
+
+        expect(reconcileMock).toHaveBeenCalledTimes(2);
+        expect(reconcileMock).toHaveBeenNthCalledWith(1, "task-1");
+        expect(reconcileMock).toHaveBeenNthCalledWith(2, "task-2");
+        expect(notifySuccessMock).toHaveBeenCalledWith(
+            "Reconcile Opname succeeded for 2 task(s).",
+        );
+    });
+
     it("calls opnameService.startCounting with the selected warehouse and refreshes", async () => {
         getTreeMock.mockResolvedValue([
             {
@@ -269,7 +371,7 @@ describe("useOpnameDetail", () => {
 
         expect(startCountingMock).toHaveBeenCalledWith("root-1", "wh-1");
         expect(notifySuccessMock).toHaveBeenCalledWith(
-            "Start Counting succeeded.",
+            "Start Counting succeeded for 1 task(s).",
         );
         expect(detail.docConfirmation.value).toBeNull();
         expect(getTreeMock).toHaveBeenCalledTimes(2); // initial load + refresh

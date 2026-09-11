@@ -104,6 +104,40 @@ describe("useOpnameCreate", () => {
         expect(pageSource).toContain("cmb_OpnameCreateParent");
     });
 
+    it("blocks create when title or document number is missing", async () => {
+        mocks.routeQuery = { mode: "group", warehouseId: "wh-1" };
+        const { useOpnameCreate } = await import("./useOpnameCreate");
+        const create = useOpnameCreate();
+
+        create.formState.docNumber = "";
+        create.formState.title = "";
+
+        await create.saveNode();
+
+        expect(mocks.createSpy).not.toHaveBeenCalled();
+        expect(mocks.createChildSpy).not.toHaveBeenCalled();
+        expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
+            "Title dan Document Number wajib diisi.",
+        );
+    });
+
+    it("blocks profile and task creation when parent is missing", async () => {
+        mocks.routeQuery = { mode: "profile", warehouseId: "wh-1" };
+        const { useOpnameCreate } = await import("./useOpnameCreate");
+        const create = useOpnameCreate();
+
+        create.formState.docNumber = "OPN-PROFILE-001";
+        create.formState.title = "January Profile";
+
+        await create.saveNode();
+
+        expect(mocks.createSpy).not.toHaveBeenCalled();
+        expect(mocks.createChildSpy).not.toHaveBeenCalled();
+        expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
+            "Parent wajib dipilih untuk profile dan task.",
+        );
+    });
+
     it("offers group and profile parents for task creation and saves under the selected parent", async () => {
         mocks.routeQuery = { mode: "task", warehouseId: "wh-1" };
         const { useOpnameCreate } = await import("./useOpnameCreate");

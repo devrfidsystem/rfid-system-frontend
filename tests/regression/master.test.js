@@ -20,13 +20,30 @@ async function runMasterRegressionTests() {
             "aditlucu20",
         );
 
+        const uniqueSuffix = Date.now();
+        const uomPage = new MasterDataPage(
+            driver,
+            APP_URL,
+            "uoms",
+            "Unit of Measure",
+        );
+
+        console.log("[Test] Creating prerequisite UOM...");
+        await uomPage.navigate();
+        await uomPage.openCreateForm();
+        await uomPage.fillForm({
+            name: { value: `E2E Product UOM ${uniqueSuffix}`, type: "text" },
+            symbol: { value: `E2E-${uniqueSuffix}`, type: "text" },
+        });
+        await uomPage.submitForm();
+        console.log("  -> UOM prerequisite created. PASS.");
+
         const masterPage = new MasterDataPage(driver, APP_URL);
 
         console.log("[Test] Navigating to Master Data Products...");
         await masterPage.navigate();
         console.log("  -> Master page loaded. PASS.");
 
-        const uniqueSuffix = Date.now();
         const testProductName = `TEST-PROD-${uniqueSuffix}`;
 
         // 1. Create Product

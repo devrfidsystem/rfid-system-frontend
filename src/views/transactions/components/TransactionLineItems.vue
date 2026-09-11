@@ -23,14 +23,30 @@
                 :key="idx"
                 class="flex flex-col xl:flex-row xl:flex-wrap gap-4 xl:items-end border-b border-border xl:border-none pb-6 xl:pb-0 last:border-0"
             >
+                <div v-if="showPutawayLocations" class="w-full xl:w-48">
+                    <Select
+                        v-model="line.fromLocationId"
+                        :options="locationOptions"
+                        label="Source Location"
+                        placeholder="Select source location"
+                        required
+                        :object-id="`cmb_TransactionLineItemsSourceLocation_Row${idx}`"
+                    />
+                </div>
+
                 <div class="flex-1">
                     <Select
                         :model-value="line.productId"
                         :options="productOptions"
                         label="Product"
-                        placeholder="Select a product"
+                        :placeholder="
+                            showPutawayLocations && !line.fromLocationId
+                                ? 'Select source location first'
+                                : 'Select a product'
+                        "
                         required
                         searchable
+                        :disabled="showPutawayLocations && !line.fromLocationId"
                         search-placeholder="Search products..."
                         :object-id="`cmb_TransactionLineItemsProduct_Row${idx}`"
                         @update:model-value="

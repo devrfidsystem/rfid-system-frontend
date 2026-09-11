@@ -415,7 +415,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
                         <Button
                             v-for="action in drawerActions"
                             :key="action.key"
@@ -471,7 +471,12 @@
                             </div>
                         </template>
 
-                        <template v-else-if="selectedItemAction === 'unmatch'">
+                        <template
+                            v-else-if="
+                                selectedItemAction === 'unmatch' ||
+                                selectedItemAction === 'relocation'
+                            "
+                        >
                             <Input
                                 v-model="activeActionForm.reason"
                                 label="Reason"
@@ -480,13 +485,22 @@
                             />
                         </template>
 
-                        <template v-else>
-                            <Input
-                                v-model="activeActionForm.reason"
-                                label="Reason"
-                                placeholder="Explain why this line is not matched"
-                                object-id="txt_OpnameItemActionReasonAlt"
-                            />
+                        <template v-else-if="selectedItemAction === 'adjust'">
+                            <div class="grid grid-cols-2 gap-3">
+                                <Input
+                                    v-model="activeActionForm.actualQty"
+                                    label="Actual Qty"
+                                    type="number"
+                                    placeholder="118"
+                                    object-id="txt_OpnameItemActionAdjustQty"
+                                />
+                                <Input
+                                    v-model="activeActionForm.reason"
+                                    label="Reason"
+                                    placeholder="Explain the adjustment"
+                                    object-id="txt_OpnameItemActionAdjustReason"
+                                />
+                            </div>
                         </template>
 
                         <Textarea
@@ -503,16 +517,23 @@
                     >
                         <div class="font-medium text-text">
                             {{
-                                selectedItemAction === "match"
+                                selectedItemAction === "match" ||
+                                selectedItemAction === "adjust"
                                     ? "Count Adjustment"
-                                    : "Mismatch Review"
+                                    : selectedItemAction === "relocation"
+                                      ? "Relocation Review"
+                                      : "Mismatch Review"
                             }}
                         </div>
                         <p class="mt-1">
                             {{
                                 selectedItemAction === "match"
                                     ? "Use this action when the physical count is aligned with the recorded stock."
-                                    : "Use this action when the line item needs correction before posting."
+                                    : selectedItemAction === "adjust"
+                                      ? "Use this action to save a corrected physical count before reconciliation."
+                                      : selectedItemAction === "relocation"
+                                        ? "Use this action to flag stock that needs relocation review before closing."
+                                        : "Use this action when the line item needs correction before posting."
                             }}
                         </p>
                     </div>

@@ -7,7 +7,7 @@ import { opnameService } from "@/services/opname.service";
 import type { OpnameLineDetail } from "@/api/feature/opname.api";
 import type { OpnameTreeNode } from "../opnameTree";
 
-type OpnameItemAction = "match" | "unmatch";
+type OpnameItemAction = "match" | "unmatch" | "adjust" | "relocation";
 
 type OpnameActionForm = {
     expectedQty: string;
@@ -26,6 +26,12 @@ const findNode = (
         if (match) return match;
     }
     return null;
+};
+
+const collectTaskNodes = (node: OpnameTreeNode | null): OpnameTreeNode[] => {
+    if (!node) return [];
+    const children = (node.children ?? []).flatMap(collectTaskNodes);
+    return node.nodeType === "task" ? [node, ...children] : children;
 };
 
 const getStatusLabel = (value: string) => {
@@ -88,6 +94,18 @@ export function useOpnameDetail() {
             reason: "",
             note: "",
         },
+        adjust: {
+            expectedQty: "",
+            actualQty: "",
+            reason: "",
+            note: "",
+        },
+        relocation: {
+            expectedQty: "",
+            actualQty: "",
+            reason: "",
+            note: "",
+        },
     });
 
     const opnameId = computed(() => String(route.params.id ?? ""));
@@ -109,25 +127,29 @@ export function useOpnameDetail() {
     const selectedNode = computed(() => findNode(tree.value, opnameId.value));
     const selectedDetailLines = computed(() => detail.value?.lines ?? []);
 
-    // Only "task" nodes are real OpnameDoc records with a start-counting ->
-    // counting -> reconciled -> closed lifecycle; group/profile nodes are
-    // purely organizational and never transition through these statuses.
-    const isTaskNode = computed(() => selectedNode.value?.nodeType === "task");
+    const selectedTaskNodes = computed(() =>
+        collectTaskNodes(selectedNode.value),
+    );
+    const taskNodesForAction = (action: OpnameDocAction) => {
+        const statusByAction: Record<OpnameDocAction, string[]> = {
+            "start-counting": ["posted"],
+            reconcile: ["counting"],
+            close: ["reconciled"],
+            cancel: ["draft", "posted", "counting"],
+        };
+        return selectedTaskNodes.value.filter((node) =>
+            statusByAction[action].includes(node.status),
+        );
+    };
     const canStartCounting = computed(
-        () => isTaskNode.value && selectedNode.value?.status === "posted",
+        () => taskNodesForAction("start-counting").length > 0,
     );
     const canReconcile = computed(
-        () => isTaskNode.value && selectedNode.value?.status === "counting",
+        () => taskNodesForAction("reconcile").length > 0,
     );
-    const canClose = computed(
-        () => isTaskNode.value && selectedNode.value?.status === "reconciled",
-    );
+    const canClose = computed(() => taskNodesForAction("close").length > 0);
     const canCancelDoc = computed(
-        () =>
-            isTaskNode.value &&
-            (selectedNode.value?.status === "draft" ||
-                selectedNode.value?.status === "posted" ||
-                selectedNode.value?.status === "counting"),
+        () => taskNodesForAction("cancel").length > 0,
     );
 
     const drawerActions: Array<{
@@ -147,6 +169,18 @@ export function useOpnameDetail() {
             label: "Unmatch",
             tone: "outline",
             description: "Flag the line as not matching the current count.",
+        },
+        {
+            key: "adjust",
+            label: "Adjust",
+            tone: "outline",
+            description: "Record a corrected physical count for this line.",
+        },
+        {
+            key: "relocation",
+            label: "Relocation",
+            tone: "outline",
+            description: "Mark this line as requiring relocation follow-up.",
         },
     ];
 
@@ -324,6 +358,14 @@ export function useOpnameDetail() {
             const raw = active.actualQty || active.expectedQty;
             return raw ? Number(raw) : fallback;
         }
+        if (selectedItemAction.value === "adjust") {
+            const raw = active.actualQty || active.expectedQty;
+            return raw ? Number(raw) : fallback;
+        }
+        if (selectedItemAction.value === "relocation") {
+            const raw = active.actualQty || active.expectedQty;
+            return raw ? Number(raw) : fallback;
+        }
         return fallback;
     };
 
@@ -414,28 +456,33 @@ export function useOpnameDetail() {
     const handleConfirmDocAction = async () => {
         if (!docConfirmation.value || !selectedNode.value) return;
         const action = docConfirmation.value.action;
-        const docId = selectedNode.value.id;
+        const targetNodes = taskNodesForAction(action);
+        if (!targetNodes.length) return;
         clearDocConfirmation();
         docActionLoading.value = true;
         try {
-            if (action === "start-counting") {
-                if (!selectedWarehouseId.value) {
-                    throw new Error(
-                        "Select a warehouse before starting counting.",
+            for (const node of targetNodes) {
+                if (action === "start-counting") {
+                    if (!selectedWarehouseId.value) {
+                        throw new Error(
+                            "Select a warehouse before starting counting.",
+                        );
+                    }
+                    await opnameService.startCounting(
+                        node.id,
+                        selectedWarehouseId.value,
                     );
+                } else if (action === "reconcile") {
+                    await opnameService.reconcile(node.id);
+                } else if (action === "close") {
+                    await opnameService.close(node.id);
+                } else {
+                    await opnameService.cancel(node.id);
                 }
-                await opnameService.startCounting(
-                    docId,
-                    selectedWarehouseId.value,
-                );
-            } else if (action === "reconcile") {
-                await opnameService.reconcile(docId);
-            } else if (action === "close") {
-                await opnameService.close(docId);
-            } else {
-                await opnameService.cancel(docId);
             }
-            notifySuccess(`${docActionCopy[action].title} succeeded.`);
+            notifySuccess(
+                `${docActionCopy[action].title} succeeded for ${targetNodes.length} task(s).`,
+            );
             await Promise.all([loadTree(), loadDetail()]);
         } catch (err) {
             notifyError(

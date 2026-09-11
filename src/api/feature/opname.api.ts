@@ -32,6 +32,8 @@ export interface OpnameLineDetail {
 export interface OpnameTreeFilterParams {
     companyId?: string;
     warehouseId?: string;
+    status?: string;
+    location?: string;
 }
 
 export interface OpnameNodePayload {

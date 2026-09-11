@@ -23,14 +23,26 @@ export const normalizeStockBalanceRecord = (
 ): StockBalanceRecord => {
     const source = asRecord(row);
     const mapped: ApiStockRecord = { ...source };
-    mapped.productId =
-        nestedValue(source, "product", "name") ?? source.productId;
-    mapped.warehouseId =
-        nestedValue(source, "warehouse", "name") ?? source.warehouseId;
+    const warehouseId = source.warehouseId;
+    const locationId = source.locationId;
+    const productId = source.productId;
+    mapped.id =
+        source.id ??
+        [warehouseId, locationId, productId]
+            .filter((value) => value !== undefined && value !== null)
+            .map(String)
+            .join(":");
+    mapped.productId = productId;
+    mapped.productName =
+        nestedValue(source, "product", "name") ?? source.productName;
+    mapped.warehouseId = warehouseId;
+    mapped.warehouseName =
+        nestedValue(source, "warehouse", "name") ?? source.warehouseName;
+    mapped.locationId = locationId;
     mapped.locationPath =
         nestedValue(source, "location", "name") ??
         source.locationPath ??
-        source.locationId;
+        locationId;
     mapped.quantity = source.qty ?? source.qty_on_hand ?? source.quantity;
     return mapped as unknown as StockBalanceRecord;
 };

@@ -1,8 +1,8 @@
 export const RfidSelectors = {
-    REGISTER_TAG_BTN: "[object-id='btn_RfidRegisterTag']",
-    TAG_EPC_INPUT: "[object-id='txt_RfidTagEpc']",
-    ITEM_SKU_INPUT: "[object-id='txt_RfidItemSku']",
-    SAVE_BTN: "[object-id='btn_RfidSaveTag']",
-    SEARCH_INPUT: "[object-id='txt_RfidSearch']",
-    TABLE_ROWS: "[object-id^='tbl_RfidRow_']",
+    CREATE_CARD: "[object-id='wdg_TagRegistrationCreate']",
+    LIST_CARD: "[object-id='wdg_TagRegistrationList']",
+    TAG_EPC_INPUT: "[object-id='txt_TagRegistrationEpc']",
+    PRODUCT_SELECT: "[object-id='cmb_TagRegistrationProduct']",
+    SAVE_BTN: "[object-id='btn_TagRegistrationSubmit']",
+    REFRESH_BTN: "[object-id='btn_TagRegistrationRefresh']",
 };

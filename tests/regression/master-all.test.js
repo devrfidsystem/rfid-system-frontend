@@ -23,6 +23,7 @@ const MASTER_ENTITIES = [
         fields: {
             name: { value: `E2E Location ${Date.now()}`, type: "text" },
         },
+        selectFirstOptions: ["warehouseId", "locationType"],
         searchKey: "name",
     },
     {
@@ -52,13 +53,13 @@ const MASTER_ENTITIES = [
         name: "UOM",
         fields: {
             name: { value: `E2E UOM ${Date.now()}`, type: "text" },
-            symbol: { value: "PCS", type: "text" },
+            symbol: { value: `PCS-${Date.now()}`, type: "text" },
         },
         searchKey: "name",
     },
     {
         route: "product-categories",
-        name: "Category",
+        name: "Product Categories",
         fields: {
             name: { value: `E2E Category ${Date.now()}`, type: "text" },
         },
@@ -71,6 +72,7 @@ const MASTER_ENTITIES = [
             code: { value: `PROD-${Date.now()}`, type: "text" },
             name: { value: `E2E Product ${Date.now()}`, type: "text" },
         },
+        selectFirstOptions: ["uomId"],
         searchKey: "name",
     },
 ];
@@ -102,6 +104,7 @@ async function runMasterAllTests() {
                 driver,
                 APP_URL,
                 entity.route,
+                entity.name,
             );
 
             console.log(`[Test] Navigating to /master-data/${entity.route}...`);
@@ -112,6 +115,9 @@ async function runMasterAllTests() {
             console.log(`[Test] 1. Create ${entity.name}`);
             await masterPage.openCreateForm();
             await masterPage.fillForm(entity.fields);
+            for (const fieldKey of entity.selectFirstOptions ?? []) {
+                await masterPage.selectFirstOption(fieldKey);
+            }
             await masterPage.submitForm();
             console.log(`  -> ${entity.name} created. PASS.`);
 
@@ -119,6 +125,7 @@ async function runMasterAllTests() {
             const searchValue = entity.fields[entity.searchKey].value;
             console.log(`[Test] 2. Search ${entity.name}: ${searchValue}`);
             await masterPage.search(searchValue);
+            await masterPage.waitForTableText(searchValue);
             console.log(`  -> ${entity.name} found in table. PASS.`);
 
             // 3. Edit
@@ -140,6 +147,7 @@ async function runMasterAllTests() {
             // 4. Delete
             console.log(`[Test] 4. Delete ${entity.name}`);
             await masterPage.search(editedValue);
+            await masterPage.waitForTableText(editedValue);
             await masterPage.deleteFirstItem();
             console.log(`  -> ${entity.name} deleted. PASS.`);
         }

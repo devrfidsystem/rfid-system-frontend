@@ -39,7 +39,7 @@
                             id="docNumber"
                             v-model="form.docNumber"
                             label="Document Number"
-                            placeholder="TRX-12345"
+                            placeholder="OUT-250826-001"
                             required
                             object-id="txt_TransactionCreateDocNumber"
                         />

@@ -21,10 +21,12 @@
 ### Task 1: `useAppReady` composable
 
 **Files:**
+
 - Create: `src/composable/useAppReady.ts`
 - Test: `src/composable/useAppReady.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing from other tasks.
 - Produces: `useAppReady(router: ReadyRouter): Ref<boolean>` and the exported type `ReadyRouter = { isReady: () => Promise<void> }`. Task 3 imports both the function and calls it with the real `router` from `@/router` (which satisfies the `ReadyRouter` shape structurally — no cast needed).
 
@@ -110,10 +112,12 @@ git commit -m "feat: add useAppReady composable for cold-start gating"
 ### Task 2: `AppLoadingScreen.vue` component
 
 **Files:**
+
 - Create: `src/components/ui/states/AppLoadingScreen.vue`
 - Test: `src/components/ui/states/AppLoadingScreen.test.ts`
 
 **Interfaces:**
+
 - Consumes: nothing (no props).
 - Produces: default-exported Vue component with root class `app-loading-screen` and mark class `app-loading-screen__mark`, imported by Task 3 as `@/components/ui/states/AppLoadingScreen.vue`.
 
@@ -171,7 +175,13 @@ Create `src/components/ui/states/AppLoadingScreen.vue`:
             >
                 <path d="M4 11a8 8 0 0 1 16 0"></path>
                 <path d="M7.5 11a4.5 4.5 0 0 1 9 0"></path>
-                <circle cx="12" cy="17" r="2" fill="#FFFFFF" stroke="none"></circle>
+                <circle
+                    cx="12"
+                    cy="17"
+                    r="2"
+                    fill="#FFFFFF"
+                    stroke="none"
+                ></circle>
             </svg>
         </div>
     </div>
@@ -234,9 +244,11 @@ git commit -m "feat: add AppLoadingScreen presentational component"
 No new automated test is added in this task: the branching logic is already covered by Task 1's `useAppReady.test.ts` (the exact condition `App.vue` guards on), and the visual output is already covered by Task 2's `AppLoadingScreen.test.ts`. Mounting `App.vue`'s SFC to assert its template branches would require jsdom/`@vue/test-utils`, neither of which is a dependency in this project (`vitest.config.ts` runs with `environment: "node"`) — adding that infra for one integration point is out of proportion to the change. Verification here is the manual browser check in Step 3.
 
 **Files:**
+
 - Modify: `src/App.vue` (currently 8 lines, shown in full below)
 
 **Interfaces:**
+
 - Consumes: `useAppReady` and `ReadyRouter` from `src/composable/useAppReady.ts` (Task 1); `AppLoadingScreen` from `src/components/ui/states/AppLoadingScreen.vue` (Task 2); default-exported `router` from `@/router`.
 - Produces: nothing consumed by later tasks — this is the final integration point.
 

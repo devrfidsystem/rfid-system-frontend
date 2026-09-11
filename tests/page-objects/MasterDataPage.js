@@ -1,17 +1,32 @@
 /* eslint-disable no-console, @typescript-eslint/no-unused-vars */
 import { By, until } from "selenium-webdriver";
 import { MasterSelectors } from "../selectors/master.selectors.js";
+import { navigateInApp } from "../helpers/navigation.js";
 
 export class MasterDataPage {
-    constructor(driver, appUrl, entityRoute) {
+    constructor(driver, appUrl, entityRoute, entityName = "") {
         this.driver = driver;
+        this.entityName = entityName;
+        this.entityRoute = entityRoute ?? "products";
         this.url = `${appUrl}/master-data/${entityRoute ?? "products"}`;
     }
 
     async navigate() {
-        await this.driver.get(this.url);
-        await this.driver.wait(until.elementLocated(By.css("body")), 5000);
-        await this.driver.sleep(1000);
+        await navigateInApp(this.driver, this.url);
+        await this.driver.wait(
+            until.urlContains(`/master-data/${this.entityRoute}`),
+            5000,
+        );
+        if (this.entityName) {
+            await this.driver.wait(
+                until.elementLocated(
+                    By.xpath(
+                        `//*[contains(normalize-space(.), '${this.entityName}')]`,
+                    ),
+                ),
+                10000,
+            );
+        }
     }
 
     async openCreateForm() {
@@ -19,8 +34,13 @@ export class MasterDataPage {
             until.elementLocated(By.css(MasterSelectors.ADD_BTN)),
             5000,
         );
-        await newBtn.click();
-        await this.driver.sleep(1000);
+        await this.driver.wait(until.elementIsVisible(newBtn), 5000);
+        await this.driver.wait(until.elementIsEnabled(newBtn), 5000);
+        await this.driver.executeScript("arguments[0].click();", newBtn);
+        await this.driver.wait(
+            until.elementLocated(By.css(MasterSelectors.SAVE_BTN)),
+            10000,
+        );
     }
 
     async fillForm(fieldsMap) {
@@ -51,8 +71,9 @@ export class MasterDataPage {
                     await element.sendKeys(fieldConfig.value);
                 }
             } catch (err) {
-                console.warn(
-                    `    -> [Warning] Failed to fill field ${key}. It might be read-only or hidden.`,
+                throw new Error(
+                    `Failed to fill required regression field "${key}" with selector "${selector}".`,
+                    { cause: err },
                 );
             }
         }
@@ -79,17 +100,50 @@ export class MasterDataPage {
     }
 
     async submitForm() {
-        const saveBtn = await this.driver.findElement(
-            By.css(MasterSelectors.SAVE_BTN),
+        const saveBtn = await this.driver.wait(
+            async () => {
+                const buttons = await this.driver.findElements(
+                    By.css(MasterSelectors.SAVE_BTN),
+                );
+                for (const button of buttons) {
+                    try {
+                        if (
+                            (await button.isDisplayed()) &&
+                            (await button.isEnabled())
+                        ) {
+                            return button;
+                        }
+                    } catch {
+                        // The drawer can rerender while submit state changes.
+                    }
+                }
+                return false;
+            },
+            10000,
+            "Timed out waiting for enabled master form save button.",
         );
-        await saveBtn.click();
-        await this.driver.sleep(1000);
+        await this.driver.executeScript("arguments[0].click();", saveBtn);
+        await this.driver.wait(async () => {
+            const buttons = await this.driver.findElements(
+                By.css(MasterSelectors.SAVE_BTN),
+            );
+            for (const button of buttons) {
+                try {
+                    if (await button.isDisplayed()) return false;
+                } catch {
+                    // Closed drawers can detach the button while polling.
+                }
+            }
+            return true;
+        }, 10000);
     }
 
     async waitForTableText(text) {
         await this.driver.wait(
             until.elementLocated(
-                By.xpath(`//*[contains(normalize-space(.), '${text}')]`),
+                By.xpath(
+                    `//*[@object-id='MasterTable']//*[contains(normalize-space(.), '${text}')]`,
+                ),
             ),
             10000,
         );
@@ -130,8 +184,13 @@ export class MasterDataPage {
             until.elementLocated(By.css(MasterSelectors.EDIT_BTN_PREFIX)),
             10000,
         );
+        await this.driver.wait(until.elementIsVisible(editBtn), 5000);
+        await this.driver.wait(until.elementIsEnabled(editBtn), 5000);
         await editBtn.click();
-        await this.driver.sleep(1000);
+        await this.driver.wait(
+            until.elementLocated(By.css(MasterSelectors.SAVE_BTN)),
+            10000,
+        );
     }
 
     async deleteFirstItem() {
@@ -139,7 +198,9 @@ export class MasterDataPage {
             until.elementLocated(By.css(MasterSelectors.DELETE_BTN_PREFIX)),
             10000,
         );
-        await deleteBtn.click();
+        await this.driver.wait(until.elementIsVisible(deleteBtn), 5000);
+        await this.driver.wait(until.elementIsEnabled(deleteBtn), 5000);
+        await this.driver.executeScript("arguments[0].click();", deleteBtn);
         await this.driver.sleep(1000);
 
         const confirmBtn = await this.driver.wait(
