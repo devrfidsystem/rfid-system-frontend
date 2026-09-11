@@ -68,7 +68,9 @@ export function useOpnameCreate() {
         const value = route.query.id;
         return typeof value === "string" && value.trim() ? value : "";
     });
-    const isEdit = computed(() => Boolean(editingId.value) && mode.value === "task");
+    const isEdit = computed(
+        () => Boolean(editingId.value) && mode.value === "task",
+    );
 
     const mode = computed<CreateMode>(() => {
         const value = String(route.query.mode ?? "group");
@@ -157,7 +159,9 @@ export function useOpnameCreate() {
         return "Enter group name";
     });
     const parentLabel = computed(() => selectedParent.value?.title ?? "-");
-    const primaryActionLabel = computed(() => (isEdit.value ? "Save" : "Create"));
+    const primaryActionLabel = computed(() =>
+        isEdit.value ? "Save" : "Create",
+    );
 
     const LOCATION_PAGE_SIZE = 200;
 
@@ -175,9 +179,8 @@ export function useOpnameCreate() {
                     page,
                     limit: LOCATION_PAGE_SIZE,
                 });
-                const batch = normalizePaginationItems<LocationRecord>(
-                    response,
-                );
+                const batch =
+                    normalizePaginationItems<LocationRecord>(response);
                 items.push(...batch);
                 if (batch.length < LOCATION_PAGE_SIZE) break;
                 page += 1;
@@ -223,7 +226,8 @@ export function useOpnameCreate() {
         );
         formState.assignedAt = String(detail.assignedAt ?? "").slice(0, 10);
         formState.deadlineAt = String(detail.deadlineAt ?? "").slice(0, 10);
-        const locations = (detail.locations as { id?: string }[] | undefined) ?? [];
+        const locations =
+            (detail.locations as { id?: string }[] | undefined) ?? [];
         locationIds.value = locations
             .map((location) => String(location.id ?? ""))
             .filter(Boolean);
@@ -323,8 +327,14 @@ export function useOpnameCreate() {
                 notifyError("Pilih minimal satu lokasi bertag.");
                 return;
             }
-            if (!formState.assignedToId || !formState.assignedAt || !formState.deadlineAt) {
-                notifyError("Assigned user, assigned date, dan deadline wajib diisi.");
+            if (
+                !formState.assignedToId ||
+                !formState.assignedAt ||
+                !formState.deadlineAt
+            ) {
+                notifyError(
+                    "Assigned user, assigned date, dan deadline wajib diisi.",
+                );
                 return;
             }
             if (formState.deadlineAt < formState.assignedAt) {

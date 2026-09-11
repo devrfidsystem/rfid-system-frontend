@@ -39,7 +39,9 @@
                         <Input
                             v-model="formState.docNumber"
                             label="Opname ID Number"
-                            :placeholder="mode === 'task' ? 'Auto generate' : 'OP-0001'"
+                            :placeholder="
+                                mode === 'task' ? 'Auto generate' : 'OP-0001'
+                            "
                             :required="mode !== 'task'"
                             :disabled="mode === 'task'"
                             object-id="txt_OpnameCreateDocNumber"

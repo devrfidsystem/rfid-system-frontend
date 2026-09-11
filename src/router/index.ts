@@ -58,7 +58,6 @@ const genericTransactionKeys = [
     "putaway",
     "outbound",
     "relocation",
-    "transfer",
     "return",
     "returns",
 ] as const;

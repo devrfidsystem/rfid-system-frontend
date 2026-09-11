@@ -8,11 +8,41 @@ import {
 } from "./opnameLocationPicker";
 
 const locations: LocationPickerLocation[] = [
-    { id: "floor-a", parentId: null, code: "FA", name: "Floor A", epc: "EPC-FA" },
-    { id: "rack-a", parentId: "floor-a", code: "RA", name: "Rack A", epc: "EPC-A" },
-    { id: "rack-c", parentId: "floor-a", code: "RC", name: "Rack C", epc: "EPC-C" },
-    { id: "rack-d", parentId: "floor-a", code: "RD", name: "Rack D", epc: "EPC-D" },
-    { id: "rack-e", parentId: "floor-a", code: "RE", name: "Rack E", epc: null },
+    {
+        id: "floor-a",
+        parentId: null,
+        code: "FA",
+        name: "Floor A",
+        epc: "EPC-FA",
+    },
+    {
+        id: "rack-a",
+        parentId: "floor-a",
+        code: "RA",
+        name: "Rack A",
+        epc: "EPC-A",
+    },
+    {
+        id: "rack-c",
+        parentId: "floor-a",
+        code: "RC",
+        name: "Rack C",
+        epc: "EPC-C",
+    },
+    {
+        id: "rack-d",
+        parentId: "floor-a",
+        code: "RD",
+        name: "Rack D",
+        epc: "EPC-D",
+    },
+    {
+        id: "rack-e",
+        parentId: "floor-a",
+        code: "RE",
+        name: "Rack E",
+        epc: null,
+    },
 ];
 
 describe("opnameLocationPicker", () => {
@@ -34,8 +64,8 @@ describe("opnameLocationPicker", () => {
         const floor = rows[0];
         const untagged = floor?.children.find((row) => row.id === "rack-e");
         expect(untagged?.selectable).toBe(false);
-        expect(floor?.children.find((row) => row.id === "rack-a")?.selectable).toBe(
-            true,
-        );
+        expect(
+            floor?.children.find((row) => row.id === "rack-a")?.selectable,
+        ).toBe(true);
     });
 });
