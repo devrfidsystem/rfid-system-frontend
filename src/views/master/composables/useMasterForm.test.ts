@@ -304,7 +304,9 @@ describe("useMasterForm", () => {
                 "warehouses",
                 "locations",
             ],
-            ensureLocationWarehouseContext: vi.fn().mockResolvedValue("wh-user"),
+            ensureLocationWarehouseContext: vi
+                .fn()
+                .mockResolvedValue("wh-user"),
             locationWarehouseId: ref("wh-user"),
             route: { fullPath: "/master-data/locations" },
         };

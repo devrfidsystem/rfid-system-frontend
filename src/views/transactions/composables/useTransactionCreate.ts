@@ -443,15 +443,11 @@ export function useTransactionCreate(
                 return {
                     productId: String(
                         line.productId ??
-                            (line.product as { id?: string } | undefined)
-                                ?.id ??
+                            (line.product as { id?: string } | undefined)?.id ??
                             "",
                     ),
                     qty: String(
-                        line.qtyExpected ??
-                            line.expectedQty ??
-                            line.qty ??
-                            "1",
+                        line.qtyExpected ?? line.expectedQty ?? line.qty ?? "1",
                     ),
                     locationId: String(
                         line.locationId ??

@@ -274,8 +274,6 @@ describe("useOpnameTree", () => {
         getSummaryMock.mockClear();
 
         composable.keyword.value = "search term";
-        composable.statusFilter.value = "counting";
-        composable.locationFilter.value = "Rack A";
         composable.startDate.value = "2026-08-01";
         composable.endDate.value = "2026-08-06";
         await nextTick();
