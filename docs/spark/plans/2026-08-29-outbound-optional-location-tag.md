@@ -21,10 +21,12 @@
 ### Task 1: Backend Outbound Allows Untagged Pick Locations
 
 **Files:**
+
 - Modify: `src/modules/warehouse/outbound/outbound.service.spec.ts`
 - Modify: `src/modules/warehouse/outbound/outbound.service.ts`
 
 **Interfaces:**
+
 - Consumes: outbound pick locations with `{ id, code, warehouseId, epc?: string | null }`
 - Produces: outbound create/post validation that requires same warehouse but not location EPC.
 
@@ -49,9 +51,11 @@ Expected: PASS.
 ### Task 2: Regression Guard For No Auto Done
 
 **Files:**
+
 - Modify: `src/modules/warehouse/outbound/outbound.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `OutboundService.completeMobileScan(id, user, scanDto)`
 - Produces: regression coverage that `completeMobileScan()` does not update outbound document status.
 
@@ -67,6 +71,7 @@ Expected: PASS.
 ### Task 3: Verification And Notes
 
 **Files:**
+
 - Modify: `docs/spark/specs/2026-08-29-warehouse-follow-up-notes.md`
 - Modify: `../Warehouse-be/docs/spark/specs/2026-08-29-warehouse-follow-up-notes.md`
 

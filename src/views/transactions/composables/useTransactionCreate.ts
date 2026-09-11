@@ -410,21 +410,61 @@ export function useTransactionCreate(
                 (record.lines ?? record.items ?? []) as Array<
                     Record<string, unknown>
                 >
-            ).map((line) => ({
-                productId: String(
-                    line.productId ??
-                        (line.product as { id?: string } | undefined)?.id ??
+            ).map((line) => {
+                const sourceLocation = line.sourceLocation as
+                    | { id?: string }
+                    | undefined;
+                const targetLocation = line.targetLocation as
+                    | { id?: string }
+                    | undefined;
+                const fromLocation = line.fromLocation as
+                    | { id?: string }
+                    | undefined;
+                const toLocation = line.toLocation as
+                    | { id?: string }
+                    | undefined;
+                const location = line.location as { id?: string } | undefined;
+
+                const sourceLocationId = String(
+                    line.sourceLocationId ??
+                        line.origin_location_id ??
+                        sourceLocation?.id ??
+                        fromLocation?.id ??
                         "",
-                ),
-                qty: String(
-                    line.qtyExpected ?? line.expectedQty ?? line.qty ?? "1",
-                ),
-                locationId: "",
-                fromLocationId: "",
-                toLocationId: "",
-                enteredUomId: String(line.enteredUomId ?? ""),
-                enteredQty: String(line.enteredQty ?? ""),
-            }));
+                );
+                const targetLocationId = String(
+                    line.targetLocationId ??
+                        line.destination_location_id ??
+                        targetLocation?.id ??
+                        toLocation?.id ??
+                        "",
+                );
+
+                return {
+                    productId: String(
+                        line.productId ??
+                            (line.product as { id?: string } | undefined)
+                                ?.id ??
+                            "",
+                    ),
+                    qty: String(
+                        line.qtyExpected ??
+                            line.expectedQty ??
+                            line.qty ??
+                            "1",
+                    ),
+                    locationId: String(
+                        line.locationId ??
+                            location?.id ??
+                            sourceLocationId ??
+                            "",
+                    ),
+                    fromLocationId: sourceLocationId,
+                    toLocationId: targetLocationId,
+                    enteredUomId: String(line.enteredUomId ?? ""),
+                    enteredQty: String(line.enteredQty ?? ""),
+                };
+            });
         } catch (err) {
             notifyError(
                 err instanceof Error
@@ -636,6 +676,10 @@ export function useTransactionCreate(
             }
 
             if (isEditMode.value && transactionId) {
+                if (!isRegister.value) {
+                    delete finalPayload.companyId;
+                    delete finalPayload.docNumber;
+                }
                 await transactionService.update(
                     transactionKey,
                     transactionId,

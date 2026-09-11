@@ -13,6 +13,9 @@ Progress:
 - 2026-08-29: Putaway location-first batch implemented in frontend. Putaway lines now select source location before product, product picker stays disabled until source location is selected, and products are loaded from stock balance for the selected warehouse/location with quantity in the label.
 - 2026-08-30: Mobile task scan flow batch implemented. Putaway/outbound do not auto-submit/auto-done on complete scans, optional location tags can proceed without EPC confirmation, outbound back navigation clears incomplete scan state, and opname task count updates local rack lines after submit.
 - 2026-08-30: Stock balance display batch implemented. Frontend stock balance rows preserve warehouse/location/product IDs while displaying names, with composite row IDs per warehouse/location/product.
+- 2026-08-30: Frontend and backend verification completed. Frontend unit tests/type-check/build pass; backend full Jest suite/build pass. Mobile Flutter verification is blocked because `dart` and `flutter` are not available in PATH.
+- 2026-08-30: Frontend Selenium regression was repaired and verified outside sandbox; all 9 regression suites pass.
+- 2026-08-30: Prisma migration history was repaired by restoring local migration `20260824000000_add_opname_task_scope`; pending migration `20260829090000_add_location_type` was applied with `prisma migrate deploy`, and migration status now reports the database schema is up to date.
 
 ## Putaway
 
@@ -57,4 +60,4 @@ Progress:
 
 - Treat these as shared FE/BE requirements. Confirm API contracts before changing UI-only behavior.
 - Any automatic completion or automatic submission change must be checked against backend status transitions.
-- Remaining validation: run full frontend/backend regression suites and run Flutter tests/manual QA once Flutter tooling is available in the environment.
+- Remaining validation: run Flutter tests/manual QA once Flutter tooling is available in the environment.

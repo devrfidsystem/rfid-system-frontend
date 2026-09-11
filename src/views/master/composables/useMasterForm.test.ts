@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
     fetchList: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
+    fetchMyWarehouses: vi.fn(),
     parseMasterExcelFile: vi.fn(),
     notifyError: vi.fn(),
     notifySuccess: vi.fn(),
@@ -29,6 +30,12 @@ vi.mock("../masterExcel", () => ({
 vi.mock("@/services/location.service", () => ({
     locationService: {
         move: vi.fn(),
+    },
+}));
+
+vi.mock("@/services/warehouse.service", () => ({
+    warehouseService: {
+        fetchMyWarehouses: mocks.fetchMyWarehouses,
     },
 }));
 
@@ -56,6 +63,7 @@ describe("useMasterForm", () => {
             .mockReset()
             .mockResolvedValue({ data: { id: "created-1" } });
         mocks.update.mockReset().mockResolvedValue({ data: { id: "cust-1" } });
+        mocks.fetchMyWarehouses.mockReset().mockResolvedValue([]);
         mocks.parseMasterExcelFile.mockReset().mockResolvedValue([]);
         mocks.notifyError.mockReset();
         mocks.notifySuccess.mockReset();
@@ -238,5 +246,131 @@ describe("useMasterForm", () => {
         expect(mocks.update).toHaveBeenCalledWith("customers", "cust-1", {
             name: "Retail Partner Renamed",
         });
+    });
+
+    it("falls back to the current user's warehouses for location form options", async () => {
+        const entityKey = ref("locations");
+        const context = {
+            entityKey,
+            config: computed(() => masterEntities.locations),
+            isMasterApiEntity: () => true,
+            authStore: { currentCompanyId: "company-1" },
+            companyAwareEntities: [
+                "attributes",
+                "customers",
+                "suppliers",
+                "products",
+                "uoms",
+                "product-categories",
+                "warehouses",
+                "locations",
+            ],
+            ensureLocationWarehouseContext: vi.fn().mockResolvedValue("wh-1"),
+            locationWarehouseId: ref("wh-1"),
+            route: { fullPath: "/master-data/locations" },
+        };
+        const table = {
+            loadRows: vi.fn(),
+            loadError: ref(null),
+        };
+        mocks.fetchList.mockResolvedValue({ items: [] });
+        mocks.fetchMyWarehouses.mockResolvedValue([
+            { id: "wh-1", name: "Main Warehouse" },
+        ]);
+
+        const form = useMasterForm(context as never, table as never);
+        await flushPromises();
+        await flushPromises();
+
+        expect(form.warehouseSelectOptions.value).toEqual([
+            { value: "wh-1", label: "Main Warehouse" },
+        ]);
+    });
+
+    it("prefers the current user's warehouses for location form options", async () => {
+        const entityKey = ref("locations");
+        const context = {
+            entityKey,
+            config: computed(() => masterEntities.locations),
+            isMasterApiEntity: () => true,
+            authStore: { currentCompanyId: "company-1" },
+            companyAwareEntities: [
+                "attributes",
+                "customers",
+                "suppliers",
+                "products",
+                "uoms",
+                "product-categories",
+                "warehouses",
+                "locations",
+            ],
+            ensureLocationWarehouseContext: vi.fn().mockResolvedValue("wh-user"),
+            locationWarehouseId: ref("wh-user"),
+            route: { fullPath: "/master-data/locations" },
+        };
+        const table = {
+            loadRows: vi.fn(),
+            loadError: ref(null),
+        };
+        mocks.fetchList.mockImplementation((entity: string) =>
+            Promise.resolve({
+                items:
+                    entity === "warehouses"
+                        ? [{ id: "wh-master", name: "Master Warehouse" }]
+                        : [],
+            }),
+        );
+        mocks.fetchMyWarehouses.mockResolvedValue([
+            { id: "wh-user", name: "User Warehouse" },
+        ]);
+
+        const form = useMasterForm(context as never, table as never);
+        await flushPromises();
+        await flushPromises();
+
+        expect(form.warehouseSelectOptions.value).toEqual([
+            { value: "wh-user", label: "User Warehouse" },
+        ]);
+    });
+
+    it("maps snake_case location type from API rows when editing a location", async () => {
+        const entityKey = ref("locations");
+        const context = {
+            entityKey,
+            config: computed(() => masterEntities.locations),
+            isMasterApiEntity: () => true,
+            authStore: { currentCompanyId: "company-1" },
+            companyAwareEntities: [
+                "attributes",
+                "customers",
+                "suppliers",
+                "products",
+                "uoms",
+                "product-categories",
+                "warehouses",
+                "locations",
+            ],
+            ensureLocationWarehouseContext: vi.fn().mockResolvedValue("wh-1"),
+            locationWarehouseId: ref("wh-1"),
+            route: { fullPath: "/master-data/locations" },
+        };
+        const table = {
+            loadRows: vi.fn(),
+            loadError: ref(null),
+        };
+        mocks.fetchMyWarehouses.mockResolvedValue([
+            { id: "wh-1", name: "Main Warehouse" },
+        ]);
+
+        const form = useMasterForm(context as never, table as never);
+        await flushPromises();
+        await form.openEdit({
+            id: "loc-1",
+            warehouseId: "wh-1",
+            name: "Rack A",
+            location_type: "storage",
+        });
+
+        expect(form.formState.locationType).toBe("storage");
     });
 });

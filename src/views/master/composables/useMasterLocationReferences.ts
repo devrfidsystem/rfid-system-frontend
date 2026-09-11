@@ -2,6 +2,7 @@ import { ref, type ComputedRef, type Ref } from "vue";
 import type { EntityKey, LocationRecord } from "@/model/entities";
 import type { MasterRecord } from "@/domain/master/types";
 import { masterService } from "@/services/master.service";
+import { warehouseService } from "@/services/warehouse.service";
 import type { MasterFormValue } from "./masterFormTypes";
 
 type SelectOption = { label: string; value: string };
@@ -82,16 +83,18 @@ export function useMasterLocationReferences({
             const params = authStore.currentCompanyId
                 ? { companyId: authStore.currentCompanyId }
                 : undefined;
-            const warehouses = await masterService.fetchList("warehouses", {
-                limit: 200,
-                ...(params ?? {}),
-            });
-            warehouseSelectOptions.value = warehouses.items.map(
-                (warehouse) => ({
-                    value: String(warehouse.id),
-                    label: warehouse.name,
-                }),
-            );
+            let warehouseItems = await warehouseService.fetchMyWarehouses();
+            if (!warehouseItems.length) {
+                const warehouses = await masterService.fetchList("warehouses", {
+                    limit: 200,
+                    ...(params ?? {}),
+                });
+                warehouseItems = warehouses.items;
+            }
+            warehouseSelectOptions.value = warehouseItems.map((warehouse) => ({
+                value: String(warehouse.id),
+                label: warehouse.name,
+            }));
 
             const currentWarehouseId =
                 formState.warehouseId?.toString() ||

@@ -186,8 +186,11 @@ export class MasterDataPage {
         );
         await this.driver.wait(until.elementIsVisible(editBtn), 5000);
         await this.driver.wait(until.elementIsEnabled(editBtn), 5000);
-        await this.driver.executeScript("arguments[0].click();", editBtn);
-        await this.driver.sleep(1000);
+        await editBtn.click();
+        await this.driver.wait(
+            until.elementLocated(By.css(MasterSelectors.SAVE_BTN)),
+            10000,
+        );
     }
 
     async deleteFirstItem() {

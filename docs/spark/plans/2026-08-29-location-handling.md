@@ -21,6 +21,7 @@
 ### Task 1: Backend Location Type Contract
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 - Create: `prisma/migrations/20260829090000_add_location_type/migration.sql`
 - Modify: `src/modules/warehouse/locations/dto/location.dto.ts`
@@ -29,6 +30,7 @@
 - Modify: `src/modules/warehouse/locations/locations.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `LocationsService.findAll(warehouseId, query)`, `LocationsService.getOptions(warehouseId, search)`
 - Produces: `locationType: "storage" | "staging" | "receiving" | "dispatch" | "product"` and optional `excludeTypes`
 
@@ -53,12 +55,14 @@ Expected: PASS.
 ### Task 2: Frontend Location DTO And Task Selector Filter
 
 **Files:**
+
 - Modify: `src/model/entities.ts`
 - Modify: `src/api/feature/dto/location.dto.ts`
 - Modify: `src/views/transactions/composables/useTransactionCreate.ts`
 - Modify: `src/views/transactions/composables/useTransactionCreate.test.ts`
 
 **Interfaces:**
+
 - Consumes: `locationService.list({ warehouseId, limit, excludeTypes: ["product"] })`
 - Produces: transaction create location selectors that exclude product-type locations.
 
@@ -83,6 +87,7 @@ Expected: PASS.
 ### Task 3: Master Location Type Field
 
 **Files:**
+
 - Modify: `src/domain/master/entityConfig.ts`
 - Modify: `src/api/feature/dto/master.dto.ts`
 - Modify: `src/views/master/masterPayload.ts`
@@ -90,6 +95,7 @@ Expected: PASS.
 - Modify: `src/views/master/masterPayload.test.ts`
 
 **Interfaces:**
+
 - Consumes: backend `locationType`
 - Produces: master-data location create/update payloads that can mark a location as `product`.
 
@@ -114,6 +120,7 @@ Expected: PASS.
 ### Task 4: Verification
 
 **Files:**
+
 - Read: `docs/spark/specs/2026-08-29-warehouse-follow-up-notes.md`
 
 - [x] **Step 1: Run focused backend verification**

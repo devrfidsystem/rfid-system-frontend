@@ -23,6 +23,7 @@ const MASTER_ENTITIES = [
         fields: {
             name: { value: `E2E Location ${Date.now()}`, type: "text" },
         },
+        selectFirstOptions: ["warehouseId", "locationType"],
         searchKey: "name",
     },
     {
@@ -124,6 +125,7 @@ async function runMasterAllTests() {
             const searchValue = entity.fields[entity.searchKey].value;
             console.log(`[Test] 2. Search ${entity.name}: ${searchValue}`);
             await masterPage.search(searchValue);
+            await masterPage.waitForTableText(searchValue);
             console.log(`  -> ${entity.name} found in table. PASS.`);
 
             // 3. Edit
@@ -145,6 +147,7 @@ async function runMasterAllTests() {
             // 4. Delete
             console.log(`[Test] 4. Delete ${entity.name}`);
             await masterPage.search(editedValue);
+            await masterPage.waitForTableText(editedValue);
             await masterPage.deleteFirstItem();
             console.log(`  -> ${entity.name} deleted. PASS.`);
         }

@@ -2,6 +2,7 @@
 import { By, until } from "selenium-webdriver";
 import { Builder } from "selenium-webdriver";
 import { AuthHelper } from "../helpers/AuthHelper.js";
+import { navigateInApp } from "../helpers/navigation.js";
 
 const APP_URL = "http://localhost:5173";
 
@@ -199,7 +200,7 @@ async function runTransactionSurfaceRegression() {
             console.log(`================================`);
 
             console.log(`[Test] 1. Load list ${surface.listPath}`);
-            await driver.get(`${APP_URL}${surface.listPath}`);
+            await navigateInApp(driver, `${APP_URL}${surface.listPath}`);
             await waitForVisible(
                 driver,
                 "[object-id='txt_TransactionHeaderSearch']",
@@ -211,7 +212,7 @@ async function runTransactionSurfaceRegression() {
             console.log("  -> List controls loaded. PASS.");
 
             console.log(`[Test] 2. Load create ${surface.createPath}`);
-            await driver.get(`${APP_URL}${surface.createPath}`);
+            await navigateInApp(driver, `${APP_URL}${surface.createPath}`);
             await waitForVisible(
                 driver,
                 "[object-id='wdg_TransactionCreateDetails']",
@@ -242,7 +243,7 @@ async function runTransactionSurfaceRegression() {
             console.log(`[Suite] Testing: ${surface.name}`);
             console.log(`================================`);
 
-            await driver.get(`${APP_URL}${surface.path}`);
+            await navigateInApp(driver, `${APP_URL}${surface.path}`);
             for (const selector of surface.requiredSelectors) {
                 await waitForVisible(driver, selector);
             }

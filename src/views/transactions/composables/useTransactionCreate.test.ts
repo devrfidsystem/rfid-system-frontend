@@ -666,6 +666,56 @@ describe("useTransactionCreate", () => {
         );
     });
 
+    it("loads and updates an existing draft inbound document with the backend update payload shape", async () => {
+        mocks.getSpy.mockResolvedValueOnce({
+            id: "inb-1",
+            docNumber: "INB-001",
+            docDate: "2026-07-18T00:00:00.000Z",
+            warehouseId: "warehouse-1",
+            status: "draft",
+            notes: "before",
+            lines: [
+                {
+                    productId: "prod-1",
+                    locationId: "loc-a",
+                    qtyExpected: 3,
+                },
+            ],
+        });
+
+        const { useTransactionCreate } = await import("./useTransactionCreate");
+        const create = useTransactionCreate("inbound", "inb-1");
+        await create.loadExistingTransaction();
+
+        expect(create.form.value.lines[0]).toMatchObject({
+            productId: "prod-1",
+            locationId: "loc-a",
+            qty: "3",
+        });
+
+        create.form.value.notes = "after";
+        create.form.value.lines[0].qty = "4";
+
+        await create.handleSubmit();
+
+        expect(mocks.updateSpy).toHaveBeenCalledWith("inbound", "inb-1", {
+            docDate: expect.any(String),
+            notes: "after",
+            supplierId: undefined,
+            lines: [
+                {
+                    productId: "prod-1",
+                    locationId: "loc-a",
+                    qtyExpected: 4,
+                },
+            ],
+        });
+        expect(mocks.createSpy).not.toHaveBeenCalled();
+        expect(mocks.pushSpy).toHaveBeenCalledWith(
+            "/transactions/inbound/inb-1",
+        );
+    });
+
     it("omits enteredUomId/enteredQty from an untouched register line's payload", async () => {
         const { useTransactionCreate } = await import("./useTransactionCreate");
         const create = useTransactionCreate("register");
