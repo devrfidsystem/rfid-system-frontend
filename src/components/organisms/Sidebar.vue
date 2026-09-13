@@ -155,11 +155,21 @@
                                             child.path && isActive(child.path)
                                                 ? 'bg-primary-50 text-primary-700 font-semibold'
                                                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                                        "
-                                        @click="closeOnNavigate"
-                                    >
-                                        <span>{{ child.title }}</span>
-                                    </RouterLink>
+                                     "
+                                         @click="closeOnNavigate"
+                                     >
+                                        <Icon
+                                            :icon="child.icon"
+                                            :size="16"
+                                            :class-name="
+                                                child.path &&
+                                                isActive(child.path)
+                                                    ? 'text-primary-600'
+                                                    : 'text-gray-400 group-hover:text-gray-900'
+                                            "
+                                        />
+                                         <span>{{ child.title }}</span>
+                                     </RouterLink>
                                 </div>
                             </div>
                         </div>
