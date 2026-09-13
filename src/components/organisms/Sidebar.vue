@@ -53,19 +53,15 @@
                     @click="navigate(item.path)"
                 >
                     <component
-                        v-if="item.depth === 0"
                         :is="item.icon"
-                        class="h-3.5 w-3.5 shrink-0"
-                        :class="
+                        class="shrink-0"
+                        :class="[
+                            item.depth === 0 ? 'h-3.5 w-3.5' : 'h-3 w-3',
                             isActive(item.path)
                                 ? 'text-primary-600'
-                                : 'text-text-muted group-hover:text-text'
-                        "
+                                : 'text-text-muted group-hover:text-text',
+                        ]"
                         :stroke-width="1.75"
-                    />
-                    <span
-                        v-else
-                        class="h-1.5 w-1.5 shrink-0 rounded-full bg-text-muted/60"
                     />
                     <span class="min-w-0 truncate">
                         {{ item.title }}

@@ -10,4 +10,10 @@ describe("Sidebar design-system usage", () => {
         expect(sidebarSource).not.toContain("<input");
         expect(sidebarSource).not.toContain("focus:border-primary-500");
     });
+
+    it("renders an icon for nested menu items instead of a bullet", () => {
+        expect(sidebarSource).toContain(':is="item.icon"');
+        expect(sidebarSource).not.toContain('v-if="item.depth === 0"');
+        expect(sidebarSource).not.toContain("rounded-full bg-text-muted/60");
+    });
 });
