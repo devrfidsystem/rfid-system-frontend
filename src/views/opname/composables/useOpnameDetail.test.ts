@@ -16,6 +16,15 @@ const notifyErrorMock = vi.hoisted(() => vi.fn());
 
 var authStoreState: {
     currentCompanyId: string | null;
+    permissions: Array<{
+        menuCode: string;
+        actions: {
+            canView: boolean;
+            canCreate: boolean;
+            canUpdate: boolean;
+            canDelete: boolean;
+        };
+    }>;
 };
 var warehouseOptionsRef: {
     value: { id: string; code: string; name: string }[];
@@ -29,6 +38,17 @@ vi.mock("@/store/auth.store", async () => {
     const { reactive } = await import("vue");
     authStoreState = reactive({
         currentCompanyId: "company-1" as string | null,
+        permissions: [
+            {
+                menuCode: "TRANSACTION_OPNAME",
+                actions: {
+                    canView: true,
+                    canCreate: true,
+                    canUpdate: true,
+                    canDelete: true,
+                },
+            },
+        ],
     });
     return {
         useAuthStore: () => authStoreState,
@@ -103,6 +123,12 @@ describe("useOpnameDetail", () => {
         routerPushMock.mockReset();
         notifySuccessMock.mockReset();
         notifyErrorMock.mockReset();
+        authStoreState.permissions[0].actions = {
+            canView: true,
+            canCreate: true,
+            canUpdate: true,
+            canDelete: true,
+        };
 
         getTreeMock.mockResolvedValue([
             {
@@ -115,8 +141,8 @@ describe("useOpnameDetail", () => {
                 description: "Root description",
                 task_group: "Group A",
                 task_period: "January",
-                status: "draft",
-                nodeType: "group",
+                status: "counting",
+                nodeType: "task",
                 children: [],
             },
         ]);
@@ -245,6 +271,81 @@ describe("useOpnameDetail", () => {
         );
     });
 
+    it("blocks adjustment outside counting status", async () => {
+        getTreeMock.mockResolvedValue([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "Root Opname",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "reconciled",
+                nodeType: "task",
+                children: [],
+            },
+        ]);
+
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+        detail.openDetail(detail.selectedDetailLines.value[0]);
+        detail.selectItemAction("adjust");
+        detail.activeActionForm.value.actualQty = "8";
+        detail.activeActionForm.value.reason = "Physical correction";
+
+        await detail.submitItemAction();
+
+        expect(updateLineCountMock).not.toHaveBeenCalled();
+        expect(notifyErrorMock).toHaveBeenCalledWith(
+            "Adjustment hanya dapat dilakukan saat opname berstatus counting dan user memiliki permission update.",
+        );
+    });
+
+    it("rejects an adjustment without a valid quantity or reason", async () => {
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+        detail.openDetail(detail.selectedDetailLines.value[0]);
+        detail.selectItemAction("adjust");
+
+        await detail.submitItemAction();
+
+        expect(updateLineCountMock).not.toHaveBeenCalled();
+        expect(notifyErrorMock).toHaveBeenCalledWith(
+            "Actual Qty adjustment wajib berupa angka nol atau lebih.",
+        );
+
+        detail.activeActionForm.value.actualQty = "8";
+        await detail.submitItemAction();
+
+        expect(updateLineCountMock).not.toHaveBeenCalled();
+        expect(notifyErrorMock).toHaveBeenCalledWith(
+            "Reason adjustment wajib diisi.",
+        );
+    });
+
+    it("blocks adjustment when the user lacks opname update permission", async () => {
+        authStoreState.permissions[0].actions.canUpdate = false;
+        const detail = useOpnameDetail();
+        await nextTick();
+        await Promise.resolve();
+        detail.openDetail(detail.selectedDetailLines.value[0]);
+        detail.selectItemAction("adjust");
+        detail.activeActionForm.value.actualQty = "8";
+        detail.activeActionForm.value.reason = "Physical correction";
+
+        await detail.submitItemAction();
+
+        expect(updateLineCountMock).not.toHaveBeenCalled();
+        expect(notifyErrorMock).toHaveBeenCalledWith(
+            "Adjustment hanya dapat dilakukan saat opname berstatus counting dan user memiliki permission update.",
+        );
+    });
+
     it("gates start-counting/reconcile/close/cancel by node type and status", async () => {
         getTreeMock.mockResolvedValue([
             {
@@ -274,12 +375,27 @@ describe("useOpnameDetail", () => {
     });
 
     it("does not offer document lifecycle actions on group/profile nodes", async () => {
+        getTreeMock.mockResolvedValue([
+            {
+                id: "root-1",
+                parentId: null,
+                companyId: "company-1",
+                warehouse_id: "wh-1",
+                profile_id: "OP-ROOT",
+                title: "Root Opname",
+                description: null,
+                task_group: null,
+                task_period: null,
+                status: "draft",
+                nodeType: "group",
+                children: [],
+            },
+        ]);
         const detail = useOpnameDetail();
         await nextTick();
         await Promise.resolve();
 
-        // Default mock resolves a "group" node — none of the doc-level
-        // lifecycle actions apply to organizational tree nodes.
+        // Group nodes do not support document-level lifecycle actions.
         expect(detail.canStartCounting.value).toBe(false);
         expect(detail.canReconcile.value).toBe(false);
         expect(detail.canClose.value).toBe(false);

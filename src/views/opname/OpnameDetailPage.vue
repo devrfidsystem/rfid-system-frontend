@@ -427,8 +427,9 @@
                             "
                             class="w-full justify-center"
                             :disabled="
-                                submittingItemAction &&
-                                selectedItemAction === action.key
+                                !canEditLineActions ||
+                                (submittingItemAction &&
+                                    selectedItemAction === action.key)
                             "
                             :object-id="`btn_OpnameItemAction_${action.key}`"
                             @click="selectItemAction(action.key)"
@@ -465,6 +466,7 @@
                                     v-model="activeActionForm.actualQty"
                                     label="Actual Qty"
                                     type="number"
+                                    min="0"
                                     placeholder="118"
                                     object-id="txt_OpnameItemActionActualQty"
                                 />
@@ -539,6 +541,7 @@
                                     v-model="activeActionForm.reason"
                                     label="Reason"
                                     placeholder="Explain the adjustment"
+                                    required
                                     object-id="txt_OpnameItemActionAdjustReason"
                                 />
                             </div>
@@ -664,6 +667,7 @@ const {
     canReconcile,
     canClose,
     canCancelDoc,
+    canEditLineActions,
     handleStartCounting,
     handleReconcile,
     handleClose,

@@ -18,6 +18,7 @@
 ### Task 1: Remove Transfer from the supported frontend transaction surface
 
 **Files:**
+
 - Modify: `src/api/feature/dto/transactions.dto.ts`
 - Modify: `src/views/transactions/composables/useTransactionList.ts`
 - Modify: `src/views/transactions/composables/useTransactionDetail.ts`
@@ -36,6 +37,7 @@
 ### Task 2: Enforce CRUD permissions on list and detail actions
 
 **Files:**
+
 - Modify: `src/views/transactions/composables/useTransactionList.ts`
 - Modify: `src/views/transactions/composables/useTransactionDetail.ts`
 - Test: `src/views/transactions/composables/useTransactionList.test.ts`
@@ -49,6 +51,7 @@
 ### Task 3: Tighten transaction E2E coverage
 
 **Files:**
+
 - Modify: `tests/e2e/transactions.e2e.js`
 
 - [ ] Remove Transfer from the E2E transaction matrix.
@@ -62,4 +65,3 @@
 - [ ] Run type-check.
 - [ ] Run production build.
 - [ ] Review diff and confirm no unrelated files were changed by this task.
-

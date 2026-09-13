@@ -3,6 +3,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useNotifier } from "@/composable/useNotifier";
+import { usePermission } from "@/composable/usePermission";
 import { opnameService } from "@/services/opname.service";
 import { locationService } from "@/services/location.service";
 import type { OpnameLineDetail } from "@/api/feature/opname.api";
@@ -72,6 +73,9 @@ export function useOpnameDetail() {
     const { notifySuccess, notifyError } = useNotifier();
     const companyId = computed(() => authStore.currentCompanyId ?? "");
     const warehouseState = useWarehouseOptions(companyId);
+    const { canUpdate: canUpdateOpname } = usePermission(
+        "TRANSACTION_OPNAME",
+    );
 
     const loading = ref(false);
     const error = ref<string | null>(null);
@@ -185,6 +189,12 @@ export function useOpnameDetail() {
     const canCancelDoc = computed(
         () => taskNodesForAction("cancel").length > 0,
     );
+    const canEditLineActions = computed(
+        () =>
+            selectedNode.value?.nodeType === "task" &&
+            selectedNode.value.status === "counting" &&
+            canUpdateOpname.value,
+    );
 
     const drawerActions: Array<{
         key: OpnameItemAction;
@@ -234,8 +244,12 @@ export function useOpnameDetail() {
         );
     });
 
-    const selectedItemActionSupported = computed(() =>
-        drawerActions.some((action) => action.key === selectedItemAction.value),
+    const selectedItemActionSupported = computed(
+        () =>
+            canEditLineActions.value &&
+            drawerActions.some(
+                (action) => action.key === selectedItemAction.value,
+            ),
     );
 
     const selectedItemActionHint = computed(() => {
@@ -383,32 +397,32 @@ export function useOpnameDetail() {
 
     const resolveQtyCounted = () => {
         const active = activeActionForm.value;
-        const fallback =
-            selectedLineItem.value?.qtyCounted ??
-            selectedLineItem.value?.qtySystem ??
-            0;
-        if (selectedItemAction.value === "match") {
-            const raw = active.actualQty || active.expectedQty;
-            return raw ? Number(raw) : fallback;
-        }
-        if (selectedItemAction.value === "unmatch") {
-            const raw = active.actualQty || active.expectedQty;
-            return raw ? Number(raw) : fallback;
-        }
-        if (selectedItemAction.value === "adjust") {
-            const raw = active.actualQty || active.expectedQty;
-            return raw ? Number(raw) : fallback;
-        }
-        if (selectedItemAction.value === "relocation") {
-            const raw = active.actualQty || active.expectedQty;
-            return raw ? Number(raw) : fallback;
-        }
-        return fallback;
+        return Number(active.actualQty.trim());
     };
 
     const submitItemAction = async () => {
         if (!selectedLineItem.value) return;
         if (!selectedItemActionSupported.value) {
+            notifyError(
+                "Adjustment hanya dapat dilakukan saat opname berstatus counting dan user memiliki permission update.",
+            );
+            return;
+        }
+        const actualQty = activeActionForm.value.actualQty.trim();
+        const qty = Number(actualQty);
+        if (!actualQty || !Number.isFinite(qty) || qty < 0) {
+            notifyError("Actual Qty adjustment wajib berupa angka nol atau lebih.");
+            return;
+        }
+        if (selectedItemAction.value === "relocation" && qty <= 0) {
+            notifyError("Relocation Qty harus lebih besar dari nol.");
+            return;
+        }
+        if (
+            selectedItemAction.value === "adjust" &&
+            !activeActionForm.value.reason.trim()
+        ) {
+            notifyError("Reason adjustment wajib diisi.");
             return;
         }
         submittingItemAction.value = true;
@@ -602,6 +616,7 @@ export function useOpnameDetail() {
         canReconcile,
         canClose,
         canCancelDoc,
+        canEditLineActions,
         handleStartCounting,
         handleReconcile,
         handleClose,

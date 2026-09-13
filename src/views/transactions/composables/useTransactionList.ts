@@ -114,7 +114,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const authStore = useAuthStore();
 
     const transactionKey = computed(() => props.transactionKey);
-    const transactionPermission = useTransactionPermission(props.transactionKey);
+    const transactionPermission = useTransactionPermission(
+        props.transactionKey,
+    );
     const companyId = computed(() => authStore.currentCompanyId ?? "");
     const warehouseOptions = useWarehouseOptions(companyId);
     const config = computed(
@@ -145,8 +147,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         return "Transactions";
     });
     const sectionHeading = computed(() => pageTitle.value);
-    const canCreate = computed(() =>
-        Boolean(transactionPaths[transactionKey.value]) &&
+    const canCreate = computed(
+        () =>
+            Boolean(transactionPaths[transactionKey.value]) &&
             transactionPermission.canCreate.value,
     );
     const canExport = computed(() =>

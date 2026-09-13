@@ -4,9 +4,22 @@ import { createPinia, setActivePinia } from "pinia";
 
 const authStoreMock = vi.hoisted(() => ({
     currentCompanyId: null as string | null,
-    permissions: ["REGISTER", "INBOUND", "PUTAWAY", "OUTBOUND", "RELOCATION", "RETURN", "RETURNS"].map((key) => ({
+    permissions: [
+        "REGISTER",
+        "INBOUND",
+        "PUTAWAY",
+        "OUTBOUND",
+        "RELOCATION",
+        "RETURN",
+        "RETURNS",
+    ].map((key) => ({
         menuCode: `TRANSACTION_${key}`,
-        actions: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
+        actions: {
+            canView: true,
+            canCreate: true,
+            canUpdate: true,
+            canDelete: true,
+        },
     })),
 }));
 
@@ -111,10 +124,10 @@ describe("useTransactionList", () => {
         authStoreMock.currentCompanyId = null;
         for (const permission of authStoreMock.permissions) {
             permission.actions = {
-            canView: true,
-            canCreate: true,
-            canUpdate: true,
-            canDelete: true,
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
             };
         }
     });
