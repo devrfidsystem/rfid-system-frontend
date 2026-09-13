@@ -83,7 +83,7 @@
         background-color: rgb(var(--soft-surface));
         text-transform: uppercase;
         font-size: 0.65rem;
-        letter-spacing: 0.18em;
+        letter-spacing: 0;
         color: rgb(var(--text-muted));
         font-weight: 600;
     }

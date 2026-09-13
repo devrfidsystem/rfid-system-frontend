@@ -1,33 +1,52 @@
-import { computed, reactive, ref, watch, onMounted } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { masterService } from "@/services/master.service";
 import {
     transactionService,
-    transactionPaths,
     type TransactionKey,
 } from "@/services/transactions.service";
+import { transactionPaths } from "@/api/feature/dto/transactions.dto";
+import { reportService } from "@/services/report.service";
 import {
     reportConfigs,
     hasPartnerDatasetSupport,
     type ReportKey,
-} from "@/views/report/reportConfig";
+} from "@/domain/report/reportConfig";
 import type { ApiMeta } from "@/lib/api/response";
 import type { ReportParams } from "@/api/feature/dto/report.dto";
-import type { TransactionRecord } from "../types";
+import type { TransactionRecord, TransactionSummaryResponse } from "../types";
 import { useDebouncedWatch } from "@/composable/useDebouncedWatch";
+import { formatDate } from "@/utils/date";
+import { getNestedValue } from "../utils/getNestedValue";
+import { useWarehouseStore } from "@/store/warehouse.store";
+import { useAuthStore } from "@/store/auth.store";
+
+type TransactionRow = TransactionRecord & Record<string, unknown>;
+type TransactionSortableRecord = TransactionRecord & {
+    createdAt?: string | number | Date | null;
+};
 
 const transactionTitles: Record<
     TransactionKey,
     { title: string; description: string }
 > = {
+    register: {
+        title: "Register Tasks",
+        description: "Admin task documents recorded via /register.",
+    },
     inbound: {
-        title: "Inbound Transactions",
+        title: "Inbound Documents",
         description:
-            "Track inbound drafts and approvals generated via /inbound.",
+            "Inbound documents recorded via /inbound for receipt detail review.",
+    },
+    putaway: {
+        title: "Putaway Tasks",
+        description: "Storage placement tasks generated through /putaway.",
     },
     outbound: {
-        title: "Outbound Transactions",
-        description: "Monitor outbound shipments created through /outbound.",
+        title: "Outbound Assignment",
+        description:
+            "Manage outbound tasks and execution progress from /outbound.",
     },
     relocation: {
         title: "Relocation Transactions",
@@ -45,14 +64,32 @@ const transactionTitles: Record<
         title: "Opname Transactions",
         description: "Stock opname schedules maintained by /opname.",
     },
+    returns: {
+        title: "Return Transactions",
+        description: "Reverse logistics flows coming from /returns.",
+    },
 };
 
+// The backend only implements Excel export for `/reports/inbound/export` and
+// `/reports/outbound/export` (see reports.controller.ts's exportReport
+// switch: stock-balance/stock-movement/inbound/outbound/opname-variance).
+// Every other transaction type's reportPaths entry points at its own entity
+// route (e.g. /putaway, /relocation), which has no `/export` sibling on the
+// backend at all — exporting those 404s regardless of any UI gating.
+const exportableTransactionKeys = new Set<TransactionKey>([
+    "inbound",
+    "outbound",
+]);
+
 const transactionToReportKey: Record<TransactionKey, ReportKey> = {
+    register: "register",
     inbound: "inbound",
+    putaway: "putaway",
     outbound: "outbound",
     relocation: "relocation",
     transfer: "transfer",
     return: "return",
+    returns: "return",
     opname: "stock-opname",
 };
 
@@ -60,9 +97,12 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const keyword = ref("");
     const startDate = ref("");
     const endDate = ref("");
-    const selectedWarehouse = ref("");
     const selectedPartner = ref("");
     const rows = ref<TransactionRecord[]>([]);
+    const summary = ref<TransactionSummaryResponse | null>(null);
+    const summaryLoading = ref(false);
+    const summaryError = ref<string | null>(null);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(false);
     const error = ref<string | null>(null);
     const pagination = reactive({
@@ -73,10 +113,13 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const pageSizeOptions = [10, 20, 50];
     const partners = ref<{ id: string; name: string }[]>([]);
     const partnerError = ref<string | null>(null);
-    const warehouseOptions = useWarehouseOptions();
     const suppressFilterWatch = ref(false);
+    const warehouseStore = useWarehouseStore();
+    const authStore = useAuthStore();
 
     const transactionKey = computed(() => props.transactionKey);
+    const companyId = computed(() => authStore.currentCompanyId ?? "");
+    const warehouseOptions = useWarehouseOptions(companyId);
     const config = computed(
         () => reportConfigs[transactionToReportKey[transactionKey.value]],
     );
@@ -87,11 +130,29 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const partnerFilterSupported = computed(() =>
         hasPartnerDatasetSupport(config.value.partnerDataset),
     );
+    const selectedWarehouse = computed({
+        get: () => warehouseStore.selectedWarehouseId ?? "",
+        set: (value: string) => warehouseStore.setWarehouse(value || null),
+    });
 
     const pageTitle = computed(
         () =>
             transactionTitles[transactionKey.value]?.title ??
             config.value.title,
+    );
+    const pageTagline = computed(() => {
+        if (transactionKey.value === "register") return "Tasks";
+        if (transactionKey.value === "putaway") return "Tasks";
+        if (transactionKey.value === "outbound") return "Tasks";
+        if (transactionKey.value === "inbound") return "Documents";
+        return "Transactions";
+    });
+    const sectionHeading = computed(() => pageTitle.value);
+    const canCreate = computed(() =>
+        Boolean(transactionPaths[transactionKey.value]),
+    );
+    const canExport = computed(() =>
+        exportableTransactionKeys.has(transactionKey.value),
     );
     const pageDescription = computed(() => {
         const base =
@@ -107,6 +168,12 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
 
     const formatValue = (value: unknown) => {
         if (value === undefined || value === null) return "-";
+        if (
+            typeof value === "string" &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
+            return formatDate(value);
+        }
         if (typeof value === "object") {
             if (Array.isArray(value)) return value.join(", ");
             return JSON.stringify(value);
@@ -114,18 +181,43 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         return String(value);
     };
 
-    const tableRows = computed(() =>
-        rows.value.map((row, index) => {
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const tableRows = computed(() => {
+        const sorted = [...rows.value].sort((a, b) => {
+            const dateA = new Date(
+                (a as TransactionSortableRecord).createdAt ?? 0,
+            ).getTime();
+            const dateB = new Date(
+                (b as TransactionSortableRecord).createdAt ?? 0,
+            ).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+
+        return sorted.map((row, index) => {
             const record: Record<string, string | number> = {
                 id: String(row.id ?? row.docNo ?? `row-${index}`),
             };
             columns.value.forEach((column) => {
-                const value = row[column.key];
+                let value = getNestedValue(row as TransactionRow, column.key);
+
+                // Map warehouseId to human-readable label if possible
+                if (column.key === "warehouseId") {
+                    const foundWarehouse = warehouseSelectOptions.value.find(
+                        (w) => w.value === value,
+                    );
+                    if (foundWarehouse) {
+                        value = foundWarehouse.label;
+                    }
+                }
+
                 record[column.key] = formatValue(value);
             });
             return record;
-        }),
-    );
+        });
+    });
 
     const displayRows = tableRows;
 
@@ -172,6 +264,9 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             dateFrom: normalizeDate(startDate.value),
             dateTo: normalizeDate(endDate.value, true),
         };
+        if (companyId.value) {
+            base.companyId = companyId.value;
+        }
         const warehouseKey = config.value.warehouseKey ?? "warehouseId";
         if (selectedWarehouse.value) {
             base[warehouseKey] = selectedWarehouse.value;
@@ -193,14 +288,17 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
                 page: 1,
                 limit: 200,
             });
-            partners.value = response.items.map((record) => ({
-                id: String(record.id ?? ""),
-                name: String(
-                    (record as unknown as Record<string, unknown>).name ??
-                        (record as unknown as Record<string, unknown>).code ??
-                        "Unknown",
-                ),
-            }));
+            partners.value = response.items.map((record) => {
+                const item = record as unknown as {
+                    id?: string | number;
+                    name?: string;
+                    code?: string;
+                };
+                return {
+                    id: String(item.id ?? ""),
+                    name: String(item.name ?? item.code ?? "Unknown"),
+                };
+            });
         } catch (err) {
             partnerError.value =
                 err instanceof Error
@@ -232,9 +330,58 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         }
     };
 
+    const loadSummary = async () => {
+        summaryLoading.value = true;
+        summaryError.value = null;
+        try {
+            const params = buildParams();
+            summary.value = await transactionService.summary(
+                transactionKey.value,
+                params,
+            );
+        } catch (err) {
+            summary.value = null;
+            summaryError.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load transaction summary.";
+        } finally {
+            summaryLoading.value = false;
+        }
+    };
+
+    const exportRows = async () => {
+        try {
+            const params = buildParams();
+            const exportColumns = config.value.columns.filter(
+                (column) => column.key !== "actions" && column.key !== "id",
+            );
+            const blob = await reportService.exportReport(
+                transactionToReportKey[transactionKey.value],
+                params,
+                exportColumns,
+            );
+
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute("download", `${config.value.title}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            error.value =
+                err instanceof Error
+                    ? err.message
+                    : "Failed to export transactions.";
+        }
+    };
+
     const refresh = () => {
         pagination.page = 1;
         void loadRows();
+        void loadSummary();
     };
 
     useDebouncedWatch(
@@ -249,6 +396,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             if (suppressFilterWatch.value) return;
             pagination.page = 1;
             void loadRows();
+            void loadSummary();
         },
     );
 
@@ -283,6 +431,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
             suppressFilterWatch.value = false;
             void loadPartnerOptions();
             void loadRows();
+            void loadSummary();
         },
         { immediate: true },
     );
@@ -296,13 +445,22 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         },
     );
 
-    onMounted(() => {
-        void loadRows();
-        void loadPartnerOptions();
-    });
+    watch(
+        () => warehouseOptions.options.value,
+        (options) => {
+            warehouseStore.syncWarehouseSelection(
+                options.map((warehouse) => warehouse.id),
+            );
+        },
+        { immediate: true },
+    );
 
     return {
         pageTitle,
+        pageTagline,
+        sectionHeading,
+        canCreate,
+        canExport,
         pageDescription,
         keyword,
         startDate,
@@ -319,9 +477,16 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
         loading,
         pagination,
         pageSizeOptions,
+        rows,
+        summary,
+        summaryLoading,
+        summaryError,
         displayRows,
         columns,
         emptyStateVariant,
+        sortOrder,
+        toggleSort,
+        exportRows,
         refresh,
     };
 }

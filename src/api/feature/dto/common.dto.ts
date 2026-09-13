@@ -24,6 +24,7 @@ export interface ApiMetaDto {
     total?: number;
     totalPages?: number;
     generatedAt?: string;
+    errors?: string[];
 }
 
 export interface ApiResponseDto<T> {

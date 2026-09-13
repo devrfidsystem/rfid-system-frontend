@@ -1,5 +1,21 @@
 import type { ApiPaginatedResult } from "@/lib/api/response";
-import type { ReportKey } from "@/views/report/reportConfig";
+
+export type ReportKey =
+    | "inbound"
+    | "putaway"
+    | "outbound"
+    | "stock-opname"
+    | "relocation"
+    | "transfer"
+    | "return"
+    | "register"
+    | "current-stock"
+    | "stock-period";
+
+export interface ReportColumnDef {
+    key: string;
+    label: string;
+}
 
 export interface ReportRow {
     id?: string;
@@ -20,7 +36,9 @@ export interface ReportParams {
 export type ReportListResult = ApiPaginatedResult<ReportRow>;
 
 export const reportPaths: Record<ReportKey, string> = {
+    register: "/register",
     inbound: "/reports/inbound",
+    putaway: "/putaway",
     outbound: "/reports/outbound",
     "stock-opname": "/opname",
     relocation: "/relocation",
@@ -28,5 +46,4 @@ export const reportPaths: Record<ReportKey, string> = {
     return: "/returns",
     "current-stock": "/reports/stock-balance",
     "stock-period": "/reports/stock-movement",
-    "opname-variance": "/reports/opname-variance",
 };

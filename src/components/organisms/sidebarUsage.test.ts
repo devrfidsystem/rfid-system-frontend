@@ -1,8 +1,19 @@
 import { describe, expect, it } from "vitest";
 import sidebarSource from "./Sidebar.vue?raw";
 
-describe("Sidebar menu icon usage", () => {
-    it("renders an icon for each nested menu item", () => {
-        expect(sidebarSource).toContain(':icon="child.icon"');
+describe("Sidebar design-system usage", () => {
+    it("uses the Input atom for menu search", () => {
+        expect(sidebarSource).toContain("<Input");
+        expect(sidebarSource).toContain(
+            'import Input from "@/components/atoms/Input.vue";',
+        );
+        expect(sidebarSource).not.toContain("<input");
+        expect(sidebarSource).not.toContain("focus:border-primary-500");
+    });
+
+    it("renders an icon for nested menu items instead of a bullet", () => {
+        expect(sidebarSource).toContain(':is="item.icon"');
+        expect(sidebarSource).not.toContain('v-if="item.depth === 0"');
+        expect(sidebarSource).not.toContain("rounded-full bg-text-muted/60");
     });
 });

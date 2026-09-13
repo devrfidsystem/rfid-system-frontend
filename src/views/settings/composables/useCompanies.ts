@@ -10,6 +10,14 @@ export interface CompanyRecord {
     isActive: boolean;
 }
 
+export interface CompanyTableRow extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    status: string;
+    original: CompanyRecord;
+}
+
 export function useCompanies() {
     const { withToast } = useNotifier();
 
@@ -36,14 +44,14 @@ export function useCompanies() {
         { key: "actions", label: "" },
     ];
 
-    const tableRows = computed(() => {
+    const tableRows = computed<CompanyTableRow[]>(() => {
         return rows.value.map((r) => ({
             id: r.id,
             code: r.code,
             name: r.name,
             status: r.isActive ? "Active" : "Inactive",
             original: r,
-        })) as Record<string, any>[];
+        }));
     });
 
     const loadData = async () => {
@@ -51,7 +59,7 @@ export function useCompanies() {
         error.value = null;
         try {
             const response = await settingsService.fetchList("companies");
-            rows.value = (response.items as CompanyRecord[]) || [];
+            rows.value = (response.items as unknown as CompanyRecord[]) || [];
         } catch (err) {
             error.value =
                 err instanceof Error ? err.message : "Failed to load companies";

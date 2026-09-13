@@ -1,0 +1,115 @@
+import {
+    opnameApi,
+    type OpnameNodePayload,
+    type OpnameLineDetail,
+    type UpdateOpnameLineCountPayload,
+    type CreateOpnameRelocationPayload,
+    type OpnameTreeFilterParams,
+    type UpdateOpnameTaskPayload,
+} from "@/api/feature/opname.api";
+import type {
+    OpnameSummaryResponse,
+    OpnameTreeNode,
+} from "@/api/feature/dto/opname.dto";
+
+export const opnameService = {
+    async getTree(
+        params: OpnameTreeFilterParams = {},
+    ): Promise<OpnameTreeNode[]> {
+        const response = await opnameApi.getTree(params);
+        return (response.data ?? []) as OpnameTreeNode[];
+    },
+
+    async summary(
+        params: OpnameTreeFilterParams = {},
+    ): Promise<OpnameSummaryResponse> {
+        const response = await opnameApi.summary(params);
+        return response.data as OpnameSummaryResponse;
+    },
+
+    async create(payload: OpnameNodePayload): Promise<OpnameTreeNode> {
+        const response = await opnameApi.create(payload);
+        return response.data as unknown as OpnameTreeNode;
+    },
+
+    async createChild(
+        parentId: string,
+        payload: OpnameNodePayload,
+    ): Promise<OpnameTreeNode> {
+        const response = await opnameApi.createChild(parentId, payload);
+        return response.data as unknown as OpnameTreeNode;
+    },
+
+    async update(
+        id: string,
+        payload: UpdateOpnameTaskPayload,
+    ): Promise<OpnameTreeNode> {
+        const response = await opnameApi.update(id, payload);
+        return response.data as unknown as OpnameTreeNode;
+    },
+
+    async post(id: string): Promise<OpnameTreeNode> {
+        const response = await opnameApi.post(id);
+        return response.data as unknown as OpnameTreeNode;
+    },
+
+    async getDetail(id: string) {
+        const response = await opnameApi.getDetail(id);
+        return response.data as {
+            id: string;
+            nodeType?: string;
+            lines?: OpnameLineDetail[];
+            [key: string]: unknown;
+        };
+    },
+
+    async updateLineCount(
+        docId: string,
+        lineId: string,
+        payload: UpdateOpnameLineCountPayload,
+    ): Promise<OpnameLineDetail> {
+        const response = await opnameApi.updateLineCount(
+            docId,
+            lineId,
+            payload,
+        );
+        return response.data as OpnameLineDetail;
+    },
+
+    async createRelocation(
+        docId: string,
+        lineId: string,
+        payload: CreateOpnameRelocationPayload,
+    ) {
+        const response = await opnameApi.createRelocation(
+            docId,
+            lineId,
+            payload,
+        );
+        return response.data;
+    },
+
+    async startCounting(id: string, warehouseId: string): Promise<void> {
+        await opnameApi.startCounting(id, warehouseId);
+    },
+
+    async reconcile(id: string): Promise<void> {
+        await opnameApi.reconcile(id);
+    },
+
+    async close(id: string): Promise<void> {
+        await opnameApi.close(id);
+    },
+
+    async cancel(id: string): Promise<void> {
+        await opnameApi.cancel(id);
+    },
+};
+
+export type { OpnameTreeNode } from "@/api/feature/dto/opname.dto";
+export type {
+    OpnameNodePayload,
+    OpnameTreeFilterParams,
+    UpdateOpnameTaskPayload,
+} from "@/api/feature/opname.api";
+export type { OpnameSummaryResponse } from "@/api/feature/dto/opname.dto";

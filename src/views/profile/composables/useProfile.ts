@@ -1,10 +1,14 @@
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/store/auth.store";
+import { useLocaleStore } from "@/store/locale.store";
 
 export function useProfile() {
     const router = useRouter();
     const authStore = useAuthStore();
+    const localeStore = useLocaleStore();
+    const { t } = useI18n();
     const processing = ref(false);
     const status = ref<string | null>(null);
 
@@ -18,6 +22,17 @@ export function useProfile() {
                     company.companyId === profile.value?.currentCompanyId,
             ) ?? null,
     );
+
+    const currentLocale = computed(() => localeStore.locale);
+    const localeOptions = computed(() => [
+        { label: t("common.language.indonesian"), value: "id" },
+        { label: t("common.language.english"), value: "en" },
+    ]);
+    const setLocale = (locale: string) => {
+        if (locale === "id" || locale === "en") {
+            localeStore.setLocale(locale);
+        }
+    };
 
     const getErrorMessage = (error: unknown): string => {
         if (error instanceof Error) {
@@ -49,6 +64,9 @@ export function useProfile() {
         currentCompany,
         processing,
         status,
+        currentLocale,
+        localeOptions,
+        setLocale,
         handleLogout,
     };
 }

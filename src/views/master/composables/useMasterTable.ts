@@ -1,6 +1,6 @@
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import { masterService } from "@/services/master.service";
-import type { MasterRecord } from "../types";
+import type { MasterRecord } from "@/domain/master/types";
 import type { ApiMeta } from "@/lib/api/response";
 import type {
     MasterEntityKey,
@@ -22,10 +22,17 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
 
     const keyword = ref("");
     const rows = ref<MasterRecord[]>([]);
+    const sortOrder = ref<"desc" | "asc">("desc");
     const loading = ref(true);
     const loadError = ref<string | null>(null);
     const unsupportedFeature = ref(false);
     const pagination = reactive({ page: 1, limit: 20, total: 0 });
+    const filters = reactive({
+        categoryId: "",
+        uomId: "",
+        type: "",
+        warehouseId: "",
+    });
 
     const updatePaginationMeta = (meta: ApiMeta | null) => {
         if (!meta) {
@@ -47,7 +54,9 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
             };
             const selectedEntity = entityKey.value as MasterEntityKey;
             if (entityKey.value === "locations") {
-                const warehouseId = await ensureLocationWarehouseContext();
+                const warehouseId =
+                    filters.warehouseId ||
+                    (await ensureLocationWarehouseContext());
                 if (!warehouseId) {
                     rows.value = [];
                     pagination.total = 0;
@@ -56,6 +65,13 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
                     return null;
                 }
                 params.warehouseId = warehouseId;
+            }
+            if (entityKey.value === "products") {
+                if (filters.categoryId) params.categoryId = filters.categoryId;
+                if (filters.uomId) params.uomId = filters.uomId;
+            }
+            if (entityKey.value === "attributes" && filters.type) {
+                params.type = filters.type;
             }
             if (
                 companyAwareEntities.includes(selectedEntity) &&
@@ -99,13 +115,34 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
         void loadRows();
     };
 
+    const resetFilters = () => {
+        filters.categoryId = "";
+        filters.uomId = "";
+        filters.type = "";
+        filters.warehouseId = "";
+    };
+
     useDebouncedWatch(keyword, () => {
         pagination.page = 1;
         void loadRows();
     });
 
+    useDebouncedWatch(
+        () => [
+            filters.categoryId,
+            filters.uomId,
+            filters.type,
+            filters.warehouseId,
+        ],
+        () => {
+            pagination.page = 1;
+            void loadRows();
+        },
+    );
+
     const resetTableState = () => {
         keyword.value = "";
+        resetFilters();
         pagination.page = 1;
         pagination.limit = 20;
         pagination.total = 0;
@@ -135,13 +172,33 @@ export function useMasterTable(context: ReturnType<typeof useMasterContext>) {
         },
     );
 
+    const toggleSort = () => {
+        sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    };
+
+    const displayRows = computed(() => {
+        return [...rows.value].sort((a, b) => {
+            const dateA = new Date(
+                (a.createdAt ?? a.updatedAt ?? 0) as string | number,
+            ).getTime();
+            const dateB = new Date(
+                (b.createdAt ?? b.updatedAt ?? 0) as string | number,
+            ).getTime();
+            return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+        });
+    });
+
     return {
         keyword,
-        rows,
+        rows: displayRows,
+        sortOrder,
+        toggleSort,
         loading,
         loadError,
         unsupportedFeature,
         pagination,
+        filters,
+        resetFilters,
         loadRows,
         refresh,
     };

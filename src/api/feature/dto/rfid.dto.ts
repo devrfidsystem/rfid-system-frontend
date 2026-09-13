@@ -4,19 +4,28 @@ export type RfidTagStatus =
     | "quarantined"
     | "retired"
     | "encoded"
-    | "assigned";
+    | "assigned"
+    | "in_stock"
+    | "out_stock"
+    | "returned"
+    | "damaged";
 
 export interface RfidTag {
     id: string;
     epcCode: string;
     status: RfidTagStatus;
     productId: string | null;
+    productName?: string | null;
+    productCode?: string | null;
     companyId: string;
     warehouseId?: string | null;
     locationId?: string | null;
+    locationName?: string | null;
+    locationCode?: string | null;
     metadata?: Record<string, unknown>;
     createdAt: string;
     updatedAt: string;
+    userName?: string | null;
 }
 
 export interface RegisterEpcTagDto {
@@ -46,6 +55,7 @@ export interface RfidTagListParams {
     status?: RfidTagStatus;
     warehouseId?: string;
     productId?: string;
+    epcCode?: string;
 }
 
 export interface LogEpcEventDto {
@@ -57,3 +67,21 @@ export interface LogEpcEventDto {
 
 // backward-compat alias (if any code still imports RfidEventDto)
 export type RfidEventDto = LogEpcEventDto;
+
+export interface RegistrationActivity {
+    activityDate: string;
+    userId: string;
+    userName: string | null;
+    productId: string;
+    productName: string | null;
+    quantity: number;
+}
+
+export interface RegistrationActivityListParams {
+    page?: number;
+    limit?: number;
+    productId?: string;
+    userId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+}

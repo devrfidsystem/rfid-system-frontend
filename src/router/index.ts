@@ -5,24 +5,9 @@ import {
 } from "vue-router";
 import { useAccess } from "@/composable/useAccess";
 import { useAuthStore } from "@/store/auth.store";
-import { masterEntities } from "@/views/master/entityConfig";
-import { reportConfigs, type ReportKey } from "@/views/report/reportConfig";
+import { masterEntities } from "@/domain/master/entityConfig";
 import type { EntityKey } from "@/model/entities";
-import { reportPaths } from "@/api/feature/dto/report.dto";
 import type { TransactionKey } from "@/services/transactions.service";
-
-const createPageRoute = (
-    path: string,
-    title: string,
-    description: string,
-): RouteRecordRaw => ({
-    path,
-    component: () => import("@/views/shared/PageShell.vue"),
-    props: {
-        title,
-        description,
-    },
-});
 
 const masterEntityRouteAliases: Partial<Record<EntityKey, string[]>> = {
     attributes: ["attribute"],
@@ -53,49 +38,30 @@ const createMasterRoutes = (): RouteRecordRaw[] =>
         return route;
     });
 
-const dashboardSections = [
-    "overview",
-    "low-stock",
-    "recent-activity",
-    "epc-status",
-] as const;
-const dashboardRoutes = dashboardSections.map((section) => ({
-    path: `dashboard/${section}`,
-    component: () => import("@/views/dashboard/DashboardPage.vue"),
-    meta: {
-        section,
-    },
-}));
+// All four original dashboard placeholder routes (kpi, process, monitoring, and one
+// earlier) have now been replaced by real pages — this stays as an empty array (rather
+// than deleting the const and its spread below) so a future placeholder page can be
+// added here without touching the route-assembly wiring.
+const dashboardPlaceholderRoutes: RouteRecordRaw[] = [];
 
-const transactionKeys = [
+// Deliberately excludes "opname": TransactionKey/transactionPaths (in
+// transactions.service.ts) still carry an "opname" entry, but the real
+// Opname feature has its own tree/lifecycle API (opname.api.ts) with a
+// completely different response shape than the generic transaction
+// list/get/create/post/cancel endpoints. Do NOT add "opname" here — doing so
+// would route /transactions/opname through TransactionListPage/DetailPage,
+// which would break against the real /opname response shape. The dedicated
+// opname routes are registered separately below.
+const genericTransactionKeys = [
+    "register",
     "inbound",
+    "putaway",
     "outbound",
     "relocation",
-    "transfer",
     "return",
-    "opname",
+    "returns",
 ] as const;
-const transactionPattern = transactionKeys.join("|");
-
-const resolveReportSegment = (key: ReportKey) => {
-    const raw = reportPaths[key] ?? key;
-    const trimmed = raw.replace(/^\/+/, "");
-    if (trimmed.startsWith("reports/")) {
-        return trimmed.replace(/^reports\//, "");
-    }
-    return trimmed || key;
-};
-
-const reportChildRoutes: RouteRecordRaw[] = (
-    Object.keys(reportConfigs) as ReportKey[]
-).map((key) => ({
-    path: resolveReportSegment(key),
-    component: () => import("@/views/report/ReportEntityPage.vue"),
-    meta: {
-        report: key,
-        tagline: "Reports",
-    },
-}));
+const transactionPattern = genericTransactionKeys.join("|");
 
 const authRoutes: RouteRecordRaw[] = [
     {
@@ -105,6 +71,14 @@ const authRoutes: RouteRecordRaw[] = [
     {
         path: "/register",
         component: () => import("@/views/auth/RegisterPage.vue"),
+    },
+    {
+        path: "/forgot-password",
+        component: () => import("@/views/auth/ForgotPasswordPage.vue"),
+    },
+    {
+        path: "/reset-password",
+        component: () => import("@/views/auth/ResetPasswordPage.vue"),
     },
     {
         path: "/auth/login",
@@ -137,7 +111,25 @@ const routes: RouteRecordRaw[] = [
                 path: "dashboard",
                 redirect: "/dashboard/overview",
             },
-            ...dashboardRoutes,
+            {
+                path: "dashboard/overview",
+                component: () => import("@/views/dashboard/DashboardPage.vue"),
+            },
+            {
+                path: "dashboard/kpi",
+                component: () =>
+                    import("@/views/dashboard/ExecutiveKpiPage.vue"),
+            },
+            {
+                path: "dashboard/process",
+                component: () =>
+                    import("@/views/dashboard/ProcessPerformancePage.vue"),
+            },
+            {
+                path: "dashboard/monitoring",
+                component: () => import("@/views/dashboard/MonitoringPage.vue"),
+            },
+            ...dashboardPlaceholderRoutes,
             {
                 path: "iam",
                 component: () => import("@/components/templates/IamLayout.vue"),
@@ -151,6 +143,11 @@ const routes: RouteRecordRaw[] = [
                         path: "users",
                         component: () =>
                             import("@/views/iam/UserAccessPage.vue"),
+                    },
+                    {
+                        path: "roles/menus",
+                        component: () =>
+                            import("@/views/iam/RoleMenusPage.vue"),
                     },
                 ],
             },
@@ -175,23 +172,6 @@ const routes: RouteRecordRaw[] = [
                 redirect: "/master-data/warehouses",
             },
             {
-                path: "rfid",
-                redirect: "/rfid/tags",
-            },
-            {
-                path: "rfid/tags",
-                component: () =>
-                    import("@/views/tag-registration/pages/TagRegistrationPage.vue"),
-            },
-            {
-                path: "rfid/assignments",
-                component: () => import("@/views/rfid/RfidAssignmentPage.vue"),
-            },
-            {
-                path: "rfid/events",
-                component: () => import("@/views/rfid/RfidEventPage.vue"),
-            },
-            {
                 path: "stock",
                 redirect: "/stock/balance",
             },
@@ -206,6 +186,18 @@ const routes: RouteRecordRaw[] = [
             {
                 path: "transactions",
                 redirect: "/transactions/inbound",
+            },
+            {
+                path: "transactions/opname",
+                component: () => import("@/views/opname/OpnameTreePage.vue"),
+            },
+            {
+                path: "transactions/opname/new",
+                component: () => import("@/views/opname/OpnameCreatePage.vue"),
+            },
+            {
+                path: "transactions/opname/:id",
+                component: () => import("@/views/opname/OpnameDetailPage.vue"),
             },
             {
                 path: `transactions/:transactionKey(${transactionPattern})`,
@@ -226,6 +218,16 @@ const routes: RouteRecordRaw[] = [
                 }),
             },
             {
+                path: `transactions/:transactionKey(${transactionPattern})/:id/edit`,
+                component: () =>
+                    import("@/views/transactions/TransactionCreatePage.vue"),
+                props: (route) => ({
+                    transactionKey: route.params
+                        .transactionKey as TransactionKey,
+                    id: route.params.id,
+                }),
+            },
+            {
                 path: `transactions/:transactionKey(${transactionPattern})/:id`,
                 component: () =>
                     import("@/views/transactions/TransactionDetailPage.vue"),
@@ -234,19 +236,6 @@ const routes: RouteRecordRaw[] = [
                         .transactionKey as TransactionKey,
                     id: route.params.id,
                 }),
-            },
-            {
-                path: "reports",
-                component: () =>
-                    import("@/components/templates/ReportLayout.vue"),
-                children: [
-                    {
-                        path: "",
-                        redirect:
-                            reportChildRoutes[0]?.path ?? "stock-movement",
-                    },
-                    ...reportChildRoutes,
-                ],
             },
             {
                 path: "settings",
@@ -276,12 +265,13 @@ const routes: RouteRecordRaw[] = [
                 component: () => import("@/views/profile/ProfilePage.vue"),
             },
             {
-                path: "report",
-                redirect: "/reports",
-            },
-            {
                 path: "log/tracking",
                 component: () => import("@/views/log/TrackingPage.vue"),
+            },
+            {
+                path: "rfid/tags",
+                alias: "log/tag-registration",
+                component: () => import("@/views/log/TagRegistrationPage.vue"),
             },
             {
                 path: "menus",
@@ -333,7 +323,9 @@ router.beforeEach(async (to) => {
     const isAuthRoute =
         to.path.startsWith("/auth") ||
         to.path === "/login" ||
-        to.path === "/register";
+        to.path === "/register" ||
+        to.path === "/forgot-password" ||
+        to.path === "/reset-password";
     const isAuthenticated = authStore.isAuthenticated;
 
     if (requiresAuth && !isAuthenticated) {

@@ -1,5 +1,10 @@
 <template>
-    <div aria-live="polite" aria-atomic="true">
+    <div
+        id="msb_ToastContainer"
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="msb_ToastContainer"
+    >
         <Toast
             :toasts="store.toasts"
             @close="store.removeToast"

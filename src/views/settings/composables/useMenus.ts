@@ -12,6 +12,15 @@ export interface MenuRecord {
     sequence: number;
 }
 
+export interface MenuTableRow extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    path: string;
+    sequence: number;
+    original: MenuRecord;
+}
+
 export function useMenus() {
     const { withToast, notifyError } = useNotifier();
 
@@ -46,7 +55,7 @@ export function useMenus() {
         { key: "actions", label: "" },
     ];
 
-    const tableRows = computed(() => {
+    const tableRows = computed<MenuTableRow[]>(() => {
         return rows.value
             .map((r) => ({
                 id: r.id,
@@ -56,7 +65,7 @@ export function useMenus() {
                 sequence: r.sequence || 0,
                 original: r,
             }))
-            .sort((a, b) => a.sequence - b.sequence) as Record<string, any>[];
+            .sort((a, b) => a.sequence - b.sequence);
     });
 
     const loadApps = async () => {
@@ -89,7 +98,7 @@ export function useMenus() {
             const menus = await settingsService.getAppMenus(
                 selectedAppId.value,
             );
-            rows.value = menus as MenuRecord[];
+            rows.value = menus as unknown as MenuRecord[];
         } catch (err) {
             error.value =
                 err instanceof Error ? err.message : "Failed to load menus";

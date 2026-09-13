@@ -1,16 +1,19 @@
 <template>
     <Teleport v-if="isMounted" to="#page-toolbar-slot">
         <div
-            class="mx-auto w-full max-w-[1400px] px-4 py-3 lg:px-0 flex items-center justify-between"
+            class="mx-auto w-full max-w-[1400px] px-4 py-3 lg:px-6 flex flex-wrap items-center justify-between gap-4"
         >
-            <!-- Left: Filters & Tools -->
+            <!-- Warehouse scope remains the source-of-truth filter. -->
             <div class="flex items-center gap-2">
                 <!-- Real Warehouse Filter -->
                 <div class="w-[200px]">
                     <Select
                         v-if="warehouseOptions.length > 0"
                         :options="warehouseOptions"
-                        placeholder="Semua Gudang (Filter)"
+                        :placeholder="
+                            t('dashboard.common.warehouseFilterPlaceholder')
+                        "
+                        object-id="cmb_DashboardFilterWarehouse"
                         :placeholder-disabled="false"
                         :model-value="warehouseId ?? undefined"
                         @update:model-value="
@@ -18,18 +21,6 @@
                         "
                     />
                 </div>
-
-                <!-- Sort Stub (matches reference visual) -->
-                <Button variant="outline" size="sm">
-                    <template #leftIcon>
-                        <Icon
-                            :icon="ArrowUpDown"
-                            :size="14"
-                            class-name="text-gray-500"
-                        />
-                    </template>
-                    Sort
-                </Button>
             </div>
 
             <!-- Right: Actions -->
@@ -38,6 +29,7 @@
                     variant="outline"
                     size="sm"
                     :disabled="loading"
+                    object-id="btn_DashboardRefresh"
                     @click="$emit('refresh')"
                 >
                     <template #leftIcon>
@@ -46,12 +38,12 @@
                             :size="14"
                             :class-name="
                                 loading
-                                    ? 'animate-spin text-gray-400'
-                                    : 'text-gray-500'
+                                    ? 'animate-spin text-text-muted'
+                                    : 'text-text-secondary'
                             "
                         />
                     </template>
-                    Refresh
+                    {{ t("dashboard.common.refresh") }}
                 </Button>
             </div>
         </div>
@@ -60,10 +52,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import Select from "@/components/atoms/Select.vue";
 import Button from "@/components/atoms/Button.vue";
 import Icon from "@/components/atoms/Icon.vue";
-import { ArrowUpDown, RefreshCw } from "lucide-vue-next";
+import { RefreshCw } from "lucide-vue-next";
 
 defineProps<{
     warehouseId: string | null | undefined;
@@ -75,6 +68,8 @@ defineEmits<{
     (e: "update:warehouseId", value: string | null): void;
     (e: "refresh"): void;
 }>();
+
+const { t } = useI18n();
 
 const isMounted = ref(false);
 onMounted(() => {

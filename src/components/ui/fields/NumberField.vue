@@ -23,6 +23,7 @@
                     :aria-describedby="describedById"
                     :invalid="hasError"
                     hide-message
+                    data-testid="input-1"
                     @update:model-value="field.onChange"
                     @blur="field.onBlur"
                 />

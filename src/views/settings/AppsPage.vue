@@ -1,42 +1,44 @@
 <template>
     <div class="space-y-4">
-        <div class="flex justify-between items-center px-2">
-            <div>
-                <h3 class="text-lg font-medium text-gray-900">Applications</h3>
-                <p class="text-sm text-gray-500">
-                    Manage registered applications.
-                </p>
-            </div>
-            <Button variant="primary" @click="openCreateModal">
-                New Application
-            </Button>
-        </div>
-
-        <Card no-padding>
-            <div v-if="loading" class="p-6">
-                <LoadingState :lines="3" />
-            </div>
-            <div v-else-if="error" class="p-6 text-sm text-rose-600 bg-rose-50">
-                {{ error }}
-            </div>
-            <AppTable
-                v-else
-                :columns="columns"
-                :rows="tableRows"
-                class="border-none shadow-none rounded-none"
+        <SectionHeader
+            title="Applications"
+            description="Control app entries used for menu routing and access scope."
+            object-id="hdr_SettingsApps"
+        >
+            <Button
+                variant="primary"
+                class="w-full justify-center sm:w-auto"
+                object-id="btn_AppsNewApp"
+                @click="openCreateModal"
             >
-                <template #actions="{ row }">
+                Add App
+            </Button>
+        </SectionHeader>
+
+        <Card no-padding object-id="wdg_AppsList">
+            <DataTable
+                object-id="AppsList"
+                bare
+                :rows="tableRows"
+                :columns="dataTableColumns"
+                :row-key="(row) => String(row.id ?? '')"
+                :loading="loading"
+                :load-error="error ?? undefined"
+                :show-search="false"
+            >
+                <template #rowActions="{ row }">
                     <RowActions
                         :actions="[
                             {
                                 key: 'edit',
                                 label: 'Edit',
-                                onClick: () => openEditModal(row),
+                                onClick: () =>
+                                    openEditModal(row as AppTableRow),
                             },
                         ]"
                     />
                 </template>
-            </AppTable>
+            </DataTable>
         </Card>
 
         <Drawer
@@ -44,62 +46,61 @@
             :title="isEditing ? 'Edit Application' : 'New Application'"
             :description="
                 isEditing
-                    ? 'Update app details.'
-                    : 'Register a new application.'
+                    ? 'Adjust routing metadata and access visibility.'
+                    : 'Create an app entry for route and menu assignment.'
             "
             width="md"
             @update:model-value="(v) => (isModalOpen = v)"
         >
-            <form @submit.prevent="handleSubmit" class="space-y-6">
+            <form class="space-y-6" @submit.prevent="handleSubmit">
                 <Input
-                    id="code"
+                    id="txt_AppsFormCode"
                     v-model="form.code"
                     label="App Code"
                     placeholder="e.g. WMS"
                     required
+                    object-id="txt_AppsFormCode"
                 />
                 <Input
-                    id="name"
+                    id="txt_AppsFormName"
                     v-model="form.name"
                     label="App Name"
                     placeholder="e.g. Warehouse System"
                     required
+                    object-id="txt_AppsFormName"
                 />
                 <Input
-                    id="description"
+                    id="txt_AppsFormDescription"
                     v-model="form.description"
                     label="Description"
+                    object-id="txt_AppsFormDescription"
                 />
                 <Input
-                    id="url"
+                    id="txt_AppsFormURL"
                     v-model="form.url"
                     label="URL"
                     placeholder="e.g. https://app.example.com"
+                    object-id="txt_AppsFormURL"
                 />
                 <Input
-                    id="icon"
+                    id="txt_AppsFormIcon"
                     v-model="form.icon"
                     label="Icon Name"
                     placeholder="e.g. Box"
+                    object-id="txt_AppsFormIcon"
                 />
-                <div class="flex items-center gap-2 mt-4">
-                    <input
-                        type="checkbox"
-                        id="isActive"
-                        v-model="form.isActive"
-                        class="rounded border-gray-300 text-brand-600 shadow-sm focus:border-brand-300 focus:ring focus:ring-brand-200 focus:ring-opacity-50"
-                    />
-                    <label for="isActive" class="text-sm text-gray-700"
-                        >Active</label
-                    >
-                </div>
+                <CheckboxField
+                    v-model="form.isActive"
+                    label="Active"
+                    object-id="chk_AppsFormIsActive"
+                    class="mt-4"
+                />
 
-                <div
-                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
-                >
+                <FormActions sticky>
                     <Button
                         type="button"
                         variant="outline"
+                        object-id="btn_AppsFormCancel"
                         @click="isModalOpen = false"
                         >Cancel</Button
                     >
@@ -107,10 +108,11 @@
                         type="submit"
                         variant="primary"
                         :disabled="submitting"
+                        object-id="btn_AppsFormSave"
                     >
                         {{ submitting ? "Saving..." : "Save" }}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </Drawer>
     </div>
@@ -122,10 +124,44 @@ import Card from "@/components/molecules/Card.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
 import Drawer from "@/components/organisms/Drawer.vue";
-import AppTable from "@/components/organisms/Table.vue";
+import DataTable from "@/components/organisms/DataTable/DataTable.vue";
+import type { ColumnDef } from "@/components/organisms/DataTable/types";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
+import FormActions from "@/components/ui/form/FormActions.vue";
 import RowActions from "@/components/ui/table/RowActions.vue";
-import LoadingState from "@/components/ui/states/LoadingState.vue";
+import SectionHeader from "@/components/molecules/SectionHeader.vue";
 import { settingsService } from "@/services/settings.service";
+import { useNotifier } from "@/composable/useNotifier";
+
+interface AppRecord extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    description?: string | null;
+    url?: string | null;
+    icon?: string | null;
+    isActive?: boolean | null;
+}
+
+interface AppTableRow extends Record<string, unknown> {
+    id: string;
+    code: string;
+    name: string;
+    url: string;
+    status: string;
+    original: AppRecord;
+}
+
+interface AppForm {
+    code: string;
+    name: string;
+    description: string;
+    url: string;
+    icon: string;
+    isActive: boolean;
+}
+
+const { withToast } = useNotifier();
 
 const columns = [
     { key: "code", label: "Code" },
@@ -135,7 +171,7 @@ const columns = [
     { key: "actions", label: "" },
 ];
 
-const rows = ref<any[]>([]);
+const rows = ref<AppRecord[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -144,7 +180,7 @@ const isEditing = ref(false);
 const submitting = ref(false);
 const currentId = ref("");
 
-const form = ref({
+const form = ref<AppForm>({
     code: "",
     name: "",
     description: "",
@@ -153,7 +189,7 @@ const form = ref({
     isActive: true,
 });
 
-const tableRows = computed(() => {
+const tableRows = computed<AppTableRow[]>(() => {
     return rows.value.map((r) => ({
         id: r.id,
         code: r.code,
@@ -169,9 +205,10 @@ const loadData = async () => {
     error.value = null;
     try {
         const response = await settingsService.fetchList("apps");
-        rows.value = response.items || [];
-    } catch (err: any) {
-        error.value = err.message || "Failed to load apps";
+        rows.value = response.items as AppRecord[];
+    } catch (err: unknown) {
+        error.value =
+            err instanceof Error ? err.message : "Failed to load apps";
     } finally {
         loading.value = false;
     }
@@ -191,7 +228,7 @@ const openCreateModal = () => {
     isModalOpen.value = true;
 };
 
-const openEditModal = (row: any) => {
+const openEditModal = (row: AppTableRow) => {
     const original = row.original;
     form.value = {
         code: original.code,
@@ -209,19 +246,37 @@ const openEditModal = (row: any) => {
 const handleSubmit = async () => {
     submitting.value = true;
     try {
-        if (isEditing.value) {
-            await settingsService.update("apps", currentId.value, form.value);
-        } else {
-            await settingsService.create("apps", form.value);
-        }
+        await withToast(
+            async () => {
+                if (isEditing.value) {
+                    await settingsService.update(
+                        "apps",
+                        currentId.value,
+                        form.value,
+                    );
+                } else {
+                    await settingsService.create("apps", form.value);
+                }
+            },
+            {
+                successMessage: isEditing.value
+                    ? "Application updated successfully"
+                    : "Application created successfully",
+                errorMessage: "Failed to save application",
+            },
+        );
         isModalOpen.value = false;
-        loadData();
-    } catch (err: any) {
-        alert(err.message || "Failed to save app");
+        await loadData();
     } finally {
         submitting.value = false;
     }
 };
+
+const dataTableColumns = computed<ColumnDef<Record<string, unknown>>[]>(() =>
+    columns
+        .filter((column) => column.key !== "actions")
+        .map((column) => ({ key: column.key, header: column.label })),
+);
 
 onMounted(() => loadData());
 </script>

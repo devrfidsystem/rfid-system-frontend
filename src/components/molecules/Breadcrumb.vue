@@ -1,6 +1,10 @@
 <template>
-    <nav class="text-xs text-text-secondary" aria-label="breadcrumb">
-        <ul class="flex items-center gap-1.5">
+    <nav
+        class="text-xs text-text-secondary overflow-x-auto hide-scrollbar whitespace-nowrap max-w-full"
+        aria-label="breadcrumb"
+        v-bind="bindObjectId(objectId)"
+    >
+        <ul class="flex items-center gap-1.5 w-max">
             <li
                 v-for="(item, index) in items"
                 :key="item.label"
@@ -9,14 +13,14 @@
                 <span
                     :class="
                         item.active
-                            ? 'text-gray-900 font-semibold'
-                            : 'hover:text-gray-700 transition-colors'
+                            ? 'text-text font-semibold'
+                            : 'hover:text-text transition-colors'
                     "
                     >{{ item.label }}</span
                 >
                 <svg
                     v-if="index < items.length - 1"
-                    class="h-3.5 w-3.5 text-gray-300"
+                    class="h-3.5 w-3.5 text-text-muted"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -34,7 +38,10 @@
 </template>
 
 <script setup lang="ts">
+import { bindObjectId } from "@/utils/objectId";
+
 defineProps<{
     items: { label: string; active?: boolean }[];
+    objectId?: string;
 }>();
 </script>

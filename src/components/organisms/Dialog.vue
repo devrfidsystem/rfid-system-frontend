@@ -7,7 +7,7 @@
                 @mousedown.self="handleBackdropClick"
             >
                 <div
-                    class="fixed inset-0 z-0 bg-gray-900/50 backdrop-blur-sm"
+                    class="fixed inset-0 z-0 bg-gray-900/50"
                     aria-hidden="true"
                 ></div>
 
@@ -20,21 +20,22 @@
                     class="relative z-10 flex min-h-full items-center justify-center px-4"
                 >
                     <div
-                        class="relative w-full overflow-hidden rounded-md bg-white shadow-xl border border-gray-200 focus:outline-none"
+                        class="relative w-full overflow-hidden rounded-md bg-surface shadow-sm border border-border focus:outline-none"
                         :class="sizeClass"
                         tabindex="-1"
+                        v-bind="bindObjectId(objectId)"
                         @keydown.esc.prevent="handleEsc"
                         @click.stop
                     >
                         <header
-                            class="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-4"
+                            class="flex items-start justify-between gap-4 border-b border-border px-6 py-4"
                         >
                             <div class="space-y-1">
                                 <slot name="title">
                                     <p
                                         v-if="title"
                                         :id="titleId"
-                                        class="text-lg font-semibold text-gray-900"
+                                        class="text-lg font-semibold text-text"
                                     >
                                         {{ title }}
                                     </p>
@@ -54,8 +55,15 @@
                                     <button
                                         ref="closeButtonRef"
                                         type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-md text-sm w-8 h-8 inline-flex justify-center items-center focus:outline-none focus:ring-4 focus:ring-gray-200"
+                                        class="text-text-secondary bg-transparent hover:bg-surface-secondary hover:text-text rounded-md text-sm w-8 h-8 inline-flex justify-center items-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                                         aria-label="Close"
+                                        v-bind="
+                                            bindObjectId(
+                                                objectId
+                                                    ? `icn_${objectId.replace(/^[^_]+_/, '')}Close`
+                                                    : undefined,
+                                            )
+                                        "
                                         @click="close"
                                     >
                                         <svg
@@ -84,7 +92,7 @@
 
                         <footer
                             v-if="$slots.footer"
-                            class="border-t border-gray-200 bg-gray-50 px-6 py-4 rounded-b-md"
+                            class="border-t border-border bg-surface-secondary px-6 py-4 rounded-b-md"
                         >
                             <slot name="footer" />
                         </footer>
@@ -105,6 +113,7 @@ import {
     useId,
     watch,
 } from "vue";
+import { bindObjectId } from "@/utils/objectId";
 
 const props = defineProps<{
     modelValue: boolean;
@@ -116,6 +125,7 @@ const props = defineProps<{
     hideClose?: boolean;
     persistent?: boolean;
     initialFocus?: "close" | "content";
+    objectId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -228,10 +238,21 @@ onBeforeUnmount(() => {
 <style scoped>
 .dialog-fade-enter-active,
 .dialog-fade-leave-active {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.dialog-fade-enter-active .rounded-md,
+.dialog-fade-leave-active .rounded-md {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .dialog-fade-enter-from,
 .dialog-fade-leave-to {
     opacity: 0;
+}
+
+.dialog-fade-enter-from .rounded-md,
+.dialog-fade-leave-to .rounded-md {
+    transform: scale(0.95) translateY(10px);
 }
 </style>

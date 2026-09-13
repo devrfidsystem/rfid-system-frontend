@@ -1,38 +1,11 @@
-import { apiRequest } from "@/lib/api/client";
 import type { ApiResponse, ApiPaginatedResult } from "@/lib/api/response";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
+import type { ProductRecord } from "@/model/entities";
+import type { CreateProductPayload } from "@/api/feature/dto/master.dto";
+import { productsApi } from "@/api/feature/products.api";
 
-export interface Product {
-    id: string;
-    code: string;
-    sku?: string | null;
-    name: string;
-    status?: string;
-    description?: string;
-    barcode?: string;
-    price?: number;
-    quantity?: number;
-    warehouseId?: string;
-    companyId?: string;
-    uomId?: string;
-    categoryId?: string;
-    uom?: { id: string; name: string; symbol?: string | null };
-    category?: { id: string; name: string };
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateProductPayload {
-    companyId: string;
-    code: string;
-    name: string;
-    uomId: string;
-    categoryId?: string;
-    description?: string;
-    status?: string;
-    barcode?: string;
-    price?: number;
-}
+export type Product = ProductRecord;
+export type { CreateProductPayload };
 
 export interface FindProductsParams {
     page?: number;
@@ -44,17 +17,11 @@ export interface FindProductsParams {
     filters?: Record<string, unknown>;
 }
 
-const BASE_PATH = "/products";
-
 export const productsService = {
     async findProducts(
         params: FindProductsParams = {},
     ): Promise<ApiPaginatedResult<Product>> {
-        const response = await apiRequest<{ items?: Product[] }>({
-            url: BASE_PATH,
-            method: "get",
-            params,
-        });
+        const response = await productsApi.findProducts(params);
         const items = normalizePaginationItems(
             response as ApiResponse<{ items?: Product[] }>,
         );
@@ -65,19 +32,17 @@ export const productsService = {
     },
 
     async getProductById(id: string): Promise<Product> {
-        const response = await apiRequest<Product>({
-            url: `${BASE_PATH}/${id}`,
-            method: "get",
-        });
+        const response = await productsApi.getProductById(id);
         return response.data;
     },
 
     async createProduct(payload: CreateProductPayload): Promise<Product> {
-        const response = await apiRequest<Product>({
-            url: BASE_PATH,
-            method: "post",
-            data: payload,
-        });
+        const response = await productsApi.createProduct(payload);
+        return response.data;
+    },
+
+    async uploadProductImage(id: string, file: File): Promise<Product> {
+        const response = await productsApi.uploadProductImage(id, file);
         return response.data;
     },
 };

@@ -3,11 +3,18 @@
         <PageHeader
             :title="pageTitle"
             :description="pageDescription"
-            tagline="Transactions"
+            :tagline="pageTagline"
         />
 
-        <Card no-padding>
+        <TransactionSummaryWidget
+            :loading="summaryLoading"
+            :error="summaryError"
+            :summary="summary"
+        />
+
+        <Card no-padding object-id="wdg_TransactionList">
             <TransactionHeader
+                :heading="sectionHeading"
                 v-model:keyword="keyword"
                 v-model:start-date="startDate"
                 v-model:end-date="endDate"
@@ -18,20 +25,30 @@
                 :warehouse-select-options="warehouseSelectOptions"
                 :partner-select-options="partnerSelectOptions"
                 :partner-label="partnerLabel"
+                :has-rows="displayRows.length > 0"
+                :can-export="canExport"
+                :can-create="canCreate"
                 @refresh="refresh"
+                @export="exportRows"
                 @new="handleNew"
             />
 
             <div class="px-6">
-                <p v-if="partnerError" class="text-xs text-rose-600 mb-4">
-                    {{ partnerError }}
-                </p>
-                <p
+                <InlineAlert
+                    v-if="partnerError"
+                    variant="error"
+                    title="Partner filter unavailable"
+                    :description="partnerError"
+                    compact
+                    class="mb-4 text-xs"
+                />
+                <InlineAlert
                     v-if="error && !loading"
-                    class="rounded-md border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 mb-4"
-                >
-                    {{ error }}
-                </p>
+                    variant="error"
+                    title="Transaction list unavailable"
+                    :description="error"
+                    class="mb-4"
+                />
             </div>
 
             <TransactionTable
@@ -52,8 +69,10 @@
 <script setup lang="ts">
 import Card from "@/components/molecules/Card.vue";
 import PageHeader from "@/components/molecules/PageHeader.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import TransactionHeader from "./components/TransactionHeader.vue";
 import TransactionTable from "./components/TransactionTable.vue";
+import TransactionSummaryWidget from "./components/TransactionSummaryWidget.vue";
 import type { TransactionKey } from "@/services/transactions.service";
 import { useTransactionList } from "./composables/useTransactionList";
 import { useRouter } from "vue-router";
@@ -71,6 +90,10 @@ const handleView = (id: string) => {
 
 const {
     pageTitle,
+    pageTagline,
+    sectionHeading,
+    canCreate,
+    canExport,
     pageDescription,
     keyword,
     startDate,
@@ -87,9 +110,13 @@ const {
     loading,
     pagination,
     pageSizeOptions,
+    summary,
+    summaryLoading,
+    summaryError,
     displayRows,
     columns,
     emptyStateVariant,
+    exportRows,
     refresh,
 } = useTransactionList(props);
 </script>

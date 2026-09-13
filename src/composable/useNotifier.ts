@@ -82,7 +82,10 @@ export function useNotifier() {
             }
             return result;
         } catch (error) {
-            const message = errorMessage ?? normalizeMessage(error);
+            const parsedMessage = normalizeMessage(error);
+            const message = errorMessage
+                ? `${errorMessage}: ${parsedMessage}`
+                : parsedMessage;
             notifyError(message, { ...errorOptions, variant: errorVariant });
             throw error;
         } finally {

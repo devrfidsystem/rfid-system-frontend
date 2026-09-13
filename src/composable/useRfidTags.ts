@@ -35,6 +35,7 @@ export function useRfidTags({
 
     const registering = ref(false);
     const encoding = ref(false);
+    const deleting = ref(false);
     const submittingError = ref<string | null>(null);
 
     const normalizeError = (response: unknown) => {
@@ -124,6 +125,20 @@ export function useRfidTags({
         }
     };
 
+    const deleteTag = async (id: string) => {
+        deleting.value = true;
+        submittingError.value = null;
+        try {
+            await rfidService.deleteTag(id);
+            items.value = items.value.filter((tag) => tag.id !== id);
+        } catch (err) {
+            submittingError.value = normalizeError(err);
+            throw err;
+        } finally {
+            deleting.value = false;
+        }
+    };
+
     const refreshList = () => fetchTags();
 
     const setPage = (value: number) => {
@@ -162,9 +177,11 @@ export function useRfidTags({
         detailError,
         registering,
         encoding,
+        deleting,
         submittingError,
         registerTag,
         encodeTag,
+        deleteTag,
         fetchTags,
         refreshList,
         setPage,

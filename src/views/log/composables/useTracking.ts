@@ -21,16 +21,6 @@ export function useTracking() {
     const totalPages = computed(() =>
         Math.max(1, Math.ceil((pagination.total || 0) / pagination.limit)),
     );
-    const tableRangeStart = computed(() =>
-        pagination.total ? (pagination.page - 1) * pagination.limit + 1 : 0,
-    );
-    const tableRangeEnd = computed(() =>
-        Math.min(
-            pagination.page * pagination.limit,
-            pagination.total || events.value.length,
-        ),
-    );
-
     const loadEvents = async () => {
         loading.value = true;
         error.value = null;
@@ -95,9 +85,6 @@ export function useTracking() {
         }),
     );
 
-    const formatDate = (value?: string) =>
-        value ? new Date(value).toLocaleString() : "-";
-
     loadWarehouses();
     loadEvents();
 
@@ -108,13 +95,9 @@ export function useTracking() {
         error,
         pagination,
         pageSizeOptions,
-        totalPages,
-        tableRangeStart,
-        tableRangeEnd,
         sortedEvents,
         emptyStateVariant,
         warehouseName,
-        formatDate,
         loadEvents,
         setPage,
         setLimit,

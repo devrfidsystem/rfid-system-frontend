@@ -1,7 +1,7 @@
-import { apiRequest } from "@/lib/api/client";
 import { normalizePaginationItems } from "@/lib/api/normalizers";
 import type { WarehouseRecord } from "@/model/entities";
 import type { WarehouseOption } from "@/model/dashboard";
+import { warehouseApi } from "@/api/feature/warehouse.api";
 
 const toOption = (record: WarehouseRecord): WarehouseOption => ({
     id: record.id,
@@ -10,20 +10,16 @@ const toOption = (record: WarehouseRecord): WarehouseOption => ({
 });
 
 export const warehouseService = {
-    async fetchOptions(): Promise<WarehouseOption[]> {
-        const response = await apiRequest<{ items?: WarehouseRecord[] }>({
-            url: "/warehouses/options",
-            method: "get",
-        });
+    async fetchOptions(companyId?: string): Promise<WarehouseOption[]> {
+        const response = await warehouseApi.fetchOptions(
+            companyId ? { companyId } : {},
+        );
         const records = normalizePaginationItems(response);
         return records.map(toOption);
     },
 
     async fetchMyWarehouses(): Promise<WarehouseRecord[]> {
-        const response = await apiRequest<{ items?: WarehouseRecord[] }>({
-            url: "/warehouses/my",
-            method: "get",
-        });
+        const response = await warehouseApi.fetchMyWarehouses();
         return normalizePaginationItems(response);
     },
 };

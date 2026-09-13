@@ -1,6 +1,7 @@
 <template>
     <div
-        class="flex flex-col items-center justify-center gap-4 rounded-lg border border-gray-100 bg-gray-50/50 px-6 py-10 text-center"
+        class="flex flex-col items-center justify-center gap-4 rounded-md border border-border bg-surface px-6 py-10 text-center shadow-xs"
+        data-testid="empty-placeholder"
     >
         <img
             :src="resolvedImage"
@@ -10,10 +11,12 @@
             decoding="async"
         />
         <div class="max-w-md space-y-1">
-            <h3 class="text-base font-semibold text-gray-900 sm:text-lg">
+            <h3 class="text-base font-semibold text-text sm:text-lg">
                 {{ resolvedTitle }}
             </h3>
-            <p class="text-sm text-text-secondary">{{ resolvedDescription }}</p>
+            <p class="text-sm text-text-secondary">
+                {{ resolvedDescription }}
+            </p>
         </div>
 
         <slot name="action">
@@ -22,6 +25,7 @@
                 variant="outline"
                 size="sm"
                 type="button"
+                data-testid="button-emit-action"
                 @click="emit('action')"
             >
                 {{ actionText }}

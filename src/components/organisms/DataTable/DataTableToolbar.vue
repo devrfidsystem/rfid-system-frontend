@@ -1,23 +1,27 @@
 <template>
     <div
-        class="flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-white rounded-t-md"
+        class="flex flex-wrap items-center justify-between gap-4 rounded-t-md border-b border-border bg-surface px-4 py-3"
     >
         <div class="flex flex-1 min-w-[240px] items-center gap-3">
-            <div
-                class="flex w-full max-w-sm items-center gap-2 rounded-md bg-workspace-bg border border-border-default px-3 py-2 focus-within:ring-2 focus-within:ring-primary-100 focus-within:border-primary-400 transition-all"
-            >
-                <slot name="search-icon">
-                    <Icon
-                        :icon="Search"
-                        :size="16"
-                        class-name="text-text-secondary"
-                    />
-                </slot>
-                <input
+            <div v-if="showSearch !== false" class="w-full max-w-sm">
+                <Input
+                    :id="searchId"
                     v-model="search"
-                    class="w-full bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                    label="Search"
+                    label-class="sr-only"
                     placeholder="Search..."
-                />
+                    :object-id="searchObjectId"
+                >
+                    <template #icon>
+                        <slot name="search-icon">
+                            <Icon
+                                :icon="Search"
+                                :size="16"
+                                class-name="text-text-secondary"
+                            />
+                        </slot>
+                    </template>
+                </Input>
             </div>
             <slot name="filters" />
         </div>
@@ -25,32 +29,26 @@
             <slot name="actions" :rows="rows" :visible-rows="visibleRows" />
             <div
                 v-if="pageSizeOptions?.length"
-                class="flex items-center gap-2 text-xs text-text-secondary pl-3 border-l border-border-default"
+                class="flex items-center gap-2 border-l border-border pl-3 text-xs text-text-secondary"
             >
-                <span
-                    class="text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >Rows</span
-                >
-                <select
-                    v-model.number="localPageSize"
-                    class="rounded-md border border-border-default bg-workspace-bg px-2 py-1 text-xs focus:border-primary-400 focus:ring-1 focus:ring-primary-100 cursor-pointer"
-                >
-                    <option
-                        v-for="option in pageSizeOptions"
-                        :key="option"
-                        :value="option"
-                    >
-                        {{ option }}
-                    </option>
-                </select>
+                <Select
+                    :id="pageSizeId"
+                    v-model="localPageSize"
+                    label="Rows"
+                    label-class="text-xs font-medium text-text-secondary"
+                    :options="pageSizeSelectOptions"
+                    :object-id="pageSizeObjectId"
+                />
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import Icon from "@/components/atoms/Icon.vue";
+import Input from "@/components/atoms/Input.vue";
+import Select from "@/components/atoms/Select.vue";
 import { Search } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -59,6 +57,8 @@ const props = defineProps<{
     pageSizeOptions?: number[];
     rows: unknown[];
     visibleRows: unknown[];
+    objectId?: string;
+    showSearch?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -67,7 +67,24 @@ const emit = defineEmits<{
 }>();
 
 const search = ref(props.modelValue ?? "");
-const localPageSize = ref(props.pageSize ?? props.pageSizeOptions?.[0] ?? 10);
+const localPageSize = ref(
+    String(props.pageSize ?? props.pageSizeOptions?.[0] ?? 10),
+);
+const searchId = `dt-search-${Math.random().toString(36).slice(2, 9)}`;
+const pageSizeId = `dt-page-size-${Math.random().toString(36).slice(2, 9)}`;
+const objectIdSuffix = computed(() => objectIdSafeValue(props.objectId));
+const searchObjectId = computed(() =>
+    objectIdSuffix.value ? `txt_${objectIdSuffix.value}Search` : undefined,
+);
+const pageSizeObjectId = computed(() =>
+    objectIdSuffix.value ? `cmb_${objectIdSuffix.value}PageSize` : undefined,
+);
+const pageSizeSelectOptions = computed(() =>
+    (props.pageSizeOptions ?? []).map((option) => ({
+        label: String(option),
+        value: String(option),
+    })),
+);
 
 watch(search, (value) => emit("update:modelValue", value));
 watch(
@@ -77,11 +94,16 @@ watch(
     },
 );
 
-watch(localPageSize, (value) => emit("update:pageSize", value));
+watch(localPageSize, (value) => emit("update:pageSize", Number(value)));
 watch(
     () => props.pageSize,
     (value) => {
-        if (value !== localPageSize.value) localPageSize.value = value;
+        const nextValue = String(value);
+        if (nextValue !== localPageSize.value) localPageSize.value = nextValue;
     },
 );
+
+function objectIdSafeValue(objectId?: string) {
+    return objectId?.replace(/^[^_]+_/, "") ?? "";
+}
 </script>

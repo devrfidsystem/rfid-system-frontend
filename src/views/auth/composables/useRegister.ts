@@ -1,6 +1,14 @@
 import { reactive, ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { useNotifier } from "@/composable/useNotifier";
+import { authService } from "@/services/auth.service";
 
 export function useRegister() {
+    const router = useRouter();
+    const { withToast } = useNotifier();
+    const { t } = useI18n();
+
     const form = reactive({
         fullName: "",
         company: "",
@@ -50,27 +58,27 @@ export function useRegister() {
     const fieldErrors = computed(() => ({
         fullName:
             touched.fullName && !form.fullName
-                ? "Nama tidak boleh kosong."
+                ? t("auth.register.errors.fullNameRequired")
                 : undefined,
         company:
             touched.company && !form.company
-                ? "Isi nama unit atau perusahaan."
+                ? t("auth.register.errors.companyRequired")
                 : undefined,
         email:
             touched.email && !isEmailValid.value
-                ? "Pastikan email valid perusahaan."
+                ? t("auth.register.errors.emailInvalid")
                 : undefined,
         password:
             touched.password && !isPasswordValid.value
-                ? "Password minimal 10 karakter."
+                ? t("auth.register.errors.passwordInvalid")
                 : undefined,
         confirmPassword:
             touched.confirmPassword && !passwordsMatch.value
-                ? "Password harus cocok."
+                ? t("auth.register.errors.confirmPasswordMismatch")
                 : undefined,
         terms:
             touched.terms && !form.terms
-                ? "Centang untuk melanjutkan."
+                ? t("auth.register.errors.termsRequired")
                 : undefined,
     }));
 
@@ -80,12 +88,35 @@ export function useRegister() {
         });
 
         if (!canSubmit.value) {
-            status.value = "Periksa kembali data registrasi Anda.";
+            status.value = t("auth.register.errors.incomplete");
             return;
         }
 
-        status.value =
-            "Registrasi mandiri belum tersedia karena endpoint provisioning belum disediakan. Minta admin IAM membuat akun dan role melalui backend.";
+        status.value = null;
+
+        try {
+            await withToast(
+                async () => {
+                    await authService.register({
+                        fullName: form.fullName.trim(),
+                        companyName: form.company.trim(),
+                        email: form.email.trim(),
+                        password: form.password,
+                    });
+                },
+                {
+                    loadingRef: submitting,
+                    successMessage: t("auth.register.toastSuccess"),
+                    errorMessage: t("auth.register.toastError"),
+                },
+            );
+            await router.replace("/login");
+        } catch (error: unknown) {
+            status.value =
+                error instanceof Error
+                    ? error.message
+                    : t("auth.register.fallbackError");
+        }
     };
 
     return {

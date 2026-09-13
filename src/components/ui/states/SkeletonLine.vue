@@ -1,7 +1,7 @@
 <template>
     <div
         :class="[
-            'animate-pulse rounded-[var(--radius-sm)] bg-gray-200',
+            'animate-pulse rounded-[var(--radius-sm)] bg-surface-secondary',
             widthClass,
             heightClass,
         ]"

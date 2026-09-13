@@ -12,6 +12,7 @@
                 type="button"
                 :loading="loading"
                 :disabled="loading"
+                data-testid="button-emit-retry"
                 @click="$emit('retry')"
             >
                 {{ retryText }}

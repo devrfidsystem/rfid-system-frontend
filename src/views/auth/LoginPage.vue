@@ -1,49 +1,74 @@
 <template>
-    <AuthShell
-        form-title="Masuk ke Control Room"
-        form-subtitle="Gunakan akun perusahaan Anda untuk mengakses laporan dan operasi warehouse."
-        aside-title="Satu portal untuk seluruh operasi gudang"
-        aside-description="Monitoring stok, transaksi, dan RFID tracking dalam satu ruang kerja yang aman dan terintegrasi."
-    >
+    <AuthShell>
+        <template #subtitle>
+            {{ t("auth.login.subtitlePrompt") }}
+            <RouterLink
+                id="lkl_LoginRegister"
+                to="/register"
+                data-testid="lkl_LoginRegister"
+                class="font-semibold text-primary-600 hover:text-primary-700"
+                >{{ t("auth.login.subtitleLink") }}</RouterLink
+            >
+        </template>
+
         <template #default>
             <form class="space-y-5" @submit.prevent="handleSubmit">
                 <Input
-                    id="login-email"
+                    id="txt_LoginEmail"
                     v-model="form.email"
                     type="email"
-                    label="Email perusahaan"
-                    placeholder="nama@perusahaan.co.id"
+                    :label="t('auth.login.emailLabel')"
+                    label-class="sr-only"
+                    :placeholder="t('auth.login.emailPlaceholder')"
                     autocomplete="email"
                     :error="fieldErrors.email"
+                    object-id="txt_LoginEmail"
                     @blur="touched.email = true"
                 />
 
                 <Input
-                    id="login-password"
+                    id="txt_LoginPassword"
                     v-model="form.password"
-                    type="password"
-                    label="Password"
-                    placeholder="Minimal 8 karakter"
+                    :type="showPassword ? 'text' : 'password'"
+                    :label="t('auth.login.passwordLabel')"
+                    label-class="sr-only"
+                    :placeholder="t('auth.login.passwordPlaceholder')"
                     autocomplete="current-password"
                     :error="fieldErrors.password"
+                    object-id="txt_LoginPassword"
                     @blur="touched.password = true"
-                />
+                >
+                    <template #trailingIcon>
+                        <button
+                            type="button"
+                            class="text-text-secondary hover:text-text"
+                            :aria-label="
+                                showPassword
+                                    ? t('common.password.hide')
+                                    : t('common.password.show')
+                            "
+                            @click="showPassword = !showPassword"
+                        >
+                            <Icon
+                                :icon="showPassword ? EyeOff : Eye"
+                                :size="16"
+                            />
+                        </button>
+                    </template>
+                </Input>
 
-                <div class="flex items-center justify-between text-sm">
-                    <label
-                        class="inline-flex items-center gap-2 text-slate-500 cursor-pointer"
-                    >
-                        <input
-                            v-model="form.remember"
-                            type="checkbox"
-                            class="h-4 w-4 rounded border border-slate-300 text-brand-600 focus:ring-brand-500"
-                        />
-                        Ingat saya
-                    </label>
+                <div class="flex items-center justify-between">
+                    <CheckboxField
+                        v-model="form.remember"
+                        :label="t('auth.login.rememberMe')"
+                        object-id="chk_LoginRememberMe"
+                    />
                     <RouterLink
-                        to="/register"
-                        class="font-semibold text-brand-600 hover:text-brand-700"
-                        >Belum punya akun?</RouterLink
+                        id="lkl_LoginForgotPassword"
+                        to="/forgot-password"
+                        data-testid="lkl_LoginForgotPassword"
+                        class="text-sm font-semibold text-primary-600 hover:text-primary-700"
+                        >{{ t("auth.login.forgotPassword") }}</RouterLink
                     >
                 </div>
 
@@ -52,27 +77,39 @@
                     variant="primary"
                     class="w-full justify-center"
                     :disabled="submitting || !canSubmit"
+                    object-id="btn_LoginSubmit"
                 >
                     <span v-if="submitting" class="btn-spinner mr-2"></span>
-                    {{ submitting ? "Memproses..." : "Masuk" }}
+                    {{
+                        submitting
+                            ? t("auth.login.submitting")
+                            : t("auth.login.submit")
+                    }}
                 </Button>
 
-                <p
+                <InlineAlert
                     v-if="status"
-                    class="rounded-md border border-red-100 bg-red-50 p-3 text-xs text-rose-500 text-center"
-                >
-                    {{ status }}
-                </p>
+                    variant="error"
+                    :description="status"
+                    compact
+                    class="text-xs"
+                />
             </form>
         </template>
     </AuthShell>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { Eye, EyeOff } from "lucide-vue-next";
 import AuthShell from "./AuthShell.vue";
 import Input from "@/components/atoms/Input.vue";
 import Button from "@/components/atoms/Button.vue";
+import Icon from "@/components/atoms/Icon.vue";
+import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
+import CheckboxField from "@/components/ui/form/CheckboxField.vue";
 import { useLogin } from "./composables/useLogin";
 
 const {
@@ -84,4 +121,7 @@ const {
     fieldErrors,
     handleSubmit,
 } = useLogin();
+
+const showPassword = ref(false);
+const { t } = useI18n();
 </script>

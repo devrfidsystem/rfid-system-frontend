@@ -1,0 +1,335 @@
+import { describe, expect, it, vi } from "vitest";
+import pageSource from "../TransactionDetailPage.vue?raw";
+
+const mocks = vi.hoisted(() => ({
+    getSpy: vi.fn(),
+    postSpy: vi.fn(),
+    cancelSpy: vi.fn(),
+    completeSpy: vi.fn(),
+    pushSpy: vi.fn(),
+    notifyErrorSpy: vi.fn(),
+    notifySuccessSpy: vi.fn(),
+}));
+
+vi.mock("vue-router", () => ({
+    useRouter: () => ({
+        push: mocks.pushSpy,
+    }),
+}));
+
+vi.mock("@/composable/useNotifier", () => ({
+    useNotifier: () => ({
+        notifyError: mocks.notifyErrorSpy,
+        notifySuccess: mocks.notifySuccessSpy,
+    }),
+}));
+
+vi.mock("@/services/transactions.service", () => ({
+    transactionService: {
+        get: mocks.getSpy,
+        post: mocks.postSpy,
+        cancel: mocks.cancelSpy,
+        complete: mocks.completeSpy,
+    },
+}));
+
+vi.mock("@/domain/report/reportConfig", () => ({
+    reportConfigs: {
+        relocation: {
+            entity: "relocation",
+            title: "Relocation Report",
+            description: "Moving inventory between locations.",
+            columns: [
+                { key: "relocation_no", label: "Doc No" },
+                { key: "relocation_date", label: "Date" },
+                { key: "status", label: "Status" },
+            ],
+            warehouseKey: "warehouseId",
+        },
+        outbound: {
+            entity: "outbound",
+            title: "Outbound Report",
+            description: "Shipments and finished goods.",
+            columns: [
+                { key: "docNo", label: "ID Number" },
+                { key: "type", label: "Type" },
+                { key: "assignedBy.fullName", label: "Assigned User" },
+                { key: "deadlineAt", label: "Deadline" },
+                { key: "status", label: "Status" },
+            ],
+        },
+        register: {
+            entity: "register",
+            title: "Register",
+            description: "Admin task documents created before goods receipt.",
+            columns: [
+                { key: "docNumber", label: "Doc No" },
+                { key: "docDate", label: "Date Issue" },
+                { key: "registeredBy.fullName", label: "User" },
+                { key: "status", label: "Status" },
+            ],
+        },
+        putaway: {
+            entity: "putaway",
+            title: "Putaway Report",
+            description: "Storage placement tasks after receiving goods.",
+            columns: [
+                { key: "docNumber", label: "Doc No" },
+                { key: "docDate", label: "Date" },
+                { key: "status", label: "Status" },
+            ],
+            warehouseKey: "warehouseId",
+        },
+        inbound: {
+            entity: "inbound",
+            title: "Inbound Report",
+            description: "Recent receipts coming into each hub.",
+            columns: [
+                { key: "inbound_no", label: "Doc No" },
+                { key: "inbound_date", label: "Date" },
+                { key: "status", label: "Status" },
+            ],
+            warehouseKey: "warehouseId",
+        },
+    },
+}));
+
+describe("useTransactionDetail", () => {
+    it("renders relocation detail copy and line fields", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "rel-1",
+            docNo: "REL-001",
+            status: "draft",
+            relocation_no: "REL-001",
+            relocation_date: "2026-07-18T00:00:00.000Z",
+            lines: [
+                {
+                    id: "line-1",
+                    productId: "prod-1",
+                    qty: 3,
+                    fromLocationId: "loc-a",
+                    toLocationId: "loc-b",
+                    fromLocation: { id: "loc-a", code: "L-A", name: "Rack A" },
+                    toLocation: { id: "loc-b", code: "L-B", name: "Rack B" },
+                    product: {
+                        id: "prod-1",
+                        code: "PRD-1",
+                        name: "Sample Item",
+                    },
+                },
+            ],
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("relocation", "rel-1");
+
+        await detail.loadTransaction();
+
+        expect(mocks.getSpy).toHaveBeenCalledWith("relocation", "rel-1");
+        expect(detail.pageTagline.value).toBe("Transaction Detail");
+        expect(detail.pageDescription.value).toBe(
+            "Details for relocation transaction",
+        );
+        expect(detail.actionLabel.value).toBe("Transaction");
+        expect(detail.canShowActions.value).toBe(true);
+        expect(detail.lines.value).toHaveLength(1);
+        expect(detail.lines.value[0]).toMatchObject({
+            fromLocationId: "loc-a",
+            toLocationId: "loc-b",
+            fromLocation: {
+                code: "L-A",
+                name: "Rack A",
+            },
+            toLocation: {
+                code: "L-B",
+                name: "Rack B",
+            },
+        });
+    });
+
+    it("renders outbound detail as review-only after draft", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "out-1",
+            docNo: "OUT-001",
+            status: "posted",
+            type: "Outbound",
+            assignedBy: { fullName: "Asep" },
+            deadlineAt: "2026-07-25T00:00:00.000Z",
+            lines: [
+                {
+                    id: "line-1",
+                    productId: "prod-1",
+                    qty: 2,
+                    sourceLocationId: "loc-a",
+                    checkedAt: "2026-07-18T07:00:00.000Z",
+                    checkedBy: { fullName: "Asep" },
+                    product: {
+                        id: "prod-1",
+                        code: "PRD-1",
+                        name: "Sample Item",
+                    },
+                },
+            ],
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("outbound", "out-1");
+
+        await detail.loadTransaction();
+
+        expect(detail.pageTagline.value).toBe("Transaction Detail");
+        expect(detail.pageDescription.value).toBe(
+            "Review outbound document details and execution status.",
+        );
+        expect(detail.actionLabel.value).toBe("Outbound document");
+        expect(detail.canShowActions.value).toBe(false);
+        expect(detail.isOutbound.value).toBe(true);
+        expect(detail.isOutboundReadOnly.value).toBe(true);
+        expect(detail.statusLabel.value).toBe("Posted");
+        expect(detail.statusTone.value).toBe("info");
+        expect(detail.outboundReviewNote.value).toContain("Read-only review");
+        expect(detail.lines.value).toHaveLength(1);
+    });
+
+    it("formats status labels and tones through the shared transaction status mapping", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "out-2",
+            docNo: "OUT-002",
+            status: "in_progress",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("outbound", "out-2");
+
+        await detail.loadTransaction();
+
+        expect(detail.statusLabel.value).toBe("In Progress");
+        expect(detail.statusTone.value).toBe("warning");
+    });
+
+    it("opens a confirmation dialog before posting register tasks", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "reg-1",
+            docNo: "REG-001",
+            status: "draft",
+            registeredBy: { fullName: "Asep" },
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("register", "reg-1");
+
+        await detail.loadTransaction();
+        detail.handlePost();
+
+        expect(detail.confirmation.value).toMatchObject({
+            action: "post",
+            title: "Post Task",
+            confirmText: "Post",
+            cancelText: "Back",
+            variant: "primary",
+        });
+
+        await detail.handleConfirmAction();
+
+        expect(mocks.postSpy).toHaveBeenCalledWith("register", "reg-1");
+        expect(detail.confirmation.value).toBeNull();
+    });
+
+    it("allows draft inbound documents to be posted and canceled", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "inb-1",
+            docNo: "INB-001",
+            status: "draft",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("inbound", "inb-1");
+
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(true);
+        expect(detail.canCancel.value).toBe(true);
+
+        detail.handlePost();
+        expect(detail.confirmation.value).toMatchObject({
+            action: "post",
+            title: "Post Document",
+        });
+
+        await detail.handleConfirmAction();
+
+        expect(mocks.postSpy).toHaveBeenCalledWith("inbound", "inb-1");
+    });
+
+    it("shows Post+Cancel for a draft putaway task, and Complete+Cancel once posted", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "draft",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("putaway", "put-1");
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(true);
+        expect(detail.canCancel.value).toBe(true);
+        expect(detail.canComplete.value).toBe(false);
+
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "posted",
+        });
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(false);
+        expect(detail.canCancel.value).toBe(true);
+        expect(detail.canComplete.value).toBe(true);
+    });
+
+    it("calls transactionService.complete when a posted putaway task is completed", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "posted",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("putaway", "put-1");
+        await detail.loadTransaction();
+
+        detail.handleComplete();
+        expect(detail.confirmation.value).toMatchObject({
+            action: "complete",
+            title: "Complete Task",
+            confirmText: "Complete",
+            variant: "primary",
+        });
+
+        await detail.handleConfirmAction();
+
+        expect(mocks.completeSpy).toHaveBeenCalledWith("putaway", "put-1");
+        expect(detail.confirmation.value).toBeNull();
+    });
+
+    it("hides all actions once a putaway task is done", async () => {
+        mocks.getSpy.mockResolvedValue({
+            id: "put-1",
+            docNumber: "PUT-001",
+            status: "done",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("putaway", "put-1");
+        await detail.loadTransaction();
+
+        expect(detail.canShowActions.value).toBe(false);
+    });
+
+    it("keeps register task line items visible in the detail template", () => {
+        expect(pageSource).toContain("Task Meta");
+        expect(pageSource).not.toContain('v-else-if="!isRegister"');
+        expect(pageSource).toContain("Line Items");
+    });
+});

@@ -3,9 +3,11 @@ import { iamService } from "@/services/iam.service";
 import { settingsService } from "@/services/settings.service";
 import { masterService } from "@/services/master.service";
 import { useNotifier } from "@/composable/useNotifier";
+import { useAuthStore } from "@/store/auth.store";
 
 export function useUserAccess() {
     const { withToast, notifyError } = useNotifier();
+    const authStore = useAuthStore();
 
     const users = ref<Array<{ id: string; email?: string; name?: string }>>([]);
     const userOptions = ref<{ label: string; value: string }[]>([]);
@@ -30,6 +32,19 @@ export function useUserAccess() {
     const selectedRole = ref("");
     const selectedWarehouse = ref("");
     const selectedCompany = ref("");
+
+    type ConfirmationAction = "remove-role" | "remove-warehouse";
+    type ConfirmationState = {
+        action: ConfirmationAction;
+        title: string;
+        description: string;
+        confirmText: string;
+        cancelText: string;
+        variant: "primary" | "danger";
+        subjectId: string;
+    };
+
+    const confirmation = ref<ConfirmationState | null>(null);
 
     const loadDropdowns = async () => {
         try {
@@ -127,6 +142,10 @@ export function useUserAccess() {
 
     const addRole = async () => {
         if (!selectedRole.value) return;
+        if (!authStore.currentCompanyId) {
+            notifyError("Tidak ada perusahaan aktif untuk menetapkan role.");
+            return;
+        }
         submitting.value = true;
         try {
             await withToast(
@@ -134,6 +153,7 @@ export function useUserAccess() {
                     await iamService.assignUserRole(
                         selectedUserId.value,
                         selectedRole.value,
+                        authStore.currentCompanyId as string,
                     );
                 },
                 {
@@ -148,26 +168,82 @@ export function useUserAccess() {
         }
     };
 
-    const removeRole = async (roleId: string) => {
-        if (!confirm("Remove this role?")) return;
+    const openRemoveRoleConfirm = (roleId: string, roleName?: string) => {
+        confirmation.value = {
+            action: "remove-role",
+            title: "Remove Role",
+            description: `Remove ${roleName || "this role"} from the selected user?`,
+            confirmText: "Remove",
+            cancelText: "Back",
+            variant: "danger",
+            subjectId: roleId,
+        };
+    };
+
+    const openRemoveWarehouseConfirm = (
+        warehouseId: string,
+        warehouseName?: string,
+    ) => {
+        confirmation.value = {
+            action: "remove-warehouse",
+            title: "Remove Warehouse Access",
+            description: `Remove ${warehouseName || "this warehouse access"} from the selected user?`,
+            confirmText: "Remove",
+            cancelText: "Back",
+            variant: "danger",
+            subjectId: warehouseId,
+        };
+    };
+
+    const clearConfirmation = () => {
+        confirmation.value = null;
+    };
+
+    const executeRemoval = async (
+        action: ConfirmationAction,
+        subjectId: string,
+    ) => {
         submitting.value = true;
         try {
-            await withToast(
-                async () => {
-                    await iamService.removeUserRole(
-                        selectedUserId.value,
-                        roleId,
-                    );
-                },
-                {
-                    successMessage: "Role removed successfully",
-                    errorMessage: "Failed to remove role",
-                },
-            );
+            if (action === "remove-role") {
+                await withToast(
+                    async () => {
+                        await iamService.removeUserRole(
+                            selectedUserId.value,
+                            subjectId,
+                        );
+                    },
+                    {
+                        successMessage: "Role removed successfully",
+                        errorMessage: "Failed to remove role",
+                    },
+                );
+            } else {
+                await withToast(
+                    async () => {
+                        await iamService.removeUserWarehouse(
+                            selectedUserId.value,
+                            subjectId,
+                        );
+                    },
+                    {
+                        successMessage: "Warehouse access removed successfully",
+                        errorMessage: "Failed to remove warehouse",
+                    },
+                );
+            }
             await loadUserDetails();
         } finally {
             submitting.value = false;
         }
+    };
+
+    const confirmRemoval = async () => {
+        if (!confirmation.value) return;
+        const action = confirmation.value.action;
+        const subjectId = confirmation.value.subjectId;
+        clearConfirmation();
+        await executeRemoval(action, subjectId);
     };
 
     const addWarehouse = async () => {
@@ -188,28 +264,6 @@ export function useUserAccess() {
             );
             await loadUserDetails();
             selectedWarehouse.value = "";
-        } finally {
-            submitting.value = false;
-        }
-    };
-
-    const removeWarehouse = async (warehouseId: string) => {
-        if (!confirm("Remove warehouse access?")) return;
-        submitting.value = true;
-        try {
-            await withToast(
-                async () => {
-                    await iamService.removeUserWarehouse(
-                        selectedUserId.value,
-                        warehouseId,
-                    );
-                },
-                {
-                    successMessage: "Warehouse access removed successfully",
-                    errorMessage: "Failed to remove warehouse",
-                },
-            );
-            await loadUserDetails();
         } finally {
             submitting.value = false;
         }
@@ -253,12 +307,15 @@ export function useUserAccess() {
         selectedRole,
         selectedWarehouse,
         selectedCompany,
+        confirmation,
         loadDropdowns,
         loadUsers,
         addRole,
-        removeRole,
+        openRemoveRoleConfirm,
         addWarehouse,
-        removeWarehouse,
+        openRemoveWarehouseConfirm,
         addCompany,
+        clearConfirmation,
+        confirmRemoval,
     };
 }

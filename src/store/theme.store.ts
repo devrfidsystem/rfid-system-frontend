@@ -11,13 +11,7 @@ const STORAGE_KEYS = {
 
 const getPreferredMode = (): ThemeMode => {
     if (typeof window === "undefined") return "light";
-    const saved = window.localStorage.getItem(
-        STORAGE_KEYS.mode,
-    ) as ThemeMode | null;
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+    return "light";
 };
 
 const getPreferredDensity = (): ThemeDensity => {
@@ -54,13 +48,13 @@ export const useThemeStore = defineStore("theme", {
             this.initialized = true;
         },
         setMode(mode: ThemeMode) {
-            this.mode = mode;
+            this.mode = "light";
             if (typeof window !== "undefined") {
-                window.localStorage.setItem(STORAGE_KEYS.mode, mode);
+                window.localStorage.setItem(STORAGE_KEYS.mode, "light");
             }
         },
         toggleMode() {
-            this.setMode(this.mode === "light" ? "dark" : "light");
+            this.setMode("light");
         },
         setDensity(density: ThemeDensity) {
             this.density = density;

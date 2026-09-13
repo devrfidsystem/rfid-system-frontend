@@ -3,3 +3,20 @@ dist
 .env
 .DS_Store
 **/.DS_Store
+
+# AI Agent Skills
+skills/
+GEMINI.md
+
+# spark
+.spark/.codex/skills/
+/.spark-lock.json
+/.codex/skills/
+/.codex/hooks/
+/.codex-cli-plugin/
+/.docs
+.docs
+.codex
+.vscode
+.spark
+.storybook/.codex/.spark-managed.json

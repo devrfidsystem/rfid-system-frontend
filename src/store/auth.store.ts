@@ -35,6 +35,10 @@ export const useAuthStore = defineStore("auth", {
             this.session = session;
         },
 
+        setProfile(profile: AuthProfile | null) {
+            this.profile = profile;
+        },
+
         async loadProfile(
             options?: LoadProfileOptions,
         ): Promise<AuthProfile | null> {
@@ -74,10 +78,7 @@ export const useAuthStore = defineStore("auth", {
                 this.loading = true;
             }
             try {
-                await authService.syncAuthContext({
-                    skipAuthErrorHandling: true,
-                });
-                const profile = await authService.getAuthMe({
+                const profile = await authService.syncAuthContext({
                     skipAuthErrorHandling: true,
                 });
                 this.profile = profile;

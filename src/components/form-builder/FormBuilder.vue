@@ -10,13 +10,13 @@
         <div class="md:col-span-2 flex justify-between items-center pt-2">
             <slot name="status" :meta="meta" :errors="errors" />
             <slot name="actions" :meta="meta" :errors="errors">
-                <button
+                <Button
                     type="submit"
-                    class="inline-flex items-center justify-center rounded-md bg-primary-500 px-4 py-2 text-white transition hover:bg-primary-600 disabled:opacity-60"
+                    variant="primary"
                     :disabled="isSubmitting || !meta.valid"
                 >
                     Submit
-                </button>
+                </Button>
             </slot>
         </div>
     </form>
@@ -25,6 +25,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useForm } from "vee-validate";
+import Button from "@/components/atoms/Button.vue";
 import type { FormBuilderProps, FormFieldConfig } from "./types";
 import { FIELD_MAP } from "./field-map";
 

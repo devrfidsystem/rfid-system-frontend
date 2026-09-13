@@ -99,6 +99,11 @@ apiClient.interceptors.request.use(async (config) => {
             : {}),
     } as Record<string, unknown>;
 
+    if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+        delete merged["Content-Type"];
+        delete merged["content-type"];
+    }
+
     // assign back to config.headers with a cast to avoid strict Axios header typing issues
     config.headers = merged as import("axios").AxiosRequestHeaders;
 
@@ -113,16 +118,44 @@ apiClient.interceptors.response.use(
             error.response?.status === 401 &&
             !requestConfig?.skipAuthErrorHandling
         ) {
-            const token = localStorage.getItem("access_token");
-            if (!token) {
-                if (router.currentRoute.value?.fullPath !== "/login") {
-                    void router.push("/login");
+            const refreshToken = localStorage.getItem("refresh_token");
+
+            if (refreshToken && requestConfig && !requestConfig._retry) {
+                requestConfig._retry = true;
+
+                try {
+                    const { data } = await axios.post<{
+                        data: { accessToken: string; refreshToken: string };
+                    }>(`${apiClient.defaults.baseURL}/auth/refresh`, {
+                        refreshToken,
+                    });
+
+                    if (data?.data?.accessToken) {
+                        localStorage.setItem(
+                            "access_token",
+                            data.data.accessToken,
+                        );
+                        localStorage.setItem(
+                            "refresh_token",
+                            data.data.refreshToken,
+                        );
+
+                        if (requestConfig.headers) {
+                            requestConfig.headers.Authorization = `Bearer ${data.data.accessToken}`;
+                        }
+
+                        return apiClient(requestConfig);
+                    }
+                } catch {
+                    // Refresh failed, fall through to logout
                 }
-            } else {
-                localStorage.removeItem("access_token");
-                if (router.currentRoute.value?.fullPath !== "/login") {
-                    void router.push("/login");
-                }
+            }
+
+            // Fallback: Clear tokens and redirect to login
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            if (router.currentRoute.value?.fullPath !== "/login") {
+                void router.push("/login");
             }
         }
         // handle 403 explicitly: show access denied toast
@@ -144,7 +177,13 @@ apiClient.interceptors.response.use(
 const normalizeAxiosError = (error: AxiosError): ApiClientError => {
     const status = error.response?.status;
     const payload = error.response?.data as ApiResponse<unknown> | undefined;
-    const message = payload?.message ?? error.message ?? "Unknown API error";
+
+    let message = payload?.message ?? error.message ?? "Unknown API error";
+    const metaErrors = payload?.meta?.errors;
+    if (Array.isArray(metaErrors) && metaErrors.length > 0) {
+        message = metaErrors.join(", ");
+    }
+
     return new ApiClientError(message, status, payload?.error ?? null, payload);
 };
 
@@ -182,6 +221,7 @@ export class ApiClientError extends Error {
 
 export interface ApiRequestConfig<D = unknown> extends AxiosRequestConfig<D> {
     skipAuthErrorHandling?: boolean;
+    _retry?: boolean;
 }
 
 const apiRequest = async <T, D = unknown>(

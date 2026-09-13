@@ -1,11 +1,11 @@
 <template>
     <div
-        class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-3"
+        class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3"
     >
         <div class="flex flex-1 min-w-0 items-center gap-3">
             <div
                 v-if="showSearch"
-                class="flex w-full items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2"
+                class="flex w-full items-center gap-2 rounded-md border border-border bg-surface-secondary px-3 py-2"
             >
                 <Input
                     :model-value="localKeyword"
@@ -13,6 +13,7 @@
                     :disabled="disabled || loading"
                     hide-message
                     class="flex-1 border-none bg-transparent px-0 text-sm"
+                    data-testid="input-2"
                     @update:model-value="onKeywordUpdate"
                 />
                 <Button
@@ -20,7 +21,7 @@
                     variant="ghost"
                     size="sm"
                     type="button"
-                    class="uppercase tracking-wider"
+                    data-testid="button-handleclear"
                     @click="handleClear"
                 >
                     Clear
@@ -54,7 +55,7 @@ const emit = defineEmits<{
 
 const localKeyword = ref(props.keyword ?? "");
 const showSearch = computed(() => props.showSearch ?? true);
-const placeholder = computed(() => props.placeholder ?? "Search…");
+const placeholder = computed(() => props.placeholder ?? "Search...");
 
 watch(localKeyword, (value) => emit("update:keyword", value));
 watch(

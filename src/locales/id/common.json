@@ -1,0 +1,11 @@
+{
+    "password": {
+        "show": "Tampilkan password",
+        "hide": "Sembunyikan password"
+    },
+    "language": {
+        "label": "Bahasa",
+        "indonesian": "Indonesia",
+        "english": "Inggris"
+    }
+}

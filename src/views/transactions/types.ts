@@ -1,8 +1,7 @@
-export interface TransactionRecord {
-    id?: string;
-    docNo?: string;
-    status?: string;
-    companyId?: string;
-    warehouseId?: string;
-    [key: string]: string | number | boolean | null | undefined;
-}
+export type {
+    TransactionRecord,
+    TransactionSummaryStatusCount,
+    TransactionSummaryMostRecent,
+    TransactionSummaryNeedsAttention,
+    TransactionSummaryResponse,
+} from "@/api/feature/dto/transactions.dto";
