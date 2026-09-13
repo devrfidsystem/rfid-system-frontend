@@ -185,7 +185,6 @@ export type ProcessActivity =
     | "receiving"
     | "putaway"
     | "outbound"
-    | "transfer"
     | "relocation"
     | "opname";
 

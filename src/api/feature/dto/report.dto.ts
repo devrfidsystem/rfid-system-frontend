@@ -6,7 +6,6 @@ export type ReportKey =
     | "outbound"
     | "stock-opname"
     | "relocation"
-    | "transfer"
     | "return"
     | "register"
     | "current-stock"
@@ -42,7 +41,6 @@ export const reportPaths: Record<ReportKey, string> = {
     outbound: "/reports/outbound",
     "stock-opname": "/opname",
     relocation: "/relocation",
-    transfer: "/transfer",
     return: "/returns",
     "current-stock": "/reports/stock-balance",
     "stock-period": "/reports/stock-movement",

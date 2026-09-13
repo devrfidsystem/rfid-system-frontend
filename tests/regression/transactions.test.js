@@ -76,18 +76,6 @@ const TRANSACTION_SURFACES = [
         ],
     },
     {
-        key: "transfer",
-        listPath: "/transactions/transfer",
-        createPath: "/transactions/transfer/new",
-        requiredCreateSelectors: [
-            "[object-id='txt_TransactionCreateDocNumber']",
-            "[object-id='dtp_TransactionCreateDate']",
-            "[object-id='cmb_TransactionCreateFromWarehouse']",
-            "[object-id='cmb_TransactionCreateToWarehouse']",
-            "[object-id='wdg_TransactionLineItems']",
-        ],
-    },
-    {
         key: "returns",
         listPath: "/transactions/returns",
         createPath: "/transactions/returns/new",

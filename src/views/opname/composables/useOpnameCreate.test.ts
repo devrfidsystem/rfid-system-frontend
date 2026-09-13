@@ -116,9 +116,7 @@ describe("useOpnameCreate", () => {
 
         expect(mocks.createSpy).not.toHaveBeenCalled();
         expect(mocks.createChildSpy).not.toHaveBeenCalled();
-        expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
-            "Title wajib diisi.",
-        );
+        expect(mocks.notifyErrorSpy).toHaveBeenCalledWith("Title wajib diisi.");
     });
 
     it("blocks profile and task creation when parent is missing", async () => {

@@ -4,7 +4,6 @@ export type TransactionKey =
     | "putaway"
     | "outbound"
     | "relocation"
-    | "transfer"
     | "return"
     | "returns"
     | "opname";
@@ -15,7 +14,6 @@ export const transactionPaths: Record<TransactionKey, string> = {
     putaway: "/putaway",
     outbound: "/outbound",
     relocation: "/relocation",
-    transfer: "/transfer",
     return: "/returns",
     returns: "/returns",
     opname: "/opname",

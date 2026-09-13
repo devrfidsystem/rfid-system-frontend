@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
 import pageSource from "../TransactionDetailPage.vue?raw";
 
 const mocks = vi.hoisted(() => ({
@@ -9,6 +10,57 @@ const mocks = vi.hoisted(() => ({
     pushSpy: vi.fn(),
     notifyErrorSpy: vi.fn(),
     notifySuccessSpy: vi.fn(),
+    permissions: [
+        {
+            menuCode: "TRANSACTION_INBOUND",
+            actions: {
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
+            },
+        },
+        {
+            menuCode: "TRANSACTION_PUTAWAY",
+            actions: {
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
+            },
+        },
+        {
+            menuCode: "TRANSACTION_REGISTER",
+            actions: {
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
+            },
+        },
+        {
+            menuCode: "TRANSACTION_RELOCATION",
+            actions: {
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
+            },
+        },
+        {
+            menuCode: "TRANSACTION_OUTBOUND",
+            actions: {
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
+            },
+        },
+    ],
+}));
+
+vi.mock("@/store/auth.store", () => ({
+    useAuthStore: () => ({ permissions: mocks.permissions }),
 }));
 
 vi.mock("vue-router", () => ({
@@ -95,6 +147,18 @@ vi.mock("@/domain/report/reportConfig", () => ({
 }));
 
 describe("useTransactionDetail", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        for (const permission of mocks.permissions) {
+            permission.actions = {
+                canView: true,
+                canCreate: true,
+                canUpdate: true,
+                canDelete: true,
+            };
+        }
+    });
+
     it("renders relocation detail copy and line fields", async () => {
         mocks.getSpy.mockResolvedValue({
             id: "rel-1",
@@ -259,6 +323,22 @@ describe("useTransactionDetail", () => {
         await detail.handleConfirmAction();
 
         expect(mocks.postSpy).toHaveBeenCalledWith("inbound", "inb-1");
+    });
+
+    it("hides post and cancel when the user lacks update permission", async () => {
+        mocks.permissions[0].actions.canUpdate = false;
+        mocks.getSpy.mockResolvedValue({
+            id: "inb-2",
+            docNo: "INB-002",
+            status: "draft",
+        });
+
+        const { useTransactionDetail } = await import("./useTransactionDetail");
+        const detail = useTransactionDetail("inbound", "inb-2");
+        await detail.loadTransaction();
+
+        expect(detail.canPost.value).toBe(false);
+        expect(detail.canCancel.value).toBe(false);
     });
 
     it("shows Post+Cancel for a draft putaway task, and Complete+Cancel once posted", async () => {

@@ -12,6 +12,7 @@ import {
     getTransactionStatusTone,
 } from "../utils/transactionStatus";
 import { canRunTransactionAction } from "../transactionFlow";
+import { useTransactionPermission } from "../transactionPermissions";
 
 type TransactionConfirmationAction = "post" | "cancel" | "complete";
 
@@ -40,6 +41,7 @@ export function useTransactionDetail(
     const isPutaway = computed(() => transactionKey === "putaway");
     const isRelocation = computed(() => transactionKey === "relocation");
     const isOutbound = computed(() => transactionKey === "outbound");
+    const transactionPermission = useTransactionPermission(transactionKey);
 
     const config = computed(() => {
         const keyMap: Record<string, string> = {
@@ -48,7 +50,6 @@ export function useTransactionDetail(
             putaway: "putaway",
             outbound: "outbound",
             relocation: "relocation",
-            transfer: "transfer",
             return: "return",
             opname: "stock-opname",
         };
@@ -115,21 +116,25 @@ export function useTransactionDetail(
     const canPost = computed(
         () =>
             Boolean(record.value) &&
+            transactionPermission.canUpdate.value &&
             canRunTransactionAction(transactionKey, status.value, "post"),
     );
     const canCancel = computed(
         () =>
             Boolean(record.value) &&
+            transactionPermission.canUpdate.value &&
             canRunTransactionAction(transactionKey, status.value, "cancel"),
     );
     const canComplete = computed(
         () =>
             Boolean(record.value) &&
+            transactionPermission.canUpdate.value &&
             canRunTransactionAction(transactionKey, status.value, "complete"),
     );
     const canEdit = computed(
         () =>
             Boolean(record.value) &&
+            transactionPermission.canUpdate.value &&
             canRunTransactionAction(transactionKey, status.value, "edit"),
     );
 

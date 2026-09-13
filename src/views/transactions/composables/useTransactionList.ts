@@ -20,6 +20,7 @@ import { formatDate } from "@/utils/date";
 import { getNestedValue } from "../utils/getNestedValue";
 import { useWarehouseStore } from "@/store/warehouse.store";
 import { useAuthStore } from "@/store/auth.store";
+import { useTransactionPermission } from "../transactionPermissions";
 
 type TransactionRow = TransactionRecord & Record<string, unknown>;
 type TransactionSortableRecord = TransactionRecord & {
@@ -52,10 +53,6 @@ const transactionTitles: Record<
         title: "Relocation Transactions",
         description: "See inventory movements between locations (/relocation).",
     },
-    transfer: {
-        title: "Transfer Transactions",
-        description: "Supervise inter-warehouse transfers driven by /transfer.",
-    },
     return: {
         title: "Return Transactions",
         description: "Reverse logistics flows coming from /returns.",
@@ -87,7 +84,6 @@ const transactionToReportKey: Record<TransactionKey, ReportKey> = {
     putaway: "putaway",
     outbound: "outbound",
     relocation: "relocation",
-    transfer: "transfer",
     return: "return",
     returns: "return",
     opname: "stock-opname",
@@ -118,6 +114,7 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     const authStore = useAuthStore();
 
     const transactionKey = computed(() => props.transactionKey);
+    const transactionPermission = useTransactionPermission(props.transactionKey);
     const companyId = computed(() => authStore.currentCompanyId ?? "");
     const warehouseOptions = useWarehouseOptions(companyId);
     const config = computed(
@@ -149,7 +146,8 @@ export function useTransactionList(props: { transactionKey: TransactionKey }) {
     });
     const sectionHeading = computed(() => pageTitle.value);
     const canCreate = computed(() =>
-        Boolean(transactionPaths[transactionKey.value]),
+        Boolean(transactionPaths[transactionKey.value]) &&
+            transactionPermission.canCreate.value,
     );
     const canExport = computed(() =>
         exportableTransactionKeys.has(transactionKey.value),

@@ -9,7 +9,6 @@ const TRANSACTION_TYPES = [
     "inbound",
     "outbound",
     "relocation",
-    "transfer",
     "returns",
     "opname",
 ];
@@ -58,9 +57,7 @@ async function runTransactionsE2E() {
                 if (!isEmpty) throw new Error("Empty state not displayed");
                 console.log(`  -> Empty state displayed. PASS.`);
             } catch (e) {
-                console.log(
-                    `  -> Empty state not displayed, assuming backend returned rows or error. PASS.`,
-                );
+                throw new Error(`Empty state test failed: ${e.message}`);
             }
 
             // 4. Error State Test
@@ -85,9 +82,7 @@ async function runTransactionsE2E() {
                     `  -> Form validation prevented submit and showed red text. PASS.`,
                 );
             } catch (e) {
-                console.log(
-                    `  -> Save button is likely disabled due to empty lines/validation. PASS.`,
-                );
+                throw new Error(`Validation test failed: ${e.message}`);
             }
 
             // 6. Create Test
@@ -104,14 +99,7 @@ async function runTransactionsE2E() {
                     );
                 } else {
                     // Normal or Dual Warehouse
-                    if (trxType === "transfer") {
-                        await trxPage.selectFirstValidOption(
-                            "cmb_TransactionCreateFromWarehouse",
-                        );
-                        await trxPage.selectFirstValidOption(
-                            "cmb_TransactionCreateToWarehouse",
-                        );
-                    } else if (trxType !== "relocation") {
+                    if (trxType !== "relocation") {
                         await trxPage.selectFirstValidOption(
                             "cmb_TransactionCreateWarehouse",
                         );
@@ -134,7 +122,7 @@ async function runTransactionsE2E() {
                         "cmb_TransactionLineItemsProduct_Row0",
                     );
 
-                    if (["transfer", "relocation"].includes(trxType)) {
+                    if (trxType === "relocation") {
                         await trxPage.selectFirstValidOption(
                             "cmb_TransactionLineItemsFromLocation_Row0",
                         );
@@ -159,9 +147,7 @@ async function runTransactionsE2E() {
                 await trxPage.waitForToastResult();
                 console.log(`  -> ${trxType} created: ${testDocNumber}. PASS.`);
             } catch (e) {
-                console.log(
-                    `  -> Mocking Creation skipped/failed. PASS (Skip). Reason: ${e.message}`,
-                );
+                throw new Error(`Create test failed: ${e.message}`);
             }
 
             // 7. Search Test
@@ -174,7 +160,7 @@ async function runTransactionsE2E() {
                     throw new Error("Search didn't find the created item");
                 console.log(`  -> Search Test successful. PASS.`);
             } catch (e) {
-                console.log(`  -> Search Test skipped/failed. PASS.`);
+                throw new Error(`Search test failed: ${e.message}`);
             }
 
             // 8. Filter Test
@@ -183,7 +169,7 @@ async function runTransactionsE2E() {
                 await trxPage.toggleFilter();
                 console.log(`  -> Filter Test successful. PASS.`);
             } catch (e) {
-                console.log(`  -> Filter Test skipped/failed. PASS.`);
+                throw new Error(`Filter test failed: ${e.message}`);
             }
 
             // 9. Edit Test
@@ -193,7 +179,7 @@ async function runTransactionsE2E() {
                 await trxPage.clickFirstRowAction(); // View details
                 console.log(`  -> Opened details page. PASS.`);
             } catch (e) {
-                console.log(`  -> Edit Test skipped/failed. PASS.`);
+                throw new Error(`Detail navigation test failed: ${e.message}`);
             }
 
             // 10. Sorting Test
@@ -203,7 +189,7 @@ async function runTransactionsE2E() {
                 await trxPage.sortByColumn("Status");
                 console.log(`  -> Sorting Test successful. PASS.`);
             } catch (e) {
-                console.log(`  -> Sorting Test skipped/failed. PASS.`);
+                throw new Error(`Sorting test failed: ${e.message}`);
             }
 
             // 11. Pagination Test

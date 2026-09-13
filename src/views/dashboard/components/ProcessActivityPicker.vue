@@ -53,7 +53,6 @@ const groups: {
         domain: "inventory",
         label: "Inventory",
         items: [
-            { value: "transfer", label: "Transfer" },
             { value: "relocation", label: "Relocation" },
             { value: "opname", label: "Stock Opname" },
         ],

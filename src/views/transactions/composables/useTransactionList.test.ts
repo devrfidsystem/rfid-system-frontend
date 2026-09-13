@@ -4,6 +4,10 @@ import { createPinia, setActivePinia } from "pinia";
 
 const authStoreMock = vi.hoisted(() => ({
     currentCompanyId: null as string | null,
+    permissions: ["REGISTER", "INBOUND", "PUTAWAY", "OUTBOUND", "RELOCATION", "RETURN", "RETURNS"].map((key) => ({
+        menuCode: `TRANSACTION_${key}`,
+        actions: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
+    })),
 }));
 
 vi.mock("@/store/auth.store", () => ({
@@ -53,7 +57,6 @@ vi.mock("@/services/transactions.service", async (importOriginal) => {
             putaway: "/putaway",
             outbound: "/outbound",
             relocation: "/relocation",
-            transfer: "/transfer",
             return: "/returns",
             returns: "/returns",
             opname: "/opname",
@@ -106,6 +109,14 @@ describe("useTransactionList", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         authStoreMock.currentCompanyId = null;
+        for (const permission of authStoreMock.permissions) {
+            permission.actions = {
+            canView: true,
+            canCreate: true,
+            canUpdate: true,
+            canDelete: true,
+            };
+        }
     });
 
     it("renders relocation list metadata and create entrypoint", async () => {
@@ -119,6 +130,17 @@ describe("useTransactionList", () => {
         expect(list.pageDescription.value).toBe(
             "See inventory movements between locations (/relocation). · powered by /relocation",
         );
+    });
+
+    it("hides the create entrypoint for view-only transaction permission", async () => {
+        authStoreMock.permissions.find(
+            (permission) => permission.menuCode === "TRANSACTION_RELOCATION",
+        )!.actions.canCreate = false;
+
+        const { useTransactionList } = await import("./useTransactionList");
+        const list = useTransactionList({ transactionKey: "relocation" });
+
+        expect(list.canCreate.value).toBe(false);
     });
 
     it("allows create entrypoint for inbound direct documents", async () => {
@@ -199,9 +221,6 @@ describe("useTransactionList", () => {
         expect(
             useTransactionList({ transactionKey: "relocation" }).canExport
                 .value,
-        ).toBe(false);
-        expect(
-            useTransactionList({ transactionKey: "transfer" }).canExport.value,
         ).toBe(false);
         expect(
             useTransactionList({ transactionKey: "returns" }).canExport.value,

@@ -2,9 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { MenuTreeNode } from "@/services/auth.service";
 import { buildSidebarNavItems } from "./sidebarNavigation";
 
-const node = (
-    overrides: Partial<MenuTreeNode> = {},
-): MenuTreeNode => ({
+const node = (overrides: Partial<MenuTreeNode> = {}): MenuTreeNode => ({
     id: "menu-id",
     code: "MENU",
     name: "Menu",

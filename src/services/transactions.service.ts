@@ -49,7 +49,6 @@ export const normalizeTransactionRecord = (
         row.inbound_no ??
         row.putaway_no ??
         row.outbound_no ??
-        row.transfer_no ??
         row.relocation_no ??
         row.return_no ??
         row.profile_id;
@@ -59,7 +58,6 @@ export const normalizeTransactionRecord = (
         row.inbound_date ??
         row.putaway_date ??
         row.outbound_date ??
-        row.transfer_date ??
         row.relocation_date ??
         row.return_date;
     mapped.scheduledAt = row.scheduledAt ?? row.createdAt;

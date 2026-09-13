@@ -30,10 +30,6 @@ const actionRules: Partial<
         post: ["draft"],
         cancel: ["draft"],
     },
-    transfer: {
-        post: ["draft"],
-        cancel: ["draft"],
-    },
     return: {
         post: ["draft"],
         cancel: ["draft"],

@@ -70,7 +70,6 @@ export function useTransactionCreate(
             outbound: "Outbound Assignment",
             putaway: "Putaway",
             relocation: "Relocation",
-            transfer: "Transfer",
             return: "Return",
             returns: "Return",
             opname: "Stock Opname",
@@ -78,7 +77,6 @@ export function useTransactionCreate(
         return titles[transactionKey] || transactionKey;
     });
 
-    const isTransfer = computed(() => transactionKey === "transfer");
     const isRelocation = computed(() => transactionKey === "relocation");
     const isOpname = computed(() => transactionKey === "opname");
     const isRegister = computed(() => transactionKey === "register");
@@ -96,7 +94,7 @@ export function useTransactionCreate(
             "opname",
         ].includes(transactionKey),
     );
-    const showDualWarehouse = computed(() => isTransfer.value);
+    const showDualWarehouse = computed(() => false);
     const showPutawayLocations = computed(() => isPutaway.value);
     const putawayTargetLocationId = ref("");
 
@@ -568,8 +566,6 @@ export function useTransactionCreate(
                         !form.value.fromLocationId ||
                         !form.value.toWarehouseId ||
                         !form.value.toLocationId)) ||
-                (isTransfer.value &&
-                    (!line.fromLocationId || !line.toLocationId)) ||
                 (isPutaway.value && !line.toLocationId)
             ) {
                 return true;
@@ -673,20 +669,6 @@ export function useTransactionCreate(
                         toLocationId: form.value.toLocationId,
                         lines: form.value.lines.map((l) => ({
                             productId: l.productId,
-                            qty: Number(l.qty),
-                        })),
-                    };
-                    break;
-                case "transfer":
-                    finalPayload = {
-                        ...basePayload,
-                        docDate: docDateStr,
-                        fromWarehouseId: form.value.fromWarehouseId,
-                        toWarehouseId: form.value.toWarehouseId,
-                        lines: form.value.lines.map((l) => ({
-                            productId: l.productId,
-                            fromLocationId: l.fromLocationId,
-                            toLocationId: l.toLocationId,
                             qty: Number(l.qty),
                         })),
                     };
@@ -798,7 +780,6 @@ export function useTransactionCreate(
         showSingleWarehouse,
         showDualWarehouse,
         showPartnerField,
-        isTransfer,
         isRelocation,
         isOpname,
         isRegister,

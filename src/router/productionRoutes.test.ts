@@ -6,4 +6,9 @@ describe("production routes", () => {
         expect(routerSource).not.toContain('path: "todo"');
         expect(routerSource).not.toContain("TodoListPage");
     });
+
+    it("keeps retired Transfer outside the generic transaction route pattern", () => {
+        expect(routerSource).not.toContain("transactions/transfer");
+        expect(routerSource).not.toContain('"transfer"');
+    });
 });

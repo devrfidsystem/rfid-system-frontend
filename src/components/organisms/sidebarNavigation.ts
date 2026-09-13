@@ -144,10 +144,7 @@ const getIcon = (code?: string | null) => {
 const isHiddenSidebarMenu = (node: MenuTreeNode) => {
     const code = node.code.toUpperCase();
     const path = node.path?.replace(/\/+$/, "") ?? "";
-    return (
-        code === "TRANSACTION_TRANSFER" ||
-        path === "/transactions/transfer"
-    );
+    return code === "TRANSACTION_TRANSFER" || path === "/transactions/transfer";
 };
 
 const resolveMenuPath = (node: MenuTreeNode) => {
@@ -192,8 +189,7 @@ export const buildSidebarNavItems = (
         const resolvedPath = resolveMenuPath(node);
         const children = node.children
             .filter(
-                (child) =>
-                    !isHiddenSidebarMenu(child) && isNodeInScope(child),
+                (child) => !isHiddenSidebarMenu(child) && isNodeInScope(child),
             )
             .map((child) => toNavItem(child))
             .filter((child): child is SidebarNavItem => Boolean(child))

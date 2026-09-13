@@ -5,7 +5,6 @@ import {
     FileBarChart2,
     ClipboardCheck,
     ArrowUpRight,
-    Repeat,
     Activity,
     Clock4,
     BarChart4,
@@ -107,18 +106,6 @@ export const reportConfigs: Record<ReportKey, ReportConfig> = {
         ],
         warehouseKey: "warehouseId",
         icon: ArrowUpRight,
-    },
-    transfer: {
-        entity: "transfer",
-        title: "Transfer Report",
-        description: "Inter-warehouse movements.",
-        columns: [
-            { key: "transfer_no", label: "Doc No" },
-            { key: "transfer_date", label: "Date" },
-            { key: "status", label: "Status" },
-        ],
-        warehouseKey: "warehouseId",
-        icon: Repeat,
     },
     return: {
         entity: "return",

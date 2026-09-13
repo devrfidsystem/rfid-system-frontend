@@ -6,7 +6,6 @@ const DOCUMENT_PREFIX_BY_TRANSACTION: Record<TransactionKey, string> = {
     putaway: "PUT",
     outbound: "OUT",
     relocation: "REL",
-    transfer: "TRF",
     return: "RET",
     returns: "RET",
     opname: "OPN",
