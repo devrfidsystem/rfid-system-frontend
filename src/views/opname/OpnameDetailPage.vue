@@ -477,10 +477,14 @@
                                 selectedItemAction === 'relocation'
                             "
                         >
-                            <template v-if="selectedItemAction === 'relocation'">
+                            <template
+                                v-if="selectedItemAction === 'relocation'"
+                            >
                                 <div class="grid grid-cols-2 gap-3">
                                     <Select
-                                        v-model="activeActionForm.destinationWarehouseId"
+                                        v-model="
+                                            activeActionForm.destinationWarehouseId
+                                        "
                                         :options="warehouseOptions"
                                         label="Destination Warehouse"
                                         placeholder="Select warehouse"
@@ -488,7 +492,9 @@
                                         object-id="cmb_OpnameRelocationDestinationWarehouse"
                                     />
                                     <Select
-                                        v-model="activeActionForm.destinationLocationId"
+                                        v-model="
+                                            activeActionForm.destinationLocationId
+                                        "
                                         :options="destinationLocationOptions"
                                         label="Destination Location"
                                         placeholder="Select location"
@@ -501,7 +507,13 @@
                                     label="Relocation Qty"
                                     type="number"
                                     min="0.0001"
-                                    :placeholder="String(selectedLineItem?.qtyCounted ?? selectedLineItem?.qtySystem ?? 0)"
+                                    :placeholder="
+                                        String(
+                                            selectedLineItem?.qtyCounted ??
+                                                selectedLineItem?.qtySystem ??
+                                                0,
+                                        )
+                                    "
                                     required
                                     object-id="txt_OpnameRelocationQty"
                                 />

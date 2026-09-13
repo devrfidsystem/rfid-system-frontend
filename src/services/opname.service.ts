@@ -81,7 +81,11 @@ export const opnameService = {
         lineId: string,
         payload: CreateOpnameRelocationPayload,
     ) {
-        const response = await opnameApi.createRelocation(docId, lineId, payload);
+        const response = await opnameApi.createRelocation(
+            docId,
+            lineId,
+            payload,
+        );
         return response.data;
     },
 

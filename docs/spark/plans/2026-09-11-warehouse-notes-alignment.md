@@ -18,6 +18,7 @@
 ### Task 1: Opname Relocation contract and mutation
 
 **Files:**
+
 - Modify: `Warehouse-be/src/modules/warehouse/opname/dto/opname-doc.dto.ts`
 - Modify: `Warehouse-be/src/modules/warehouse/opname/opname-mutation.service.ts`
 - Modify: `Warehouse-be/src/modules/warehouse/opname/opname.controller.ts`
@@ -31,6 +32,7 @@
 ### Task 2: Web Opname action UI
 
 **Files:**
+
 - Modify: `Warehouse/src/views/opname/composables/useOpnameDetail.ts`
 - Modify: `Warehouse/src/views/opname/OpnameDetailPage.vue`
 - Test: `Warehouse/src/views/opname/composables/useOpnameDetail.test.ts`
@@ -42,6 +44,7 @@
 ### Task 3: Document numbering and Transfer cleanup
 
 **Files:**
+
 - Modify: `Warehouse/src/views/transactions/TransactionCreatePage.vue`
 - Modify: `Warehouse/src/views/transactions/composables/useTransactionCreate.ts`
 - Modify: `Warehouse/src/router/index.ts`
@@ -56,6 +59,7 @@
 ### Task 4: Outbound mobile temporary scan state
 
 **Files:**
+
 - Modify: `rfid_system_app/lib/features/stock_out/presentation/pages/stock_out_task_detail_page.dart`
 - Modify: `rfid_system_app/lib/features/stock_out/presentation/bloc/stock_out_task_detail_bloc.dart`
 - Test: existing stock-out BLoC/widget tests where available
@@ -67,6 +71,7 @@
 ### Task 5: Opname submit progress and final verification
 
 **Files:**
+
 - Modify: `rfid_system_app/lib/features/stock_opname/presentation/pages/opname_task_detail_page.dart`
 - Modify: `rfid_system_app/lib/features/stock_opname/presentation/widgets/opname_rack_list_widget.dart`
 - Test: existing stock-opname tests

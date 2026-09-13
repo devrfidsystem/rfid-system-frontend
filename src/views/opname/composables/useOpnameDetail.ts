@@ -78,7 +78,9 @@ export function useOpnameDetail() {
     const tree = ref<OpnameTreeNode[]>([]);
     const detail = ref<{ id: string; lines?: OpnameLineDetail[] } | null>(null);
     const selectedWarehouseId = ref("");
-    const destinationLocationOptions = ref<Array<{ label: string; value: string }>>([]);
+    const destinationLocationOptions = ref<
+        Array<{ label: string; value: string }>
+    >([]);
     const isItemDrawerOpen = ref(false);
     const selectedLineItem = ref<OpnameLineDetail | null>(null);
     const selectedItemAction = ref<OpnameItemAction>("match");
