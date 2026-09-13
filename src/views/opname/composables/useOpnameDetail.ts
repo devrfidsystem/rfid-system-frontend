@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useWarehouseOptions } from "@/composable/useWarehouseOptions";
 import { useNotifier } from "@/composable/useNotifier";
 import { opnameService } from "@/services/opname.service";
+import { locationService } from "@/services/location.service";
 import type { OpnameLineDetail } from "@/api/feature/opname.api";
 import type { OpnameTreeNode } from "../opnameTree";
 
@@ -14,6 +15,8 @@ type OpnameActionForm = {
     actualQty: string;
     reason: string;
     note: string;
+    destinationWarehouseId?: string;
+    destinationLocationId?: string;
 };
 
 const findNode = (
@@ -75,6 +78,9 @@ export function useOpnameDetail() {
     const tree = ref<OpnameTreeNode[]>([]);
     const detail = ref<{ id: string; lines?: OpnameLineDetail[] } | null>(null);
     const selectedWarehouseId = ref("");
+    const destinationLocationOptions = ref<
+        Array<{ label: string; value: string }>
+    >([]);
     const isItemDrawerOpen = ref(false);
     const selectedLineItem = ref<OpnameLineDetail | null>(null);
     const selectedItemAction = ref<OpnameItemAction>("match");
@@ -105,6 +111,8 @@ export function useOpnameDetail() {
             actualQty: "",
             reason: "",
             note: "",
+            destinationWarehouseId: "",
+            destinationLocationId: "",
         },
     });
 
@@ -115,6 +123,32 @@ export function useOpnameDetail() {
             label: `${warehouse.code} - ${warehouse.name}`,
             value: String(warehouse.id),
         })),
+    );
+
+    const loadDestinationLocations = async (warehouseId: string) => {
+        if (!warehouseId) {
+            destinationLocationOptions.value = [];
+            return;
+        }
+        const response = await locationService.list({
+            warehouseId,
+            limit: 200,
+            excludeTypes: ["product"],
+        });
+        destinationLocationOptions.value = (response.data?.items ?? []).map(
+            (location) => ({
+                label: `${location.code} - ${location.name}`,
+                value: location.id,
+            }),
+        );
+    };
+
+    watch(
+        () => actionForm.value.relocation.destinationWarehouseId,
+        (warehouseId) => {
+            actionForm.value.relocation.destinationLocationId = "";
+            void loadDestinationLocations(warehouseId ?? "");
+        },
     );
 
     const selectedWarehouseLabel = computed(() => {
@@ -322,6 +356,9 @@ export function useOpnameDetail() {
     const openDetail = (line: OpnameLineDetail) => {
         selectedLineItem.value = line;
         selectedItemAction.value = "match";
+        actionForm.value.relocation.destinationWarehouseId = "";
+        actionForm.value.relocation.destinationLocationId = "";
+        destinationLocationOptions.value = [];
         isItemDrawerOpen.value = true;
     };
 
@@ -376,6 +413,33 @@ export function useOpnameDetail() {
         }
         submittingItemAction.value = true;
         try {
+            if (selectedItemAction.value === "relocation") {
+                const destinationWarehouseId =
+                    activeActionForm.value.destinationWarehouseId?.trim() ?? "";
+                const destinationLocationId =
+                    activeActionForm.value.destinationLocationId?.trim() ?? "";
+                if (!destinationWarehouseId || !destinationLocationId) {
+                    throw new Error(
+                        "Destination warehouse dan location wajib dipilih.",
+                    );
+                }
+                await opnameService.createRelocation(
+                    opnameId.value,
+                    selectedLineItem.value.id,
+                    {
+                        toWarehouseId: destinationWarehouseId,
+                        toLocationId: destinationLocationId,
+                        qty: resolveQtyCounted(),
+                        notes: buildNotes(),
+                    },
+                );
+                notifySuccess(
+                    `Relocation posted for ${selectedLineItem.value.product?.name ?? selectedLineItem.value.productId}.`,
+                );
+                await loadDetail();
+                closeItemDrawer();
+                return;
+            }
             await opnameService.updateLineCount(
                 opnameId.value,
                 selectedLineItem.value.id,
@@ -505,6 +569,7 @@ export function useOpnameDetail() {
         selectedWarehouseId,
         warehouseOptions,
         selectedWarehouseLabel,
+        destinationLocationOptions,
         pageTitle,
         pageDescription,
         selectedNode,

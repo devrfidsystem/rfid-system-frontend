@@ -477,6 +477,47 @@
                                 selectedItemAction === 'relocation'
                             "
                         >
+                            <template
+                                v-if="selectedItemAction === 'relocation'"
+                            >
+                                <div class="grid grid-cols-2 gap-3">
+                                    <Select
+                                        v-model="
+                                            activeActionForm.destinationWarehouseId
+                                        "
+                                        :options="warehouseOptions"
+                                        label="Destination Warehouse"
+                                        placeholder="Select warehouse"
+                                        required
+                                        object-id="cmb_OpnameRelocationDestinationWarehouse"
+                                    />
+                                    <Select
+                                        v-model="
+                                            activeActionForm.destinationLocationId
+                                        "
+                                        :options="destinationLocationOptions"
+                                        label="Destination Location"
+                                        placeholder="Select location"
+                                        required
+                                        object-id="cmb_OpnameRelocationDestinationLocation"
+                                    />
+                                </div>
+                                <Input
+                                    v-model="activeActionForm.actualQty"
+                                    label="Relocation Qty"
+                                    type="number"
+                                    min="0.0001"
+                                    :placeholder="
+                                        String(
+                                            selectedLineItem?.qtyCounted ??
+                                                selectedLineItem?.qtySystem ??
+                                                0,
+                                        )
+                                    "
+                                    required
+                                    object-id="txt_OpnameRelocationQty"
+                                />
+                            </template>
                             <Input
                                 v-model="activeActionForm.reason"
                                 label="Reason"
@@ -532,7 +573,7 @@
                                     : selectedItemAction === "adjust"
                                       ? "Use this action to save a corrected physical count before reconciliation."
                                       : selectedItemAction === "relocation"
-                                        ? "Use this action to flag stock that needs relocation review before closing."
+                                        ? "Move the counted stock from this line to the selected destination."
                                         : "Use this action when the line item needs correction before posting."
                             }}
                         </p>
@@ -578,6 +619,7 @@ import ToolbarTitle from "@/components/molecules/ToolbarTitle.vue";
 import InlineAlert from "@/components/ui/feedback/InlineAlert.vue";
 import Button from "@/components/atoms/Button.vue";
 import Input from "@/components/atoms/Input.vue";
+import Select from "@/components/atoms/Select.vue";
 import Textarea from "@/components/atoms/Textarea.vue";
 import Badge from "@/components/atoms/Badge.vue";
 import LoadingState from "@/components/ui/states/LoadingState.vue";
@@ -588,6 +630,8 @@ import { useOpnameDetail } from "./composables/useOpnameDetail";
 const {
     loading,
     error,
+    warehouseOptions,
+    destinationLocationOptions,
     selectedWarehouseLabel,
     pageTitle,
     pageDescription,

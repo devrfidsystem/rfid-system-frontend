@@ -5,6 +5,7 @@ import { useOpnameDetail } from "./useOpnameDetail";
 const getTreeMock = vi.hoisted(() => vi.fn());
 const getDetailMock = vi.hoisted(() => vi.fn());
 const updateLineCountMock = vi.hoisted(() => vi.fn());
+const createRelocationMock = vi.hoisted(() => vi.fn());
 const startCountingMock = vi.hoisted(() => vi.fn());
 const reconcileMock = vi.hoisted(() => vi.fn());
 const closeMock = vi.hoisted(() => vi.fn());
@@ -39,10 +40,17 @@ vi.mock("@/services/opname.service", () => ({
         getTree: getTreeMock,
         getDetail: getDetailMock,
         updateLineCount: updateLineCountMock,
+        createRelocation: createRelocationMock,
         startCounting: startCountingMock,
         reconcile: reconcileMock,
         close: closeMock,
         cancel: cancelDocMock,
+    },
+}));
+
+vi.mock("@/services/location.service", () => ({
+    locationService: {
+        list: vi.fn().mockResolvedValue({ data: { items: [] } }),
     },
 }));
 
@@ -197,7 +205,7 @@ describe("useOpnameDetail", () => {
         expect(detail.isItemDrawerOpen.value).toBe(false);
     });
 
-    it("submits adjust and relocation actions through the line-count endpoint", async () => {
+    it("submits adjust through line-count and relocation through its transaction endpoint", async () => {
         const detail = useOpnameDetail();
         await nextTick();
         await Promise.resolve();
@@ -221,13 +229,17 @@ describe("useOpnameDetail", () => {
         detail.selectItemAction("relocation");
         detail.activeActionForm.value.actualQty = "6";
         detail.activeActionForm.value.reason = "Moved to rack B";
+        detail.activeActionForm.value.destinationWarehouseId = "wh-1";
+        detail.activeActionForm.value.destinationLocationId = "loc-b";
         await detail.submitItemAction();
 
-        expect(updateLineCountMock).toHaveBeenLastCalledWith(
+        expect(createRelocationMock).toHaveBeenLastCalledWith(
             "root-1",
             "line-1",
             {
-                qtyCounted: 6,
+                toWarehouseId: "wh-1",
+                toLocationId: "loc-b",
+                qty: 6,
                 notes: "Relocation | Reason: Moved to rack B",
             },
         );

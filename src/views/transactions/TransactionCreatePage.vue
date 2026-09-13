@@ -41,6 +41,7 @@
                             label="Document Number"
                             placeholder="OUT-250826-001"
                             required
+                            :readonly="true"
                             object-id="txt_TransactionCreateDocNumber"
                         />
 

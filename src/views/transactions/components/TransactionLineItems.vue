@@ -25,13 +25,18 @@
                 placeholder="Select target location"
                 required
                 object-id="cmb_TransactionLineItemsPutawayTargetLocation"
-                @update:model-value="$emit('update:putawayTargetLocationId', $event)"
+                @update:model-value="
+                    $emit('update:putawayTargetLocationId', $event)
+                "
             />
             <p class="mt-1 text-xs text-text-secondary">
                 Semua barang yang ditambahkan akan ditempatkan di location ini.
             </p>
         </div>
-        <div v-if="isRelocation" class="grid grid-cols-1 xl:grid-cols-2 gap-4 px-6 pt-5">
+        <div
+            v-if="isRelocation"
+            class="grid grid-cols-1 xl:grid-cols-2 gap-4 px-6 pt-5"
+        >
             <Select
                 :model-value="relocationFromWarehouseId"
                 :options="warehouseOptions"
@@ -39,7 +44,9 @@
                 placeholder="Select source warehouse"
                 required
                 object-id="cmb_TransactionLineItemsRelocationFromWarehouse"
-                @update:model-value="$emit('update:relocationFromWarehouseId', $event)"
+                @update:model-value="
+                    $emit('update:relocationFromWarehouseId', $event)
+                "
             />
             <Select
                 :model-value="relocationFromLocationId"
@@ -48,7 +55,9 @@
                 placeholder="Select source location"
                 required
                 object-id="cmb_TransactionLineItemsRelocationFromLocation"
-                @update:model-value="$emit('update:relocationFromLocationId', $event)"
+                @update:model-value="
+                    $emit('update:relocationFromLocationId', $event)
+                "
             />
             <Select
                 :model-value="relocationToWarehouseId"
@@ -57,7 +66,9 @@
                 placeholder="Select destination warehouse"
                 required
                 object-id="cmb_TransactionLineItemsRelocationToWarehouse"
-                @update:model-value="$emit('update:relocationToWarehouseId', $event)"
+                @update:model-value="
+                    $emit('update:relocationToWarehouseId', $event)
+                "
             />
             <Select
                 :model-value="relocationToLocationId"
@@ -66,7 +77,9 @@
                 placeholder="Select destination location"
                 required
                 object-id="cmb_TransactionLineItemsRelocationToLocation"
-                @update:model-value="$emit('update:relocationToLocationId', $event)"
+                @update:model-value="
+                    $emit('update:relocationToLocationId', $event)
+                "
             />
         </div>
         <div class="flex-1 overflow-x-auto p-6 space-y-4">
@@ -117,10 +130,7 @@
                     />
                 </div>
 
-                <div
-                    v-if="showDualWarehouse"
-                    class="w-full xl:w-48"
-                >
+                <div v-if="showDualWarehouse" class="w-full xl:w-48">
                     <Select
                         v-model="line.fromLocationId"
                         :options="
@@ -133,10 +143,7 @@
                     />
                 </div>
 
-                <div
-                    v-if="showDualWarehouse"
-                    class="w-full xl:w-48"
-                >
+                <div v-if="showDualWarehouse" class="w-full xl:w-48">
                     <Select
                         v-model="line.toLocationId"
                         :options="

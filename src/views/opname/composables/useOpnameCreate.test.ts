@@ -117,7 +117,7 @@ describe("useOpnameCreate", () => {
         expect(mocks.createSpy).not.toHaveBeenCalled();
         expect(mocks.createChildSpy).not.toHaveBeenCalled();
         expect(mocks.notifyErrorSpy).toHaveBeenCalledWith(
-            "Title dan Document Number wajib diisi.",
+            "Title wajib diisi.",
         );
     });
 
