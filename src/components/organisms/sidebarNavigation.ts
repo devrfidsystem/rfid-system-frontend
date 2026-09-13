@@ -141,6 +141,15 @@ const getIcon = (code?: string | null) => {
     return iconMap[normalized] ?? iconMap.DEFAULT;
 };
 
+const isHiddenSidebarMenu = (node: MenuTreeNode) => {
+    const code = node.code.toUpperCase();
+    const path = node.path?.replace(/\/+$/, "") ?? "";
+    return (
+        code === "TRANSACTION_TRANSFER" ||
+        path === "/transactions/transfer"
+    );
+};
+
 const resolveMenuPath = (node: MenuTreeNode) => {
     const override = routeOverrides[node.code.toUpperCase()];
     return override ?? node.path;
@@ -182,7 +191,10 @@ export const buildSidebarNavItems = (
     const toNavItem = (node: MenuTreeNode): SidebarNavItem | null => {
         const resolvedPath = resolveMenuPath(node);
         const children = node.children
-            .filter(isNodeInScope)
+            .filter(
+                (child) =>
+                    !isHiddenSidebarMenu(child) && isNodeInScope(child),
+            )
             .map((child) => toNavItem(child))
             .filter((child): child is SidebarNavItem => Boolean(child))
             .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -222,7 +234,7 @@ export const buildSidebarNavItems = (
     };
 
     return nodes
-        .filter(isNodeInScope)
+        .filter((node) => !isHiddenSidebarMenu(node) && isNodeInScope(node))
         .map((node) => toNavItem(node))
         .filter((item): item is SidebarNavItem => Boolean(item))
         .sort((a, b) => a.sortOrder - b.sortOrder);
